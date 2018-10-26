@@ -28,6 +28,7 @@ namespace SangokuKmy
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddCors();
 
             // データベースの設定
             Config.Database.MySqlConnectionString = this.Configuration.GetConnectionString("MySql");
@@ -41,6 +42,12 @@ namespace SangokuKmy
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            // CORSを有効にする
+            app.UseCors(builder => builder.AllowAnyOrigin()
+                                          .AllowAnyMethod()
+                                          .WithHeaders("Authorization")
+                                          .WithExposedHeaders("WWW-Authenticate"));
 
             // データベースの初期化
             using (var context = new MainContext())
