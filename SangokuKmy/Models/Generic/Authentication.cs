@@ -1,4 +1,4 @@
-﻿using SangokuKmy.Models.Entities;
+﻿using SangokuKmy.Models.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;

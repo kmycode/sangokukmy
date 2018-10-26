@@ -9,7 +9,7 @@ namespace SangokuKmy.Models.Common
     {
         public static class Database
         {
-            public static string ConnectionString { get; set; }
+            public static string MySqlConnectionString { get; set; }
         }
     }
 }

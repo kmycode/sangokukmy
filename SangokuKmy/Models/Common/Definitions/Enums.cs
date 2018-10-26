@@ -9,7 +9,7 @@ namespace SangokuKmy.Models.Common.Definitions
     /// アクセストークンのスコープ
     /// </summary>
     [Flags]
-    public enum Scope
+    public enum Scope : uint
     {
         All = 0b111_1111_1111_1111_1111_1111_1111_1111,
     }
