@@ -19,14 +19,24 @@ namespace SangokuKmy.Models.Common.Definitions
         /// エラーコード
         /// </summary>
         public ErrorCode ErrorCode { get; }
+
+        /// <summary>
+        /// 追加データ
+        /// </summary>
+        public object AdditionalData { get; }
         
-        public SangokuKmyException(int status, ErrorCode code)
+        public SangokuKmyException(int status, ErrorCode code, object data)
         {
             this.StatusCode = status;
             this.ErrorCode = code;
+            this.AdditionalData = data;
         }
 
-        public SangokuKmyException(ErrorCode code) : this((int)((uint)code % 1000), code)
+        public SangokuKmyException(int status, ErrorCode code) : this(status, code, null)
+        {
+        }
+
+        public SangokuKmyException(ErrorCode code) : this(code.StatusCode, code)
         {
         }
     }

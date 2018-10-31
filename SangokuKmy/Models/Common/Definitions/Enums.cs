@@ -17,11 +17,32 @@ namespace SangokuKmy.Models.Common.Definitions
     /// <summary>
     /// エラーコード
     /// </summary>
-    public enum ErrorCode : uint
+    public readonly struct ErrorCode
     {
+        /// <summary>
+        /// 原因不明の内部エラー
+        /// </summary>
+        public static ErrorCode InternalError { get; } = new ErrorCode(500, 1);
+
         /// <summary>
         /// データベース接続のエラー
         /// </summary>
-        DatabaseError = 1_503
+        public static ErrorCode DatabaseError { get; } = new ErrorCode(503, 2);
+
+        /// <summary>
+        /// エラーコード
+        /// </summary>
+        public int Code { get; }
+
+        /// <summary>
+        /// HTTPステータスコード
+        /// </summary>
+        public int StatusCode { get; }
+
+        public ErrorCode(int status, int code)
+        {
+            this.Code = code;
+            this.StatusCode = status;
+        }
     }
 }
