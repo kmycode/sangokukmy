@@ -17,7 +17,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <summary>
     /// データベースのキャッシュ
     /// </summary>
-    private IList<AuthenticationData> Cache
+    private DatabaseCache<AuthenticationData> Cache
     {
       get
       {
@@ -28,7 +28,7 @@ namespace SangokuKmy.Models.Data.Repositories
         return _cache;
       }
     }
-    private static IList<AuthenticationData> _cache;
+    private static DatabaseCache<AuthenticationData> _cache;
 
     public AuthenticationDataRepository(IRepositoryContainer container)
     {
@@ -40,9 +40,16 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     private void InitializeCache()
     {
-      using (this.container.ReadLock()) {
-        var context = this.container.Context;
-        _cache = context.AuthenticationData.ToList();
+      try
+      {
+        using (this.container.ReadLock())
+        {
+          _cache = new DatabaseCache<AuthenticationData>(this.container.Context.AuthenticationData);
+        }
+      }
+      catch
+      {
+        throw new SangokuKmyException(ErrorCode.DatabaseError);
       }
     }
 
@@ -51,29 +58,18 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     private void CleanUpOldData()
     {
-      using (this.container.WriteLock()) {
+      try
+      {
+        using (this.container.WriteLock()) {
         var now = DateTime.Now;
-        var targets = this.Cache.Where(a => a.ExpirationTime < now).ToList();
-        var context = this.container.Context;
 
-        if (!targets.Any())
-        {
-          return;
+          this.Cache.Remove(a => a.ExpirationTime < now);
+          this.container.Context.SaveChanges();
         }
-
-        try
-        {
-          context.AuthenticationData.RemoveRange(targets);
-          context.SaveChanges();
-          foreach (var target in targets)
-          {
-            this.Cache.Remove(target);
-          }
-        }
-        catch
-        {
-          throw new SangokuKmyException(ErrorCode.DatabaseError);
-        }
+      }
+      catch
+      {
+        throw new SangokuKmyException(ErrorCode.DatabaseError);
       }
     }
 
