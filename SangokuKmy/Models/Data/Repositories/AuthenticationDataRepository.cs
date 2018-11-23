@@ -42,13 +42,7 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        using (this.container.ReadLock())
-        {
-          _cache = new DatabaseCache<AuthenticationData>(this.container.Context.AuthenticationData);
-        }
-      }
-      catch (ApplicationException) {
-        throw new SangokuKmyException(ErrorCode.DatabaseTimeoutError);
+        _cache = new DatabaseCache<AuthenticationData>(this.container.Context.AuthenticationData);
       }
       catch
       {
@@ -63,17 +57,10 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        using (this.container.WriteLock())
-        {
-          var now = DateTime.Now;
+        var now = DateTime.Now;
 
-          this.Cache.Remove(a => a.ExpirationTime < now);
-          this.container.Context.SaveChanges();
-        }
-      }
-      catch (ApplicationException)
-      {
-        throw new SangokuKmyException(ErrorCode.DatabaseTimeoutError);
+        this.Cache.Remove(a => a.ExpirationTime < now);
+        this.container.Context.SaveChanges();
       }
       catch
       {
@@ -91,14 +78,7 @@ namespace SangokuKmy.Models.Data.Repositories
       this.CleanUpOldData();
       try
       {
-        using (this.container.ReadLock())
-        {
-          return this.Cache.SingleOrDefault(a => a.AccessToken == token);
-        }
-      }
-      catch (ApplicationException)
-      {
-        throw new SangokuKmyException(ErrorCode.DatabaseTimeoutError);
+        return this.Cache.SingleOrDefault(a => a.AccessToken == token);
       }
       catch
       {

@@ -25,7 +25,7 @@ namespace SangokuKmy.Models.Data
     private AuthenticationDataRepository _auth;
 
     private readonly IRepositoryContainer container;
-    private readonly ReaderWriterLock locker = new ReaderWriterLock();
+    private static readonly ReaderWriterLock locker = new ReaderWriterLock();
 
     public MainRepository()
     {
@@ -37,6 +37,61 @@ namespace SangokuKmy.Models.Data
       this.Context?.Dispose();
     }
 
+    /// <summary>
+    /// 読み込み限定でロックをかける
+    /// </summary>
+    /// <returns>ロック解除オブジェクト</returns>
+    public IDisposable ReadLock()
+    {
+      locker.AcquireReaderLock(20_000);
+      return new Lock(Lock.LockType.ReadOnly);
+    }
+
+    /// <summary>
+    /// 読み込みと書き込みが可能なロックをかける
+    /// </summary>
+    /// <returns>ロック解除オブジェクト</returns>
+    public IDisposable WriteLock()
+    {
+      locker.AcquireWriterLock(20_000);
+      return new Lock(Lock.LockType.ReadAndWrite);
+    }
+
+    private class Lock : IDisposable
+    {
+      public enum LockType
+      {
+        ReadOnly,
+        ReadAndWrite
+      }
+      private readonly LockType type;
+
+      public Lock(LockType type)
+      {
+        this.type = type;
+      }
+
+      public void Dispose()
+      {
+        try
+        {
+          switch (this.type)
+          {
+            case LockType.ReadOnly:
+              locker.ReleaseReaderLock();
+              break;
+            case LockType.ReadAndWrite:
+              locker.ReleaseWriterLock();
+              break;
+          }
+        }
+        catch (Exception ex)
+        {
+          // TODO: Error log
+        }
+      }
+    }
+
     private class Container : IRepositoryContainer
     {
       private readonly MainRepository repo;
@@ -46,49 +101,6 @@ namespace SangokuKmy.Models.Data
       public Container(MainRepository repo)
       {
         this.repo = repo;
-      }
-
-      public IDisposable ReadLock() {
-        this.repo.locker.AcquireReaderLock(20_000);
-        return new Lock(this.repo.locker, Lock.LockType.ReadOnly);
-      }
-
-      public IDisposable WriteLock() {
-        this.repo.locker.AcquireWriterLock(20_000);
-        return new Lock(this.repo.locker, Lock.LockType.ReadAndWrite);
-      }
-
-      private class Lock : IDisposable {
-
-        private readonly ReaderWriterLock locker;
-
-        public enum LockType {
-          ReadOnly,
-          ReadAndWrite
-        }
-        private readonly LockType type;
-
-        public Lock(ReaderWriterLock locker, LockType type) {
-          this.locker = locker;
-          this.type = type;
-        }
-
-        public void Dispose() {
-          try {
-            switch (this.type)
-            {
-              case LockType.ReadOnly:
-                this.locker.ReleaseReaderLock();
-                break;
-              case LockType.ReadAndWrite:
-                this.locker.ReleaseWriterLock();
-                break;
-            }
-          }
-          catch (Exception ex) {
-            // TODO: Error log
-          }
-        }
       }
     }
   }
@@ -102,17 +114,5 @@ namespace SangokuKmy.Models.Data
     /// データベースへ直接アクセスするコンテキスト
     /// </summary>
     MainContext Context { get; }
-
-    /// <summary>
-    /// 読み込み限定でロックをかける
-    /// </summary>
-    /// <returns>ロック解除オブジェクト</returns>
-    IDisposable ReadLock();
-
-    /// <summary>
-    /// 読み込みと書き込みが可能なロックをかける
-    /// </summary>
-    /// <returns>ロック解除オブジェクト</returns>
-    IDisposable WriteLock();
   }
 }
