@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SangokuKmy.Models.Data
@@ -24,6 +25,7 @@ namespace SangokuKmy.Models.Data
     private AuthenticationDataRepository _auth;
 
     private readonly IRepositoryContainer container;
+    private readonly ReaderWriterLock locker = new ReaderWriterLock();
 
     public MainRepository()
     {
@@ -45,6 +47,49 @@ namespace SangokuKmy.Models.Data
       {
         this.repo = repo;
       }
+
+      public IDisposable ReadLock() {
+        this.repo.locker.AcquireReaderLock(20_000);
+        return new Lock(this.repo.locker, Lock.LockType.ReadOnly);
+      }
+
+      public IDisposable WriteLock() {
+        this.repo.locker.AcquireWriterLock(20_000);
+        return new Lock(this.repo.locker, Lock.LockType.ReadAndWrite);
+      }
+
+      private class Lock : IDisposable {
+
+        private readonly ReaderWriterLock locker;
+
+        public enum LockType {
+          ReadOnly,
+          ReadAndWrite
+        }
+        private readonly LockType type;
+
+        public Lock(ReaderWriterLock locker, LockType type) {
+          this.locker = locker;
+          this.type = type;
+        }
+
+        public void Dispose() {
+          try {
+            switch (this.type)
+            {
+              case LockType.ReadOnly:
+                this.locker.ReleaseReaderLock();
+                break;
+              case LockType.ReadAndWrite:
+                this.locker.ReleaseWriterLock();
+                break;
+            }
+          }
+          catch (Exception ex) {
+            // TODO: Error log
+          }
+        }
+      }
     }
   }
 
@@ -57,5 +102,17 @@ namespace SangokuKmy.Models.Data
     /// データベースへ直接アクセスするコンテキスト
     /// </summary>
     MainContext Context { get; }
+
+    /// <summary>
+    /// 読み込み限定でロックをかける
+    /// </summary>
+    /// <returns>ロック解除オブジェクト</returns>
+    IDisposable ReadLock();
+
+    /// <summary>
+    /// 読み込みと書き込みが可能なロックをかける
+    /// </summary>
+    /// <returns>ロック解除オブジェクト</returns>
+    IDisposable WriteLock();
   }
 }

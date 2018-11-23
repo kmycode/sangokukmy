@@ -40,8 +40,10 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     private void InitializeCache()
     {
-      var context = this.container.Context;
-      _cache = context.AuthenticationData.ToList();
+      using (this.container.ReadLock()) {
+        var context = this.container.Context;
+        _cache = context.AuthenticationData.ToList();
+      }
     }
 
     /// <summary>
@@ -49,27 +51,29 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     private void CleanUpOldData()
     {
-      var now = DateTime.Now;
-      var targets = this.Cache.Where(a => a.ExpirationTime < now).ToList();
-      var context = this.container.Context;
+      using (this.container.WriteLock()) {
+        var now = DateTime.Now;
+        var targets = this.Cache.Where(a => a.ExpirationTime < now).ToList();
+        var context = this.container.Context;
 
-      if (!targets.Any())
-      {
-        return;
-      }
-
-      try
-      {
-        context.AuthenticationData.RemoveRange(targets);
-        context.SaveChanges();
-        foreach (var target in targets)
+        if (!targets.Any())
         {
-          this.Cache.Remove(target);
+          return;
         }
-      }
-      catch
-      {
-        throw new SangokuKmyException(ErrorCode.DatabaseError);
+
+        try
+        {
+          context.AuthenticationData.RemoveRange(targets);
+          context.SaveChanges();
+          foreach (var target in targets)
+          {
+            this.Cache.Remove(target);
+          }
+        }
+        catch
+        {
+          throw new SangokuKmyException(ErrorCode.DatabaseError);
+        }
       }
     }
 
@@ -81,7 +85,9 @@ namespace SangokuKmy.Models.Data.Repositories
     public AuthenticationData FindByToken(string token)
     {
       this.CleanUpOldData();
-      return this.Cache.SingleOrDefault(a => a.AccessToken == token);
+      using (this.container.ReadLock()) {
+        return this.Cache.SingleOrDefault(a => a.AccessToken == token);
+      }
     }
   }
 }
