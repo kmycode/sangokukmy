@@ -30,6 +30,11 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode DatabaseError { get; } = new ErrorCode(503, 2);
 
     /// <summary>
+    /// データベースタイムアウトのエラー
+    /// </summary>
+    public static ErrorCode DatabaseTimeoutError { get; } = new ErrorCode(503, 3);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }
