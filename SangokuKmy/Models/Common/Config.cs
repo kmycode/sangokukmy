@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace SangokuKmy.Models.Common
 {
-    public static class Config
+  public static class Config
+  {
+    public static class Database
     {
-        public static class Database
-        {
-            public static string MySqlConnectionString { get; set; }
-        }
+      public static string MySqlConnectionString { get; set; }
     }
+  }
 }

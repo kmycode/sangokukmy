@@ -8,22 +8,22 @@ using System.Threading.Tasks;
 
 namespace SangokuKmy.Models.Data
 {
+  /// <summary>
+  /// メインコンテキスト
+  /// </summary>
+  public class MainContext : DbContext
+  {
     /// <summary>
-    /// メインコンテキスト
+    /// 認証データ
     /// </summary>
-    public class MainContext : DbContext
-    {
-        /// <summary>
-        /// 認証データ
-        /// </summary>
-        public DbSet<AuthenticationData> AuthenticationData { get; set; }
+    public DbSet<AuthenticationData> AuthenticationData { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!string.IsNullOrEmpty(Config.Database.MySqlConnectionString))
-            {
-                optionsBuilder.UseMySql(Config.Database.MySqlConnectionString);
-            }
-        }
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+      if (!string.IsNullOrEmpty(Config.Database.MySqlConnectionString))
+      {
+        optionsBuilder.UseMySql(Config.Database.MySqlConnectionString);
+      }
     }
+  }
 }

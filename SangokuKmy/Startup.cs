@@ -15,47 +15,47 @@ using SangokuKmy.Models.Data;
 
 namespace SangokuKmy
 {
-    public class Startup
+  public class Startup
+  {
+    public Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            this.Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddCors();
-
-            // データベースの設定
-            Config.Database.MySqlConnectionString = this.Configuration.GetConnectionString("MySql");
-            services.AddDbContext<MainContext>();
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            // CORSを有効にする
-            app.UseCors(builder => builder.AllowAnyOrigin()
-                                          .AllowAnyMethod()
-                                          .WithHeaders("Authorization")
-                                          .WithExposedHeaders("WWW-Authenticate"));
-
-            // データベースの初期化
-            using (var context = new MainContext())
-            {
-                context.Database.Migrate();
-            }
-
-            app.UseMvc();
-        }
+      this.Configuration = configuration;
     }
+
+    public IConfiguration Configuration { get; }
+
+    // This method gets called by the runtime. Use this method to add services to the container.
+    public void ConfigureServices(IServiceCollection services)
+    {
+      services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+      services.AddCors();
+
+      // データベースの設定
+      Config.Database.MySqlConnectionString = this.Configuration.GetConnectionString("MySql");
+      services.AddDbContext<MainContext>();
+    }
+
+    // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+    public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+    {
+      if (env.IsDevelopment())
+      {
+        app.UseDeveloperExceptionPage();
+      }
+
+      // CORSを有効にする
+      app.UseCors(builder => builder.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .WithHeaders("Authorization")
+                      .WithExposedHeaders("WWW-Authenticate"));
+
+      // データベースの初期化
+      using (var context = new MainContext())
+      {
+        context.Database.Migrate();
+      }
+
+      app.UseMvc();
+    }
+  }
 }
