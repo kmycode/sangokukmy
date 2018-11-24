@@ -7,6 +7,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NLog.Web;
 
 namespace SangokuKmy
 {
@@ -19,6 +20,12 @@ namespace SangokuKmy
 
     public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
       WebHost.CreateDefaultBuilder(args)
+        .ConfigureLogging(logging =>
+        {
+          logging.ClearProviders();
+          logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+        })
+        .UseNLog()
         .UseStartup<Startup>();
   }
 }
