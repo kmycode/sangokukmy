@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SangokuKmy.Models.Common.Definitions;
 
 namespace SangokuKmy.Models.Data
 {
@@ -87,7 +88,7 @@ namespace SangokuKmy.Models.Data
         }
         catch (Exception ex)
         {
-          // TODO: Error log
+          ErrorCode.LockFailedError.Throw(ex);
         }
       }
     }

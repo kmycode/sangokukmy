@@ -19,7 +19,7 @@ namespace SangokuKmy.Filters
 
       if (!(context.Exception is SangokuKmyException exception))
       {
-        exception = new SangokuKmyException(ErrorCode.InternalError);
+        exception = new SangokuKmyException(new Exception(), ErrorCode.InternalError);
       }
 
       try

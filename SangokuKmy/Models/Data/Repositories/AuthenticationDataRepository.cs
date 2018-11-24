@@ -44,9 +44,9 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         _cache = new DatabaseCache<AuthenticationData>(this.container.Context.AuthenticationData);
       }
-      catch
+      catch (Exception ex)
       {
-        throw new SangokuKmyException(ErrorCode.DatabaseError);
+        ErrorCode.DatabaseError.Throw(ex);
       }
     }
 
@@ -62,9 +62,9 @@ namespace SangokuKmy.Models.Data.Repositories
         this.Cache.Remove(a => a.ExpirationTime < now);
         this.container.Context.SaveChanges();
       }
-      catch
+      catch (Exception ex)
       {
-        throw new SangokuKmyException(ErrorCode.DatabaseError);
+        ErrorCode.DatabaseError.Throw(ex);
       }
     }
 
@@ -80,9 +80,10 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         return this.Cache.SingleOrDefault(a => a.AccessToken == token);
       }
-      catch
+      catch (Exception ex)
       {
-        throw new SangokuKmyException(ErrorCode.DatabaseError);
+        ErrorCode.DatabaseError.Throw(ex);
+        return null;
       }
     }
   }
