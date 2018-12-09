@@ -6,12 +6,12 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SangokuKmy.Models.Generic
+namespace SangokuKmy.Models.Services
 {
   /// <summary>
   /// 認証を行うクラス
   /// </summary>
-  public static class Authentication
+  public static class AuthenticationService
   {
     /// <summary>
     /// アクセストークンから認証を行う

@@ -59,7 +59,7 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         var now = DateTime.Now;
 
-        this.Cache.Remove(a => a.ExpirationTime < now);
+        this.Cache.Remove(this.container.Context.AuthenticationData, a => a.ExpirationTime < now);
         this.container.Context.SaveChanges();
       }
       catch (Exception ex)
