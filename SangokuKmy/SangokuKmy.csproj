@@ -16,6 +16,7 @@
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\images\" />
     <Folder Include="wwwroot\images\character-default-icons\" />
+    <Folder Include="Models\Data\ApiEntities\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -12,38 +12,40 @@ namespace SangokuKmy.Models.Data
   /// </summary>
   public class DatabaseCache<T> : IEnumerable<T> where T : class
   {
-    public IReadOnlyList<T> Items => this.Items;
-    private IList<T> items;
-
-    private readonly DbSet<T> table;
+    public IReadOnlyList<T> Items => this._items;
+    private List<T> _items;
 
     public DatabaseCache(DbSet<T> table)
     {
-      this.table = table;
-      this.Update();
+      this.Update(table);
     }
 
     /// <summary>
     /// キャッシュを更新する
     /// </summary>
-    public void Update()
+    /// <param name="table">テーブル</param>
+    public void Update(DbSet<T> table)
     {
-      this.items = this.table.ToList();
+      this._items = table.ToList();
     }
 
     /// <summary>
     /// キャッシュから要素を削除する
     /// </summary>
     /// <returns>削除した要素</returns>
+    /// <param name="table">テーブル</param>
     /// <param name="subject">削除条件</param>
-    public IList<T> Remove(Predicate<T> subject)
+    public IList<T> Remove(DbSet<T> table, Predicate<T> subject)
     {
-      var targets = this.items.Where(a => subject(a)).ToList();
+      var targets = this._items.Where(a => subject(a)).ToList();
 
-      this.table.RemoveRange(targets);
-      foreach (var target in targets)
+      if (targets.Any())
       {
-        this.items.Remove(target);
+        table.RemoveRange(targets);
+        foreach (var target in targets)
+        {
+          this._items.Remove(target);
+        }
       }
 
       return targets;
@@ -52,23 +54,41 @@ namespace SangokuKmy.Models.Data
     /// <summary>
     /// キャッシュに要素を追加する
     /// </summary>
+    /// <param name="table">テーブル</param>
     /// <param name="item">追加する要素</param>
-    public void Add(T item)
+    public void Add(DbSet<T> table, T item)
     {
-      this.table.Add(item);
-      this.items.Add(item);
+      table.Add(item);
+      this._items.Add(item);
+    }
+
+    /// <summary>
+    /// キャッシュに複数の要素を追加する
+    /// </summary>
+    /// <param name="table">テーブル</param>
+    /// <param name="items">追加する要素</param>
+    public void AddRange(DbSet<T> table, IEnumerable<T> items)
+    {
+      if (items.Any())
+      {
+        table.AddRange(items);
+        foreach (var item in items)
+        {
+          this._items.Add(item);
+        }
+      }
     }
 
     #region IEnumerable
 
     public IEnumerator<T> GetEnumerator()
     {
-      return items.GetEnumerator();
+      return this._items.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return items.GetEnumerator();
+      return this._items.GetEnumerator();
     }
     
     #endregion
