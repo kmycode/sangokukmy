@@ -45,7 +45,7 @@ namespace SangokuKmy.Models.Data
     public IDisposable ReadLock()
     {
       locker.AcquireReaderLock(20_000);
-      return new Lock(Lock.LockType.ReadOnly);
+      return new ReadOnlyLock();
     }
 
     /// <summary>
@@ -55,36 +55,31 @@ namespace SangokuKmy.Models.Data
     public IDisposable WriteLock()
     {
       locker.AcquireWriterLock(20_000);
-      return new Lock(Lock.LockType.ReadAndWrite);
+      return new WritableLock();
     }
 
-    private class Lock : IDisposable
+    private class ReadOnlyLock : IDisposable
     {
-      public enum LockType
-      {
-        ReadOnly,
-        ReadAndWrite
-      }
-      private readonly LockType type;
-
-      public Lock(LockType type)
-      {
-        this.type = type;
-      }
-
       public void Dispose()
       {
         try
         {
-          switch (this.type)
-          {
-            case LockType.ReadOnly:
-              locker.ReleaseReaderLock();
-              break;
-            case LockType.ReadAndWrite:
-              locker.ReleaseWriterLock();
-              break;
-          }
+          locker.ReleaseReaderLock();
+        }
+        catch (Exception ex)
+        {
+          ErrorCode.LockFailedError.Throw(ex);
+        }
+      }
+    }
+
+    private class WritableLock : IDisposable
+    {
+      public void Dispose()
+      {
+        try
+        {
+          locker.ReleaseWriterLock();
         }
         catch (Exception ex)
         {
