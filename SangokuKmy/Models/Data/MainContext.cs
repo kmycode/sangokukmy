@@ -49,6 +49,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<CharacterLog> CharacterLogs { get; set; }
 
     /// <summary>
+    /// 武将の更新ログ
+    /// </summary>
+    public DbSet<CharacterUpdateLog> CharacterUpdateLogs { get; set; }
+
+    /// <summary>
     /// 国データ
     /// </summary>
     public DbSet<Country> Countries { get; set; }
