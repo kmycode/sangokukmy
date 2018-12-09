@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Filters
 {
@@ -25,12 +26,12 @@ namespace SangokuKmy.Filters
       try
       {
         context.HttpContext.Response.StatusCode = exception.StatusCode;
-        context.Result = new JsonResult(new { code = exception.ErrorCode.Code, data = exception.Data });
+        context.Result = new JsonResult(ApiData.From(new ApiError { Code = exception.ErrorCode.Code, Data = exception.Data }));
       }
       catch
       {
         context.HttpContext.Response.StatusCode = 500;
-        context.Result = new JsonResult(new { code = -1, data = default(object) });
+        context.Result = new JsonResult(ApiData.From(new ApiError { Code = -1, Data = default(object) }));
       }
 
       context.ExceptionHandled = true;

@@ -1,4 +1,6 @@
-﻿using SangokuKmy.Models.Data.Entities;
+﻿using SangokuKmy.Models.Common.Definitions;
+using SangokuKmy.Models.Data;
+using SangokuKmy.Models.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,9 +20,15 @@ namespace SangokuKmy.Models.Services
     /// </summary>
     /// <param name="token">アクセストークン</param>
     /// <returns>認証結果</returns>
-    public static AuthenticationData WithToken(string token)
+    public static AuthenticationData WithToken(MainRepository repo, string token)
     {
-      throw new NotImplementedException();
+      var data = repo.AuthenticationData.FindByToken(token);
+      if (data == null)
+      {
+        ErrorCode.LoginTokenIncorrectError.Throw();
+      }
+
+      return data;
     }
 
     /// <summary>
@@ -29,9 +37,9 @@ namespace SangokuKmy.Models.Services
     /// <param name="id">ID</param>
     /// <param name="password">パスワード</param>
     /// <returns>認証結果</returns>
-    public static AuthenticationData WithIdAndPassword(string id, string password)
+    public static AuthenticationData WithIdAndPassword(MainRepository repo, string id, string password)
     {
-      throw new NotImplementedException();
+      return Login(repo, id, password);
     }
 
     /// <summary>
@@ -40,9 +48,29 @@ namespace SangokuKmy.Models.Services
     /// <param name="id">ID</param>
     /// <param name="password">パスワード</param>
     /// <returns>認証結果</returns>
-    public static AuthenticationData Login(string id, string password)
+    private static AuthenticationData Login(MainRepository repo, string id, string password)
     {
-      throw new NotImplementedException();
+      if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(password))
+      {
+        ErrorCode.LoginParameterMissingError.Throw();
+      }
+
+      var param = repo.Character.GetLoginParameter(id);
+      if (param.PasswordHash != CharacterService.GeneratePasswordHash(password))
+      {
+        ErrorCode.LoginParameterIncorrectError.Throw();
+      }
+
+      var data = new AuthenticationData
+      {
+        AccessToken = GenerateAccessToken(id, password),
+        CharacterId = repo.Character.GetIdFromAliasId(id),
+        ExpirationTime = DateTime.Now.AddDays(365),
+        Scope = Scope.All,
+      };
+
+      repo.AuthenticationData.Add(data);
+      return data;
     }
 
     /// <summary>
@@ -53,8 +81,8 @@ namespace SangokuKmy.Models.Services
     {
       var hash = new SHA256CryptoServiceProvider()
         .ComputeHash(Encoding.UTF8.GetBytes($"{id} + {password} + Asuka is Kmy *** {DateTime.Now.ToLongTimeString()}"))
-        .Select(b => string.Format("{0:X2}", b));
-      var hashText = string.Join("", hash);
+        .Select(b => string.Format("{0:x2}", b));
+      var hashText = string.Join(string.Empty, hash);
 
       return Convert.ToBase64String(Encoding.UTF8.GetBytes(hashText));
     }

@@ -46,7 +46,7 @@ namespace SangokuKmy
       // CORSを有効にする
       app.UseCors(builder => builder.AllowAnyOrigin()
                       .AllowAnyMethod()
-                      .WithHeaders("Authorization")
+                      .AllowAnyHeader()
                       .WithExposedHeaders("WWW-Authenticate"));
 
       // データベースの初期化

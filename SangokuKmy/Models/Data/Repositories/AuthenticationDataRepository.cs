@@ -59,8 +59,11 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         var now = DateTime.Now;
 
-        this.Cache.Remove(this.container.Context.AuthenticationData, a => a.ExpirationTime < now);
-        this.container.Context.SaveChanges();
+        var removed = this.Cache.Remove(this.container.Context.AuthenticationData, a => a.ExpirationTime < now);
+        if (removed.Any())
+        {
+          this.container.Context.SaveChanges();
+        }
       }
       catch (Exception ex)
       {
@@ -84,6 +87,23 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         ErrorCode.DatabaseError.Throw(ex);
         return null;
+      }
+    }
+
+    /// <summary>
+    /// 新しい認証結果を追加する
+    /// </summary>
+    /// <param name="data">認証データ</param>
+    public void Add(AuthenticationData data)
+    {
+      try
+      {
+        this.Cache.Add(this.container.Context.AuthenticationData, data);
+        this.container.Context.SaveChanges();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
       }
     }
   }

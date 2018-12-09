@@ -24,7 +24,18 @@ namespace SangokuKmy.Models.Common.Definitions
     /// 追加データ
     /// </summary>
     public object AdditionalData { get; }
-    
+
+    public SangokuKmyException(ErrorCode code) : this(code.StatusCode, code, null)
+    {
+    }
+
+    public SangokuKmyException(int status, ErrorCode code, object data)
+    {
+      this.StatusCode = status;
+      this.ErrorCode = code;
+      this.AdditionalData = data;
+    }
+
     public SangokuKmyException(Exception inner, int status, ErrorCode code, object data) : base("例外が発生しました Code=" + code, inner)
     {
       this.StatusCode = status;

@@ -18,6 +18,13 @@ namespace SangokuKmy.Models.Data.Entities
     public uint Id { get; set; }
 
     /// <summary>
+    /// ログインに使うID
+    /// </summary>
+    [Column("alias_id", TypeName = "varchar(32)")]
+    [JsonProperty("aliasId")]
+    public string AliasId { get; set; }
+
+    /// <summary>
     /// パスワードのハッシュ
     /// </summary>
     [Column("password_hash", TypeName = "varchar(256)")]

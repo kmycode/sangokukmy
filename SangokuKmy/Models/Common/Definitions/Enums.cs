@@ -21,6 +21,11 @@ namespace SangokuKmy.Models.Common.Definitions
   public readonly struct ErrorCode
   {
     /// <summary>
+    /// サーバへの接続に失敗したエラー（クライアント側でのみ使用する）
+    /// </summary>
+    public static ErrorCode ServerConnectionFailedError { get; } = new ErrorCode(500, -1);
+
+    /// <summary>
     /// 原因不明の内部エラー
     /// </summary>
     public static ErrorCode InternalError { get; } = new ErrorCode(500, 1);
@@ -41,6 +46,26 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode LockFailedError { get; } = new ErrorCode(500, 4);
 
     /// <summary>
+    /// ログインしている武将が見つからないエラー
+    /// </summary>
+    public static ErrorCode LoginCharacterNotFoundError { get; } = new ErrorCode(403, 5);
+
+    /// <summary>
+    /// ログイン時のパラメータが足りないエラー
+    /// </summary>
+    public static ErrorCode LoginParameterMissingError { get; } = new ErrorCode(400, 6);
+
+    /// <summary>
+    /// ログイン時のパラメータが間違っているエラー
+    /// </summary>
+    public static ErrorCode LoginParameterIncorrectError { get; } = new ErrorCode(401, 7);
+
+    /// <summary>
+    /// ログイントークンが間違っているエラー
+    /// </summary>
+    public static ErrorCode LoginTokenIncorrectError { get; } = new ErrorCode(401, 8);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }
@@ -54,6 +79,11 @@ namespace SangokuKmy.Models.Common.Definitions
     {
       this.Code = code;
       this.StatusCode = status;
+    }
+
+    public void Throw()
+    {
+      throw new SangokuKmyException(this);
     }
 
     public void Throw(Exception original)

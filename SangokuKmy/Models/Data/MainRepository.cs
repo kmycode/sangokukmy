@@ -16,7 +16,21 @@ namespace SangokuKmy.Models.Data
     /// <summary>
     /// データベースへアクセスするコンテキスト。アクセスが必要になった場合にのみ生成する
     /// </summary>
-    private MainContext Context => this._context = this._context ?? new MainContext();
+    private MainContext Context
+    {
+      get
+      {
+        try
+        {
+          return this._context = this._context ?? new MainContext();
+        }
+        catch (Exception ex)
+        {
+          ErrorCode.DatabaseError.Throw(ex);
+          return null;
+        }
+      }
+    }
     private MainContext _context;
 
     /// <summary>
@@ -24,6 +38,12 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public AuthenticationDataRepository AuthenticationData => this._auth = this._auth ?? new AuthenticationDataRepository(this.container);
     private AuthenticationDataRepository _auth;
+
+    /// <summary>
+    /// 武将
+    /// </summary>
+    public CharacterRepository Character => this._chara = this._chara ?? new CharacterRepository(this.container);
+    private CharacterRepository _chara;
 
     private readonly IRepositoryContainer container;
     private static readonly ReaderWriterLock locker = new ReaderWriterLock();

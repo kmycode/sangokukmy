@@ -4,7 +4,7 @@ using Newtonsoft.Json.Serialization;
 using SangokuKmy.Models.Data.Entities;
 namespace SangokuKmy.Models.Data.ApiEntities
 {
-  public class ApiData
+  public class ApiData<T>
   {
     /// <summary>
     /// 型の種類
@@ -16,21 +16,23 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 実際のデータ
     /// </summary>
     [JsonProperty("data")]
-    public object Data { get; set; }
+    public T Data { get; set; }
+  }
 
-    public static ApiData From(object data)
+  public static class ApiData
+  {
+    private static ApiData<DT> From<DT>(int type, DT data)
     {
-      var d = new ApiData
+      return new ApiData<DT>
       {
+        Type = type,
         Data = data,
       };
-
-      d.Type = data is ApiDateTime ? 1 :
-                data is MapLog ? 4 :
-                data is LoginResultData ? 5 :
-                throw new ArgumentException("未定義の型です");
-
-      return d;
     }
+
+    public static ApiData<ApiDateTime> From(ApiDateTime data) => From(1, data);
+    public static ApiData<MapLog> From(MapLog data) => From(4, data);
+    public static ApiData<AuthenticationData> From(AuthenticationData data) => From(6, data);
+    public static ApiData<ApiError> From(ApiError data) => From(7, data);
   }
 }
