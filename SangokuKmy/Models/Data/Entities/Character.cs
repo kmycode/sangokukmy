@@ -1,6 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using Newtonsoft.Json;
 using SangokuKmy.Models.Data.ApiEntities;
 
@@ -12,6 +15,8 @@ namespace SangokuKmy.Models.Data.Entities
   [Table("characters")]
   public class Character
   {
+    #region properties
+
     [Key]
     [Column("id")]
     [JsonProperty("id")]
@@ -180,6 +185,42 @@ namespace SangokuKmy.Models.Data.Entities
     {
       get => ApiDateTime.FromDateTime(this.LastUpdated);
       set => this.LastUpdated = value.ToDateTime();
+    }
+
+    #endregion
+
+    /// <summary>
+    /// パスワードを設定する。平文のパラメータを指定し、実際はハッシュに変換されたパスワードが保存される
+    /// </summary>
+    /// <param name="password">パスワード</param>
+    public void SetPassword(string password)
+    {
+      this.PasswordHash = GeneratePasswordHash(password);
+    }
+
+    /// <summary>
+    /// ログインできるか確認する
+    /// </summary>
+    /// <returns>指定したログイン情報でログイン可能であるか</returns>
+    /// <param name="password">パスワード</param>
+    public bool TryLogin(string password)
+    {
+      return this.PasswordHash == GeneratePasswordHash(password);
+    }
+
+    /// <summary>
+    /// パスワードからハッシュを生成する
+    /// </summary>
+    /// <returns>生成されたハッシュ</returns>
+    /// <param name="password">パスワード</param>
+    private static string GeneratePasswordHash(string password)
+    {
+      var hash = new SHA256CryptoServiceProvider()
+        .ComputeHash(Encoding.UTF8.GetBytes($"{password} hello, for you"))
+        .Select(b => string.Format("{0:x2}", b));
+      var hashText = string.Join(string.Empty, hash);
+
+      return hashText;
     }
   }
 }

@@ -45,26 +45,28 @@ namespace SangokuKmy.Models.Services
     /// <summary>
     /// ログイン処理を行い、アクセストークンを新たに発行する
     /// </summary>
-    /// <param name="id">ID</param>
+    /// <param name="aliasId">ID</param>
     /// <param name="password">パスワード</param>
     /// <returns>認証結果</returns>
-    private static AuthenticationData Login(MainRepository repo, string id, string password)
+    private static AuthenticationData Login(MainRepository repo, string aliasId, string password)
     {
-      if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(password))
+      if (string.IsNullOrEmpty(aliasId) || string.IsNullOrEmpty(password))
       {
         ErrorCode.LoginParameterMissingError.Throw();
       }
 
-      var param = repo.Character.GetLoginParameter(id);
-      if (param.PasswordHash != CharacterService.GeneratePasswordHash(password))
+      var chara = repo.Character
+                    .GetByAliasId(aliasId)
+                    .GetOrError(ErrorCode.LoginCharacterNotFoundError);
+      if (!chara.TryLogin(password))
       {
         ErrorCode.LoginParameterIncorrectError.Throw();
       }
 
       var data = new AuthenticationData
       {
-        AccessToken = GenerateAccessToken(id, password),
-        CharacterId = repo.Character.GetIdFromAliasId(id),
+        AccessToken = GenerateAccessToken(aliasId, password),
+        CharacterId = chara.Id,
         ExpirationTime = DateTime.Now.AddDays(365),
         Scope = Scope.All,
       };

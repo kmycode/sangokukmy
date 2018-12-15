@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
+using SangokuKmy.Common;
 using SangokuKmy.Models.Common.Definitions;
+using SangokuKmy.Models.Data.Entities;
+
 namespace SangokuKmy.Models.Data.Repositories
 {
   public class CharacterRepository
@@ -17,11 +20,11 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <returns>武将ID</returns>
     /// <param name="aliasId">エイリアスID</param>
-    public uint GetIdFromAliasId(string aliasId)
+    public uint GetIdByAliasId(string aliasId)
     {
       try
       {
-        return this.container.Context.Characters.FirstOrDefault(c => c.AliasId == aliasId)?.Id ?? (uint)0;
+        return this.GetByAliasId(aliasId).Data?.Id ?? (uint)0;
       }
       catch (Exception ex)
       {
@@ -31,29 +34,38 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
-    /// ログインのときに必要となる情報だけを取得
+    /// IDから武将を取得する
     /// </summary>
-    /// <returns>ログイン情報</returns>
-    /// <param name="aliasId">エイリアスID</param>
-    public (uint Id, string PasswordHash) GetLoginParameter(string aliasId)
+    /// <returns>武将</returns>
+    /// <param name="id">ID</param>
+    public Optional<Character> GetById(uint id)
     {
       try
       {
-        var chara = this.container.Context.Characters.FirstOrDefault(c => c.AliasId == aliasId);
-        if (chara == null)
-        {
-          ErrorCode.LoginCharacterNotFoundError.Throw();
-        }
-        return (chara.Id, chara.PasswordHash);
-      }
-      catch (SangokuKmyException ex)
-      {
-        throw ex;
+        return this.container.Context.Characters.Find(id).ToOptional();
       }
       catch (Exception ex)
       {
         ErrorCode.DatabaseError.Throw(ex);
-        return default;
+        return Optional<Character>.Null();
+      }
+    }
+
+    /// <summary>
+    /// エイリアスIDから武将を取得する
+    /// </summary>
+    /// <returns>武将</returns>
+    /// <param name="aliasId">エイリアスID</param>
+    public Optional<Character> GetByAliasId(string aliasId)
+    {
+      try
+      {
+        return this.container.Context.Characters.FirstOrDefault(c => c.AliasId == aliasId).ToOptional();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return Optional<Character>.Null();
       }
     }
   }
