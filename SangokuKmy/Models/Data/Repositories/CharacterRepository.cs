@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using SangokuKmy.Common;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -20,11 +22,11 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <returns>武将ID</returns>
     /// <param name="aliasId">エイリアスID</param>
-    public uint GetIdByAliasId(string aliasId)
+    public async Task<uint> GetIdByAliasIdAsync(string aliasId)
     {
       try
       {
-        return this.GetByAliasId(aliasId).Data?.Id ?? (uint)0;
+        return (await this.GetByAliasIdAsync(aliasId)).Data?.Id ?? (uint)0;
       }
       catch (Exception ex)
       {
@@ -38,11 +40,13 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <returns>武将</returns>
     /// <param name="id">ID</param>
-    public Optional<Character> GetById(uint id)
+    public async Task<Optional<Character>> GetByIdAsync(uint id)
     {
       try
       {
-        return this.container.Context.Characters.Find(id).ToOptional();
+        return await this.container.Context.Characters
+          .FindAsync(id)
+          .ToOptionalAsync();
       }
       catch (Exception ex)
       {
@@ -56,11 +60,13 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <returns>武将</returns>
     /// <param name="aliasId">エイリアスID</param>
-    public Optional<Character> GetByAliasId(string aliasId)
+    public async Task<Optional<Character>> GetByAliasIdAsync(string aliasId)
     {
       try
       {
-        return this.container.Context.Characters.FirstOrDefault(c => c.AliasId == aliasId).ToOptional();
+        return await this.container.Context.Characters
+          .FirstOrDefaultAsync(c => c.AliasId == aliasId)
+          .ToOptionalAsync();
       }
       catch (Exception ex)
       {

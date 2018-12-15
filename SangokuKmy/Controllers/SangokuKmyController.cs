@@ -19,12 +19,13 @@ namespace SangokuKmy.Controllers
   public class SangokuKmyController : Controller
   {
     [HttpPost("authenticate")]
-    public ApiData<AuthenticationData> Authenticate([FromBody] AuthenticateParameter param)
+    public async Task<ApiData<AuthenticationData>> AuthenticateAsync
+      ([FromBody] AuthenticateParameter param)
     {
       AuthenticationData authData;
       using (var repo = new MainRepository())
       {
-        authData = AuthenticationService.WithIdAndPassword(repo, param.Id, param.Password);
+        authData = await AuthenticationService.WithIdAndPasswordAsync(repo, param.Id, param.Password);
       }
       return ApiData.From(authData);
     }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SangokuKmy.Models.Common.Definitions;
 
@@ -17,16 +18,16 @@ namespace SangokuKmy.Models.Data
 
     public DatabaseCache(DbSet<T> table)
     {
-      this.Update(table);
+      Task.Run(async () => await this.UpdateAsync(table)).Wait();
     }
 
     /// <summary>
     /// キャッシュを更新する
     /// </summary>
     /// <param name="table">テーブル</param>
-    public void Update(DbSet<T> table)
+    public async Task UpdateAsync(DbSet<T> table)
     {
-      this._items = table.ToList();
+      this._items = await table.ToListAsync();
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using SangokuKmy.Models.Common.Definitions;
 namespace SangokuKmy.Common
 {
@@ -53,6 +54,18 @@ namespace SangokuKmy.Common
     public static Optional<T> ToOptional<T>(this T obj) where T : class
     {
       return new Optional<T>(obj);
+    }
+
+    /// <summary>
+    /// 非同期オブジェクトをOptionalに変換する
+    /// </summary>
+    /// <returns>Optionalに変換されたオブジェクト</returns>
+    /// <param name="task">非同期タスク</param>
+    /// <typeparam name="T">オブジェクトの型</typeparam>
+    public static async Task<Optional<T>> ToOptionalAsync<T>(this Task<T> task) where T : class
+    {
+      await task;
+      return task.Result.ToOptional();
     }
   }
 }

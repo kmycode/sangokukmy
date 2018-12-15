@@ -20,9 +20,9 @@ namespace SangokuKmy.Models.Services
     /// </summary>
     /// <param name="token">アクセストークン</param>
     /// <returns>認証結果</returns>
-    public static AuthenticationData WithToken(MainRepository repo, string token)
+    public static async Task<AuthenticationData> WithTokenAsync(MainRepository repo, string token)
     {
-      var data = repo.AuthenticationData.FindByToken(token);
+      var data = await repo.AuthenticationData.FindByTokenAsync(token);
       if (data == null)
       {
         ErrorCode.LoginTokenIncorrectError.Throw();
@@ -37,9 +37,9 @@ namespace SangokuKmy.Models.Services
     /// <param name="id">ID</param>
     /// <param name="password">パスワード</param>
     /// <returns>認証結果</returns>
-    public static AuthenticationData WithIdAndPassword(MainRepository repo, string id, string password)
+    public static async Task<AuthenticationData> WithIdAndPasswordAsync(MainRepository repo, string id, string password)
     {
-      return Login(repo, id, password);
+      return await LoginAsync(repo, id, password);
     }
 
     /// <summary>
@@ -48,16 +48,15 @@ namespace SangokuKmy.Models.Services
     /// <param name="aliasId">ID</param>
     /// <param name="password">パスワード</param>
     /// <returns>認証結果</returns>
-    private static AuthenticationData Login(MainRepository repo, string aliasId, string password)
+    private static async Task<AuthenticationData> LoginAsync(MainRepository repo, string aliasId, string password)
     {
       if (string.IsNullOrEmpty(aliasId) || string.IsNullOrEmpty(password))
       {
         ErrorCode.LoginParameterMissingError.Throw();
       }
 
-      var chara = repo.Character
-                    .GetByAliasId(aliasId)
-                    .GetOrError(ErrorCode.LoginCharacterNotFoundError);
+      var chara = (await repo.Character.GetByAliasIdAsync(aliasId))
+        .GetOrError(ErrorCode.LoginCharacterNotFoundError);
       if (!chara.TryLogin(password))
       {
         ErrorCode.LoginParameterIncorrectError.Throw();
@@ -71,7 +70,7 @@ namespace SangokuKmy.Models.Services
         Scope = Scope.All,
       };
 
-      repo.AuthenticationData.Add(data);
+      await repo.AuthenticationData.AddAsync(data);
       return data;
     }
 

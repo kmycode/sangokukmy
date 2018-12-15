@@ -53,7 +53,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <summary>
     /// 古いデータを消去する
     /// </summary>
-    private void CleanUpOldData()
+    private async Task CleanUpOldDataAsync()
     {
       try
       {
@@ -62,7 +62,7 @@ namespace SangokuKmy.Models.Data.Repositories
         var removed = this.Cache.Remove(this.container.Context.AuthenticationData, a => a.ExpirationTime < now);
         if (removed.Any())
         {
-          this.container.Context.SaveChanges();
+          await this.container.Context.SaveChangesAsync();
         }
       }
       catch (Exception ex)
@@ -76,9 +76,9 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="token">トークン</param>
     /// <returns>認証データ</returns>
-    public AuthenticationData FindByToken(string token)
+    public async Task<AuthenticationData> FindByTokenAsync(string token)
     {
-      this.CleanUpOldData();
+      await this.CleanUpOldDataAsync();
       try
       {
         return this.Cache.SingleOrDefault(a => a.AccessToken == token);
@@ -94,12 +94,12 @@ namespace SangokuKmy.Models.Data.Repositories
     /// 新しい認証結果を追加する
     /// </summary>
     /// <param name="data">認証データ</param>
-    public void Add(AuthenticationData data)
+    public async Task AddAsync(AuthenticationData data)
     {
       try
       {
         this.Cache.Add(this.container.Context.AuthenticationData, data);
-        this.container.Context.SaveChanges();
+        await this.container.Context.SaveChangesAsync();
       }
       catch (Exception ex)
       {
