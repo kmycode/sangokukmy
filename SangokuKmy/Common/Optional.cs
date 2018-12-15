@@ -67,5 +67,16 @@ namespace SangokuKmy.Common
       await task;
       return task.Result.ToOptional();
     }
+
+    /// <summary>
+    /// 非同期Optionalの中身を取得するよう試み、NULLなら例外を投げる
+    /// </summary>
+    /// <returns>取得したデータ</returns>
+    /// <param name="error">エラーコード</param>
+    /// <typeparam name="T">データの型</typeparam>
+    public static async Task<T> GetOrErrorAsync<T>(this Task<Optional<T>> optional, ErrorCode error) where T : class
+    {
+      return (await optional).GetOrError(error);
+    }
   }
 }

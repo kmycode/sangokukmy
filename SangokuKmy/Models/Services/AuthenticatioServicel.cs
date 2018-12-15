@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using SangokuKmy.Common;
 
 namespace SangokuKmy.Models.Services
 {
@@ -22,11 +23,9 @@ namespace SangokuKmy.Models.Services
     /// <returns>認証結果</returns>
     public static async Task<AuthenticationData> WithTokenAsync(MainRepository repo, string token)
     {
-      var data = await repo.AuthenticationData.FindByTokenAsync(token);
-      if (data == null)
-      {
-        ErrorCode.LoginTokenIncorrectError.Throw();
-      }
+      var data = await repo.AuthenticationData
+        .FindByTokenAsync(token)
+        .GetOrErrorAsync(ErrorCode.LoginTokenIncorrectError);
 
       return data;
     }

@@ -1,4 +1,5 @@
-﻿using SangokuKmy.Models.Common.Definitions;
+﻿using SangokuKmy.Common;
+using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data.Entities;
 using System;
 using System.Collections.Generic;
@@ -59,7 +60,7 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         var now = DateTime.Now;
 
-        var removed = this.Cache.Remove(this.container.Context.AuthenticationData, a => a.ExpirationTime < now);
+        var removed = this.Cache.Remove(() => this.container.Context.AuthenticationData, a => a.ExpirationTime < now);
         if (removed.Any())
         {
           await this.container.Context.SaveChangesAsync();
@@ -76,17 +77,17 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="token">トークン</param>
     /// <returns>認証データ</returns>
-    public async Task<AuthenticationData> FindByTokenAsync(string token)
+    public async Task<Optional<AuthenticationData>> FindByTokenAsync(string token)
     {
       await this.CleanUpOldDataAsync();
       try
       {
-        return this.Cache.SingleOrDefault(a => a.AccessToken == token);
+        return this.Cache.SingleOrDefault(a => a.AccessToken == token).ToOptional();
       }
       catch (Exception ex)
       {
         ErrorCode.DatabaseError.Throw(ex);
-        return null;
+        return Optional<AuthenticationData>.Null();
       }
     }
 

@@ -36,13 +36,13 @@ namespace SangokuKmy.Models.Data
     /// <returns>削除した要素</returns>
     /// <param name="table">テーブル</param>
     /// <param name="subject">削除条件</param>
-    public IList<T> Remove(DbSet<T> table, Predicate<T> subject)
+    public IList<T> Remove(Func<DbSet<T>> table, Predicate<T> subject)
     {
       var targets = this._items.Where(a => subject(a)).ToList();
 
       if (targets.Any())
       {
-        table.RemoveRange(targets);
+        table().RemoveRange(targets);
         foreach (var target in targets)
         {
           this._items.Remove(target);
@@ -51,6 +51,15 @@ namespace SangokuKmy.Models.Data
 
       return targets;
     }
+
+    /// <summary>
+    /// キャッシュから要素を削除する
+    /// </summary>
+    /// <returns>削除した要素</returns>
+    /// <param name="table">テーブル</param>
+    /// <param name="subject">削除条件</param>
+    public IList<T> Remove(DbSet<T> table, Predicate<T> subject) =>
+      this.Remove(() => table, subject);
 
     /// <summary>
     /// キャッシュに要素を追加する

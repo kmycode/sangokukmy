@@ -4,6 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SangokuKmy.Models.Data;
+using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Controllers;
+using SangokuKmy.Common;
 
 namespace SangokuKmy.Filters
 {
@@ -40,10 +44,25 @@ namespace SangokuKmy.Filters
       }
       if (string.IsNullOrEmpty(token))
       {
-
+        ErrorCode.LoginTokenEmptyError.Throw();
       }
 
-      // アクセストークンの中身を調べる
+      // アクセストークンを保存済のデータと照合する
+      using (var repo = new MainRepository())
+      {
+        AuthenticationData authData = null;
+        Task.Run(async () => {
+          authData = (await repo.AuthenticationData
+            .FindByTokenAsync(token))
+            .GetOrError(ErrorCode.LoginTokenIncorrectError);
+        }).Wait();
+
+        // 認証データをコントローラに設定
+        if (context.Controller is IAuthenticationDataReceiver receiver)
+        {
+          receiver.AuthData = authData;
+        }
+      }
     }
   }
 }

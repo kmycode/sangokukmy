@@ -66,6 +66,11 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode LoginTokenIncorrectError { get; } = new ErrorCode(401, 8);
 
     /// <summary>
+    /// アクセストークンが空であるエラー
+    /// </summary>
+    public static ErrorCode LoginTokenEmptyError { get; } = new ErrorCode(401, 9);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }
