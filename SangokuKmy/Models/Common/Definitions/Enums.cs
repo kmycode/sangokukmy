@@ -43,7 +43,7 @@ namespace SangokuKmy.Models.Common.Definitions
     /// <summary>
     /// ロック失敗のエラー
     /// </summary>
-    public static ErrorCode LockFailedError { get; } = new ErrorCode(500, 4);
+    public static ErrorCode LockFailedError { get; } = new ErrorCode(409, 4);
 
     /// <summary>
     /// ログインしている武将が見つからないエラー

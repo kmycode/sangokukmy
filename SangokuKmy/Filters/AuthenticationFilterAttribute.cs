@@ -32,10 +32,10 @@ namespace SangokuKmy.Filters
       // アクセストークン解析
       var token = string.Empty;
       {
-        var authentication = context.HttpContext.Request.Headers["Authorization"];
+        string authentication = context.HttpContext.Request.Headers["Authorization"];
         if (!string.IsNullOrEmpty(authentication))
         {
-          var authData = ((string)authentication).Split(' ');
+          var authData = authentication.Split(' ');
           if (authData.Length == 2 && authData[0] == "Bearer")
           {
             token = authData[1];

@@ -18,6 +18,8 @@
     <Folder Include="wwwroot\images\character-default-icons\" />
     <Folder Include="Models\Data\ApiEntities\" />
     <Folder Include="Common\" />
+    <Folder Include="Streamings\" />
+    <Folder Include="Models\Data\Entities\Caches\" />
   </ItemGroup>
 
   <ItemGroup>

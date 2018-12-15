@@ -34,5 +34,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<MapLog> From(MapLog data) => From(4, data);
     public static ApiData<AuthenticationData> From(AuthenticationData data) => From(6, data);
     public static ApiData<ApiError> From(ApiError data) => From(7, data);
+    public static ApiData<Character> From(Character data) => From(9, data);
   }
 }

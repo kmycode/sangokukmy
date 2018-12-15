@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SangokuKmy.Controllers
 {
-  [Route("api/[controller]")]
+  [Route("api")]
   [ApiController]
   public class ValuesController : ControllerBase
   {
@@ -52,7 +52,7 @@ namespace SangokuKmy.Controllers
     }
 
     // GET api/values/streaming
-    [HttpGet("streaming")]
+    [HttpGet("v1/test/streaming")]
     public async Task StreamingTest()
     {
       try
@@ -67,7 +67,7 @@ namespace SangokuKmy.Controllers
         await Task.Delay(1000 * 3);
 
         // もう一度メッセージを送信
-        await this.Response.WriteAsync(@"{""typeId"":4,""data"":{""id"":100,""message"":""てすと"",""type"":{""id"":6,""text"":""支配"",""color"":""blue""},""date"":{""year"":2018,""month"":12,""day"":1,""hours"":12,""minutes"":0,""seconds"":0}}}
+        await this.Response.WriteAsync(@"{""type"":4,""data"":{""id"":100,""message"":""てすと"",""type"":{""id"":6,""text"":""支配"",""color"":""blue""},""date"":{""year"":2018,""month"":12,""day"":1,""hours"":12,""minutes"":0,""seconds"":0}}}
 ");
         await this.Response.WriteAsync("data: きゅうりでつっこむぞ\n");
 

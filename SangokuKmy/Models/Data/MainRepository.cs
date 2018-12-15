@@ -64,7 +64,14 @@ namespace SangokuKmy.Models.Data
     /// <returns>ロック解除オブジェクト</returns>
     public IDisposable ReadLock()
     {
-      locker.AcquireReaderLock(20_000);
+      try
+      {
+        locker.AcquireReaderLock(20_000);
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.LockFailedError.Throw(ex);
+      }
       return new ReadOnlyLock();
     }
 
@@ -74,7 +81,14 @@ namespace SangokuKmy.Models.Data
     /// <returns>ロック解除オブジェクト</returns>
     public IDisposable WriteLock()
     {
-      locker.AcquireWriterLock(20_000);
+      try
+      {
+        locker.AcquireWriterLock(20_000);
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.LockFailedError.Throw(ex);
+      }
       return new WritableLock();
     }
 
