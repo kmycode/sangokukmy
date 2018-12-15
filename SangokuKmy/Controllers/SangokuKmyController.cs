@@ -10,6 +10,7 @@ using SangokuKmy.Models.Services;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Filters;
+using Newtonsoft.Json;
 
 namespace SangokuKmy.Controllers
 {
@@ -18,14 +19,22 @@ namespace SangokuKmy.Controllers
   public class SangokuKmyController : Controller
   {
     [HttpPost("authenticate")]
-    public ApiData<AuthenticationData> Authenticate([FromForm] string id, [FromForm] string password)
+    public ApiData<AuthenticationData> Authenticate([FromBody] AuthenticateParameter param)
     {
       AuthenticationData authData;
       using (var repo = new MainRepository())
       {
-        authData = AuthenticationService.WithIdAndPassword(repo, id, password);
+        authData = AuthenticationService.WithIdAndPassword(repo, param.Id, param.Password);
       }
       return ApiData.From(authData);
+    }
+
+    public struct AuthenticateParameter
+    {
+      [JsonProperty("id")]
+      public string Id { get; set; }
+      [JsonProperty("password")]
+      public string Password { get; set; }
     }
   }
 }
