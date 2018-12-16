@@ -107,6 +107,24 @@ namespace SangokuKmy.Models.Data.Entities
     public short PopularityEx { get; set; }
 
     /// <summary>
+    /// 兵士の種類
+    /// </summary>
+    [Column("soldier_type")]
+    [JsonIgnore]
+    public SoldierType SoldierType { get; set; }
+
+    /// <summary>
+    /// 兵士の種類（JSON出力用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("soldierType")]
+    public short ApiSoldierType
+    {
+      get => (short)this.SoldierType;
+      set => this.SoldierType = (SoldierType)value;
+    }
+
+    /// <summary>
     /// 兵士数
     /// </summary>
     [Column("soldier_number")]
@@ -145,7 +163,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// 階級
     /// </summary>
     [Column("class")]
-    [JsonProperty("class")]
+    [JsonProperty("classValue")]
     public int Class { get; set; }
 
     /// <summary>
@@ -222,5 +240,78 @@ namespace SangokuKmy.Models.Data.Entities
 
       return hashText;
     }
+  }
+
+  public enum SoldierType : short
+  {
+    /// <summary>
+    /// 雑兵
+    /// </summary>
+    Common = 1,
+
+    /// <summary>
+    /// 護衛兵
+    /// </summary>
+    Guard = 2,
+
+    /// <summary>
+    /// 軽歩兵
+    /// </summary>
+    LightInfantry = 3,
+
+    /// <summary>
+    /// 弓兵
+    /// </summary>
+    Archer = 4,
+
+    /// <summary>
+    /// 軽騎兵
+    /// </summary>
+    LightCavalry = 5,
+
+    /// <summary>
+    /// 強度兵
+    /// </summary>
+    StrongCrossbow = 6,
+
+    /// <summary>
+    /// 神鬼兵
+    /// </summary>
+    LightIntellect = 7,
+
+    /// <summary>
+    /// 重歩兵
+    /// </summary>
+    HeavyInfantry = 8,
+
+    /// <summary>
+    /// 重騎兵
+    /// </summary>
+    HeavyCavalry = 9,
+
+    /// <summary>
+    /// 智攻兵
+    /// </summary>
+    Intellect = 10,
+
+    /// <summary>
+    /// 連弩兵
+    /// </summary>
+    RepeatingCrossbow = 11,
+
+    /// <summary>
+    /// 壁守兵
+    /// </summary>
+    StrongGuards = 12,
+
+    /// <summary>
+    /// 衝車
+    /// </summary>
+    Shosha = 13,
+
+    /// <summary>
+    /// 井闌
+    /// </summary>
+    Seiran = 14,
   }
 }
