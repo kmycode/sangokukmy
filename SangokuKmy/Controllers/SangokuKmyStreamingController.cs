@@ -32,7 +32,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<MapLog> importantMaplogs;
       Optional<Country> country;
       IEnumerable<TownForAnonymous> towns;
-      Town town;
+      IEnumerable<Town> myTowns;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -40,8 +40,10 @@ namespace SangokuKmy.Controllers
         maplogs = await repo.MapLog.GetNewestAsync(5);
         importantMaplogs = await repo.MapLog.GetImportantNewestAsync(5);
         country = await repo.Country.GetByIdAsync(chara.CountryId);
-        towns = await repo.Town.GetAllForAnonymousAsync();
-        town = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { entityType = "town", });
+
+        var allTowns = await repo.Town.GetAllAsync();
+        towns = allTowns.Select(tw => new TownForAnonymous(tw));
+        myTowns = allTowns.Where(tw => tw.CountryId == chara.CountryId);
       }
 
       // HTTPヘッダを設定する
@@ -63,7 +65,10 @@ namespace SangokuKmy.Controllers
       {
         sendData.Add(item);
       }
-      sendData.Add(ApiData.From(town));
+      foreach (var item in myTowns.Select(tw => ApiData.From(tw)))
+      {
+        sendData.Add(item);
+      }
       if (country.HasData) sendData.Add(ApiData.From(country.Data));
 
       // 初期データを送信する
