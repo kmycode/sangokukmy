@@ -48,7 +48,7 @@ namespace SangokuKmy.Filters
       }
 
       // アクセストークンを保存済のデータと照合する
-      using (var repo = new MainRepository())
+      using (var repo = MainRepository.WithRead())
       {
         AuthenticationData authData = null;
         Task.Run(async () => {

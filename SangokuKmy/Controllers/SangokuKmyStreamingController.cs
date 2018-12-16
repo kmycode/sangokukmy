@@ -31,7 +31,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<MapLog> importantMaplogs;
       Optional<Country> country;
       Town town;
-      using (var repo = new MainRepository())
+      using (var repo = MainRepository.WithRead())
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         maplogs = await repo.MapLog.GetNewestAsync(5);

@@ -23,7 +23,7 @@ namespace SangokuKmy.Controllers
       ([FromBody] AuthenticateParameter param)
     {
       AuthenticationData authData;
-      using (var repo = new MainRepository())
+      using (var repo = MainRepository.WithReadAndWrite())
       {
         authData = await AuthenticationService.WithIdAndPasswordAsync(repo, param.Id, param.Password);
       }

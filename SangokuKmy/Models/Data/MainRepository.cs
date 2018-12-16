@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Common.Definitions;
+using Nito.AsyncEx;
 
 namespace SangokuKmy.Models.Data
 {
@@ -63,10 +64,33 @@ namespace SangokuKmy.Models.Data
     public TownRepository Town => this._town = this._town ?? new TownRepository(this.container);
     private TownRepository _town;
 
-    private readonly IRepositoryContainer container;
-    private static readonly ReaderWriterLock locker = new ReaderWriterLock();
+    /// <summary>
+    /// 読み込みロックをかけた状態のリポジトリを入手する
+    /// </summary>
+    /// <returns>リポジトリ</returns>
+    public static MainRepository WithRead()
+    {
+      var repo = new MainRepository();
+      repo.ReadLock();
+      return repo;
+    }
 
-    public MainRepository()
+    /// <summary>
+    /// 書き込みロックをかけた状態のリポジトリを入手する
+    /// </summary>
+    /// <returns>リポジトリ</returns>
+    public static MainRepository WithReadAndWrite()
+    {
+      var repo = new MainRepository();
+      repo.WriteLock();
+      return repo;
+    }
+
+    private readonly IRepositoryContainer container;
+    private static readonly AsyncReaderWriterLock locker = new AsyncReaderWriterLock();
+    private IDisposable unlocker;
+
+    private MainRepository()
     {
       this.container = new Container(this);
     }
@@ -74,69 +98,38 @@ namespace SangokuKmy.Models.Data
     public void Dispose()
     {
       this.Context?.Dispose();
+      this.unlocker?.Dispose();
     }
 
     /// <summary>
     /// 読み込み限定でロックをかける
     /// </summary>
     /// <returns>ロック解除オブジェクト</returns>
-    public IDisposable ReadLock()
+    private void ReadLock()
     {
       try
       {
-        locker.AcquireReaderLock(20_000);
+        this.unlocker = locker.ReaderLock();
       }
       catch (Exception ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
       }
-      return new ReadOnlyLock();
     }
 
     /// <summary>
     /// 読み込みと書き込みが可能なロックをかける
     /// </summary>
     /// <returns>ロック解除オブジェクト</returns>
-    public IDisposable WriteLock()
+    private void WriteLock()
     {
       try
       {
-        locker.AcquireWriterLock(20_000);
+        this.unlocker = locker.WriterLock();
       }
       catch (Exception ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
-      }
-      return new WritableLock();
-    }
-
-    private class ReadOnlyLock : IDisposable
-    {
-      public void Dispose()
-      {
-        try
-        {
-          locker.ReleaseReaderLock();
-        }
-        catch (Exception ex)
-        {
-          ErrorCode.LockFailedError.Throw(ex);
-        }
-      }
-    }
-
-    private class WritableLock : IDisposable
-    {
-      public void Dispose()
-      {
-        try
-        {
-          locker.ReleaseWriterLock();
-        }
-        catch (Exception ex)
-        {
-          ErrorCode.LockFailedError.Throw(ex);
-        }
       }
     }
 
