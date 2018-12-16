@@ -84,6 +84,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<Town> Towns { get; set; }
 
     /// <summary>
+    /// 諜報された都市データ
+    /// </summary>
+    public DbSet<ScoutedTown> ScoutedTowns { get; set; }
+
+    /// <summary>
     /// 都市の守備武将
     /// </summary>
     public DbSet<TownDefender> TownDefenders { get; set; }

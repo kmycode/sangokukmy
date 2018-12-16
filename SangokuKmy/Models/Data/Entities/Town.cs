@@ -5,8 +5,7 @@ using Newtonsoft.Json;
 
 namespace SangokuKmy.Models.Data.Entities
 {
-  [Table("town")]
-  public class Town
+  public abstract class TownBase
   {
     [Key]
     [Column("id")]
@@ -160,6 +159,11 @@ namespace SangokuKmy.Models.Data.Entities
       get => this.IntRicePrice / 1000000.0f;
       set => this.IntRicePrice = (int)(value * 1000000);
     }
+  }
+
+  [Table("town")]
+  public class Town : TownBase
+  {
   }
 
   public enum TownType : byte

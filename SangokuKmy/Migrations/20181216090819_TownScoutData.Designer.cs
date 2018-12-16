@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20181216090819_TownScoutData")]
+    partial class TownScoutData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -499,9 +501,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<uint>("ScoutedCountryId")
                         .HasColumnName("scouted_country_id");
-
-                    b.Property<uint>("ScoutedTownId")
-                        .HasColumnName("scouted_town_id");
 
                     b.Property<short>("Security")
                         .HasColumnName("security");
