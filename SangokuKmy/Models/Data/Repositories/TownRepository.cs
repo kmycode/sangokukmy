@@ -6,6 +6,8 @@ using SangokuKmy.Models.Data.Entities;
 using System.Collections;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using SangokuKmy.Models.Data.ApiEntities;
+using System.Linq;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -42,11 +44,28 @@ namespace SangokuKmy.Models.Data.Repositories
     /// すべての都市を取得する
     /// </summary>
     /// <returns>都市</returns>
-    public async Task<IReadOnlyCollection<Town>> GetAllAsync(uint id)
+    public async Task<IReadOnlyCollection<Town>> GetAllAsync()
     {
       try
       {
         return await this.container.Context.Towns.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return null;
+      }
+    }
+
+    /// <summary>
+    /// すべての都市を、誰でも見れるデータのみを抽出して取得する
+    /// </summary>
+    /// <returns>都市</returns>
+    public async Task<IReadOnlyCollection<TownForAnonymous>> GetAllForAnonymousAsync()
+    {
+      try
+      {
+        return await this.container.Context.Towns.Select(t => new TownForAnonymous(t)).ToArrayAsync();
       }
       catch (Exception ex)
       {

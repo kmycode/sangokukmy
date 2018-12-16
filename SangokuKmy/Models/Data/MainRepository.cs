@@ -35,6 +35,12 @@ namespace SangokuKmy.Models.Data
     private MainContext _context;
 
     /// <summary>
+    /// システム情報
+    /// </summary>
+    public SystemRepository System => this._system = this._system ?? new SystemRepository(this.container);
+    private SystemRepository _system;
+
+    /// <summary>
     /// 認証データ
     /// </summary>
     public AuthenticationDataRepository AuthenticationData => this._auth = this._auth ?? new AuthenticationDataRepository(this.container);

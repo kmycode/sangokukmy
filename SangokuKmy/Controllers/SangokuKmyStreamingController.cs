@@ -26,17 +26,21 @@ namespace SangokuKmy.Controllers
     [HttpGet("status")]
     public async Task StatusStreamingAsync()
     {
+      SystemData system;
       Character chara;
       IEnumerable<MapLog> maplogs;
       IEnumerable<MapLog> importantMaplogs;
       Optional<Country> country;
+      IEnumerable<TownForAnonymous> towns;
       Town town;
       using (var repo = MainRepository.WithRead())
       {
+        system = await repo.System.GetAsync();
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         maplogs = await repo.MapLog.GetNewestAsync(5);
         importantMaplogs = await repo.MapLog.GetImportantNewestAsync(5);
         country = await repo.Country.GetByIdAsync(chara.CountryId);
+        towns = await repo.Town.GetAllForAnonymousAsync();
         town = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { entityType = "town", });
       }
 
@@ -46,9 +50,20 @@ namespace SangokuKmy.Controllers
       // 送信する初期データをリストアップ
       var sendData = new List<object> {
         ApiData.From(chara),
-        maplogs.Select(ml => ApiData.From(ml)),
-        importantMaplogs.Select(ml => ApiData.From(ml)),
-        ApiData.From(town), };
+        ApiData.From(system.GameDateTime), };
+      foreach (var item in maplogs.Select(ml => ApiData.From(ml)))
+      {
+        sendData.Add(item);
+      }
+      foreach (var item in importantMaplogs.Select(ml => ApiData.From(ml)))
+      {
+        sendData.Add(item);
+      }
+      foreach (var item in towns.Select(tw => ApiData.From(tw)))
+      {
+        sendData.Add(item);
+      }
+      sendData.Add(ApiData.From(town));
       if (country.HasData) sendData.Add(ApiData.From(country.Data));
 
       // 初期データを送信する
