@@ -26,7 +26,7 @@ namespace SangokuKmy.Filters
       try
       {
         context.HttpContext.Response.StatusCode = exception.StatusCode;
-        context.Result = new JsonResult(ApiData.From(new ApiError { Code = exception.ErrorCode.Code, Data = exception.Data }));
+        context.Result = new JsonResult(ApiData.From(new ApiError { Code = exception.ErrorCode.Code, Data = exception.AdditionalData }));
       }
       catch
       {

@@ -23,11 +23,18 @@ namespace SangokuKmy.Common
     /// </summary>
     /// <returns>取得したデータ</returns>
     /// <param name="error">エラーコード</param>
-    public T GetOrError(ErrorCode error)
+    public T GetOrError(ErrorCode error, object extraData = null)
     {
       if (!this.HasData)
       {
-        error.Throw();
+        if (extraData == null)
+        {
+          error.Throw();
+        }
+        else
+        {
+          error.Throw(extraData);
+        }
       }
       return this.Data;
     }
@@ -74,9 +81,19 @@ namespace SangokuKmy.Common
     /// <returns>取得したデータ</returns>
     /// <param name="error">エラーコード</param>
     /// <typeparam name="T">データの型</typeparam>
-    public static async Task<T> GetOrErrorAsync<T>(this Task<Optional<T>> optional, ErrorCode error) where T : class
+    public static async Task<T> GetOrErrorAsync<T>(this Task<Optional<T>> optional, ErrorCode error, object extraData = null) where T : class
     {
-      return (await optional).GetOrError(error);
+      return (await optional).GetOrError(error, extraData);
+    }
+
+    /// <summary>
+    /// 非同期Optionalの中身を取得して、NULLであってもそのまま返す
+    /// </summary>
+    /// <returns>取得したデータ</returns>
+    /// <typeparam name="T">データの型</typeparam>
+    public static async Task<T> GetUnsafelyAsync<T>(this Task<Optional<T>> optional) where T : class
+    {
+      return (await optional).Data;
     }
   }
 }

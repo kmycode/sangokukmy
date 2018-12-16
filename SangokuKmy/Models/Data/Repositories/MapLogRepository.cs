@@ -1,0 +1,80 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using SangokuKmy.Models.Data.Entities;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using SangokuKmy.Common;
+using SangokuKmy.Models.Common.Definitions;
+using System.Collections;
+
+namespace SangokuKmy.Models.Data.Repositories
+{
+  public class MapLogRepository
+  {
+    private readonly IRepositoryContainer container;
+
+    public MapLogRepository(IRepositoryContainer container)
+    {
+      this.container = container;
+    }
+
+    /// <summary>
+    /// 最新のログを取得
+    /// </summary>
+    /// <returns>最新ログ</returns>
+    /// <param name="count">取得数</param>
+    public async Task<IEnumerable<MapLog>> GetNewestAsync(int count)
+      => await this.GetRangeAsync(0, count, false);
+
+    /// <summary>
+    /// 最新の重要ログを取得
+    /// </summary>
+    /// <returns>最新ログ</returns>
+    /// <param name="count">取得数</param>
+    public async Task<IEnumerable<MapLog>> GetImportantNewestAsync(int count)
+      => await this.GetRangeAsync(0, count, true);
+
+    /// <summary>
+    /// 範囲を指定して、ログを取得
+    /// </summary>
+    /// <returns>ログ</returns>
+    /// <param name="startIndex">開始位置</param>
+    /// <param name="count">取得数</param>
+    public async Task<IEnumerable<MapLog>> GetRangeAsync(int startIndex, int count)
+      => await this.GetRangeAsync(startIndex, count, false);
+
+    /// <summary>
+    /// 範囲を指定して、重要ログを取得
+    /// </summary>
+    /// <returns>ログ</returns>
+    /// <param name="startIndex">開始位置</param>
+    /// <param name="count">取得数</param>
+    public async Task<IEnumerable<MapLog>> GetImportantRangeAsync(int startIndex, int count)
+      => await this.GetRangeAsync(startIndex, count, true);
+
+    /// <summary>
+    /// 範囲を指定して、ログを取得
+    /// </summary>
+    /// <returns>取得されたログ</returns>
+    /// <param name="startIndex">取得開始位置</param>
+    /// <param name="count">取得数</param>
+    /// <param name="isImportant">重要ログであるか</param>
+    private async Task<IEnumerable<MapLog>> GetRangeAsync(int startIndex, int count, bool isImportant)
+    {
+      try
+      {
+        return await this.container.Context.MapLogs
+          .Where(ml => ml.IsImportant == isImportant)
+          .Skip(startIndex)
+          .Take(count)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return null;
+      }
+    }
+  }
+}

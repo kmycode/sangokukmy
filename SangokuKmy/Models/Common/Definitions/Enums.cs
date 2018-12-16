@@ -71,6 +71,11 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode LoginTokenEmptyError { get; } = new ErrorCode(401, 9);
 
     /// <summary>
+    /// 内部データが見つからないエラー
+    /// </summary>
+    public static ErrorCode InternalDataNotFoundError { get; } = new ErrorCode(500, 10);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }
@@ -89,6 +94,11 @@ namespace SangokuKmy.Models.Common.Definitions
     public void Throw()
     {
       throw new SangokuKmyException(this);
+    }
+
+    public void Throw(object data)
+    {
+      throw new SangokuKmyException(this.StatusCode, this, data);
     }
 
     public void Throw(Exception original)

@@ -45,6 +45,24 @@ namespace SangokuKmy.Models.Data
     public CharacterRepository Character => this._chara = this._chara ?? new CharacterRepository(this.container);
     private CharacterRepository _chara;
 
+    /// <summary>
+    /// マップログ
+    /// </summary>
+    public MapLogRepository MapLog => this._maplog = this._maplog ?? new MapLogRepository(this.container);
+    private MapLogRepository _maplog;
+
+    /// <summary>
+    /// 国
+    /// </summary>
+    public CountryRepository Country => this._country = this._country ?? new CountryRepository(this.container);
+    private CountryRepository _country;
+
+    /// <summary>
+    /// 都市
+    /// </summary>
+    public TownRepository Town => this._town = this._town ?? new TownRepository(this.container);
+    private TownRepository _town;
+
     private readonly IRepositoryContainer container;
     private static readonly ReaderWriterLock locker = new ReaderWriterLock();
 
