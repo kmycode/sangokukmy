@@ -48,7 +48,7 @@ namespace SangokuKmy.Models.Common.Definitions
     /// <summary>
     /// ログインしている武将が見つからないエラー
     /// </summary>
-    public static ErrorCode LoginCharacterNotFoundError { get; } = new ErrorCode(403, 5);
+    public static ErrorCode LoginCharacterNotFoundError { get; } = new ErrorCode(401, 5);
 
     /// <summary>
     /// ログイン時のパラメータが足りないエラー
