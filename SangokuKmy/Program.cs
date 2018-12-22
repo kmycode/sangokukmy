@@ -26,6 +26,7 @@ namespace SangokuKmy
           logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
         })
         .UseNLog()
+        .UseUrls("http://0.0.0.0:5000")
         .UseStartup<Startup>();
   }
 }
