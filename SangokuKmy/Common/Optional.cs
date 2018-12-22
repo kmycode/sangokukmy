@@ -48,6 +48,28 @@ namespace SangokuKmy.Common
     {
       this.Data = data;
     }
+
+    /// <summary>
+    /// データを保持していた時に、処理を実行する
+    /// </summary>
+    /// <returns>自身</returns>
+    /// <param name="act">実行する処理</param>
+    public Optional<T> Some(Action<T> act)
+    {
+      if (this.HasData) act(this.Data);
+      return this;
+    }
+
+    /// <summary>
+    /// データを保持していなかった時に、処理を実行する
+    /// </summary>
+    /// <returns>自身</returns>
+    /// <param name="act">実行する処理</param>
+    public Optional<T> None(Action act)
+    {
+      if (!this.HasData) act();
+      return this;
+    }
   }
 
   public static class OptionalExtensions
@@ -94,6 +116,28 @@ namespace SangokuKmy.Common
     public static async Task<T> GetUnsafelyAsync<T>(this Task<Optional<T>> optional) where T : class
     {
       return (await optional).Data;
+    }
+
+    /// <summary>
+    /// 非同期Optionalの中身が存在すれば処理を実行する
+    /// </summary>
+    /// <returns>非同期Optional</returns>
+    /// <param name="optional">非同期Optional</param>
+    /// <param name="act">処理</param>
+    public static async Task<Optional<T>> SomeAsync<T>(this Task<Optional<T>> optional, Action<T> act) where T : class
+    {
+      return (await optional).Some(act);
+    }
+
+    /// <summary>
+    /// 非同期Optionalの中身が存在しなければ処理を実行する
+    /// </summary>
+    /// <returns>非同期Optional</returns>
+    /// <param name="optional">非同期Optional</param>
+    /// <param name="act">処理</param>
+    public static async Task<Optional<T>> NoneAsync<T>(this Task<Optional<T>> optional, Action act) where T : class
+    {
+      return (await optional).None(act);
     }
   }
 }

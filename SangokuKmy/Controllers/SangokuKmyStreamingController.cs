@@ -50,26 +50,14 @@ namespace SangokuKmy.Controllers
       this.Response.Headers.Add("Content-Type", "text/event-stream; charset=UTF-8");
 
       // 送信する初期データをリストアップ
-      var sendData = new List<object> {
-        ApiData.From(chara),
-        ApiData.From(system.GameDateTime), };
-      foreach (var item in maplogs.Select(ml => ApiData.From(ml)))
-      {
-        sendData.Add(item);
-      }
-      foreach (var item in importantMaplogs.Select(ml => ApiData.From(ml)))
-      {
-        sendData.Add(item);
-      }
-      foreach (var item in towns.Select(tw => ApiData.From(tw)))
-      {
-        sendData.Add(item);
-      }
-      foreach (var item in myTowns.Select(tw => ApiData.From(tw)))
-      {
-        sendData.Add(item);
-      }
-      if (country.HasData) sendData.Add(ApiData.From(country.Data));
+      var sendData = Enumerable.Empty<object>()
+        .Concat(new object[] { ApiData.From(chara), ApiData.From(system.GameDateTime), })
+        .Concat(maplogs.Select(ml => ApiData.From(ml)))
+        .Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
+        .Concat(towns.Select(tw => ApiData.From(tw)))
+        .Concat(myTowns.Select(tw => ApiData.From(tw)))
+        .ToList();
+      country.Some(c => sendData.Add(ApiData.From(c)));
 
       // 初期データを送信する
       var initializeData = new StringBuilder();
