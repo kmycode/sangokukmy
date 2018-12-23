@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
@@ -41,14 +42,6 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
-    /// コマンドの名前
-    /// </summary>
-    [MaxLength(128)]
-    [Column("name")]
-    [JsonProperty("name")]
-    public string Name { get; set; }
-
-    /// <summary>
     /// コマンドを実行するゲーム内の年月（DB保存用）
     /// </summary>
     [Column("game_date")]
@@ -65,6 +58,13 @@ namespace SangokuKmy.Models.Data.Entities
       get => GameDateTime.FromInt(this.IntGameDateTime);
       set => this.IntGameDateTime = value.ToInt();
     }
+
+    /// <summary>
+    /// コマンドパラメータ
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("parameters")]
+    public IList<CharacterCommandParameter> Parameters { get; } = new List<CharacterCommandParameter>();
   }
 
   public enum CharacterCommandType : short
