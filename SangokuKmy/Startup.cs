@@ -43,6 +43,8 @@ namespace SangokuKmy
         app.UseDeveloperExceptionPage();
       }
 
+      app.UseStaticFiles();
+
       // CORSを有効にする
       app.UseCors(builder => builder.AllowAnyOrigin()
                       .AllowAnyMethod()
