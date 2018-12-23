@@ -44,6 +44,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<CharacterCommand> CharacterCommands { get; set; }
 
     /// <summary>
+    /// 武将のコマンドのパラメータ
+    /// </summary>
+    public DbSet<CharacterCommandParameter> CharacterCommandParameters { get; set; }
+
+    /// <summary>
     /// 武将のログ
     /// </summary>
     public DbSet<CharacterLog> CharacterLogs { get; set; }

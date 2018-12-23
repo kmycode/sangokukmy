@@ -41,6 +41,14 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
+    /// コマンドの名前
+    /// </summary>
+    [MaxLength(128)]
+    [Column("name")]
+    [JsonProperty("name")]
+    public string Name { get; set; }
+
+    /// <summary>
     /// コマンドを実行するゲーム内の年月（DB保存用）
     /// </summary>
     [Column("game_date")]
