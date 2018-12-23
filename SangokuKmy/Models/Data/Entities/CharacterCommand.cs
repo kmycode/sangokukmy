@@ -59,7 +59,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// コマンドを実行するゲーム内の年月
     /// </summary>
     [NotMapped]
-    [JsonProperty("game_date")]
+    [JsonProperty("gameDate")]
     public GameDateTime GameDateTime
     {
       get => GameDateTime.FromInt(this.IntGameDateTime);
