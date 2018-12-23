@@ -48,6 +48,7 @@ namespace SangokuKmy.Controllers
 
       // HTTPヘッダを設定する
       this.Response.Headers.Add("Content-Type", "text/event-stream; charset=UTF-8");
+      this.Response.Headers.Add("Cache-Control", "no-cache");
 
       // 送信する初期データをリストアップ
       var sendData = Enumerable.Empty<object>()
@@ -73,7 +74,7 @@ namespace SangokuKmy.Controllers
       StatusStreaming.Default.Add(this.Response, this.AuthData, chara, () => isRemoved = true);
       while (!isRemoved)
       {
-        await Task.Delay(5000);
+        await Task.Delay(50);
         await StatusStreaming.Default.SendAll(ApiData.From(ApiDateTime.FromDateTime(DateTime.Now)));
       }
     }

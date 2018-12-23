@@ -23,11 +23,14 @@ namespace SangokuKmy.Streamings
       {
         locker.AcquireWriterLock(30_000);
         this.streams.Add(data);
-        locker.ReleaseWriterLock();
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
+      }
+      finally
+      {
+        locker.ReleaseWriterLock();
       }
     }
 
@@ -40,11 +43,14 @@ namespace SangokuKmy.Streamings
         {
           this.streams.Add(d);
         }
-        locker.ReleaseWriterLock();
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
+      }
+      finally
+      {
+        locker.ReleaseWriterLock();
       }
     }
 
@@ -56,11 +62,14 @@ namespace SangokuKmy.Streamings
       {
         locker.AcquireReaderLock(30_000);
         result = this.streams.Where(subject).ToArray();
-        locker.ReleaseReaderLock();
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
+      }
+      finally
+      {
+        locker.ReleaseReaderLock();
       }
 
       return result;
@@ -73,11 +82,14 @@ namespace SangokuKmy.Streamings
         locker.AcquireWriterLock(30_000);
         this.streams.Remove(data);
         data.OnRemoved();
-        locker.ReleaseWriterLock();
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
+      }
+      finally
+      {
+        locker.ReleaseWriterLock();
       }
     }
 
@@ -91,11 +103,14 @@ namespace SangokuKmy.Streamings
           this.streams.Remove(d);
           d.OnRemoved();
         }
-        locker.ReleaseWriterLock();
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
+      }
+      finally
+      {
+        locker.ReleaseWriterLock();
       }
     }
 
@@ -112,11 +127,14 @@ namespace SangokuKmy.Streamings
             this.streams.Remove(target);
             target.OnRemoved();
           }
-          locker.ReleaseWriterLock();
         }
         catch (ApplicationException ex)
         {
           ErrorCode.LockFailedError.Throw(ex);
+        }
+        finally
+        {
+          locker.ReleaseWriterLock();
         }
       }
     }
@@ -140,15 +158,22 @@ namespace SangokuKmy.Streamings
             errored.Add(d);
           }
         }
-        foreach (var d in errored)
+        if (errored.Any())
         {
-          this.streams.Remove(d);
+          locker.UpgradeToWriterLock(30_000);
+          foreach (var d in errored)
+          {
+            this.streams.Remove(d);
+          }
         }
-        locker.ReleaseReaderLock();
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
+      }
+      finally
+      {
+        locker.ReleaseLock();
       }
     }
   }
