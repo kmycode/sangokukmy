@@ -2,6 +2,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using SangokuKmy.Models.Data.Entities;
+using System.Collections.Generic;
+using System.Collections;
 namespace SangokuKmy.Models.Data.ApiEntities
 {
   public class ApiData<T>
@@ -12,6 +14,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("type")]
     public int Type { get; set; }
 
+    [JsonProperty("isArray")]
+    public bool IsArray => false;
+
     /// <summary>
     /// 実際のデータ
     /// </summary>
@@ -19,11 +24,38 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public T Data { get; set; }
   }
 
+  public class ApiArrayData<T>
+  {
+    /// <summary>
+    /// 型の種類
+    /// </summary>
+    [JsonProperty("type")]
+    public int Type { get; set; }
+
+    [JsonProperty("isArray")]
+    public bool IsArray => true;
+
+    /// <summary>
+    /// 配列
+    /// </summary>
+    [JsonProperty("data")]
+    public IEnumerable<T> Data { get; set; }
+  }
+
   public static class ApiData
   {
     private static ApiData<DT> From<DT>(int type, DT data)
     {
       return new ApiData<DT>
+      {
+        Type = type,
+        Data = data,
+      };
+    }
+
+    private static ApiArrayData<DT> From<DT>(int type, IEnumerable<DT> data)
+    {
+      return new ApiArrayData<DT>
       {
         Type = type,
         Data = data,
@@ -39,5 +71,8 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<Town> From(Town data) => From(11, data);
     public static ApiData<TownForAnonymous> From(TownForAnonymous data) => From(11, data);
     public static ApiData<GameDateTime> From(GameDateTime data) => From(12, data);
+    public static ApiData<CharacterLog> From(CharacterLog data) => From(13, data);
+    public static ApiData<CharacterCommand> From(CharacterCommand data) => From(14, data);
+    public static ApiArrayData<CharacterCommand> From(IEnumerable<CharacterCommand> data) => From(14, data);
   }
 }

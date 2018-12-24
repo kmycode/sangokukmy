@@ -73,5 +73,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 何も実行しない
     /// </summary>
     None = 0,
+
+    /// <summary>
+    /// 農業開発
+    /// </summary>
+    Agriculture = 1,
   }
 }

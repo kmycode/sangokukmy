@@ -53,6 +53,12 @@ namespace SangokuKmy.Models.Data
     private CharacterRepository _chara;
 
     /// <summary>
+    /// 武将コマンド
+    /// </summary>
+    public CharacterCommandRepository CharacterCommand => this._charaCommand = this._charaCommand ?? new CharacterCommandRepository(this.container);
+    private CharacterCommandRepository _charaCommand;
+
+    /// <summary>
     /// マップログ
     /// </summary>
     public MapLogRepository MapLog => this._maplog = this._maplog ?? new MapLogRepository(this.container);
@@ -106,6 +112,11 @@ namespace SangokuKmy.Models.Data
       this.Context?.Dispose();
       this.unlocker?.Dispose();
     }
+
+    /// <summary>
+    /// 変更をDBに保存する
+    /// </summary>
+    public async Task SaveChangesAsync() => await this.Context.SaveChangesAsync();
 
     /// <summary>
     /// 読み込み限定でロックをかける

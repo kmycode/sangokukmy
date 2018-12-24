@@ -11,13 +11,17 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Filters;
 using Newtonsoft.Json;
+using System.Collections;
+using SangokuKmy.Models.Commands;
 
 namespace SangokuKmy.Controllers
 {
   [Route("api/v1")]
   [SangokuKmyErrorFilter]
-  public class SangokuKmyController : Controller
+  public class SangokuKmyController : Controller, IAuthenticationDataReceiver
   {
+    public AuthenticationData AuthData { private get; set; }
+
     [HttpPost("authenticate")]
     public async Task<ApiData<AuthenticationData>> AuthenticateAsync
       ([FromBody] AuthenticateParameter param)
@@ -36,6 +40,37 @@ namespace SangokuKmy.Controllers
       public string Id { get; set; }
       [JsonProperty("password")]
       public string Password { get; set; }
+    }
+
+    [AuthenticationFilter]
+    [HttpGet("commands")]
+    public async Task<ApiArrayData<CharacterCommand>> GetCharacterAllCommandsAsync()
+    {
+      IEnumerable<CharacterCommand> commands;
+      using (var repo = MainRepository.WithRead())
+      {
+        commands = await repo.CharacterCommand.GetAllAsync(this.AuthData.CharacterId);
+      }
+      return ApiData.From(commands);
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("commands")]
+    public async Task SetCharacterCommandsAsync(
+      [FromBody] IReadOnlyList<CharacterCommand> commands)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        foreach (var commandGroup in commands.GroupBy(c => c.Type))
+        {
+          var cmd = Commands.Get(commandGroup.Key);
+          foreach (var command in commandGroup)
+          {
+            await cmd.InputAsync(repo, this.AuthData.CharacterId, command.GameDateTime, command.Parameters.ToArray());
+          }
+        }
+        await repo.SaveChangesAsync();
+      }
     }
   }
 }

@@ -74,8 +74,7 @@ namespace SangokuKmy.Controllers
       StatusStreaming.Default.Add(this.Response, this.AuthData, chara, () => isRemoved = true);
       while (!isRemoved)
       {
-        await Task.Delay(50);
-        await StatusStreaming.Default.SendAll(ApiData.From(ApiDateTime.FromDateTime(DateTime.Now)));
+        await Task.Delay(5000);
       }
     }
   }

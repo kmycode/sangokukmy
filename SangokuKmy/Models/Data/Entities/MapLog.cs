@@ -18,7 +18,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// 重要な事柄であるか
     /// </summary>
     [Column("is_important")]
-    [JsonIgnore]
+    [JsonProperty("isImportant")]
     public bool IsImportant { get; set; }
 
     /// <summary>

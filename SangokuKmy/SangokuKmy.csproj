@@ -20,6 +20,7 @@
     <Folder Include="Common\" />
     <Folder Include="Streamings\" />
     <Folder Include="Models\Data\Entities\Caches\" />
+    <Folder Include="Models\Commands\" />
   </ItemGroup>
 
   <ItemGroup>
