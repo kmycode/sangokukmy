@@ -94,5 +94,25 @@ namespace SangokuKmy.Models.Data.Entities
     /// 農業開発
     /// </summary>
     Agriculture = 1,
+
+    /// <summary>
+    /// 商業発展
+    /// </summary>
+    Commercial = 2,
+
+    /// <summary>
+    /// 技術開発
+    /// </summary>
+    Technology = 3,
+
+    /// <summary>
+    /// 城壁強化
+    /// </summary>
+    Wall = 4,
+
+    /// <summary>
+    /// 守兵増強
+    /// </summary>
+    WallGuard = 5,
   }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using SangokuKmy.Models.Data.Entities;
 using System.Linq;
+using SangokuKmy.Common;
 namespace SangokuKmy.Models.Commands
 {
   public static class Commands
@@ -9,11 +10,15 @@ namespace SangokuKmy.Models.Commands
     private static readonly IReadOnlyCollection<Command> commands = new Command[]
     {
       new AgricultureCommand(),
+      new CommercialCommand(),
+      new TechnologyCommand(),
+      new WallCommand(),
+      new WallGuardCommand(),
     };
 
-    public static Command Get(CharacterCommandType type)
+    public static Optional<Command> Get(CharacterCommandType type)
     {
-      return commands.Single(c => c.Type == type);
+      return commands.SingleOrDefault(c => c.Type == type).ToOptional();
     }
   }
 }

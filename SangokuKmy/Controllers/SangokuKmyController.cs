@@ -13,6 +13,7 @@ using SangokuKmy.Filters;
 using Newtonsoft.Json;
 using System.Collections;
 using SangokuKmy.Models.Commands;
+using SangokuKmy.Models.Common.Definitions;
 
 namespace SangokuKmy.Controllers
 {
@@ -63,7 +64,7 @@ namespace SangokuKmy.Controllers
       {
         foreach (var commandGroup in commands.GroupBy(c => c.Type))
         {
-          var cmd = Commands.Get(commandGroup.Key);
+          var cmd = Commands.Get(commandGroup.Key).GetOrError(ErrorCode.CommandTypeNotFoundError);
           var sameCommandParamsGroups = commandGroup.GroupBy(g => g.Parameters.Sum(p => p.GetHashCode()), c => c);
           foreach (var sameCommandParamsGroup in sameCommandParamsGroups)
           {
