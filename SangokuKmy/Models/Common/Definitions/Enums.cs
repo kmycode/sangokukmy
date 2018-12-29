@@ -76,6 +76,16 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode InternalDataNotFoundError { get; } = new ErrorCode(500, 10);
 
     /// <summary>
+    /// 指定した種類のコマンドは見つからないエラー
+    /// </summary>
+    public static ErrorCode CommandTypeNotFoundError { get; } = new ErrorCode(400, 11);
+
+    /// <summary>
+    /// 操作が他の人とかぶった時に出るエラー
+    /// </summary>
+    public static ErrorCode OperationConflictError { get; } = new ErrorCode(409, 12);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }

@@ -80,7 +80,7 @@ namespace SangokuKmy.Models.Services
     private static string GenerateAccessToken(string id, string password)
     {
       var hash = new SHA256CryptoServiceProvider()
-        .ComputeHash(Encoding.UTF8.GetBytes($"{id} + {password} + Asuka is Kmy *** {DateTime.Now.ToLongTimeString()}"))
+        .ComputeHash(Encoding.UTF8.GetBytes($"{id} + {password} + Asuka is Kmy *** {DateTime.Now.ToLongTimeString()} Zokubutsu {DateTime.Now.Millisecond}"))
         .Select(b => string.Format("{0:x2}", b));
       var hashText = string.Join(string.Empty, hash);
 

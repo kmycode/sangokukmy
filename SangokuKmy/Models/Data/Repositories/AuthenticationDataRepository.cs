@@ -97,6 +97,11 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <param name="data">認証データ</param>
     public async Task AddAsync(AuthenticationData data)
     {
+      if (this.Cache.Any(c => c.AccessToken == data.AccessToken))
+      {
+        ErrorCode.OperationConflictError.Throw();
+      }
+
       try
       {
         this.Cache.Add(this.container.Context.AuthenticationData, data);
