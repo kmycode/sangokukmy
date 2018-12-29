@@ -31,6 +31,10 @@ namespace SangokuKmy.Models.Data.Repositories
         return (await this.container.Context.CharacterCommands
           .Where(c => c.CharacterId == characterId)
           .OrderBy(c => c.IntGameDateTime)
+          .GroupJoin(this.container.Context.CharacterCommandParameters,
+            c => c.Id,
+            cp => cp.CharacterCommandId,
+            (c, cps) => c.SetParameters(cps))
           .ToArrayAsync());
       }
       catch (Exception ex)
@@ -45,57 +49,55 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="characterId">武将ID</param>
     /// <param name="type">コマンドの種類</param>
-    /// <param name="target">入力先の年月</param>
+    /// <param name="targets">入力先の年月</param>
     /// <param name="parameters">コマンドパラメータ</param>
-    public async Task SetAsync(uint characterId, CharacterCommandType type, GameDateTime target, params CharacterCommandParameter[] parameters)
+    public async Task SetAsync(uint characterId, CharacterCommandType type, IEnumerable<GameDateTime> targets, params CharacterCommandParameter[] parameters)
     {
       try
       {
-        var targetInt = target.ToInt();
-        var old = await this.container.Context.CharacterCommands
-          .FirstOrDefaultAsync((c) => c.CharacterId == characterId && c.IntGameDateTime == targetInt);
+        var intTargets = targets.Select(t => t.ToInt());
+        var existCommands = await this.container.Context.CharacterCommands
+          .Where(c => c.CharacterId == characterId)
+          .Where(c => intTargets.Contains(c.IntGameDateTime))
+          .GroupJoin(this.container.Context.CharacterCommandParameters, c => c.Id, cp => cp.CharacterCommandId, (c, cps) => new { Command = c, CommandParameters = cps, })
+          .ToArrayAsync();
+        var existCommandIds = new List<uint>();
 
-        uint id;
-        if (old != null)
+        // 存在するコマンドを置き換え
+        this.container.Context.CharacterCommandParameters.RemoveRange(existCommands.SelectMany(c => c.CommandParameters));
+        foreach (var existCommand in existCommands)
         {
-          // 古いコマンドを置き換え
-          old.CharacterId = characterId;
-          old.Type = type;
-          old.IntGameDateTime = targetInt;
-          id = old.Id;
-
-          // パラメータを削除
-          if (parameters.Any())
-          {
-            var removeParameters = this.container.Context.CharacterCommandParameters
-              .Where((cp) => cp.CharacterCommandId == old.Id);
-            this.container.Context.CharacterCommandParameters.RemoveRange(removeParameters);
-          }
+          existCommand.Command.Type = type;
+          existCommandIds.Add(existCommand.Command.Id);
         }
-        else
-        {
-          var newCommand = new CharacterCommand
+
+
+        // 新しいコマンドを追加
+        var newCommandDates = intTargets
+          .Except(existCommands.Select(c => c.Command.IntGameDateTime))
+          .Select(d => new CharacterCommand
           {
             CharacterId = characterId,
             Type = type,
-            IntGameDateTime = targetInt,
-          };
-
-          // 新しくコマンドを追加
-          await this.container.Context.CharacterCommands.AddAsync(newCommand);
-
-          id = newCommand.Id;
-        }
+            IntGameDateTime = d,
+          })
+          .ToArray();
+        await this.container.Context.CharacterCommands.AddRangeAsync(newCommandDates);
 
         // パラメータを保存
         if (parameters.Any())
         {
-          foreach (var param in parameters)
-          {
-            param.Id = default;
-            param.CharacterCommandId = id;
-          }
-          await this.container.Context.CharacterCommandParameters.AddRangeAsync(parameters);
+          await this.container.Context.SaveChangesAsync();
+          var newParameters = existCommandIds
+            .Concat(newCommandDates.Select(d => d.Id))
+            .SelectMany(id => parameters.Select(cp => new CharacterCommandParameter
+            {
+              CharacterCommandId = id,
+              Type = cp.Type,
+              NumberValue = cp.NumberValue,
+              StringValue = cp.StringValue,
+            }));
+          await this.container.Context.CharacterCommandParameters.AddRangeAsync(newParameters);
         }
       }
       catch (Exception ex)

@@ -64,7 +64,23 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     [NotMapped]
     [JsonProperty("parameters")]
-    public IList<CharacterCommandParameter> Parameters { get; } = new List<CharacterCommandParameter>();
+    public IList<CharacterCommandParameter> Parameters { get; private set; } = new List<CharacterCommandParameter>();
+
+    public CharacterCommand SetParameters(IEnumerable<CharacterCommandParameter> parameters)
+    {
+      if (this.Parameters == null)
+      {
+        this.Parameters = new List<CharacterCommandParameter>(parameters);
+      }
+      else
+      {
+        foreach (var param in parameters)
+        {
+          this.Parameters.Add(param);
+        }
+      }
+      return this;
+    }
   }
 
   public enum CharacterCommandType : short

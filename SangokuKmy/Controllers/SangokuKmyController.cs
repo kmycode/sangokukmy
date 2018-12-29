@@ -64,9 +64,10 @@ namespace SangokuKmy.Controllers
         foreach (var commandGroup in commands.GroupBy(c => c.Type))
         {
           var cmd = Commands.Get(commandGroup.Key);
-          foreach (var command in commandGroup)
+          var sameCommandParamsGroups = commandGroup.GroupBy(g => g.Parameters.Sum(p => p.GetHashCode()), c => c);
+          foreach (var sameCommandParamsGroup in sameCommandParamsGroups)
           {
-            await cmd.InputAsync(repo, this.AuthData.CharacterId, command.GameDateTime, command.Parameters.ToArray());
+            await cmd.InputAsync(repo, this.AuthData.CharacterId, sameCommandParamsGroup.Select(c => c.GameDateTime), sameCommandParamsGroup.First().Parameters.ToArray());
           }
         }
         await repo.SaveChangesAsync();

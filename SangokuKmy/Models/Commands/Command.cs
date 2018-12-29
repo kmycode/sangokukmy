@@ -21,7 +21,7 @@ namespace SangokuKmy.Models.Commands
     /// <param name="characterId">武将ID</param>
     /// <param name="gameDates">入力する年月</param>
     /// <param name="options">コマンドパラメータ</param>
-    public abstract Task InputAsync(MainRepository repo, uint characterId, GameDateTime gameDate, params CharacterCommandParameter[] options);
+    public abstract Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options);
 
     /// <summary>
     /// コマンドを実行する。例外は出さない

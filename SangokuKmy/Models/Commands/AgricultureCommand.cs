@@ -19,9 +19,9 @@ namespace SangokuKmy.Models.Commands
       throw new NotImplementedException();
     }
 
-    public override async Task InputAsync(MainRepository repo, uint characterId, GameDateTime gameDate, params CharacterCommandParameter[] options)
+    public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
-      await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDate);
+      await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates);
     }
   }
 }
