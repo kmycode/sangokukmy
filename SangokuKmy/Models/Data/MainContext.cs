@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Debug;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data.Entities;
 using System;
@@ -107,6 +109,11 @@ namespace SangokuKmy.Models.Data
     /// 部隊のメンバー
     /// </summary>
     public DbSet<UnitMember> UnitMembers { get; set; }
+
+    private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
+        new DebugLoggerProvider((category, level)
+            => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)
+    });
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
