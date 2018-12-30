@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using SangokuKmy.Models.Data.ApiEntities;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Data.Entities
 {
@@ -11,6 +12,21 @@ namespace SangokuKmy.Models.Data.Entities
   [Table("system_data")]
   public class SystemData
   {
+    /// <summary>
+    /// ゲームプログラムが初めて起動されたときのデータ（期が開始されるタイミングではない）
+    /// </summary>
+    public static SystemData Initialized => new SystemData
+    {
+      Period = 1,
+      BetaVersion = 0,
+      GameDateTime = new GameDateTime
+      {
+        Year = Config.StartYear,
+        Month = Config.StartMonth,
+      },
+      CurrentMonthStartDateTime = DateTime.Now,
+    };
+
     [Key]
     [Column("id")]
     public uint Id { get; set; }

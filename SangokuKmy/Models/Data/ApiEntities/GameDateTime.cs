@@ -30,5 +30,26 @@ namespace SangokuKmy.Models.Data.ApiEntities
     {
       return this.Year * 12 + this.Month - 1;
     }
+
+    public GameDateTime NextMonth() => this.AddMonth(1);
+
+    public GameDateTime PrevMonth() => this.AddMonth(-1);
+
+    public GameDateTime AddMonth(int add)
+    {
+      var year = this.Year;
+      var month = this.Month + add;
+      while (month > 12)
+      {
+        month -= 12;
+        year++;
+      }
+      while (month < 1)
+      {
+        month += 12;
+        year--;
+      }
+      return new GameDateTime { Year = year, Month = (short)month, };
+    }
   }
 }

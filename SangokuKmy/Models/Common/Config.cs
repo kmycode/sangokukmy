@@ -11,5 +11,11 @@ namespace SangokuKmy.Models.Common
     {
       public static string MySqlConnectionString { get; set; }
     }
+
+    public static int UpdateTime { get; } = 600;
+
+    public static short StartYear { get; } = 150;
+
+    public static short StartMonth { get; } = 1;
   }
 }

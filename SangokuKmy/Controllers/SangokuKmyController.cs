@@ -14,6 +14,8 @@ using Newtonsoft.Json;
 using System.Collections;
 using SangokuKmy.Models.Commands;
 using SangokuKmy.Models.Common.Definitions;
+using SangokuKmy.Common;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Controllers
 {
@@ -45,14 +47,45 @@ namespace SangokuKmy.Controllers
 
     [AuthenticationFilter]
     [HttpGet("commands")]
-    public async Task<ApiArrayData<CharacterCommand>> GetCharacterAllCommandsAsync()
+    public async Task<GetCharacterAllCommandsResponse> GetCharacterAllCommandsAsync()
     {
       IEnumerable<CharacterCommand> commands;
+      int secondsNextCommand;
       using (var repo = MainRepository.WithRead())
       {
-        commands = await repo.CharacterCommand.GetAllAsync(this.AuthData.CharacterId);
+        var system = await repo.System.GetAsync();
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var isCurrentMonthExecuted = chara.LastUpdated >= system.CurrentMonthStartDateTime;
+        var firstMonth = isCurrentMonthExecuted ? system.GameDateTime.NextMonth() : system.GameDateTime;
+        commands = await repo.CharacterCommand.GetAllAsync(this.AuthData.CharacterId, firstMonth);
+
+        // 最初のデータに、最初にコマンドが実行される月を挿入する
+        if (!commands.Any(c => c.IntGameDateTime == firstMonth.ToInt()))
+        {
+          var cl = commands.ToList();
+          cl.Insert(0, new CharacterCommand
+          {
+            GameDateTime = firstMonth,
+          });
+          commands = cl;
+        }
+
+        // 次のコマンドが実行されるまでの秒数
+        secondsNextCommand = (int)((isCurrentMonthExecuted ? chara.LastUpdated.AddSeconds(Config.UpdateTime) : chara.LastUpdated) - DateTime.Now).TotalSeconds;
       }
-      return ApiData.From(commands);
+      return new GetCharacterAllCommandsResponse
+      {
+        Commands = commands,
+        SecondsNextCommand = secondsNextCommand,
+      };
+    }
+
+    public struct GetCharacterAllCommandsResponse
+    {
+      [JsonProperty("commands")]
+      public IEnumerable<CharacterCommand> Commands { get; set; }
+      [JsonProperty("secondsNextCommand")]
+      public int SecondsNextCommand { get; set; }
     }
 
     [AuthenticationFilter]

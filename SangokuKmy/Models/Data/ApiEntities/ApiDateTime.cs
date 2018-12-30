@@ -5,6 +5,8 @@ namespace SangokuKmy.Models.Data.ApiEntities
 {
   public struct ApiDateTime
   {
+    public static ApiDateTime Now => FromDateTime(DateTime.Now);
+
     [JsonProperty("year")]
     public short Year { get; set; }
 

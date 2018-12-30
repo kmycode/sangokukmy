@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using SangokuKmy.Models.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 using SangokuKmy.Models.Common.Definitions;
+using System.Linq;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -19,7 +20,14 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        return (await this.container.Context.SystemData.FirstOrDefaultAsync()) ?? new SystemData();
+        var data = (await container.Context.SystemData.FirstOrDefaultAsync());
+        if (data == null)
+        {
+          data = SystemData.Initialized;
+          await this.container.Context.AddAsync(data);
+          await this.container.Context.SaveChangesAsync();
+        }
+        return data;
       }
       catch (Exception ex)
       {

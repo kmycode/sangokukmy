@@ -24,12 +24,15 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <returns>すべての入力済コマンド</returns>
     /// <param name="characterId">武将ID</param>
-    public async Task<IEnumerable<CharacterCommand>> GetAllAsync(uint characterId)
+    /// <param name="startMonth">最初の月</param>
+    public async Task<IEnumerable<CharacterCommand>> GetAllAsync(uint characterId, GameDateTime startMonth)
     {
+      var intStartMonth = startMonth.ToInt();
+
       try
       {
         return (await this.container.Context.CharacterCommands
-          .Where(c => c.CharacterId == characterId)
+          .Where(c => c.CharacterId == characterId && c.IntGameDateTime >= intStartMonth)
           .OrderBy(c => c.IntGameDateTime)
           .GroupJoin(this.container.Context.CharacterCommandParameters,
             c => c.Id,
