@@ -190,9 +190,14 @@ namespace SangokuKmy.Models.Updates
       // ログイン中のユーザに新しい情報を通知する
       await StatusStreaming.Default.SendCharacterAsync(notifies, character.Id);
 
-      // 同じ国のユーザに、共有情報を通知する
+      // 自国の都市であれば、同じ国の武将に、共有情報を通知する（それ以外の都市は諜報経由で）
       await (await repo.Town.GetByIdAsync(character.TownId)).SomeAsync(async (town) =>
-        await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), character.CountryId));
+      {
+        if (town.CountryId == character.CountryId)
+        {
+          await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), character.CountryId);
+        }
+      });
     }
   }
 }
