@@ -21,6 +21,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<SystemData> SystemData { get; set; }
 
     /// <summary>
+    /// システムのデバッグデータ
+    /// </summary>
+    public DbSet<SystemDebugData> SystemDebugData { get; set; }
+
+    /// <summary>
     /// 認証データ
     /// </summary>
     public DbSet<AuthenticationData> AuthenticationData { get; set; }

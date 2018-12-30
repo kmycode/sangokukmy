@@ -35,5 +35,19 @@ namespace SangokuKmy.Models.Data.Repositories
         return null;
       }
     }
+
+    public async Task<SystemDebugData> GetDebugDataAsync()
+    {
+      try
+      {
+        var data = (await container.Context.SystemDebugData.FirstOrDefaultAsync()) ?? new SystemDebugData();
+        return data;
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return null;
+      }
+    }
   }
 }

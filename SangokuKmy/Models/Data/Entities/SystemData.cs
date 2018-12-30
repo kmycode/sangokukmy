@@ -17,6 +17,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     public static SystemData Initialized => new SystemData
     {
+      IsDebug = false,
       Period = 1,
       BetaVersion = 0,
       GameDateTime = new GameDateTime
@@ -30,6 +31,12 @@ namespace SangokuKmy.Models.Data.Entities
     [Key]
     [Column("id")]
     public uint Id { get; set; }
+
+    /// <summary>
+    /// デバッグモードであるぁ
+    /// </summary>
+    [Column("is_debug")]
+    public bool IsDebug { get; set; }
 
     /// <summary>
     /// 期
