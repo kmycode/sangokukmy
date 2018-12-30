@@ -225,6 +225,46 @@ namespace SangokuKmy.Models.Data.Entities
 
     #endregion
 
+    public void AddStrongEx(short ex)
+    {
+      this.StrongEx += ex;
+      while (this.StrongEx >= 1000)
+      {
+        this.Strong++;
+        this.StrongEx -= 1000;
+      }
+    }
+
+    public void AddIntellectEx(short ex)
+    {
+      this.IntellectEx += ex;
+      while (this.IntellectEx >= 1000)
+      {
+        this.Intellect++;
+        this.IntellectEx -= 1000;
+      }
+    }
+
+    public void AddLeadershipEx(short ex)
+    {
+      this.LeadershipEx += ex;
+      while (this.LeadershipEx >= 1000)
+      {
+        this.Leadership++;
+        this.LeadershipEx -= 1000;
+      }
+    }
+
+    public void AddPopularityEx(short ex)
+    {
+      this.PopularityEx += ex;
+      while (this.PopularityEx >= 1000)
+      {
+        this.Popularity++;
+        this.PopularityEx -= 1000;
+      }
+    }
+
     /// <summary>
     /// パスワードを設定する。平文のパラメータを指定し、実際はハッシュに変換されたパスワードが保存される
     /// </summary>

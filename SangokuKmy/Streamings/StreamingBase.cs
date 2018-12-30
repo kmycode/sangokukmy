@@ -176,6 +176,7 @@ namespace SangokuKmy.Streamings
         var errored = new List<StreamingData<EXTRA>>();
         var values = new StringBuilder();
         values.AppendJoin("\n", data.Select(d => JsonConvert.SerializeObject(d)));
+        values.Append("\n");
         foreach (var d in this.streams.Where(dd => subject(dd)))
         {
           try

@@ -29,6 +29,6 @@ namespace SangokuKmy.Models.Commands
     /// <param name="repo">リポジトリ</param>
     /// <param name="characterId">武将ID</param>
     /// <param name="options">コマンドパラメータ</param>
-    public abstract Task ExecuteAsync(MainRepository repo, uint characterId, IEnumerable<CharacterCommandParameter> options);
+    public abstract Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, Func<string, Task> loggerAsync);
   }
 }

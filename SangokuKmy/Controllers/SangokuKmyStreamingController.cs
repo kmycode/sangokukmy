@@ -30,6 +30,7 @@ namespace SangokuKmy.Controllers
       Character chara;
       IEnumerable<MapLog> maplogs;
       IEnumerable<MapLog> importantMaplogs;
+      IEnumerable<CharacterLog> characterLogs;
       Optional<Country> country;
       IEnumerable<TownForAnonymous> towns;
       IEnumerable<Town> myTowns;
@@ -37,8 +38,9 @@ namespace SangokuKmy.Controllers
       {
         system = await repo.System.GetAsync();
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        maplogs = await repo.MapLog.GetNewestAsync(5);
-        importantMaplogs = await repo.MapLog.GetImportantNewestAsync(5);
+        maplogs = await repo.MapLog.GetNewestAsync(50);
+        importantMaplogs = await repo.MapLog.GetImportantNewestAsync(50);
+        characterLogs = await repo.Character.GetCharacterLogsAsync(this.AuthData.CharacterId, 50);
         country = await repo.Country.GetByIdAsync(chara.CountryId);
 
         var allTowns = await repo.Town.GetAllAsync();
@@ -55,6 +57,7 @@ namespace SangokuKmy.Controllers
         .Concat(new object[] { ApiData.From(chara), ApiData.From(system.GameDateTime), })
         .Concat(maplogs.Select(ml => ApiData.From(ml)))
         .Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
+        .Concat(characterLogs.Select(cl => ApiData.From(cl)))
         .Concat(towns.Select(tw => ApiData.From(tw)))
         .Concat(myTowns.Select(tw => ApiData.From(tw)))
         .ToList();

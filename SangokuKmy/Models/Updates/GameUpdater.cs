@@ -135,11 +135,44 @@ namespace SangokuKmy.Models.Updates
     private static async Task UpdateCharacterAsync(MainRepository repo, Character character)
     {
       var notifies = new List<IApiData>();
-      var command = repo.CharacterCommand.GetAsync(character.Id, character.LastUpdatedGameDate.NextMonth());
+      var currentMonth = character.LastUpdatedGameDate.NextMonth();
+      var commandOptional = await repo.CharacterCommand.GetAsync(character.Id, currentMonth);
+
+      // ログを追加する関数
+      async Task AddLogAsync(string message)
+      {
+        var log = new CharacterLog
+        {
+          GameDateTime = currentMonth,
+          DateTime = DateTime.Now,
+          CharacterId = character.Id,
+          Message = message,
+        };
+        await repo.Character.AddCharacterLogAsync(character.Id, log);
+        notifies.Add(ApiData.From(log));
+      }
+
+      // コマンドの実行
+      var isCommandExecuted = false;
+      if (commandOptional.HasData)
+      {
+        var command = commandOptional.Data;
+        var commandRunnerOptional = Commands.Commands.Get(command.Type);
+        if (commandRunnerOptional.HasData)
+        {
+          var commandRunner = commandRunnerOptional.Data;
+          await commandRunner.ExecuteAsync(repo, character, command.Parameters, AddLogAsync);
+          isCommandExecuted = true;
+        }
+      }
+      if (!isCommandExecuted)
+      {
+        await AddLogAsync("何も実行しませんでした");
+      }
 
       // 古いコマンドの削除、更新の記録
       character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime);
-      character.LastUpdatedGameDate = character.LastUpdatedGameDate.NextMonth();
+      character.LastUpdatedGameDate = currentMonth;
       repo.CharacterCommand.RemoveOlds(character.Id, character.LastUpdatedGameDate);
       await repo.SaveChangesAsync();
 
@@ -156,6 +189,10 @@ namespace SangokuKmy.Models.Updates
 
       // ログイン中のユーザに新しい情報を通知する
       await StatusStreaming.Default.SendCharacterAsync(notifies, character.Id);
+
+      // 同じ国のユーザに、共有情報を通知する
+      await (await repo.Town.GetByIdAsync(character.TownId)).SomeAsync(async (town) =>
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), character.CountryId));
     }
   }
 }

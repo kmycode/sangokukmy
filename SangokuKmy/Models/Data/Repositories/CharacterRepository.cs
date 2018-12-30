@@ -23,9 +23,9 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <summary>
     /// 武将のキャッシュを取得する
     /// </summary>
-    public async Task<IEnumerable<CharacterCache>> GetAllCachesAsync()
+    public async Task<IReadOnlyList<CharacterCache>> GetAllCachesAsync()
     {
-      return await this.container.Context.Characters.Select(c => c.ToCache()).ToListAsync();
+      return await this.container.Context.Characters.Select(c => c.ToCache()).ToArrayAsync();
     }
 
     /// <summary>
@@ -83,6 +83,42 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         ErrorCode.DatabaseError.Throw(ex);
         return Optional<Character>.Null();
+      }
+    }
+
+    /// <summary>
+    /// 武将のログを追加する
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    /// <param name="log">ログ</param>
+    public async Task AddCharacterLogAsync(uint characterId, CharacterLog log)
+    {
+      try
+      {
+        await this.container.Context.CharacterLogs.AddAsync(log);
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+      }
+    }
+
+    /// <summary>
+    /// 武将のログを取得
+    /// </summary>
+    /// <returns>ログのリスト</returns>
+    /// <param name="characterId">武将ID</param>
+    /// <param name="count">取得数</param>
+    public async Task<IReadOnlyList<CharacterLog>> GetCharacterLogsAsync(uint characterId, int count)
+    {
+      try
+      {
+        return await this.container.Context.CharacterLogs.OrderBy(l => l.DateTime).Take(count).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
       }
     }
   }
