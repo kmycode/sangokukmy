@@ -1,4 +1,5 @@
 ﻿using System;
+using SangokuKmy.Models.Data.ApiEntities;
 namespace SangokuKmy.Models.Data.Entities.Caches
 {
   /// <summary>
@@ -16,6 +17,8 @@ namespace SangokuKmy.Models.Data.Entities.Caches
 
     public DateTime LastUpdated { get; }
 
+    public GameDateTime LastUpdatedGameDate { get; }
+
     public CharacterCache(Character chara)
     {
       this.Id = chara.Id;
@@ -23,6 +26,7 @@ namespace SangokuKmy.Models.Data.Entities.Caches
       this.Name = chara.Name;
       this.CountryId = chara.CountryId;
       this.LastUpdated = chara.LastUpdated;
+      this.LastUpdatedGameDate = chara.LastUpdatedGameDate;
     }
   }
 }

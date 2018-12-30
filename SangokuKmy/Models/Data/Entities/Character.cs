@@ -205,6 +205,24 @@ namespace SangokuKmy.Models.Data.Entities
       set => this.LastUpdated = value.ToDateTime();
     }
 
+    /// <summary>
+    /// 最後に更新された、ゲーム内の年月（DB用）
+    /// </summary>
+    [Column("last_updated_game_date")]
+    [JsonIgnore]
+    public int IntLastUpdatedGameDate { get; set; }
+
+    /// <summary>
+    /// 最後に更新された、ゲーム内の年月
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("lastUpdatedGameDate")]
+    public GameDateTime LastUpdatedGameDate
+    {
+      get => GameDateTime.FromInt(this.IntLastUpdatedGameDate);
+      set => this.IntLastUpdatedGameDate = value.ToInt();
+    }
+
     #endregion
 
     /// <summary>

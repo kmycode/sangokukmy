@@ -80,7 +80,8 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 武将を更新
-        var updateCharacters = EntityCaches.Characters.Where(ch => (current - ch.LastUpdated).TotalSeconds >= Config.UpdateTime);
+        var updateCharacters = EntityCaches.Characters
+          .Where(ch => (current - ch.LastUpdated).TotalSeconds >= Config.UpdateTime);
         if (updateCharacters.Any())
         {
           using (var repo = MainRepository.WithReadAndWrite())
@@ -93,7 +94,9 @@ namespace SangokuKmy.Models.Updates
               var updatableTime = debug.UpdatableLastDateTime.AddSeconds(-Config.UpdateTime);
               updates = updates.Where(ch => ch.LastUpdated < updatableTime);
             }
-            await UpdateCharactersAsync(repo, updates.Select(ch => ch.Id).ToArray(), sys.GameDateTime);
+
+            updates = updates.Where(ch => ch.LastUpdatedGameDate.ToInt() <= sys.IntGameDateTime);
+            await UpdateCharactersAsync(repo, updates.Select(ch => ch.Id).ToArray());
           }
         }
 
@@ -117,26 +120,27 @@ namespace SangokuKmy.Models.Updates
       await StatusStreaming.Default.SendAllAsync(ApiData.From(system.GameDateTime));
     }
 
-    private static async Task UpdateCharactersAsync(MainRepository repo, IReadOnlyCollection<uint> characterIds, GameDateTime currentMonth)
+    private static async Task UpdateCharactersAsync(MainRepository repo, IReadOnlyCollection<uint> characterIds)
     {
       foreach (var id in characterIds)
       {
         var chara = await repo.Character.GetByIdAsync(id);
         await chara.SomeAsync(async (c) =>
         {
-          await UpdateCharacterAsync(repo, c, currentMonth);
+          await UpdateCharacterAsync(repo, c);
         });
       }
     }
 
-    private static async Task UpdateCharacterAsync(MainRepository repo, Character character, GameDateTime currentMonth)
+    private static async Task UpdateCharacterAsync(MainRepository repo, Character character)
     {
       var notifies = new List<IApiData>();
-      var command = repo.CharacterCommand.GetAsync(character.Id, currentMonth);
+      var command = repo.CharacterCommand.GetAsync(character.Id, character.LastUpdatedGameDate.NextMonth());
 
       // 古いコマンドの削除、更新の記録
       character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime);
-      repo.CharacterCommand.RemoveOlds(character.Id, currentMonth);
+      character.LastUpdatedGameDate = character.LastUpdatedGameDate.NextMonth();
+      repo.CharacterCommand.RemoveOlds(character.Id, character.LastUpdatedGameDate);
       await repo.SaveChangesAsync();
 
       // 更新の通知
@@ -144,7 +148,7 @@ namespace SangokuKmy.Models.Updates
       notifies.Add(ApiData.From(new ApiSignal
       {
         Type = SignalType.CurrentCharacterUpdated,
-        Data = new { gameDate = currentMonth, secondsNextCommand = (int)((character.LastUpdated.AddSeconds(Config.UpdateTime) - DateTime.Now).TotalSeconds), },
+        Data = new { gameDate = character.LastUpdatedGameDate, secondsNextCommand = (int)((character.LastUpdated.AddSeconds(Config.UpdateTime) - DateTime.Now).TotalSeconds), },
       }));
 
       // キャッシュを更新

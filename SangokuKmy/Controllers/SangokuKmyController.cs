@@ -59,17 +59,6 @@ namespace SangokuKmy.Controllers
         var firstMonth = isCurrentMonthExecuted ? system.GameDateTime.NextMonth() : system.GameDateTime;
         commands = await repo.CharacterCommand.GetAllAsync(this.AuthData.CharacterId, firstMonth);
 
-        // 最初のデータに、最初にコマンドが実行される月を挿入する
-        if (!commands.Any(c => c.IntGameDateTime == firstMonth.ToInt()))
-        {
-          var cl = commands.ToList();
-          cl.Insert(0, new CharacterCommand
-          {
-            GameDateTime = firstMonth,
-          });
-          commands = cl;
-        }
-
         // 次のコマンドが実行されるまでの秒数
         secondsNextCommand = (int)((isCurrentMonthExecuted ? chara.LastUpdated.AddSeconds(Config.UpdateTime) : chara.LastUpdated) - DateTime.Now).TotalSeconds;
       }
