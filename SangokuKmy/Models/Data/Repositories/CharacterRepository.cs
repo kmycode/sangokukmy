@@ -5,6 +5,9 @@ using SangokuKmy.Common;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Collections;
+using SangokuKmy.Models.Data.Entities.Caches;
+using System.Collections.Generic;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -15,6 +18,14 @@ namespace SangokuKmy.Models.Data.Repositories
     public CharacterRepository(IRepositoryContainer container)
     {
       this.container = container;
+    }
+
+    /// <summary>
+    /// 武将のキャッシュを取得する
+    /// </summary>
+    public async Task<IEnumerable<CharacterCache>> GetAllCachesAsync()
+    {
+      return await this.container.Context.Characters.Select(c => c.ToCache()).ToListAsync();
     }
 
     /// <summary>

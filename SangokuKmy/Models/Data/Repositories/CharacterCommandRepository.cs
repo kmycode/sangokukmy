@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Commands;
+using SangokuKmy.Common;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -17,6 +18,58 @@ namespace SangokuKmy.Models.Data.Repositories
     public CharacterCommandRepository(IRepositoryContainer container)
     {
       this.container = container;
+    }
+
+    /// <summary>
+    /// 指定した武将の指定した年月のコマンドを取得する
+    /// </summary>
+    /// <returns>コマンド</returns>
+    /// <param name="characterId">武将ID</param>
+    /// <param name="month">取得する年月</param>
+    public async Task<Optional<CharacterCommand>> GetAsync(uint characterId, GameDateTime month)
+    {
+      var monthInt = month.ToInt();
+
+      try
+      {
+        var newest = await this.container.Context.CharacterCommands
+          .Where(c => c.IntGameDateTime == monthInt)
+          .GroupJoin(this.container.Context.CharacterCommandParameters,
+            c => c.Id,
+            cp => cp.CharacterCommandId,
+            (c, cps) => c.SetParameters(cps))
+          .FirstOrDefaultAsync()
+          .ToOptionalAsync();
+        return newest;
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 指定した武将の指定した年月を含めた、古いコマンドを削除する
+    /// </summary>
+    /// <returns>コマンド</returns>
+    /// <param name="characterId">武将ID</param>
+    /// <param name="month">削除する年月のうち、一番新しいもの</param>
+    public void RemoveOlds(uint characterId, GameDateTime month)
+    {
+      var monthInt = month.ToInt();
+
+      try
+      {
+        var commands = this.container.Context.CharacterCommands.Where(c => c.IntGameDateTime <= monthInt).ToArray();
+        var commandParameters = this.container.Context.CharacterCommandParameters.Where(cp => commands.Select(c => c.Id).Contains(cp.CharacterCommandId));
+        this.container.Context.CharacterCommands.RemoveRange(commands);
+        this.container.Context.CharacterCommandParameters.RemoveRange(commandParameters);
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+      }
     }
 
     /// <summary>

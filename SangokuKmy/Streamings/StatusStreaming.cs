@@ -29,6 +29,7 @@ namespace SangokuKmy.Streamings
 
     public void Add(HttpResponse response, AuthenticationData authData, Character chara, Action onRemoved)
     {
+      this.Remove(s => s.ExtraData.Id == chara.Id);
       var data = new StreamingData<CharacterCache>
       {
         AuthData = authData,
@@ -55,20 +56,34 @@ namespace SangokuKmy.Streamings
     /// 全員にデータを送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>
-    public async Task SendAll<T>(ApiData<T> data) => await this.SendAsync(data, c => true);
+    public async Task SendAllAsync<T>(ApiData<T> data) => await this.SendAsync(data, c => true);
 
     /// <summary>
     /// 特定のIDを持った武将にのみ送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>
     /// <param name="charaId">武将ID</param>
-    public async Task SendCharacter<T>(ApiData<T> data, uint charaId) => await this.SendAsync(data, c => c.ExtraData.Id == charaId);
+    public async Task SendCharacterAsync<T>(ApiData<T> data, uint charaId) => await this.SendAsync(data, c => c.ExtraData.Id == charaId);
+
+        /// <summary>
+    /// 特定のIDを持った武将にのみ送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    /// <param name="charaId">武将ID</param>
+    public async Task SendCharacterAsync(IEnumerable<IApiData> data, uint charaId) => await this.SendAsync(data, c => c.ExtraData.Id == charaId);
 
     /// <summary>
     /// 特定の国の武将にのみ送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>
     /// <param name="countryId">国ID</param>
-    public async Task SendCountry<T>(ApiData<T> data, uint countryId) => await this.SendAsync(data, c => c.ExtraData.CountryId == countryId);
+    public async Task SendCountryAsync<T>(ApiData<T> data, uint countryId) => await this.SendAsync(data, c => c.ExtraData.CountryId == countryId);
+
+        /// <summary>
+    /// 特定の国の武将にのみ送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    /// <param name="countryId">国ID</param>
+    public async Task SendCountryAsync(IEnumerable<IApiData> data, uint countryId) => await this.SendAsync(data, c => c.ExtraData.CountryId == countryId);
   }
 }

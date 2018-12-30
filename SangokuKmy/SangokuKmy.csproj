@@ -21,6 +21,7 @@
     <Folder Include="Streamings\" />
     <Folder Include="Models\Data\Entities\Caches\" />
     <Folder Include="Models\Commands\" />
+    <Folder Include="Models\Updates\" />
   </ItemGroup>
 
   <ItemGroup>

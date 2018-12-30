@@ -12,14 +12,18 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data;
+using SangokuKmy.Models.Updates;
 
 namespace SangokuKmy
 {
   public class Startup
   {
-    public Startup(IConfiguration configuration)
+    private readonly ILogger _logger;
+
+    public Startup(IConfiguration configuration, ILogger<Startup> logger)
     {
       this.Configuration = configuration;
+      _logger = logger;
     }
 
     public IConfiguration Configuration { get; }
@@ -56,6 +60,9 @@ namespace SangokuKmy
       {
         context.Database.Migrate();
       }
+
+      // 更新処理を開始する
+      GameUpdater.BeginUpdate(_logger);
 
       app.UseMvc();
     }

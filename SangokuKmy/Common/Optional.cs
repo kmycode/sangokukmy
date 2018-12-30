@@ -61,6 +61,16 @@ namespace SangokuKmy.Common
     }
 
     /// <summary>
+    /// データを保持していた時に、処理を実行し、終了を待機する
+    /// </summary>
+    /// <param name="act">実行する処理</param>
+    public async Task<Optional<T>> SomeAsync(Func<T, Task> act)
+    {
+      if (this.HasData) await act(this.Data);
+      return this;
+    }
+
+    /// <summary>
     /// データを保持していなかった時に、処理を実行する
     /// </summary>
     /// <returns>自身</returns>

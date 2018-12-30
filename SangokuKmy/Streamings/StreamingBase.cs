@@ -9,6 +9,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Data.Entities.Caches;
+using System.Text;
 
 namespace SangokuKmy.Streamings
 {
@@ -73,6 +74,28 @@ namespace SangokuKmy.Streamings
       }
 
       return result;
+    }
+
+    protected void Remove(Predicate<StreamingData<EXTRA>> subject)
+    {
+      try
+      {
+        locker.AcquireWriterLock(30_000);
+        var targets = this.streams.Where(s => subject(s)).ToArray();
+        foreach (var t in targets)
+        {
+          this.streams.Remove(t);
+          t.OnRemoved();
+        }
+      }
+      catch (ApplicationException ex)
+      {
+        ErrorCode.LockFailedError.Throw(ex);
+      }
+      finally
+      {
+        locker.ReleaseWriterLock();
+      }
     }
 
     protected void Remove(StreamingData<EXTRA> data)
@@ -141,17 +164,23 @@ namespace SangokuKmy.Streamings
 
     protected async Task SendAsync<T>(ApiData<T> data, Predicate<StreamingData<EXTRA>> subject)
     {
+      await this.SendAsync(new ApiData<T>[] { data }, subject);
+    }
+
+    protected async Task SendAsync(IEnumerable<IApiData> data, Predicate<StreamingData<EXTRA>> subject)
+    {
       this.CleanAbortedResponses();
       try
       {
         locker.AcquireReaderLock(30_000);
         var errored = new List<StreamingData<EXTRA>>();
-        var value = JsonConvert.SerializeObject(data) + "\n";
+        var values = new StringBuilder();
+        values.AppendJoin("\n", data.Select(d => JsonConvert.SerializeObject(d)));
         foreach (var d in this.streams.Where(dd => subject(dd)))
         {
           try
           {
-            await d.Response.WriteAsync(value);
+            await d.Response.WriteAsync(values.ToString());
           }
           catch
           {

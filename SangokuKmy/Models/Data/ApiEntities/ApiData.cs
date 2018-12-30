@@ -6,7 +6,11 @@ using System.Collections.Generic;
 using System.Collections;
 namespace SangokuKmy.Models.Data.ApiEntities
 {
-  public class ApiData<T>
+  public interface IApiData
+  {
+  }
+
+  public class ApiData<T> : IApiData
   {
     /// <summary>
     /// 型の種類

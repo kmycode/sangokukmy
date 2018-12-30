@@ -14,19 +14,9 @@ namespace SangokuKmy.Models.Data.Entities
     public uint Id { get; set; }
 
     /// <summary>
-    /// 更新可能な最後のゲーム内の年月（DB保存用）
+    /// 更新可能な最後の時刻
     /// </summary>
-    [Column("updatable_game_date_time")]
-    public int IntUpdatableGameDateTime
-    {
-      get => this.UpdatableGameDateTime.ToInt();
-      set => this.UpdatableGameDateTime = GameDateTime.FromInt(value);
-    }
-
-    /// <summary>
-    /// 更新可能な最後のゲーム内の年月
-    /// </summary>
-    [NotMapped]
-    public GameDateTime UpdatableGameDateTime { get; set; }
+    [Column("updatable_last_date")]
+    public DateTime UpdatableLastDateTime { get; set; }
   }
 }
