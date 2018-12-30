@@ -93,7 +93,7 @@ namespace SangokuKmy.Models.Updates
               var updatableTime = debug.UpdatableLastDateTime.AddSeconds(-Config.UpdateTime);
               updates = updates.Where(ch => ch.LastUpdated < updatableTime);
             }
-            await UpdateCharactersAsync(repo, updates.Select(ch => ch.Id), sys.GameDateTime);
+            await UpdateCharactersAsync(repo, updates.Select(ch => ch.Id).ToArray(), sys.GameDateTime);
           }
         }
 
@@ -117,7 +117,7 @@ namespace SangokuKmy.Models.Updates
       await StatusStreaming.Default.SendAllAsync(ApiData.From(system.GameDateTime));
     }
 
-    private static async Task UpdateCharactersAsync(MainRepository repo, IEnumerable<uint> characterIds, GameDateTime currentMonth)
+    private static async Task UpdateCharactersAsync(MainRepository repo, IReadOnlyCollection<uint> characterIds, GameDateTime currentMonth)
     {
       foreach (var id in characterIds)
       {

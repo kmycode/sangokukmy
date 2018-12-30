@@ -86,6 +86,11 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode OperationConflictError { get; } = new ErrorCode(409, 12);
 
     /// <summary>
+    /// デバッグモードでしか呼べないAPIを、通常時に呼び出した時に出るエラー
+    /// </summary>
+    public static ErrorCode DebugModeOnlyError { get; } = new ErrorCode(403, 13);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }
