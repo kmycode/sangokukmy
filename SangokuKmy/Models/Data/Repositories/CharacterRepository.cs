@@ -113,7 +113,11 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        return await this.container.Context.CharacterLogs.OrderBy(l => l.DateTime).Take(count).ToArrayAsync();
+        return await this.container.Context.CharacterLogs
+          .Where(l => l.CharacterId == characterId)
+          .OrderBy(l => l.DateTime)
+          .Take(count)
+          .ToArrayAsync();
       }
       catch (Exception ex)
       {
