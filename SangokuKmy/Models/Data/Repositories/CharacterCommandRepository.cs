@@ -33,7 +33,7 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         var newest = await this.container.Context.CharacterCommands
-          .Where(c => c.IntGameDateTime == monthInt)
+          .Where(c => c.CharacterId == characterId && c.IntGameDateTime == monthInt)
           .GroupJoin(this.container.Context.CharacterCommandParameters,
             c => c.Id,
             cp => cp.CharacterCommandId,
@@ -61,7 +61,7 @@ namespace SangokuKmy.Models.Data.Repositories
 
       try
       {
-        var commands = this.container.Context.CharacterCommands.Where(c => c.IntGameDateTime <= monthInt).ToArray();
+        var commands = this.container.Context.CharacterCommands.Where(c => c.CharacterId == characterId && c.IntGameDateTime <= monthInt).ToArray();
         var commandParameters = this.container.Context.CharacterCommandParameters.Where(cp => commands.Select(c => c.Id).Contains(cp.CharacterCommandId));
         this.container.Context.CharacterCommands.RemoveRange(commands);
         this.container.Context.CharacterCommandParameters.RemoveRange(commandParameters);
