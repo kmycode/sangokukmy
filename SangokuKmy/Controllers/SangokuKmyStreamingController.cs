@@ -31,7 +31,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<MapLog> maplogs;
       IEnumerable<MapLog> importantMaplogs;
       IEnumerable<CharacterLog> characterLogs;
-      Optional<Country> country;
+      IEnumerable<Country> countries;
       IEnumerable<TownForAnonymous> towns;
       IEnumerable<Town> myTowns;
       using (var repo = MainRepository.WithRead())
@@ -41,7 +41,7 @@ namespace SangokuKmy.Controllers
         maplogs = await repo.MapLog.GetNewestAsync(50);
         importantMaplogs = await repo.MapLog.GetImportantNewestAsync(50);
         characterLogs = await repo.Character.GetCharacterLogsAsync(this.AuthData.CharacterId, 50);
-        country = await repo.Country.GetByIdAsync(chara.CountryId);
+        countries = await repo.Country.GetAllAsync();
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
@@ -58,10 +58,10 @@ namespace SangokuKmy.Controllers
         .Concat(maplogs.Select(ml => ApiData.From(ml)))
         .Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
         .Concat(characterLogs.Select(cl => ApiData.From(cl)))
+        .Concat(countries.Select(c => ApiData.From(c)))
         .Concat(towns.Select(tw => ApiData.From(tw)))
         .Concat(myTowns.Select(tw => ApiData.From(tw)))
         .ToList();
-      country.Some(c => sendData.Add(ApiData.From(c)));
 
       // 初期データを送信する
       var initializeData = new StringBuilder();
