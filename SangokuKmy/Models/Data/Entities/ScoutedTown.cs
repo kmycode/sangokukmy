@@ -69,6 +69,11 @@ namespace SangokuKmy.Models.Data.Entities
   public enum ScoutMethod : short
   {
     /// <summary>
+    /// この都市は諜報されていない（クライアント側で識別する用）
+    /// </summary>
+    NotScouted = 0,
+
+    /// <summary>
     /// 手動
     /// </summary>
     Manual = 1,
