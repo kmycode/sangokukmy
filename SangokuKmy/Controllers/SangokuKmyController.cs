@@ -98,6 +98,18 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpGet("icons")]
+    public async Task<ApiArrayData<CharacterIcon>> GetCharacterAllIconsAsync()
+    {
+      IEnumerable<CharacterIcon> icons;
+      using (var repo = MainRepository.WithRead())
+      {
+        icons = await repo.Character.GetCharacterAllIconsAsync(this.AuthData.CharacterId);
+      }
+      return ApiData.From(icons);
+    }
+
+    [AuthenticationFilter]
     [HttpGet("chat/country")]
     public async Task<ApiArrayData<ChatMessage>> GetCountryChatMessagesAsync(
       [FromBody] GetChatMessageParameter param)

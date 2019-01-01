@@ -125,5 +125,25 @@ namespace SangokuKmy.Models.Data.Repositories
         return default;
       }
     }
+
+    /// <summary>
+    /// 武将のすべてのアイコンを取得
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    /// <returns>すべてのアイコン</returns>
+    public async Task<IReadOnlyCollection<CharacterIcon>> GetCharacterAllIconsAsync(uint characterId)
+    {
+      try
+      {
+        return await this.container.Context.CharacterIcons
+          .Where(i => i.CharacterId == characterId)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
+      }
+    }
   }
 }
