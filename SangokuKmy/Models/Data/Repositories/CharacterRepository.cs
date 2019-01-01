@@ -145,5 +145,23 @@ namespace SangokuKmy.Models.Data.Repositories
         return default;
       }
     }
+
+    /// <summary>
+    /// 武将のアイコンをIDから取得する
+    /// </summary>
+    /// <param name="iconId">アイコンID</param>
+    /// <returns>アイコン</returns>
+    public async Task<CharacterIcon> GetCharacterIconByIdAsync(uint iconId)
+    {
+      try
+      {
+        return await this.container.Context.CharacterIcons.FindAsync(iconId);
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
+      }
+    }
   }
 }

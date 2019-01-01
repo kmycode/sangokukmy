@@ -16,6 +16,7 @@ using SangokuKmy.Models.Commands;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Common;
 using SangokuKmy.Models.Common;
+using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Controllers
 {
@@ -121,6 +122,51 @@ namespace SangokuKmy.Controllers
         messages = await repo.ChatMessage.GetCountryMessagesAsync(chara.CountryId, param.SinceId, param.Count);
       }
       return ApiData.From(messages);
+    }
+
+    [AuthenticationFilter]
+    [HttpPost("chat/country")]
+    public async Task PostCountryChatMessageAsync(
+      [FromBody] ChatMessage param)
+    {
+      ChatMessage message;
+      Character chara;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        message = new ChatMessage
+        {
+          CharacterId = chara.Id,
+          Character = new CharacterChatData(chara),
+          CharacterCountryId = chara.CountryId,
+          Posted = DateTime.Now,
+          Message = param.Message,
+          Type = ChatMessageType.SelfCountry,
+          TypeData = chara.CountryId,
+        };
+        if (param.CharacterIconId > 0)
+        {
+          message.CharacterIconId = param.CharacterIconId;
+          message.CharacterIcon = await repo.Character.GetCharacterIconByIdAsync(message.CharacterIconId);
+        }
+        else
+        {
+          var icons = await repo.Character.GetCharacterAllIconsAsync(chara.Id);
+          var icon = icons.FirstOrDefault(i => i.IsMain) ?? icons.FirstOrDefault();
+          if (icon == null)
+          {
+            ErrorCode.CharacterIconNotFoundError.Throw();
+          }
+          message.CharacterIconId = icon.Id;
+          message.CharacterIcon = icon;
+        }
+
+        await repo.ChatMessage.AddMessageAsync(message);
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(message), chara.CountryId);
     }
 
     public struct GetChatMessageParameter

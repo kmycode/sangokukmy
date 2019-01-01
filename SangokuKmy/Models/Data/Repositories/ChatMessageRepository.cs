@@ -31,7 +31,7 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         var data = await this.container.Context.ChatMessages
           .Where(m => m.Type == ChatMessageType.SelfCountry && m.TypeData == countryId && m.Id <= sinceId)
-          .OrderByDescending(m => m.Id)
+          .OrderBy(m => m.Id)
           .Take(count)
           .Join(this.container.Context.Characters,
                 m => m.CharacterId,

@@ -91,6 +91,11 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode DebugModeOnlyError { get; } = new ErrorCode(403, 13);
 
     /// <summary>
+    /// 武将のアイコンが見つからないエラー
+    /// </summary>
+    public static ErrorCode CharacterIconNotFoundError { get; } = new ErrorCode(404, 14);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }
