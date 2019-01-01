@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
+using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Entities
 {
@@ -17,15 +18,36 @@ namespace SangokuKmy.Models.Data.Entities
     /// 武将のID
     /// </summary>
     [Column("character_id")]
-    [JsonProperty("characterId")]
+    [JsonIgnore]
     public uint CharacterId { get; set; }
+
+    /// <summary>
+    /// 武将の情報
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("character")]
+    public CharacterChatData Character { get; set; }
 
     /// <summary>
     /// 使用する武将アイコンのID
     /// </summary>
     [Column("character_icon_id")]
-    [JsonProperty("characterIconId")]
+    [JsonIgnore]
     public uint CharacterIconId { get; set; }
+
+    /// <summary>
+    /// 使用する武将アイコン
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("characterIcon")]
+    public CharacterIcon CharacterIcon { get; set; }
+
+    /// <summary>
+    /// 送信者の国ID
+    /// </summary>
+    [Column("character_country_id")]
+    [JsonProperty("characterCountryId")]
+    public uint CharacterCountryId { get; set; }
 
     /// <summary>
     /// 発言の種類
@@ -65,6 +87,24 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("message")]
     [JsonProperty("message")]
     public string Message { get; set; }
+
+    /// <summary>
+    /// 投稿時刻
+    /// </summary>
+    [Column("posted")]
+    [JsonIgnore]
+    public DateTime Posted { get; set; }
+
+    /// <summary>
+    /// 投稿時刻（JSON出力用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("posted")]
+    public ApiDateTime ApiPosted
+    {
+      get => ApiDateTime.FromDateTime(this.Posted);
+      set => this.Posted = value.ToDateTime();
+    }
   }
 
   public enum ChatMessageType : short

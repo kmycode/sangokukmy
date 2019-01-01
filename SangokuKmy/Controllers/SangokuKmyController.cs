@@ -96,5 +96,27 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
     }
+
+    [AuthenticationFilter]
+    [HttpGet("chat/country")]
+    public async Task<ApiArrayData<ChatMessage>> GetCountryChatMessagesAsync(
+      [FromBody] GetChatMessageParameter param)
+    {
+      IEnumerable<ChatMessage> messages;
+      using (var repo = MainRepository.WithRead())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        messages = await repo.ChatMessage.GetCountryMessagesAsync(chara.CountryId, param.SinceId, param.Count);
+      }
+      return ApiData.From(messages);
+    }
+
+    public struct GetChatMessageParameter
+    {
+      [JsonProperty("sinceId")]
+      public uint SinceId { get; set; }
+      [JsonProperty("count")]
+      public int Count { get; set; }
+    }
   }
 }

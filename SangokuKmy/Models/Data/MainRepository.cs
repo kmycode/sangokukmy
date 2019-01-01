@@ -77,6 +77,12 @@ namespace SangokuKmy.Models.Data
     private TownRepository _town;
 
     /// <summary>
+    /// 手紙
+    /// </summary>
+    public ChatMessageRepository ChatMessage => this._chatMessage = this._chatMessage ?? new ChatMessageRepository(this.container);
+    private ChatMessageRepository _chatMessage;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>
