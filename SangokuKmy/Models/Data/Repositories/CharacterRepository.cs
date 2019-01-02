@@ -116,6 +116,39 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 都市IDから守備中の武将を取得
+    /// </summary>
+    /// <param name="townId">都市ID</param>
+    /// <returns>その都市に滞在する武将</returns>
+    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon)>> GetDefendersByTownIdAsync(uint townId)
+    {
+      try
+      {
+        return (await this.container.Context.TownDefenders
+          .Where(td => td.TownId == townId)
+          .Join(this.container.Context.Characters,
+            td => td.CharacterId,
+            c => c.Id,
+            (td, c) => c)
+          .GroupJoin(this.container.Context.CharacterIcons,
+            c => c.Id,
+            i => i.CharacterId,
+            (c, i) => new { Character = c, Icons = i, })
+          .ToArrayAsync())
+          .Select(data =>
+           {
+             return (data.Character, data.Icons.GetMainOrFirst().Data);
+           })
+          .ToArray();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 武将のログを追加する
     /// </summary>
     /// <param name="characterId">武将ID</param>
