@@ -137,6 +137,10 @@ namespace SangokuKmy.Models.Updates
       var notifies = new List<IApiData>();
       var currentMonth = character.LastUpdatedGameDate.NextMonth();
       var commandOptional = await repo.CharacterCommand.GetAsync(character.Id, currentMonth);
+      var oldStrong = character.Strong;
+      var oldIntellect = character.Intellect;
+      var oldLeadership = character.Leadership;
+      var oldPopularity = character.Popularity;
 
       // ログを追加する関数
       async Task AddLogAsync(string message)
@@ -175,6 +179,24 @@ namespace SangokuKmy.Models.Updates
       character.LastUpdatedGameDate = currentMonth;
       repo.CharacterCommand.RemoveOlds(character.Id, character.LastUpdatedGameDate);
       await repo.SaveChangesAsync();
+
+      // 能力上昇
+      async Task CheckAttributeAsync(string name, int old, int current, int type)
+      {
+        if (current > old)
+        {
+          await AddLogAsync(name + " が <num>+" + (current - old) + "</num>上昇しました");
+          notifies.Add(ApiData.From(new ApiSignal
+          {
+            Type = SignalType.AttributeUp,
+            Data = new { type, value = (current - old), }
+          }));
+        }
+      }
+      await CheckAttributeAsync("武力", oldStrong, character.Strong, 1);
+      await CheckAttributeAsync("知力", oldIntellect, character.Intellect, 2);
+      await CheckAttributeAsync("統率", oldLeadership, character.Leadership, 3);
+      await CheckAttributeAsync("人望", oldPopularity, character.Popularity, 4);
 
       // 更新の通知
       notifies.Add(ApiData.From(character));

@@ -46,5 +46,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 新しい月が始まった
     /// </summary>
     MonthStarted = 2,
+
+    /// <summary>
+    /// 能力が上昇した
+    /// </summary>
+    AttributeUp = 3,
   }
 }
