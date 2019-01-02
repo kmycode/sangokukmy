@@ -87,6 +87,35 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 都市IDから武将を取得
+    /// </summary>
+    /// <param name="townId">都市ID</param>
+    /// <returns>その都市に滞在する武将</returns>
+    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon)>> GetByTownIdAsync(uint townId)
+    {
+      try
+      {
+        return (await this.container.Context.Characters
+          .Where(c => c.TownId == townId)
+          .GroupJoin(this.container.Context.CharacterIcons,
+            c => c.Id,
+            i => i.CharacterId,
+            (c, i) => new { Character = c, Icons = i, })
+          .ToArrayAsync())
+          .Select(data =>
+          {
+            return (data.Character, data.Icons.GetMainOrFirst().Data);
+          })
+          .ToArray();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 武将のログを追加する
     /// </summary>
     /// <param name="characterId">武将ID</param>
@@ -131,7 +160,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="characterId">武将ID</param>
     /// <returns>すべてのアイコン</returns>
-    public async Task<IReadOnlyCollection<CharacterIcon>> GetCharacterAllIconsAsync(uint characterId)
+    public async Task<IReadOnlyList<CharacterIcon>> GetCharacterAllIconsAsync(uint characterId)
     {
       try
       {

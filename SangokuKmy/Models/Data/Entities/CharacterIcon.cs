@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using SangokuKmy.Common;
 
 namespace SangokuKmy.Models.Data.Entities
 {
@@ -77,5 +80,18 @@ namespace SangokuKmy.Models.Data.Entities
     /// Gravatar
     /// </summary>
     Gravatar = 3,
+  }
+
+  public static class CharacterIconExtensions
+  {
+    public static Optional<CharacterIcon> GetMainOrFirst(this IEnumerable<CharacterIcon> icons)
+    {
+      var main = icons.SingleOrDefault(i => i.IsMain);
+      if (main != null)
+      {
+        return main.ToOptional();
+      }
+      return icons.FirstOrDefault().ToOptional();
+    }
   }
 }

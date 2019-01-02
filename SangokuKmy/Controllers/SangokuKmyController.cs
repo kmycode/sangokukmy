@@ -112,5 +112,19 @@ namespace SangokuKmy.Controllers
       }
       return ApiData.From(icons);
     }
+
+    [AuthenticationFilter]
+    [HttpGet("town/characters")]
+    public async Task<ApiArrayData<CharacterForAnonymous>> GetSameTownCharactersAsync()
+    {
+      IEnumerable<CharacterForAnonymous> charas;
+      using (var repo = MainRepository.WithRead())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        charas = (await repo.Character.GetByTownIdAsync(chara.TownId))
+          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown));
+      }
+      return ApiData.From(charas);
+    }
   }
 }
