@@ -43,7 +43,8 @@ namespace SangokuKmy.Controllers
         importantMaplogs = await repo.MapLog.GetImportantNewestAsync(50);
         characterLogs = await repo.Character.GetCharacterLogsAsync(this.AuthData.CharacterId, 50);
         countries = await repo.Country.GetAllAsync();
-        chatMessages = await repo.ChatMessage.GetCountryMessagesAsync(chara.CountryId, uint.MaxValue, 50);
+        chatMessages = (await repo.ChatMessage.GetCountryMessagesAsync(chara.CountryId, uint.MaxValue, 50))
+          .Concat(await repo.ChatMessage.GetGlobalMessagesAsync(uint.MaxValue, 50));
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
