@@ -72,7 +72,7 @@ namespace SangokuKmy.Models.Data.Repositories
           d.Message.CharacterIcon = d.Icon;
           d.Message.Character = d.Character;
         }
-        return data.Select(d => d.Message).ToArray();
+        return data.Select(d => d.Message).OrderBy(m => m.Id).ToArray();
       }
       catch (Exception ex)
       {
