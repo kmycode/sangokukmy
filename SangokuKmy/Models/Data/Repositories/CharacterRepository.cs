@@ -129,12 +129,13 @@ namespace SangokuKmy.Models.Data.Repositories
           .Join(this.container.Context.Characters,
             td => td.CharacterId,
             c => c.Id,
-            (td, c) => c)
+            (td, c) => new { Character = c, Order = td.Id, })
           .GroupJoin(this.container.Context.CharacterIcons,
-            c => c.Id,
+            c => c.Character.Id,
             i => i.CharacterId,
-            (c, i) => new { Character = c, Icons = i, })
+            (c, i) => new { c.Character, Icons = i, c.Order, })
           .ToArrayAsync())
+          .OrderByDescending(data => data.Order)
           .Select(data =>
            {
              return (data.Character, data.Icons.GetMainOrFirst().Data);
@@ -145,6 +146,33 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         ErrorCode.DatabaseError.Throw(ex);
         return default;
+      }
+    }
+
+    /// <summary>
+    /// 守備武将を登録する
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    /// <param name="townId">都市ID</param>
+    public async Task SetDefenderAsync(uint characterId, uint townId)
+    {
+      try
+      {
+        var old = await this.container.Context.TownDefenders.SingleOrDefaultAsync(td => td.CharacterId == characterId);
+        if (old != null)
+        {
+          this.container.Context.TownDefenders.Remove(old);
+        }
+        var def = new TownDefender
+        {
+          CharacterId = characterId,
+          TownId = townId,
+        };
+        await this.container.Context.TownDefenders.AddAsync(def);
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
       }
     }
 

@@ -19,6 +19,7 @@ namespace SangokuKmy.Models.Commands
       new CommercialMaxCommand(),
       new WallMaxCommand(),
       new SoldierCommand(),
+      new DefendCommand(),
       new TrainingCommand(),
     };
 
