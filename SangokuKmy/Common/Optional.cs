@@ -96,6 +96,23 @@ namespace SangokuKmy.Common
     }
 
     /// <summary>
+    /// オブジェクトがNULLであればエラーを投げる
+    /// </summary>
+    /// <typeparam name="T">オブジェクトの型</typeparam>
+    /// <param name="obj">調べるオブジェクト</param>
+    /// <param name="error">nullだったときに投げるエラーコード</param>
+    /// <param name="extraData">エラーの追加データ</param>
+    /// <returns></returns>
+    public static T Or<T>(this T obj, ErrorCode error, object extraData = null) where T : class
+    {
+      if (obj == null)
+      {
+        error.Throw(extraData);
+      }
+      return obj;
+    }
+
+    /// <summary>
     /// 非同期オブジェクトをOptionalに変換する
     /// </summary>
     /// <returns>Optionalに変換されたオブジェクト</returns>

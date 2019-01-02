@@ -96,6 +96,16 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode CharacterIconNotFoundError { get; } = new ErrorCode(404, 14);
 
     /// <summary>
+    /// 徴兵コマンドを入力しようとしたが、都市技術が足りないエラー
+    /// </summary>
+    public static ErrorCode LackOfTownTechnologyForSoldier { get; } = new ErrorCode(400, 15);
+
+    /// <summary>
+    /// コマンドのパラメータが足りないエラー
+    /// </summary>
+    public static ErrorCode LackOfCommandParameter { get; } = new ErrorCode(400, 16);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }

@@ -18,6 +18,7 @@ namespace SangokuKmy.Models.Commands
       new AgricultureMaxCommand(),
       new CommercialMaxCommand(),
       new WallMaxCommand(),
+      new SoldierCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

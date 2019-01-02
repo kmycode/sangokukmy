@@ -127,7 +127,6 @@ namespace SangokuKmy.Models.Data.Repositories
           existCommandIds.Add(existCommand.Command.Id);
         }
 
-
         // 新しいコマンドを追加
         var newCommandDates = intTargets
           .Except(existCommands.Select(c => c.Command.IntGameDateTime))

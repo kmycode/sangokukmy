@@ -134,5 +134,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 城壁増築
     /// </summary>
     WallMax = 9,
+
+    /// <summary>
+    /// 徴兵
+    /// </summary>
+    Soldier = 10,
   }
 }

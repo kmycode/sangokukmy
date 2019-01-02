@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
+using SangokuKmy.Common;
 using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Entities
@@ -371,5 +373,36 @@ namespace SangokuKmy.Models.Data.Entities
     /// 井闌
     /// </summary>
     Seiran = 14,
+  }
+
+  public class SoldierTypeData
+  {
+    public string Name { get; set; }
+    public SoldierType Type { get; set; }
+    public short Money { get; set; }
+  }
+  public static class SoldierTypes
+  {
+    private static readonly IEnumerable<SoldierTypeData> data = new SoldierTypeData[]
+    {
+      new SoldierTypeData { Name = "雑兵", Type = SoldierType.Common, Money = 10, },
+      new SoldierTypeData { Name = "禁兵", Type = SoldierType.Guard, Money = 10, },
+      new SoldierTypeData { Name = "軽歩兵", Type = SoldierType.LightInfantry, Money = 10, },
+      new SoldierTypeData { Name = "弓兵", Type = SoldierType.Archer, Money = 10, },
+      new SoldierTypeData { Name = "軽騎兵", Type = SoldierType.LightCavalry, Money = 10, },
+      new SoldierTypeData { Name = "強弩兵", Type = SoldierType.StrongCrossbow, Money = 10, },
+      new SoldierTypeData { Name = "神鬼兵", Type = SoldierType.LightIntellect, Money = 10, },
+      new SoldierTypeData { Name = "重歩兵", Type = SoldierType.HeavyInfantry, Money = 10, },
+      new SoldierTypeData { Name = "重騎兵", Type = SoldierType.HeavyCavalry, Money = 10, },
+      new SoldierTypeData { Name = "智攻兵", Type = SoldierType.Intellect, Money = 10, },
+      new SoldierTypeData { Name = "連弩兵", Type = SoldierType.RepeatingCrossbow, Money = 10, },
+      new SoldierTypeData { Name = "壁守兵", Type = SoldierType.StrongGuards, Money = 10, },
+      new SoldierTypeData { Name = "衝車", Type = SoldierType.Shosha, Money = 10, },
+      new SoldierTypeData { Name = "井闌", Type = SoldierType.Seiran, Money = 10, },
+    };
+    public static Optional<SoldierTypeData> Get(SoldierType type)
+    {
+      return data.SingleOrDefault(d => d.Type == type).ToOptional();
+    }
   }
 }
