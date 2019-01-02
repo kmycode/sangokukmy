@@ -127,7 +127,11 @@ namespace SangokuKmy.Models.Commands
 
       if (!SoldierTypes.Get(soldierType).HasData)
       {
-        ErrorCode.LackOfTownTechnologyForSoldier.Throw();
+        ErrorCode.InvalidCommandParameter.Throw();
+      }
+      if (soldierNumber.NumberValue <= 0)
+      {
+        ErrorCode.InvalidCommandParameter.Throw();
       }
 
       // 禁兵は、雑兵と同じタイプにする（実行時判定なので）

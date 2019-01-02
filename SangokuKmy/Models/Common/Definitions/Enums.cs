@@ -106,6 +106,11 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode LackOfCommandParameter { get; } = new ErrorCode(400, 16);
 
     /// <summary>
+    /// コマンドパラメータが不正であるエラー
+    /// </summary>
+    public static ErrorCode InvalidCommandParameter { get; } = new ErrorCode(400, 17);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }
