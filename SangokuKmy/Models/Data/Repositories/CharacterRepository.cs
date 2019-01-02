@@ -102,6 +102,7 @@ namespace SangokuKmy.Models.Data.Repositories
             i => i.CharacterId,
             (c, i) => new { Character = c, Icons = i, })
           .ToArrayAsync())
+          .OrderBy(data => data.Character.LastUpdated)
           .Select(data =>
           {
             return (data.Character, data.Icons.GetMainOrFirst().Data);
