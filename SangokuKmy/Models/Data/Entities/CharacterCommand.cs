@@ -114,5 +114,25 @@ namespace SangokuKmy.Models.Data.Entities
     /// 守兵増強
     /// </summary>
     WallGuard = 5,
+
+    /// <summary>
+    /// 米施し
+    /// </summary>
+    Security = 6,
+
+    /// <summary>
+    /// 農地開拓
+    /// </summary>
+    AgricultureMax = 7,
+
+    /// <summary>
+    /// 市場拡大
+    /// </summary>
+    CommercialMax = 8,
+
+    /// <summary>
+    /// 城壁増築
+    /// </summary>
+    WallMax = 9,
   }
 }

@@ -137,4 +137,75 @@ namespace SangokuKmy.Models.Commands
     protected override void SetValue(Town town, int value) => town.WallGuard = value;
     protected override string GetValueAddingText() => "増強";
   }
+
+  /// <summary>
+  /// 米施し
+  /// </summary>
+  public class SecurityCommand : DomesticAffairCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.Security;
+    protected override string GetValueName() => "民忠";
+    protected override int GetCurrentValue(Town town) => town.Security;
+    protected override int GetMaxValue(Town town) => 100;
+    protected override void SetValue(Town town, int value) => town.Security = (short)value;
+    protected override string GetValueAddingText() => "回復";
+    protected override int GetCharacterAssets(Character character) => character.Rice;
+    protected override string GetCharacterAssetName() => "米";
+    protected override void SetCharacterAssets(Character character, int value) => character.Rice = value;
+    protected override int GetCharacterAttribute(Character character) => character.Popularity;
+    protected override void AddCharacterAttributeEx(Character character, short ex) => character.AddPopularityEx(ex);
+  }
+
+  public abstract class DomesticAffairMaxCommand : DomesticAffairCommand
+  {
+    protected override string GetValueAddingText() => "拡大";
+    protected override int GetCharacterAttribute(Character character) => Math.Max(character.Strong, character.Intellect);
+    protected override void AddCharacterAttributeEx(Character character, short ex)
+    {
+      if (character.Intellect > character.Strong)
+      {
+        character.AddIntellectEx(ex);
+      }
+      else
+      {
+        character.AddStrongEx(ex);
+      }
+    }
+  }
+
+  /// <summary>
+  /// 農地開拓
+  /// </summary>
+  public class AgricultureMaxCommand : DomesticAffairMaxCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.AgricultureMax;
+    protected override string GetValueName() => "農業最大値";
+    protected override int GetCurrentValue(Town town) => town.AgricultureMax;
+    protected override int GetMaxValue(Town town) => 3000;
+    protected override void SetValue(Town town, int value) => town.AgricultureMax = (short)value;
+  }
+
+  /// <summary>
+  /// 市場拡大
+  /// </summary>
+  public class CommercialMaxCommand : DomesticAffairMaxCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.CommercialMax;
+    protected override string GetValueName() => "商業最大値";
+    protected override int GetCurrentValue(Town town) => town.CommercialMax;
+    protected override int GetMaxValue(Town town) => 3000;
+    protected override void SetValue(Town town, int value) => town.CommercialMax = (short)value;
+  }
+
+  /// <summary>
+  /// 城壁増築
+  /// </summary>
+  public class WallMaxCommand : DomesticAffairMaxCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.WallMax;
+    protected override string GetValueName() => "城壁最大値";
+    protected override int GetCurrentValue(Town town) => town.WallMax;
+    protected override int GetMaxValue(Town town) => 5000;
+    protected override void SetValue(Town town, int value) => town.WallMax = (short)value;
+  }
 }
