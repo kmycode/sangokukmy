@@ -302,6 +302,57 @@ namespace SangokuKmy.Models.Updates
         await repo.SaveChangesAsync();
       }
 
+      // 相場・人口変動
+      if (system.GameDateTime.Month == 1 || system.GameDateTime.Month == 7)
+      {
+        var ricePriceBase = 1000000;
+        var ricePriceMax = (int)(ricePriceBase * 1.2f);
+        var ricePriceMin = (int)(ricePriceBase * 0.8f);
+        foreach (var town in allTowns)
+        {
+          // 相場
+          if (rand.Next(0, 2) == 0)
+          {
+            town.IntRicePrice += (int)(rand.NextDouble() * 0.5 * ricePriceBase / 10);
+            if (town.IntRicePrice > ricePriceMax)
+            {
+              town.IntRicePrice = ricePriceMax;
+            }
+          }
+          else
+          {
+            town.IntRicePrice -= (int)(rand.NextDouble() * 0.5 * ricePriceBase / 10);
+            if (town.IntRicePrice < ricePriceMin)
+            {
+              town.IntRicePrice = ricePriceMin;
+            }
+          }
+
+          // 人口
+          var peopleAdd = 0;
+          var peopleMax = (town.Type == TownType.Large || allCountries.Any(c => c.Id == town.CountryId && c.CapitalTownId == town.Id)) ? 60000 : 50000;
+          if (town.Security > 50)
+          {
+            peopleAdd = Math.Max(80 * (town.Security - 50), 500);
+          }
+          else if (town.Security < 50)
+          {
+            peopleAdd = -80 * (50 - town.Security);
+          }
+          town.People += peopleAdd;
+          if (town.People > peopleMax)
+          {
+            town.People = peopleMax;
+          }
+          else if (town.People < 0)
+          {
+            town.People = 0;
+          }
+        }
+
+        await repo.SaveChangesAsync();
+      }
+
       // キャッシュを更新
       nextMonthStartDateTime = system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
 
