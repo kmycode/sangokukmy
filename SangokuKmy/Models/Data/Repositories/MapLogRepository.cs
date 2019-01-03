@@ -76,5 +76,21 @@ namespace SangokuKmy.Models.Data.Repositories
         return null;
       }
     }
+
+    /// <summary>
+    /// ログを追加
+    /// </summary>
+    /// <param name="log">追加するログ</param>
+    public async Task AddAsync(MapLog log)
+    {
+      try
+      {
+        await this.container.Context.MapLogs.AddAsync(log);
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+      }
+    }
   }
 }

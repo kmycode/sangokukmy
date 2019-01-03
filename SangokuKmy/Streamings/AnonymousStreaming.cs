@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using SangokuKmy.Models.Data.ApiEntities;
@@ -41,5 +42,11 @@ namespace SangokuKmy.Streamings
     /// </summary>
     /// <param name="data">送信するデータ</param>
     public async Task SendAllAsync<T>(ApiData<T> data) => await this.SendAsync(data, c => true);
+
+    /// <summary>
+    /// 全員にデータを送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    public async Task SendAllAsync<T>(IEnumerable<ApiData<T>> data) => await this.SendAsync(data, c => true);
   }
 }

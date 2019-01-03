@@ -59,6 +59,12 @@ namespace SangokuKmy.Streamings
     public async Task SendAllAsync<T>(ApiData<T> data) => await this.SendAsync(data, c => true);
 
     /// <summary>
+    /// 全員にデータを送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    public async Task SendAllAsync<T>(IEnumerable<ApiData<T>> data) => await this.SendAsync(data, c => true);
+
+    /// <summary>
     /// 特定のIDを持った武将にのみ送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>

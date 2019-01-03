@@ -21,6 +21,23 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// すべての武将を取得する
+    /// </summary>
+    /// <returns>武将</returns>
+    public async Task<IReadOnlyCollection<Character>> GetAllAsync()
+    {
+      try
+      {
+        return await this.container.Context.Characters.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return null;
+      }
+    }
+
+    /// <summary>
     /// 武将のキャッシュを取得する
     /// </summary>
     public async Task<IReadOnlyList<CharacterCache>> GetAllCachesAsync()

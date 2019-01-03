@@ -20,6 +20,7 @@ namespace SangokuKmy.Models.Updates
   /// </summary>
   public static class GameUpdater
   {
+    private static readonly Random rand = new Random(DateTime.Now.Millisecond);
     private static DateTime nextMonthStartDateTime = DateTime.Now;
 
     public static void BeginUpdate(ILogger logger)
@@ -112,12 +113,131 @@ namespace SangokuKmy.Models.Updates
       system.GameDateTime = system.GameDateTime.NextMonth();
       await repo.SaveChangesAsync();
 
+      var notificationMapLogs = new List<ApiData<MapLog>>();
+
+      // ログを追加する関数
+      async Task AddLogAsync(uint characterId, string message)
+      {
+        var log = new CharacterLog
+        {
+          GameDateTime = system.GameDateTime,
+          DateTime = DateTime.Now,
+          CharacterId = characterId,
+          Message = message,
+        };
+        await repo.Character.AddCharacterLogAsync(characterId, log);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(log), characterId);
+      }
+      async Task AddMapLogAsync(bool isImportant, EventType type, string message)
+      {
+        var log = new MapLog
+        {
+          ApiGameDateTime = system.GameDateTime,
+          Date = DateTime.Now,
+          EventType = type,
+          IsImportant = isImportant,
+          Message = message,
+        };
+        await repo.MapLog.AddAsync(log);
+        notificationMapLogs.Add(ApiData.From(log));
+      }
+
+      var allCharacters = await repo.Character.GetAllAsync();
+      var allTowns = await repo.Town.GetAllAsync();
+      var allCountries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown).ToArray();
+      var countryData = allCountries
+        .GroupJoin(allTowns, c => c.Id, t => t.CountryId, (c, ts) => new { Country = c, Towns = ts, })
+        .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, });
+
+      // 収入
+      if (system.GameDateTime.Month == 1 || system.GameDateTime.Month == 7)
+      {
+        foreach (var country in countryData)
+        {
+          // 国ごとの収入を算出
+          var salary = new CountrySalary
+          {
+            CountryId = country.Country.Id,
+            AllSalary = country.Towns.Sum(t => (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People / 10000),
+            AllContributions = country.Characters.Sum(c => c.Contribution),
+          };
+          if (system.GameDateTime.Month == 1)
+          {
+            country.Country.LastMoneyIncomes = salary.AllSalary;
+          }
+          else
+          {
+            country.Country.LastRiceIncomes = salary.AllSalary;
+          }
+
+          // 収入を武将に配る
+          foreach (var character in country.Characters)
+          {
+            var currentLank = Math.Min(Config.LankCount - 1, character.Class / Config.NextLank);
+            var add = (int)(salary.AllSalary * (float)character.Contribution / salary.AllContributions + character.Contribution * 1.3f);
+            var addMax = 1000 + currentLank * 150;
+            add = Math.Min(add, addMax);
+
+            if (system.GameDateTime.Month == 1)
+            {
+              character.Money += add;
+              await AddLogAsync(character.Id, "税金で <num>" + add + "</num> の金を徴収しました");
+            }
+            else
+            {
+              character.Rice += add;
+              await AddLogAsync(character.Id, "収穫で <num>" + add + "</num> の米を徴収しました");
+            }
+
+            // 昇格
+            if (character.Class % Config.NextLank + character.Contribution > Config.NextLank)
+            {
+              var newLank = Math.Min(Config.LankCount - 1, (character.Class + character.Contribution) / Config.NextLank);
+              var tecName = string.Empty;
+              switch (rand.Next(1, 5))
+              {
+                case 1:
+                  character.Strong++;
+                  tecName = "武力";
+                  break;
+                case 2:
+                  character.Intellect++;
+                  tecName = "知力";
+                  break;
+                case 3:
+                  character.Leadership++;
+                  tecName = "統率";
+                  break;
+                case 4:
+                  character.Popularity++;
+                  tecName = "人望";
+                  break;
+              }
+              var newAddMax = 1000 + newLank * 150;
+              await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました");
+              if (currentLank != newLank)
+              {
+                await AddLogAsync(character.Id, "【昇格】最大収入が <num>" + newAddMax + "</num> になりました");
+              }
+            }
+
+            // データ保存
+            character.Class += character.Contribution;
+            character.Contribution = 0;
+          }
+        }
+        
+        await repo.SaveChangesAsync();
+      }
+
       // キャッシュを更新
       nextMonthStartDateTime = system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
 
       // ストリーミング中のユーザに新しいデータを通知する
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(system.GameDateTime));
+      await AnonymousStreaming.Default.SendAllAsync(notificationMapLogs);
       await StatusStreaming.Default.SendAllAsync(ApiData.From(system.GameDateTime));
+      await StatusStreaming.Default.SendAllAsync(notificationMapLogs);
     }
 
     private static async Task UpdateCharactersAsync(MainRepository repo, IReadOnlyCollection<uint> characterIds)
@@ -243,6 +363,13 @@ namespace SangokuKmy.Models.Updates
           });
         }
       });
+    }
+
+    private class CountrySalary
+    {
+      public uint CountryId { get; set; }
+      public int AllSalary { get; set; }
+      public int AllContributions { get; set; }
     }
   }
 }

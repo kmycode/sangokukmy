@@ -22,18 +22,22 @@ namespace SangokuKmy.Models.Data.Entities
     public bool IsImportant { get; set; }
 
     /// <summary>
-    /// イベント名（支配とか滅亡とか）
+    /// イベントの種類
     /// </summary>
-    [Column("event_name", TypeName = "varchar(64)")]
-    [JsonProperty("eventName")]
-    public string EventName { get; set; }
+    [Column("event_type")]
+    [JsonIgnore]
+    public EventType EventType { get; set; }
 
     /// <summary>
-    /// イベントをあらわす色（#をのぞく16進6文字）
+    /// イベントの種類（JSON出力用）
     /// </summary>
-    [Column("event_color", TypeName = "varchar(12)")]
-    [JsonProperty("eventColor")]
-    public string EventColor { get; set; }
+    [NotMapped]
+    [JsonProperty("eventType")]
+    public short ApiEventType
+    {
+      get => (short)this.EventType;
+      set => this.EventType = (EventType)value;
+    }
 
     /// <summary>
     /// メッセージ
@@ -77,5 +81,15 @@ namespace SangokuKmy.Models.Data.Entities
       get => ApiDateTime.FromDateTime(this.Date);
       set => this.Date = value.ToDateTime();
     }
+  }
+
+  public enum EventType : short
+  {
+    Unknown = 0,
+
+    /// <summary>
+    /// 収入
+    /// </summary>
+    Incomes = 1,
   }
 }

@@ -78,5 +78,19 @@ namespace SangokuKmy.Models.Data.Entities
       get => GameDateTime.FromInt(this.IntOverthrownGameDate);
       set => this.IntOverthrownGameDate = value.ToInt();
     }
+
+    /// <summary>
+    /// 最後の金収入
+    /// </summary>
+    [Column("last_money_incomes")]
+    [JsonProperty("lastMoneyIncomes")]
+    public int LastMoneyIncomes { get; set; }
+
+    /// <summary>
+    /// 最後の米収入
+    /// </summary>
+    [Column("last_rice_incomes")]
+    [JsonProperty("lastRiceIncomes")]
+    public int LastRiceIncomes { get; set; }
   }
 }

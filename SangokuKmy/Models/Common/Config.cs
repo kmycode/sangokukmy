@@ -17,5 +17,15 @@ namespace SangokuKmy.Models.Common
     public static short StartYear { get; } = 150;
 
     public static short StartMonth { get; } = 1;
+
+    /// <summary>
+    /// 階級の数（新規登録直後に与えられる階級も含まれるので注意）
+    /// </summary>
+    public static short LankCount { get; } = 21;
+
+    /// <summary>
+    /// 次の階級までに必要な階級値
+    /// </summary>
+    public static int NextLank { get; } = 800;
   }
 }
