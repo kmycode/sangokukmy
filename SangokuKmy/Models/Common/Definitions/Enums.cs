@@ -111,6 +111,16 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode InvalidCommandParameter { get; } = new ErrorCode(400, 17);
 
     /// <summary>
+    /// そのデータにアクセスする権限がない一般的なエラー
+    /// </summary>
+    public static ErrorCode NotPermissionError { get; } = new ErrorCode(403, 18);
+
+    /// <summary>
+    /// 都市が見つからないエラー
+    /// </summary>
+    public static ErrorCode TownNotFoundError { get; } = new ErrorCode(404, 19);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }

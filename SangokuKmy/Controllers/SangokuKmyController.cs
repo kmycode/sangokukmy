@@ -114,28 +114,50 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
-    [HttpGet("town/characters")]
-    public async Task<ApiArrayData<CharacterForAnonymous>> GetSameTownCharactersAsync()
+    [HttpGet("town/{townId}/characters")]
+    public async Task<ApiArrayData<CharacterForAnonymous>> GetTownCharactersAsync(
+      [FromRoute] uint townId)
     {
       IEnumerable<CharacterForAnonymous> charas;
       using (var repo = MainRepository.WithRead())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        charas = (await repo.Town.GetCharactersAsync(chara.TownId))
+        var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+
+        if (town.CountryId != chara.CountryId && town.Id != chara.TownId)
+        {
+          // TODO: 諜報データをあたる
+
+          // 諜報データもなければエラー
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        charas = (await repo.Town.GetCharactersAsync(townId))
           .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
     }
 
     [AuthenticationFilter]
-    [HttpGet("town/defenders")]
-    public async Task<ApiArrayData<CharacterForAnonymous>> GetSameTownDefendersAsync()
+    [HttpGet("town/{townId}/defenders")]
+    public async Task<ApiArrayData<CharacterForAnonymous>> GetTownDefendersAsync(
+      [FromRoute] uint townId)
     {
       IEnumerable<CharacterForAnonymous> charas;
       using (var repo = MainRepository.WithRead())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        charas = (await repo.Town.GetDefendersAsync(chara.TownId))
+        var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+
+        if (town.CountryId != chara.CountryId && town.Id != chara.TownId)
+        {
+          // TODO: 諜報データをあたる
+
+          // 諜報データもなければエラー
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        charas = (await repo.Town.GetDefendersAsync(townId))
           .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
