@@ -161,7 +161,7 @@ namespace SangokuKmy.Controllers
     [HttpPost("town/scout")]
     public async Task ScoutTownAsync()
     {
-      ScoutedTown scoutedTown;
+      ScoutedTown scoutedTown, savedScoutedTown;
       Character chara;
 
       using (var repo = MainRepository.WithReadAndWrite())
@@ -188,9 +188,12 @@ namespace SangokuKmy.Controllers
 
         await repo.ScoutedTown.AddScoutAsync(scoutedTown);
         await repo.SaveChangesAsync();
+        
+        savedScoutedTown = (await repo.ScoutedTown.GetByTownIdAsync(town.Id, chara.CountryId))
+          .GetOrError(ErrorCode.InternalError, new { type = "already-scouted-town", value = scoutedTown.Id, });
       }
 
-      await StatusStreaming.Default.SendCountryAsync(ApiData.From(scoutedTown), chara.CountryId);
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(savedScoutedTown), chara.CountryId);
     }
 
     [AuthenticationFilter]
