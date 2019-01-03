@@ -48,7 +48,7 @@ namespace SangokuKmy.Controllers
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
-        myTowns = allTowns.Where(tw => tw.CountryId == chara.CountryId);
+        myTowns = allTowns.Where(tw => tw.CountryId == chara.CountryId || chara.TownId == tw.Id);
       }
 
       // HTTPヘッダを設定する

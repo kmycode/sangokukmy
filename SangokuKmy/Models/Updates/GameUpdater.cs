@@ -141,6 +141,7 @@ namespace SangokuKmy.Models.Updates
       var oldIntellect = character.Intellect;
       var oldLeadership = character.Leadership;
       var oldPopularity = character.Popularity;
+      var oldTownId = character.TownId;
 
       // ログを追加する関数
       async Task AddLogAsync(string message)
@@ -212,12 +213,34 @@ namespace SangokuKmy.Models.Updates
       // ログイン中のユーザに新しい情報を通知する
       await StatusStreaming.Default.SendCharacterAsync(notifies, character.Id);
 
-      // 自国の都市であれば、同じ国の武将に、共有情報を通知する（それ以外の都市は諜報経由で）
       await (await repo.Town.GetByIdAsync(character.TownId)).SomeAsync(async (town) =>
       {
+        // 自国の都市であれば、同じ国の武将に、共有情報を通知する（それ以外の都市は諜報経由で）
         if (town.CountryId == character.CountryId)
         {
           await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), character.CountryId);
+        }
+
+        // 同じ都市にいる他国の武将にも通知
+        // （自分が他国の都市にいる場合は、都市データ受信のさいは、自分もここに含まれる）
+        var charas = (await repo.Character.GetByTownIdAsync(town.Id))
+          .Select(d => d.Character)
+          .Where(c => c.CountryId != town.CountryId);
+        foreach (var chara in charas)
+        {
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), chara.Id);
+        }
+
+        // 自分が移動した場合、かつ移動する前の都市が他国の都市だった場合、前の都市のデータを消すよう指示する
+        if (oldTownId != town.Id)
+        {
+          (await repo.Town.GetByIdAsync(oldTownId)).Some(async oldTown =>
+          {
+            if (oldTown.CountryId != character.CountryId)
+            {
+              await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new TownForAnonymous(oldTown)), character.Id);
+            }
+          });
         }
       });
     }
