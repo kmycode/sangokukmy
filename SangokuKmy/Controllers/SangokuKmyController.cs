@@ -162,5 +162,19 @@ namespace SangokuKmy.Controllers
       }
       return ApiData.From(charas);
     }
+
+    [AuthenticationFilter]
+    [HttpGet("country/{countryId}/characters")]
+    public async Task<ApiArrayData<CharacterForAnonymous>> GetCountryCharactersAsync(
+      [FromRoute] uint countryId)
+    {
+      IEnumerable<CharacterForAnonymous> charas;
+      using (var repo = MainRepository.WithRead())
+      {
+        charas = (await repo.Country.GetCharactersAsync(countryId))
+          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.Anonymous));
+      }
+      return ApiData.From(charas);
+    }
   }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SangokuKmy.Common;
@@ -51,6 +53,36 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         ErrorCode.DatabaseError.Throw(ex);
         return Optional<Country>.Null();
+      }
+    }
+
+    /// <summary>
+    /// 国IDから武将を取得
+    /// </summary>
+    /// <param name="townId">都市ID</param>
+    /// <returns>その都市に滞在する武将</returns>
+    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon)>> GetCharactersAsync(uint countryId)
+    {
+      try
+      {
+        return (await this.container.Context.Characters
+          .Where(c => c.CountryId == countryId)
+          .GroupJoin(this.container.Context.CharacterIcons,
+            c => c.Id,
+            i => i.CharacterId,
+            (c, i) => new { Character = c, Icons = i, })
+          .ToArrayAsync())
+          .OrderBy(data => data.Character.LastUpdated)
+          .Select(data =>
+          {
+            return (data.Character, data.Icons.GetMainOrFirst().Data);
+          })
+          .ToArray();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
       }
     }
   }

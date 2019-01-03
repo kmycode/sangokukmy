@@ -37,10 +37,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public int Popularity { get; set; }
 
     [JsonProperty("soldierNumber")]
-    public int SoldierNumber { get; set; }
+    public int? SoldierNumber { get; set; }
 
     [JsonProperty("soldierType")]
-    public int SoldierType { get; set; }
+    public int? SoldierType { get; set; }
 
     public CharacterForAnonymous(Character character, CharacterIcon mainIcon, CharacterShareLevel level)
     {
