@@ -28,7 +28,7 @@ namespace SangokuKmy.Models.Commands
         var town = townOptional.Data;
         if (town.CountryId != character.CountryId)
         {
-          await loggerAsync("<town>" + town.Name + "</town>は自国の都市ではありません");
+          await loggerAsync("<town>" + town.Name + "</town>で内政しようとしましたが、自国の都市ではありません");
           return;
         }
 
