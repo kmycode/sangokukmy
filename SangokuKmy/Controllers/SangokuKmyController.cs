@@ -83,21 +83,18 @@ namespace SangokuKmy.Controllers
     public async Task SetCharacterCommandsAsync(
       [FromBody] IReadOnlyList<CharacterCommand> commands)
     {
-      unchecked
+      using (var repo = MainRepository.WithReadAndWrite())
       {
-        using (var repo = MainRepository.WithReadAndWrite())
+        foreach (var commandGroup in commands.GroupBy(c => c.Type))
         {
-          foreach (var commandGroup in commands.GroupBy(c => c.Type))
+          var cmd = Commands.Get(commandGroup.Key).GetOrError(ErrorCode.CommandTypeNotFoundError);
+          var sameCommandParamsGroups = commandGroup.GroupBy(g => g.Parameters.Select(p => p.GetHashCode()).Aggregate((p1, p2) => p1 ^ p2), c => c);
+          foreach (var sameCommandParamsGroup in sameCommandParamsGroups)
           {
-            var cmd = Commands.Get(commandGroup.Key).GetOrError(ErrorCode.CommandTypeNotFoundError);
-            var sameCommandParamsGroups = commandGroup.GroupBy(g => g.Parameters.Sum(p => p.GetHashCode()), c => c);
-            foreach (var sameCommandParamsGroup in sameCommandParamsGroups)
-            {
-              await cmd.InputAsync(repo, this.AuthData.CharacterId, sameCommandParamsGroup.Select(c => c.GameDateTime), sameCommandParamsGroup.First().Parameters.ToArray());
-            }
+            await cmd.InputAsync(repo, this.AuthData.CharacterId, sameCommandParamsGroup.Select(c => c.GameDateTime), sameCommandParamsGroup.First().Parameters.ToArray());
           }
-          await repo.SaveChangesAsync();
         }
+        await repo.SaveChangesAsync();
       }
     }
 
