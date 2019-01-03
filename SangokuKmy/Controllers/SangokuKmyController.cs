@@ -126,9 +126,6 @@ namespace SangokuKmy.Controllers
 
         if (town.CountryId != chara.CountryId && town.Id != chara.TownId)
         {
-          // TODO: 諜報データをあたる
-
-          // 諜報データもなければエラー
           ErrorCode.NotPermissionError.Throw();
         }
 
@@ -151,9 +148,6 @@ namespace SangokuKmy.Controllers
 
         if (town.CountryId != chara.CountryId && town.Id != chara.TownId)
         {
-          // TODO: 諜報データをあたる
-
-          // 諜報データもなければエラー
           ErrorCode.NotPermissionError.Throw();
         }
 
