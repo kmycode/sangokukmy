@@ -101,6 +101,16 @@ namespace SangokuKmy.Models.Data
     public DbSet<ScoutedTown> ScoutedTowns { get; set; }
 
     /// <summary>
+    /// 諜報された都市の武将データ
+    /// </summary>
+    public DbSet<ScoutedCharacter> ScoutedCharacters { get; set; }
+
+    /// <summary>
+    /// 諜報された都市の守備データ
+    /// </summary>
+    public DbSet<ScoutedDefender> ScoutedDefenders { get; set; }
+
+    /// <summary>
     /// 都市の守備武将
     /// </summary>
     public DbSet<TownDefender> TownDefenders { get; set; }

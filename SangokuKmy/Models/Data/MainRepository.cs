@@ -77,6 +77,12 @@ namespace SangokuKmy.Models.Data
     private TownRepository _town;
 
     /// <summary>
+    /// 諜報された都市
+    /// </summary>
+    public ScoutedTownRepository ScoutedTown => this._scoutedTown = this._scoutedTown ?? new ScoutedTownRepository(this.container);
+    private ScoutedTownRepository _scoutedTown;
+
+    /// <summary>
     /// 手紙
     /// </summary>
     public ChatMessageRepository ChatMessage => this._chatMessage = this._chatMessage ?? new ChatMessageRepository(this.container);

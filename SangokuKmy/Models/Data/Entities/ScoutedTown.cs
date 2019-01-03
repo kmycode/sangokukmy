@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 using SangokuKmy.Models.Data.ApiEntities;
@@ -8,6 +9,33 @@ namespace SangokuKmy.Models.Data.Entities
   [Table("scouted_town")]
   public class ScoutedTown : TownBase
   {
+    public static ScoutedTown From(Town town)
+    {
+      var t = new ScoutedTown
+      {
+        ScoutedTownId = town.Id,
+        Type = town.Type,
+        CountryId = town.CountryId,
+        Name = town.Name,
+        X = town.X,
+        Y = town.Y,
+        People = town.People,
+        Agriculture = town.Agriculture,
+        AgricultureMax = town.AgricultureMax,
+        Commercial = town.Commercial,
+        CommercialMax = town.CommercialMax,
+        Technology = town.Technology,
+        TechnologyMax = town.TechnologyMax,
+        Wall = town.Wall,
+        WallMax = town.WallMax,
+        WallGuard = town.WallGuard,
+        WallGuardMax = town.WallGuardMax,
+        Security = town.Security,
+        IntRicePrice = town.IntRicePrice,
+      };
+      return t;
+    }
+
     /// <summary>
     /// 偵察した都市のID
     /// </summary>
@@ -64,6 +92,20 @@ namespace SangokuKmy.Models.Data.Entities
       get => this.ScoutedDateTime.ToInt();
       set => this.ScoutedDateTime = GameDateTime.FromInt(value);
     }
+
+    /// <summary>
+    /// 都市にいる武将
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("characters")]
+    public IEnumerable<CharacterForAnonymous> Characters { get; set; }
+
+    /// <summary>
+    /// 都市を守備する武将
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("defenders")]
+    public IEnumerable<CharacterForAnonymous> Defenders { get; set; }
   }
 
   public enum ScoutMethod : short

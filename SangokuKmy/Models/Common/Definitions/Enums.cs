@@ -121,6 +121,11 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode TownNotFoundError { get; } = new ErrorCode(404, 19);
 
     /// <summary>
+    /// 意味のない、しなくてもいい操作をしようとしたときのエラー
+    /// </summary>
+    public static ErrorCode MeaninglessOperationError { get; } = new ErrorCode(403, 20);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }
