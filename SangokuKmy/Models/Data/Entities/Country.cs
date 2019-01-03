@@ -53,5 +53,30 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("capital_town_id")]
     [JsonProperty("capitalTownId")]
     public uint CapitalTownId { get; set; }
+
+    /// <summary>
+    /// この国はすでに滅亡したか
+    /// </summary>
+    [Column("has_overthrown")]
+    [JsonProperty("hasOverthrown")]
+    public bool HasOverthrown { get; set; }
+
+    /// <summary>
+    /// 滅亡した、ゲーム内の年月（DB用）
+    /// </summary>
+    [Column("overthrown_game_date")]
+    [JsonIgnore]
+    public int IntOverthrownGameDate { get; set; }
+
+    /// <summary>
+    /// 滅亡した、ゲーム内の年月
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("overthrownGameDate")]
+    public GameDateTime OverthrownGameDate
+    {
+      get => GameDateTime.FromInt(this.IntOverthrownGameDate);
+      set => this.IntOverthrownGameDate = value.ToInt();
+    }
   }
 }
