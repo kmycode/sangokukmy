@@ -46,8 +46,7 @@ namespace SangokuKmy.Models.Commands
           {
             await loggerAsync("<town>" + town.Name + "</town> に移動しようとしましたが、すでに所在しています");
           }
-          else if (Math.Abs(currentTown.X - town.X) <= 1 &&
-            Math.Abs(currentTown.Y - town.Y) <= 1)
+          else if (currentTown.IsNextToTown(town))
           {
             character.TownId = town.Id;
             character.AddLeadershipEx(50);

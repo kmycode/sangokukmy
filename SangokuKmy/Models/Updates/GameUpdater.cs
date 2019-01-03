@@ -230,6 +230,78 @@ namespace SangokuKmy.Models.Updates
         await repo.SaveChangesAsync();
       }
 
+      // イベント
+      if (rand.Next(0, 40) == 0)
+      {
+        var targetTown = allTowns[rand.Next(0, allTowns.Count)];
+        var targetTowns = allTowns.GetAroundTowns(targetTown);
+
+        var eventId = rand.Next(0, 6);
+        switch (eventId)
+        {
+          case 0:
+            await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺でいなごの大群が畑を襲いました");
+            foreach (var town in targetTowns)
+            {
+              town.Agriculture = (int)(town.Agriculture * 0.85f);
+            }
+            targetTown.Agriculture = (int)(targetTown.Agriculture * 0.75f);
+            break;
+          case 1:
+            await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で洪水がおこりました");
+            foreach (var town in targetTowns)
+            {
+              town.Agriculture = (int)(town.Agriculture * 0.94f);
+              town.Commercial = (int)(town.Commercial * 0.94f);
+              town.Wall = (int)(town.Wall * 0.94f);
+            }
+            targetTown.Agriculture = (int)(targetTown.Agriculture * 0.85f);
+            targetTown.Commercial = (int)(targetTown.Commercial * 0.85f);
+            targetTown.Wall = (int)(targetTown.Wall * 0.85f);
+            break;
+          case 2:
+            await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> を中心に疫病が広がっています。町の人も苦しんでいます");
+            foreach (var town in targetTowns)
+            {
+              town.People = (int)(town.People * 0.85f);
+            }
+            targetTown.People = (int)(targetTown.People * 0.75f);
+            break;
+          case 3:
+            await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺は、今年は豊作になりそうです");
+            foreach (var town in targetTowns)
+            {
+              town.Agriculture = Math.Min((int)(town.Agriculture * 1.12f), town.AgricultureMax);
+            }
+            targetTown.Agriculture = Math.Min((int)(targetTown.Agriculture * 1.24f), targetTown.AgricultureMax);
+            break;
+          case 4:
+            await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で地震が起こりました");
+            foreach (var town in targetTowns)
+            {
+              town.Agriculture = (int)(town.Agriculture * 0.86f);
+              town.Commercial = (int)(town.Commercial * 0.86f);
+              town.Wall = (int)(town.Wall * 0.86f);
+              town.People = (int)(town.People * 0.94f);
+            }
+            targetTown.Agriculture = (int)(targetTown.Agriculture * 0.76f);
+            targetTown.Commercial = (int)(targetTown.Commercial * 0.76f);
+            targetTown.Wall = (int)(targetTown.Wall * 0.76f);
+            targetTown.People = (int)(targetTown.People * 0.76f);
+            break;
+          case 5:
+            await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺の市場が賑わっています");
+            foreach (var town in targetTowns)
+            {
+              town.Commercial = Math.Min((int)(town.Commercial * 1.12f), town.CommercialMax);
+            }
+            targetTown.Commercial = Math.Min((int)(targetTown.Commercial * 1.24f), targetTown.CommercialMax);
+            break;
+        }
+
+        await repo.SaveChangesAsync();
+      }
+
       // キャッシュを更新
       nextMonthStartDateTime = system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
 

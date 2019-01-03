@@ -91,5 +91,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 収入
     /// </summary>
     Incomes = 1,
+
+    /// <summary>
+    /// イベント
+    /// </summary>
+    Event = 2,
   }
 }

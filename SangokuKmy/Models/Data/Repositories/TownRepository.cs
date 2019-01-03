@@ -44,7 +44,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// すべての都市を取得する
     /// </summary>
     /// <returns>都市</returns>
-    public async Task<IReadOnlyCollection<Town>> GetAllAsync()
+    public async Task<IReadOnlyList<Town>> GetAllAsync()
     {
       try
       {

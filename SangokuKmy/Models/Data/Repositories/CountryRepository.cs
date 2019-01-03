@@ -23,7 +23,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// すべての国を取得する
     /// </summary>
     /// <returns>すべての国</returns>
-    public async Task<IEnumerable<Country>> GetAllAsync()
+    public async Task<IReadOnlyList<Country>> GetAllAsync()
     {
       try
       {

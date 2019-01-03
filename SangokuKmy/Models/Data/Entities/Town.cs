@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace SangokuKmy.Models.Data.Entities
@@ -187,5 +189,23 @@ namespace SangokuKmy.Models.Data.Entities
     /// 大都市
     /// </summary>
     Large = 4,
+  }
+
+  public static class TownExtensions
+  {
+    public static IEnumerable<TownBase> GetAroundTowns(this IEnumerable<TownBase> towns, TownBase town)
+    {
+      return towns.Where(t => t.IsNextToTown(town));
+    }
+
+    public static bool IsNextToTown(this IEnumerable<TownBase> towns, TownBase a, TownBase b)
+    {
+      return towns.GetAroundTowns(a).Contains(b);
+    }
+
+    public static bool IsNextToTown<T>(this T a, TownBase b) where T : TownBase
+    {
+      return Math.Abs(a.X - b.X) <= 1 && Math.Abs(a.Y - b.Y) <= 1 && a.Id != b.Id;
+    }
   }
 }

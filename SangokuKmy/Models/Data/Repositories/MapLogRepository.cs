@@ -65,7 +65,7 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         return (await this.container.Context.MapLogs
-          .Where(ml => ml.IsImportant == isImportant)
+          .Where(ml => isImportant ? ml.IsImportant : true)
           .OrderByDescending(ml => ml.Id)
           .Skip(startIndex)
           .Take(count)

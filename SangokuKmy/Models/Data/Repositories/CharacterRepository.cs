@@ -24,7 +24,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// すべての武将を取得する
     /// </summary>
     /// <returns>武将</returns>
-    public async Task<IReadOnlyCollection<Character>> GetAllAsync()
+    public async Task<IReadOnlyList<Character>> GetAllAsync()
     {
       try
       {
