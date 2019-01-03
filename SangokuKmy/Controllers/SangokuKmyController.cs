@@ -167,9 +167,12 @@ namespace SangokuKmy.Controllers
     [HttpPost("town/scout")]
     public async Task ScoutTownAsync()
     {
+      ScoutedTown scoutedTown;
+      Character chara;
+
       using (var repo = MainRepository.WithReadAndWrite())
       {
-        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var town = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
         var country = await repo.Country.GetByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { type = "country", value = chara.CountryId, });
 
@@ -183,7 +186,7 @@ namespace SangokuKmy.Controllers
         }
 
         var system = await repo.System.GetAsync();
-        var scoutedTown = ScoutedTown.From(town);
+        scoutedTown = ScoutedTown.From(town);
         scoutedTown.ScoutedDateTime = system.GameDateTime;
         scoutedTown.ScoutedCharacterId = chara.Id;
         scoutedTown.ScoutedCountryId = chara.CountryId;
@@ -192,6 +195,8 @@ namespace SangokuKmy.Controllers
         await repo.ScoutedTown.AddScoutAsync(scoutedTown);
         await repo.SaveChangesAsync();
       }
+
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(scoutedTown), chara.CountryId);
     }
 
     [AuthenticationFilter]

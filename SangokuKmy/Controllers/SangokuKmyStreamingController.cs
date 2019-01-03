@@ -34,6 +34,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<Country> countries;
       IEnumerable<TownForAnonymous> towns;
       IEnumerable<Town> myTowns;
+      IEnumerable<ScoutedTown> scoutedTowns;
       IEnumerable<ChatMessage> chatMessages;
       using (var repo = MainRepository.WithRead())
       {
@@ -49,6 +50,7 @@ namespace SangokuKmy.Controllers
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
         myTowns = allTowns.Where(tw => tw.CountryId == chara.CountryId || chara.TownId == tw.Id);
+        scoutedTowns = await repo.ScoutedTown.GetByScoutedCountryIdAsync(chara.CountryId);
       }
 
       // HTTPヘッダを設定する
@@ -64,6 +66,7 @@ namespace SangokuKmy.Controllers
         .Concat(countries.Select(c => ApiData.From(c)))
         .Concat(towns.Select(tw => ApiData.From(tw)))
         .Concat(myTowns.Select(tw => ApiData.From(tw)))
+        .Concat(scoutedTowns.Select(st => ApiData.From(st)))
         .Concat(chatMessages.Select(cm => ApiData.From(cm)))
         .ToList();
 

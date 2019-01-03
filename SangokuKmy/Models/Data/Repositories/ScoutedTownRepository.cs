@@ -20,6 +20,31 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 国が諜報したすべての都市データを取得する
+    /// </summary>
+    /// <returns>都市</returns>
+    /// <param name="scoutingCountryId">諜報した国のID</param>
+    public async Task<IReadOnlyList<ScoutedTown>> GetByScoutedCountryIdAsync(uint scoutingCountryId)
+    {
+      try
+      {
+        var towns = await this.container.Context.ScoutedTowns
+          .Where(st => st.ScoutedCountryId == scoutingCountryId)
+          .ToArrayAsync();
+        foreach (var town in towns)
+        {
+          await this.SetScoutedTownParametersAsync(town);
+        }
+        return towns;
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// IDから都市を取得する
     /// </summary>
     /// <returns>都市</returns>
@@ -34,49 +59,7 @@ namespace SangokuKmy.Models.Data.Repositories
           .ToOptionalAsync();
         if (town.HasData)
         {
-          var t = town.Data;
-          var characters = (await this.container.Context.ScoutedCharacters
-            .Where(sc => sc.ScoutId == t.Id)
-            .Join(this.container.Context.Characters,
-              sc => sc.CharacterId,
-              c => c.Id,
-              (sc, c) => new { ScoutData = sc, Character = c, })
-            .GroupJoin(this.container.Context.CharacterIcons,
-              c => c.Character.Id,
-              i => i.CharacterId,
-              (c, i) => new { c.ScoutData, c.Character, Icons = i, })
-            .ToArrayAsync())
-            .Select(c =>
-            {
-              var data = new CharacterForAnonymous(c.Character, c.Icons.GetMainOrFirst().Data, CharacterShareLevel.Anonymous)
-              {
-                SoldierType = c.ScoutData.SoldierType,
-                SoldierNumber = c.ScoutData.SoldierNumber
-              };
-              return data;
-            });
-          var defenders = (await this.container.Context.ScoutedDefenders
-            .Where(sc => sc.ScoutId == t.Id)
-            .Join(this.container.Context.Characters,
-              sc => sc.CharacterId,
-              c => c.Id,
-              (sc, c) => new { ScoutData = sc, Character = c, })
-            .GroupJoin(this.container.Context.CharacterIcons,
-              c => c.Character.Id,
-              i => i.CharacterId,
-              (c, i) => new { c.ScoutData, c.Character, Icons = i, })
-            .ToArrayAsync())
-            .Select(c =>
-            {
-              var data = new CharacterForAnonymous(c.Character, c.Icons.GetMainOrFirst().Data, CharacterShareLevel.Anonymous)
-              {
-                SoldierType = c.ScoutData.SoldierType,
-                SoldierNumber = c.ScoutData.SoldierNumber
-              };
-              return data;
-            });
-          t.Characters = characters;
-          t.Defenders = defenders;
+          await this.SetScoutedTownParametersAsync(town.Data);
         }
         return town;
       }
@@ -85,6 +68,52 @@ namespace SangokuKmy.Models.Data.Repositories
         ErrorCode.DatabaseError.Throw(ex);
         return default;
       }
+    }
+
+    private async Task SetScoutedTownParametersAsync(ScoutedTown t)
+    {
+      var characters = (await this.container.Context.ScoutedCharacters
+        .Where(sc => sc.ScoutId == t.Id)
+        .Join(this.container.Context.Characters,
+          sc => sc.CharacterId,
+          c => c.Id,
+          (sc, c) => new { ScoutData = sc, Character = c, })
+        .GroupJoin(this.container.Context.CharacterIcons,
+          c => c.Character.Id,
+          i => i.CharacterId,
+          (c, i) => new { c.ScoutData, c.Character, Icons = i, })
+        .ToArrayAsync())
+        .Select(c =>
+        {
+          var data = new CharacterForAnonymous(c.Character, c.Icons.GetMainOrFirst().Data, CharacterShareLevel.Anonymous)
+          {
+            SoldierType = c.ScoutData.SoldierType,
+            SoldierNumber = c.ScoutData.SoldierNumber
+          };
+          return data;
+        });
+      var defenders = (await this.container.Context.ScoutedDefenders
+        .Where(sc => sc.ScoutId == t.Id)
+        .Join(this.container.Context.Characters,
+          sc => sc.CharacterId,
+          c => c.Id,
+          (sc, c) => new { ScoutData = sc, Character = c, })
+        .GroupJoin(this.container.Context.CharacterIcons,
+          c => c.Character.Id,
+          i => i.CharacterId,
+          (c, i) => new { c.ScoutData, c.Character, Icons = i, })
+        .ToArrayAsync())
+        .Select(c =>
+        {
+          var data = new CharacterForAnonymous(c.Character, c.Icons.GetMainOrFirst().Data, CharacterShareLevel.Anonymous)
+          {
+            SoldierType = c.ScoutData.SoldierType,
+            SoldierNumber = c.ScoutData.SoldierNumber
+          };
+          return data;
+        });
+      t.Characters = characters;
+      t.Defenders = defenders;
     }
 
     /// <summary>
