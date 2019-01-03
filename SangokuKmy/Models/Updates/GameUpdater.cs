@@ -223,7 +223,7 @@ namespace SangokuKmy.Models.Updates
 
         // 同じ都市にいる他国の武将にも通知
         // （自分が他国の都市にいる場合は、都市データ受信のさいは、自分もここに含まれる）
-        var charas = (await repo.Character.GetByTownIdAsync(town.Id))
+        var charas = (await repo.Town.GetCharactersAsync(town.Id))
           .Select(d => d.Character)
           .Where(c => c.CountryId != town.CountryId);
         foreach (var chara in charas)

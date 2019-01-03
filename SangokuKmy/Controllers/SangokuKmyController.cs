@@ -121,7 +121,7 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithRead())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        charas = (await repo.Character.GetByTownIdAsync(chara.TownId))
+        charas = (await repo.Town.GetCharactersAsync(chara.TownId))
           .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
@@ -135,7 +135,7 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithRead())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        charas = (await repo.Character.GetDefendersByTownIdAsync(chara.TownId))
+        charas = (await repo.Town.GetDefendersAsync(chara.TownId))
           .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
