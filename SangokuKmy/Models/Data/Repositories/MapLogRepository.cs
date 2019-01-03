@@ -60,15 +60,18 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <param name="startIndex">取得開始位置</param>
     /// <param name="count">取得数</param>
     /// <param name="isImportant">重要ログであるか</param>
-    private async Task<IEnumerable<MapLog>> GetRangeAsync(int startIndex, int count, bool isImportant)
+    private async Task<IReadOnlyList<MapLog>> GetRangeAsync(int startIndex, int count, bool isImportant)
     {
       try
       {
-        return await this.container.Context.MapLogs
+        return (await this.container.Context.MapLogs
           .Where(ml => ml.IsImportant == isImportant)
+          .OrderByDescending(ml => ml.Id)
           .Skip(startIndex)
           .Take(count)
-          .ToArrayAsync();
+          .ToArrayAsync())
+          .Reverse()
+          .ToArray();
       }
       catch (Exception ex)
       {
