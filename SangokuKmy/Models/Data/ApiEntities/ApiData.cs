@@ -85,5 +85,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<ChatMessage> From(ChatMessage data) => From(17, data);
     public static ApiArrayData<ChatMessage> From(IEnumerable<ChatMessage> data) => From(17, data);
     public static ApiArrayData<CharacterIcon> From(IEnumerable<CharacterIcon> data) => From(18, data);
+    public static ApiData<SystemData> From(SystemData data) => From(19, data);
   }
 }

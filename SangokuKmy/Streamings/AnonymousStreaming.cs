@@ -16,17 +16,16 @@ namespace SangokuKmy.Streamings
     /// ストリーミングの対象を追加する
     /// </summary>
     /// <param name="response">レスポンス</param>
-    /// <param name="authData">認証データ</param>
-    public void Add(HttpResponse response, AuthenticationData authData)
+    public void Add(HttpResponse response)
     {
-      this.Add(response, authData, null);
+      this.Add(response, null);
     }
 
-    public void Add(HttpResponse response, AuthenticationData authData, Action onRemoved)
+    public void Add(HttpResponse response, Action onRemoved)
     {
       var data = new StreamingData<object>
       {
-        AuthData = authData,
+        AuthData = null,
         Response = response,
         ExtraData = null,
       };

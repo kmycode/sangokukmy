@@ -87,5 +87,47 @@ namespace SangokuKmy.Controllers
         await Task.Delay(5000);
       }
     }
+    
+    [HttpGet("anonymous")]
+    public async Task AnonymousStreamingAsync()
+    {
+      SystemData system;
+      IEnumerable<MapLog> maplogs;
+      IEnumerable<MapLog> importantMaplogs;
+      using (var repo = MainRepository.WithRead())
+      {
+        system = await repo.System.GetAsync();
+        maplogs = await repo.MapLog.GetNewestAsync(20);
+        importantMaplogs = await repo.MapLog.GetImportantNewestAsync(20);
+      }
+
+      // HTTPヘッダを設定する
+      this.Response.Headers.Add("Content-Type", "text/event-stream; charset=UTF-8");
+      this.Response.Headers.Add("Cache-Control", "no-cache");
+
+      // 送信する初期データをリストアップ
+      var sendData = Enumerable.Empty<object>()
+        .Concat(new object[] { ApiData.From(system), })
+        .Concat(maplogs.Select(ml => ApiData.From(ml)))
+        .Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
+        .ToList();
+
+      // 初期データを送信する
+      var initializeData = new StringBuilder();
+      foreach (var obj in sendData)
+      {
+        initializeData.Append(JsonConvert.SerializeObject(obj));
+        initializeData.Append("\n");
+      }
+      await this.Response.WriteAsync(initializeData.ToString());
+
+      // ストリーミング対象に追加し、対象から外れるまで待機する
+      var isRemoved = false;
+      AnonymousStreaming.Default.Add(this.Response, () => isRemoved = true);
+      while (!isRemoved)
+      {
+        await Task.Delay(5000);
+      }
+    }
   }
 }

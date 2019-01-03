@@ -306,7 +306,7 @@ namespace SangokuKmy.Models.Updates
       nextMonthStartDateTime = system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
 
       // ストリーミング中のユーザに新しいデータを通知する
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(system.GameDateTime));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(system));
       await AnonymousStreaming.Default.SendAllAsync(notificationMapLogs);
       await StatusStreaming.Default.SendAllAsync(ApiData.From(system.GameDateTime));
       await StatusStreaming.Default.SendAllAsync(notificationMapLogs);
