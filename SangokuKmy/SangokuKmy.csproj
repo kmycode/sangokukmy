@@ -10,6 +10,7 @@
     <Compile Remove="Migrations\20181026034127_Initial.Designer.cs" />
     <Compile Remove="Migrations\20181026034359_Initial.cs" />
     <Compile Remove="Migrations\20181026034359_Initial.Designer.cs" />
+    <Compile Remove="Controllers\ValuesController.cs" />
   </ItemGroup>
 
   <ItemGroup>
