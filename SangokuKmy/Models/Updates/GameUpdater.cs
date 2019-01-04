@@ -361,6 +361,10 @@ namespace SangokuKmy.Models.Updates
       await AnonymousStreaming.Default.SendAllAsync(notificationMapLogs);
       await StatusStreaming.Default.SendAllAsync(ApiData.From(system.GameDateTime));
       await StatusStreaming.Default.SendAllAsync(notificationMapLogs);
+      foreach (var country in allCountries)
+      {
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
+      }
     }
 
     private static async Task UpdateCharactersAsync(MainRepository repo, IReadOnlyCollection<uint> characterIds)
