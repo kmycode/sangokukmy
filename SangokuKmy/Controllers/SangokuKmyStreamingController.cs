@@ -28,10 +28,11 @@ namespace SangokuKmy.Controllers
     {
       SystemData system;
       Character chara;
+      Country country;
       IEnumerable<MapLog> maplogs;
       IEnumerable<MapLog> importantMaplogs;
       IEnumerable<CharacterLog> characterLogs;
-      IEnumerable<Country> countries;
+      IEnumerable<CountryForAnonymous> countries;
       IEnumerable<TownForAnonymous> towns;
       IEnumerable<Town> myTowns;
       IEnumerable<ScoutedTown> scoutedTowns;
@@ -43,7 +44,8 @@ namespace SangokuKmy.Controllers
         maplogs = await repo.MapLog.GetNewestAsync(50);
         importantMaplogs = await repo.MapLog.GetImportantNewestAsync(50);
         characterLogs = await repo.Character.GetCharacterLogsAsync(this.AuthData.CharacterId, 50);
-        countries = await repo.Country.GetAllAsync();
+        country = (await repo.Country.GetByIdAsync(chara.CountryId)).Data;
+        countries = await repo.Country.GetAllForAnonymousAsync();
         chatMessages = (await repo.ChatMessage.GetCountryMessagesAsync(chara.CountryId, uint.MaxValue, 50))
           .Concat(await repo.ChatMessage.GetGlobalMessagesAsync(uint.MaxValue, 50));
 
@@ -75,6 +77,11 @@ namespace SangokuKmy.Controllers
       foreach (var obj in sendData)
       {
         initializeData.Append(JsonConvert.SerializeObject(obj));
+        initializeData.Append("\n");
+      }
+      if (country != null)
+      {
+        initializeData.Append(JsonConvert.SerializeObject(country));
         initializeData.Append("\n");
       }
       await this.Response.WriteAsync(initializeData.ToString());

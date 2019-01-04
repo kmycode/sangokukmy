@@ -74,6 +74,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<CharacterForAnonymous> From(CharacterForAnonymous data) => From(9, data);
     public static ApiArrayData<CharacterForAnonymous> From(IEnumerable<CharacterForAnonymous> data) => From(9, data);
     public static ApiData<Country> From(Country data) => From(10, data);
+    public static ApiData<CountryForAnonymous> From(CountryForAnonymous data) => From(10, data);
     public static ApiData<Town> From(Town data) => From(11, data);
     public static ApiData<TownForAnonymous> From(TownForAnonymous data) => From(11, data);
     public static ApiData<GameDateTime> From(GameDateTime data) => From(12, data);
@@ -86,5 +87,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiArrayData<ChatMessage> From(IEnumerable<ChatMessage> data) => From(17, data);
     public static ApiArrayData<CharacterIcon> From(IEnumerable<CharacterIcon> data) => From(18, data);
     public static ApiData<SystemData> From(SystemData data) => From(19, data);
+    public static ApiData<CountryPost> From(CountryPost data) => From(20, data);
   }
 }

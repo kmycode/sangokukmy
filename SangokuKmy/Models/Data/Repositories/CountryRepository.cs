@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using SangokuKmy.Common;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -28,6 +29,45 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         return await this.container.Context.Countries.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// すべての国を誰でも見れる情報に絞って取得する
+    /// </summary>
+    /// <returns>すべての国データ</returns>
+    public async Task<IReadOnlyList<CountryForAnonymous>> GetAllForAnonymousAsync()
+    {
+      try
+      {
+        return (await this.container.Context.Countries
+          .GroupJoin(this.container.Context.CountryPosts
+            .Join(this.container.Context.Characters,
+              cp => cp.CharacterId,
+              c => c.Id,
+              (cp, c) => new { Post = cp, Character = c, }),
+            c => c.Id,
+            cpds => cpds.Character.CountryId,
+            (c, cps) => new { Country = c, PostData = cps, })
+          .ToArrayAsync())
+          .Select(data =>
+          {
+            return new CountryForAnonymous(data.Country)
+            {
+              Posts = data.PostData.Select(pd =>
+              {
+                pd.Post.Character = new CharacterForAnonymous(pd.Character, null, CharacterShareLevel.Anonymous);
+                return pd.Post;
+              })
+              .OrderBy(p => p.ApiType),
+            };
+          })
+          .ToArray();
       }
       catch (Exception ex)
       {

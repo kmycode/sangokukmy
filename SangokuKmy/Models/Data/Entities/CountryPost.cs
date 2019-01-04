@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Entities
 {
@@ -18,7 +19,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// 国のID
     /// </summary>
     [Column("country_id")]
-    [JsonIgnore]
+    [JsonProperty("countryId")]
     public uint CountryId { get; set; }
 
     /// <summary>
@@ -43,8 +44,12 @@ namespace SangokuKmy.Models.Data.Entities
     /// 任命された武将のID
     /// </summary>
     [Column("character_id")]
-    [JsonProperty("character_id")]
+    [JsonProperty("characterId")]
     public uint CharacterId { get; set; }
+
+    [NotMapped]
+    [JsonProperty("character")]
+    public CharacterForAnonymous Character { get; set; }
   }
 
   public enum CountryPostType : short
