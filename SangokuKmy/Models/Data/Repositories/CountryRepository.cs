@@ -170,14 +170,14 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        var old = await this.container.Context.CountryPosts
-          .FirstOrDefaultAsync(p => p.CountryId == post.CountryId && p.Type == post.Type);
-        if (old != null)
-        {
-          this.container.Context.CountryPosts.Remove(old);
-        }
+        var olds = this.container.Context.CountryPosts
+          .Where(p => p.CountryId == post.CountryId && (p.Type == post.Type || p.CharacterId == post.CharacterId));
+        this.container.Context.CountryPosts.RemoveRange(olds);
 
-        await this.container.Context.CountryPosts.AddAsync(post);
+        if (post.Type != CountryPostType.UnAppointed)
+        {
+          await this.container.Context.CountryPosts.AddAsync(post);
+        }
       }
       catch (Exception ex)
       {

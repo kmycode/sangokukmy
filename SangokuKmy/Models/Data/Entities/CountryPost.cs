@@ -55,6 +55,11 @@ namespace SangokuKmy.Models.Data.Entities
   public enum CountryPostType : short
   {
     /// <summary>
+    /// 任命されていない
+    /// </summary>
+    UnAppointed = 0,
+
+    /// <summary>
     /// 君主
     /// </summary>
     Monarch = 1,
