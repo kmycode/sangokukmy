@@ -89,4 +89,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     General = 7,
   }
+
+  public static class CountryPostExtentions
+  {
+    /// <summary>
+    /// 任命権限があるか確認する
+    /// </summary>
+    /// <returns>任命権限があるか</returns>
+    public static bool CanAppoint(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+    }
+  }
 }

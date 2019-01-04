@@ -206,5 +206,47 @@ namespace SangokuKmy.Controllers
       }
       return ApiData.From(charas);
     }
+
+    [AuthenticationFilter]
+    [HttpPut("country/posts")]
+    public async Task SetCountryPostAsync(
+      [FromBody] CountryPost param)
+    {
+      CountryPost post;
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        if (this.AuthData.CharacterId == param.CharacterId || param.Type == CountryPostType.Monarch)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(self.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
+        var targetPost = posts.FirstOrDefault(p => p.CharacterId == param.CharacterId);
+        if (myPost == null || !myPost.Type.CanAppoint() || targetPost?.Type == CountryPostType.Monarch)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var target = await repo.Character.GetByIdAsync(param.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        if (target.CountryId != self.CountryId)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        post = new CountryPost
+        {
+          CountryId = self.CountryId,
+          CharacterId = target.Id,
+          Type = param.Type,
+          Character = new CharacterForAnonymous(target, null, CharacterShareLevel.Anonymous),
+        };
+        await repo.Country.SetPostAsync(post);
+
+        await repo.SaveChangesAsync();
+      }
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
+    }
   }
 }

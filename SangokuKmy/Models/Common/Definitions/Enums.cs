@@ -126,6 +126,11 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode MeaninglessOperationError { get; } = new ErrorCode(403, 20);
 
     /// <summary>
+    /// 武将が見つからないエラー
+    /// </summary>
+    public static ErrorCode CharacterNotFoundError { get; } = new ErrorCode(404, 21);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }
