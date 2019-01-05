@@ -58,6 +58,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("breaking_delay")]
     [JsonProperty("breakingDelay")]
     public int BreakingDelay { get; set; }
+
+    /// <summary>
+    /// 修正協議中の新しい破棄猶予
+    /// </summary>
+    [Column("new_breaking_delay")]
+    [JsonProperty("newBreakingDelay")]
+    public int NewBreakingDelay { get; set; }
   }
 
   public enum CountryAllianceStatus : short
@@ -86,5 +93,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 破棄済
     /// </summary>
     Broken = 5,
+
+    /// <summary>
+    /// 条項修正の承認待ち
+    /// </summary>
+    ChangeRequesting = 6,
   }
 }
