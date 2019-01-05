@@ -81,7 +81,7 @@ namespace SangokuKmy.Controllers
       }
       if (country != null)
       {
-        initializeData.Append(JsonConvert.SerializeObject(country));
+        initializeData.Append(JsonConvert.SerializeObject(ApiData.From(country)));
         initializeData.Append("\n");
       }
       await this.Response.WriteAsync(initializeData.ToString());
