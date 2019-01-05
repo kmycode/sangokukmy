@@ -88,5 +88,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiArrayData<CharacterIcon> From(IEnumerable<CharacterIcon> data) => From(18, data);
     public static ApiData<SystemData> From(SystemData data) => From(19, data);
     public static ApiData<CountryPost> From(CountryPost data) => From(20, data);
+    public static ApiData<CountryAlliance> From(CountryAlliance data) => From(21, data);
+    public static ApiData<CountryWar> From(CountryWar data) => From(22, data);
   }
 }

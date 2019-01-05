@@ -81,6 +81,16 @@ namespace SangokuKmy.Models.Data
     public DbSet<CountryPost> CountryPosts { get; set; }
 
     /// <summary>
+    /// 同盟
+    /// </summary>
+    public DbSet<CountryAlliance> CountryAlliances { get; set; }
+
+    /// <summary>
+    /// 戦争
+    /// </summary>
+    public DbSet<CountryWar> CountryWars { get; set; }
+
+    /// <summary>
     /// マップログ
     /// </summary>
     public DbSet<MapLog> MapLogs { get; set; }

@@ -37,6 +37,8 @@ namespace SangokuKmy.Controllers
       IEnumerable<Town> myTowns;
       IEnumerable<ScoutedTown> scoutedTowns;
       IEnumerable<ChatMessage> chatMessages;
+      IEnumerable<CountryAlliance> alliances;
+      IEnumerable<CountryWar> wars;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -48,6 +50,9 @@ namespace SangokuKmy.Controllers
         countries = await repo.Country.GetAllForAnonymousAsync();
         chatMessages = (await repo.ChatMessage.GetCountryMessagesAsync(chara.CountryId, uint.MaxValue, 50))
           .Concat(await repo.ChatMessage.GetGlobalMessagesAsync(uint.MaxValue, 50));
+        alliances = (await repo.CountryDiplomacies.GetAllPublicAlliancesAsync())
+          .Concat(await repo.CountryDiplomacies.GetCountryAllAlliancesAsync(chara.CountryId));
+        wars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
@@ -70,6 +75,8 @@ namespace SangokuKmy.Controllers
         .Concat(myTowns.Select(tw => ApiData.From(tw)))
         .Concat(scoutedTowns.Select(st => ApiData.From(st)))
         .Concat(chatMessages.Select(cm => ApiData.From(cm)))
+        .Concat(alliances.Select(ca => ApiData.From(ca)))
+        .Concat(wars.Select(cw => ApiData.From(cw)))
         .ToList();
 
       // 初期データを送信する

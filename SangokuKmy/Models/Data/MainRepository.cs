@@ -71,6 +71,12 @@ namespace SangokuKmy.Models.Data
     private CountryRepository _country;
 
     /// <summary>
+    /// 外交
+    /// </summary>
+    public CountryDiplomaciesRepository CountryDiplomacies => this._countryDiplomacies = this._countryDiplomacies ?? new CountryDiplomaciesRepository(this.container);
+    private CountryDiplomaciesRepository _countryDiplomacies;
+
+    /// <summary>
     /// 都市
     /// </summary>
     public TownRepository Town => this._town = this._town ?? new TownRepository(this.container);
