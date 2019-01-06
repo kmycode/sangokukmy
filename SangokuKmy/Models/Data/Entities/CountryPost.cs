@@ -105,5 +105,14 @@ namespace SangokuKmy.Models.Data.Entities
     {
       return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
     }
+
+    /// <summary>
+    /// 外交権限があるか確認する
+    /// </summary>
+    /// <returns>外交権限があるか</returns>
+    public static bool CanDiplomacy(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+    }
   }
 }

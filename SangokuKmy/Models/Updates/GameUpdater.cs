@@ -353,6 +353,48 @@ namespace SangokuKmy.Models.Updates
         await repo.SaveChangesAsync();
       }
 
+      // 同盟破棄・戦争開始
+      {
+        foreach (var alliance in await repo.CountryDiplomacies.GetBreakingAlliancesAsync())
+        {
+          alliance.BreakingDelay--;
+          if (alliance.BreakingDelay <= 0)
+          {
+            alliance.Status = CountryAllianceStatus.Broken;
+            if (alliance.IsPublic)
+            {
+              var country1 = allCountries.FirstOrDefault(c => c.Id == alliance.RequestedCountryId);
+              var country2 = allCountries.FirstOrDefault(c => c.Id == alliance.InsistedCountryId);
+              if (country1 != null && country2 != null)
+              {
+                await AddMapLogAsync(true, EventType.AllianceBroken, "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の同盟は破棄されました");
+              }
+              await StatusStreaming.Default.SendAllAsync(ApiData.From(alliance));
+            }
+            else
+            {
+              await StatusStreaming.Default.SendCountryAsync(ApiData.From(alliance), alliance.RequestedCountryId);
+              await StatusStreaming.Default.SendCountryAsync(ApiData.From(alliance), alliance.InsistedCountryId);
+            }
+          }
+        }
+        foreach (var war in (await repo.CountryDiplomacies.GetReadyWarsAsync()).Where(cw => cw.Status == CountryWarStatus.InReady))
+        {
+          if (war.StartGameDate.ToInt() <= system.GameDateTime.ToInt())
+          {
+            var country1 = allCountries.FirstOrDefault(c => c.Id == war.RequestedCountryId);
+            var country2 = allCountries.FirstOrDefault(c => c.Id == war.InsistedCountryId);
+            if (country1 != null && country2 != null)
+            {
+              await AddMapLogAsync(true, EventType.WarStart, "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争が始まりました");
+            }
+            war.Status = CountryWarStatus.Available;
+          }
+        }
+
+        await repo.SaveChangesAsync();
+      }
+
       // キャッシュを更新
       nextMonthStartDateTime = system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
 

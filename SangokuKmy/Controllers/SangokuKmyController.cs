@@ -248,5 +248,124 @@ namespace SangokuKmy.Controllers
       }
       await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
     }
+
+    [AuthenticationFilter]
+    [HttpPut("country/{targetId}/alliance")]
+    public async Task SetCountryAllianceAsync(
+      [FromRoute] uint targetId,
+      [FromBody] CountryAlliance param)
+    {
+      CountryAlliance alliance;
+      MapLog mapLog = null;
+
+      if ((short)param.Status < 0)
+      {
+        ErrorCode.InvalidParameterError.Throw();
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(self.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
+        if (myPost == null || !myPost.Type.CanDiplomacy())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var target = await repo.Country.GetByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+
+        var old = await repo.CountryDiplomacies.GetCountryAlliancesAsync(self.CountryId, targetId);
+        old.Some((o) =>
+        {
+          if (o.Status != CountryAllianceStatus.Broken)
+          {
+            if ((param.Status == CountryAllianceStatus.Available || param.Status == CountryAllianceStatus.ChangeRequesting) &&
+                 o.Status == CountryAllianceStatus.Requesting)
+            {
+              if (self.CountryId == o.RequestedCountryId)
+              {
+                // 自分で自分の要求を承認しようとした
+                ErrorCode.NotPermissionError.Throw();
+              }
+            }
+            else if (param.Status == CountryAllianceStatus.Broken)
+            {
+              // 破棄はシステムで自動処理するので、ユーザが設定しようとしたらエラー（設定できるのは破棄猶予）
+              ErrorCode.NotPermissionError.Throw();
+            }
+            else if (param.Status == CountryAllianceStatus.InBreaking &&
+                     (o.Status != CountryAllianceStatus.Available && o.Status != CountryAllianceStatus.ChangeRequesting))
+            {
+              // 結んでいないのに破棄はエラー
+              ErrorCode.NotPermissionError.Throw();
+            }
+            else if ((param.Status == CountryAllianceStatus.None || param.Status == CountryAllianceStatus.Requesting) &&
+                     (o.Status == CountryAllianceStatus.Available || o.Status == CountryAllianceStatus.ChangeRequesting))
+            {
+              // 結んでいるものを一瞬でなかったことにするのはエラー
+              ErrorCode.NotPermissionError.Throw();
+            }
+          }
+          else
+          {
+            if (param.Status != CountryAllianceStatus.Requesting)
+            {
+              // 同盟を結んでいない場合、同盟の要求以外にできることはない
+              ErrorCode.NotPermissionError.Throw();
+            }
+          }
+        });
+        old.None(() =>
+        {
+          if (param.Status != CountryAllianceStatus.Requesting)
+          {
+            // 同盟を結んでいない場合、同盟の要求以外にできることはない
+            ErrorCode.NotPermissionError.Throw();
+          }
+        });
+
+        alliance = new CountryAlliance
+        {
+          RequestedCountryId = self.CountryId,
+          InsistedCountryId = targetId,
+          BreakingDelay = param.BreakingDelay,
+          IsPublic = param.IsPublic,
+          Status = param.Status,
+          NewBreakingDelay = param.NewBreakingDelay,
+        };
+        await repo.CountryDiplomacies.SetAllianceAsync(alliance);
+
+        // 同盟関係を周りに通知
+        if (alliance.IsPublic)
+        {
+          var country1 = await repo.Country.GetByIdAsync(alliance.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+          var country2 = await repo.Country.GetByIdAsync(alliance.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+          mapLog = new MapLog
+          {
+            ApiGameDateTime = (await repo.System.GetAsync()).GameDateTime,
+            Date = DateTime.Now,
+            EventType = EventType.AllianceStart,
+            IsImportant = true,
+            Message = "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> は、同盟を締結しました",
+          };
+          await repo.MapLog.AddAsync(mapLog);
+        }
+
+        await repo.SaveChangesAsync();
+      }
+
+      // 同盟関係を周りに通知
+      if (alliance.IsPublic)
+      {
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(alliance));
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+      }
+      else
+      {
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(alliance), alliance.RequestedCountryId);
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(alliance), alliance.InsistedCountryId);
+      }
+    }
   }
 }

@@ -96,5 +96,20 @@ namespace SangokuKmy.Models.Data.Entities
     /// イベント
     /// </summary>
     Event = 2,
+
+    /// <summary>
+    /// 同盟破棄
+    /// </summary>
+    AllianceBroken = 3,
+
+    /// <summary>
+    /// 開戦
+    /// </summary>
+    WarStart = 4,
+
+    /// <summary>
+    /// 同盟締結
+    /// </summary>
+    AllianceStart = 5,
   }
 }

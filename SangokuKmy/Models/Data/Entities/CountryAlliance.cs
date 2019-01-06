@@ -69,6 +69,8 @@ namespace SangokuKmy.Models.Data.Entities
 
   public enum CountryAllianceStatus : short
   {
+    None = 0,
+
     /// <summary>
     /// 片方の承認待ち
     /// </summary>

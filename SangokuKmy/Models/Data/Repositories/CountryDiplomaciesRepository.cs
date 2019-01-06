@@ -42,7 +42,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <returns>すべての同盟関係</returns>
     /// <param name="countryId">国ID</param>
-    public async Task<IEnumerable<CountryAlliance>> GetCountryAllAlliancesAsync(uint countryId)
+    public async Task<IReadOnlyList<CountryAlliance>> GetCountryAllAlliancesAsync(uint countryId)
     {
       try
       {
@@ -58,6 +58,70 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 特定の国同士の同盟関係を取得
+    /// </summary>
+    /// <returns>すべての同盟関係</returns>
+    /// <param name="country1">国ID</param>
+    /// <param name="country2">国ID</param>
+    public async Task<Optional<CountryAlliance>> GetCountryAlliancesAsync(uint country1, uint country2)
+    {
+      try
+      {
+        return await this.container.Context.CountryAlliances
+          .FirstOrDefaultAsync(ca => (ca.RequestedCountryId == country1 && ca.InsistedCountryId == country2) ||
+                                     (ca.RequestedCountryId == country2 && ca.InsistedCountryId == country1))
+          .ToOptionalAsync();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// すべての破棄準備中の同盟を取得
+    /// </summary>
+    public async Task<IReadOnlyList<CountryAlliance>> GetBreakingAlliancesAsync()
+    {
+      try
+      {
+        return await this.container.Context.CountryAlliances
+          .Where(ca => ca.Status == CountryAllianceStatus.InBreaking)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 同盟関係を設定する
+    /// </summary>
+    /// <param name="alliance">新しい同盟関係</param>
+    public async Task SetAllianceAsync(CountryAlliance alliance)
+    {
+      try
+      {
+        var old = await this.GetCountryAlliancesAsync(alliance.RequestedCountryId, alliance.InsistedCountryId);
+        old.Some(o =>
+        {
+          this.container.Context.CountryAlliances.Remove(o);
+        });
+        if (alliance.Status != CountryAllianceStatus.None)
+        {
+          await this.container.Context.CountryAlliances.AddAsync(alliance);
+        }
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+      }
+    }
+
+    /// <summary>
     /// すべての戦争を取得
     /// </summary>
     /// <returns>公開されている同盟情報</returns>
@@ -66,6 +130,24 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         return await this.container.Context.CountryWars
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.DatabaseError.Throw(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// すべての開戦準備中の戦争を取得
+    /// </summary>
+    public async Task<IReadOnlyList<CountryWar>> GetReadyWarsAsync()
+    {
+      try
+      {
+        return await this.container.Context.CountryWars
+          .Where(ca => ca.Status == CountryWarStatus.InReady)
           .ToArrayAsync();
       }
       catch (Exception ex)

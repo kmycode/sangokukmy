@@ -131,6 +131,16 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode CharacterNotFoundError { get; } = new ErrorCode(404, 21);
 
     /// <summary>
+    /// 国が見つからないエラー
+    /// </summary>
+    public static ErrorCode CountryNotFoundError { get; } = new ErrorCode(404, 22);
+
+    /// <summary>
+    /// APIの引数が不正なエラー
+    /// </summary>
+    public static ErrorCode InvalidParameterError { get; } = new ErrorCode(400, 23);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }
