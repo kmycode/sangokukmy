@@ -6,6 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Common.Definitions;
 using Nito.AsyncEx;
+using System.Transactions;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace SangokuKmy.Models.Data
 {
@@ -117,8 +121,8 @@ namespace SangokuKmy.Models.Data
     }
 
     private readonly IRepositoryContainer container;
-    private static readonly AsyncReaderWriterLock locker = new AsyncReaderWriterLock();
-    private IDisposable unlocker;
+    private IDbContextTransaction transaction;
+    private bool isWriteMode = false;
 
     private MainRepository()
     {
@@ -127,8 +131,12 @@ namespace SangokuKmy.Models.Data
 
     public void Dispose()
     {
+      if (this.isWriteMode)
+      {
+        this.transaction?.Commit();
+      }
+      this.transaction?.Dispose();
       this.Context?.Dispose();
-      this.unlocker?.Dispose();
     }
 
     /// <summary>
@@ -142,14 +150,8 @@ namespace SangokuKmy.Models.Data
     /// <returns>ロック解除オブジェクト</returns>
     private void ReadLock()
     {
-      try
-      {
-        this.unlocker = locker.ReaderLock();
-      }
-      catch (Exception ex)
-      {
-        ErrorCode.LockFailedError.Throw(ex);
-      }
+      this.WriteLock();
+      this.isWriteMode = false;
     }
 
     /// <summary>
@@ -160,7 +162,8 @@ namespace SangokuKmy.Models.Data
     {
       try
       {
-        this.unlocker = locker.WriterLock();
+        this.transaction = this.Context.Database.BeginTransaction();
+        this.isWriteMode = true;
       }
       catch (Exception ex)
       {
