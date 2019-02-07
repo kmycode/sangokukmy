@@ -111,5 +111,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 同盟締結
     /// </summary>
     AllianceStart = 5,
+
+    /// <summary>
+    /// 宣戦布告
+    /// </summary>
+    WarInReady = 6,
   }
 }

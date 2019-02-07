@@ -73,6 +73,8 @@ namespace SangokuKmy.Models.Data.Entities
 
   public enum CountryWarStatus : short
   {
+    None = 0,
+
     /// <summary>
     /// 戦争中、または戦争開始を待機中
     /// </summary>

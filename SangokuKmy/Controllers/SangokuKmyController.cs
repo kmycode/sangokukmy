@@ -258,7 +258,11 @@ namespace SangokuKmy.Controllers
       CountryAlliance alliance;
       MapLog mapLog = null;
 
-      if ((short)param.Status < 0)
+      if (param.Status != CountryAllianceStatus.Available &&
+          param.Status != CountryAllianceStatus.ChangeRequesting &&
+          param.Status != CountryAllianceStatus.Dismissed &&
+          param.Status != CountryAllianceStatus.InBreaking &&
+          param.Status != CountryAllianceStatus.Requesting)
       {
         ErrorCode.InvalidParameterError.Throw();
       }
@@ -275,7 +279,8 @@ namespace SangokuKmy.Controllers
 
         var target = await repo.Country.GetByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
 
-        var old = await repo.CountryDiplomacies.GetCountryAlliancesAsync(self.CountryId, targetId);
+        var old = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
+        var war = await repo.CountryDiplomacies.GetCountryWarAsync(self.CountryId, targetId);
         old.Some((o) =>
         {
           if (o.Status != CountryAllianceStatus.Broken)
@@ -289,11 +294,6 @@ namespace SangokuKmy.Controllers
                 ErrorCode.NotPermissionError.Throw();
               }
             }
-            else if (param.Status == CountryAllianceStatus.Broken)
-            {
-              // 破棄はシステムで自動処理するので、ユーザが設定しようとしたらエラー（設定できるのは破棄猶予）
-              ErrorCode.NotPermissionError.Throw();
-            }
             else if (param.Status == CountryAllianceStatus.InBreaking &&
                      (o.Status != CountryAllianceStatus.Available && o.Status != CountryAllianceStatus.ChangeRequesting))
             {
@@ -306,6 +306,11 @@ namespace SangokuKmy.Controllers
               // 結んでいるものを一瞬でなかったことにするのはエラー
               ErrorCode.NotPermissionError.Throw();
             }
+            else if (param.Status == o.Status && param.Status == CountryAllianceStatus.Available)
+            {
+              // 再承認はできない
+              ErrorCode.MeaninglessOperationError.Throw();
+            }
           }
           else
           {
@@ -315,6 +320,12 @@ namespace SangokuKmy.Controllers
               ErrorCode.NotPermissionError.Throw();
             }
           }
+
+          if (param.Status == CountryAllianceStatus.Available)
+          {
+            param.BreakingDelay = o.BreakingDelay;
+            param.IsPublic = o.IsPublic;
+          }
         });
         old.None(() =>
         {
@@ -323,6 +334,17 @@ namespace SangokuKmy.Controllers
             // 同盟を結んでいない場合、同盟の要求以外にできることはない
             ErrorCode.NotPermissionError.Throw();
           }
+
+          war.Some((w) =>
+          {
+            if (w.Status == CountryWarStatus.Available ||
+                w.Status == CountryWarStatus.InReady ||
+                w.Status == CountryWarStatus.StopRequesting)
+            {
+              // 戦争中
+              ErrorCode.NotPermissionError.Throw();
+            }
+          });
         });
 
         alliance = new CountryAlliance
@@ -359,12 +381,138 @@ namespace SangokuKmy.Controllers
       if (alliance.IsPublic)
       {
         await StatusStreaming.Default.SendAllAsync(ApiData.From(alliance));
-        await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+        if (mapLog != null)
+        {
+          await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+        }
       }
       else
       {
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(alliance), alliance.RequestedCountryId);
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(alliance), alliance.InsistedCountryId);
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("country/{targetId}/war")]
+    public async Task SetCountryWarAsync(
+      [FromRoute] uint targetId,
+      [FromBody] CountryWar param)
+    {
+      CountryWar war;
+      Optional<CountryAlliance> alliance;
+      MapLog mapLog = null;
+
+      if (param.Status != CountryWarStatus.InReady /* &&
+          param.Status != CountryWarStatus.StopRequesting &&
+          param.Status != CountryWarStatus.Stoped */ )
+      {
+        ErrorCode.InvalidParameterError.Throw();
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var system = await repo.System.GetAsync();
+        var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(self.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
+        if (myPost == null || !myPost.Type.CanDiplomacy())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var target = await repo.Country.GetByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+
+        var old = await repo.CountryDiplomacies.GetCountryWarAsync(self.CountryId, targetId);
+        alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
+        old.Some((o) =>
+        {
+          if ((o.Status == CountryWarStatus.InReady || o.Status == CountryWarStatus.Available) &&
+              param.Status == CountryWarStatus.InReady)
+          {
+            // 重複して宣戦布告はできない
+            ErrorCode.MeaninglessOperationError.Throw();
+          }
+          else if (o.Status == CountryWarStatus.StopRequesting && param.Status == CountryWarStatus.Stoped &&
+                   o.RequestedCountryId == self.CountryId)
+          {
+            // 自分の停戦要求を自分で承認できない
+            ErrorCode.NotPermissionError.Throw();
+          }
+          else if (o.Status == CountryWarStatus.Stoped && param.Status == CountryWarStatus.StopRequesting)
+          {
+            // 一度決まった停戦を撤回できない
+            ErrorCode.NotPermissionError.Throw();
+          }
+
+          param.RequestedCountryId = o.RequestedCountryId;
+          param.InsistedCountryId = o.InsistedCountryId;
+          param.StartGameDate = o.StartGameDate;
+        });
+        old.None(() =>
+        {
+          if (param.Status == CountryWarStatus.StopRequesting || param.Status == CountryWarStatus.Stoped)
+          {
+            // 存在しない戦争を停戦にはできない
+            ErrorCode.NotPermissionError.Throw();
+          }
+          else if (param.StartGameDate.ToInt() < system.IntGameDateTime + 12 * 12 + 1)
+          {
+            // 開戦が早すぎる
+            ErrorCode.InvalidParameterError.Throw();
+          }
+
+          alliance.Some((a) =>
+          {
+            if (a.Status == CountryAllianceStatus.Available ||
+                a.Status == CountryAllianceStatus.ChangeRequesting ||
+                a.Status == CountryAllianceStatus.InBreaking)
+            {
+              // 同盟が有効中
+              ErrorCode.NotPermissionError.Throw();
+            }
+            if (a.Status == CountryAllianceStatus.Requesting)
+            {
+              // 自動で同盟申請を却下する
+              a.Status = CountryAllianceStatus.Broken;
+            }
+          });
+        });
+
+        war = new CountryWar
+        {
+          RequestedCountryId = param.RequestedCountryId,
+          InsistedCountryId = param.InsistedCountryId,
+          StartGameDate = param.StartGameDate,
+          Status = param.Status,
+          RequestedStopCountryId = param.RequestedStopCountryId,
+        };
+        await repo.CountryDiplomacies.SetWarAsync(war);
+
+        // 戦争を周りに通知
+        var country1 = await repo.Country.GetByIdAsync(war.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var country2 = await repo.Country.GetByIdAsync(war.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        mapLog = new MapLog
+        {
+          ApiGameDateTime = (await repo.System.GetAsync()).GameDateTime,
+          Date = DateTime.Now,
+          EventType = EventType.WarInReady,
+          IsImportant = true,
+          Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> へ侵攻します",
+        };
+        await repo.MapLog.AddAsync(mapLog);
+
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+
+      if (alliance.HasData)
+      {
+        var a = alliance.Data;
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(a), a.RequestedCountryId);
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(a), a.InsistedCountryId);
       }
     }
   }

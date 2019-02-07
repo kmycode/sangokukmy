@@ -389,6 +389,7 @@ namespace SangokuKmy.Models.Updates
               await AddMapLogAsync(true, EventType.WarStart, "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争が始まりました");
             }
             war.Status = CountryWarStatus.Available;
+            await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
           }
         }
 

@@ -51,5 +51,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 能力が上昇した
     /// </summary>
     AttributeUp = 3,
+
+    /// <summary>
+    /// ストリーミングの初期データの送信完了
+    /// </summary>
+    EndOfStreamingInitializeData = 4,
   }
 }

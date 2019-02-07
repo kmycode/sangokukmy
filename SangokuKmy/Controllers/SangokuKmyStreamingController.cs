@@ -78,6 +78,10 @@ namespace SangokuKmy.Controllers
         .Concat(alliances.Select(ca => ApiData.From(ca)))
         .Concat(wars.Select(cw => ApiData.From(cw)))
         .ToList();
+      sendData.Add(ApiData.From(new ApiSignal
+      {
+        Type = SignalType.EndOfStreamingInitializeData,
+      }));
 
       // 初期データを送信する
       var initializeData = new StringBuilder();

@@ -51,5 +51,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
       }
       return new GameDateTime { Year = year, Month = (short)month, };
     }
+
+    public override string ToString()
+    {
+      return $"{this.Year}年{this.Month}月";
+    }
   }
 }
