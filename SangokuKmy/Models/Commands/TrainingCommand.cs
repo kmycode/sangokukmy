@@ -17,17 +17,17 @@ namespace SangokuKmy.Models.Commands
   {
     public override CharacterCommandType Type => CharacterCommandType.Training;
 
-    public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, Func<string, Task> loggerAsync)
+    public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
       var trainingTypeOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
 
       if (!trainingTypeOptional.HasData)
       {
-        await loggerAsync("能力強化のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
+        await game.CharacterLogAsync("能力強化のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
       }
       else if (character.Money < 50)
       {
-        await loggerAsync("能力強化の金が足りません");
+        await game.CharacterLogAsync("能力強化の金が足りません");
       }
       else
       {
@@ -54,7 +54,7 @@ namespace SangokuKmy.Models.Commands
             name = "人望";
             break;
           default:
-            await loggerAsync("能力強化のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
+            await game.CharacterLogAsync("能力強化のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
             isError = true;
             break;
         }
@@ -62,7 +62,7 @@ namespace SangokuKmy.Models.Commands
         if (!isError)
         {
           character.Money -= 50;
-          await loggerAsync(name + "経験値 を <num>+100</num> 強化しました");
+          await game.CharacterLogAsync(name + "経験値 を <num>+100</num> 強化しました");
         }
       }
     }

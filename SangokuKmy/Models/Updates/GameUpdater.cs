@@ -434,18 +434,40 @@ namespace SangokuKmy.Models.Updates
       var oldTownId = character.TownId;
 
       // ログを追加する関数
-      async Task AddLogAsync(string message)
+      async Task AddLogByIdAsync(uint id, string message)
       {
         var log = new CharacterLog
         {
           GameDateTime = currentMonth,
           DateTime = DateTime.Now,
-          CharacterId = character.Id,
+          CharacterId = id,
           Message = message,
         };
         await repo.Character.AddCharacterLogAsync(character.Id, log);
         notifies.Add(ApiData.From(log));
       }
+      async Task AddMapLogAsync(EventType eventType, string message, bool isImportant)
+      {
+        var log = new MapLog
+        {
+          EventType = eventType,
+          IsImportant = isImportant,
+          Date = DateTime.Now,
+          ApiGameDateTime = currentMonth,
+          Message = message,
+        };
+        await repo.MapLog.AddAsync(log);
+        notifies.Add(ApiData.From(log));
+      }
+      async Task AddLogAsync(string message) => await AddLogByIdAsync(character.Id, message);
+
+      var gameObj = new CommandSystemData
+      {
+        CharacterLogAsync = AddLogAsync,
+        CharacterLogByIdAsync = AddLogByIdAsync,
+        MapLogAsync = AddMapLogAsync,
+        GameDateTime = currentMonth,
+      };
 
       // コマンドの実行
       var isCommandExecuted = false;
@@ -456,7 +478,7 @@ namespace SangokuKmy.Models.Updates
         if (commandRunnerOptional.HasData)
         {
           var commandRunner = commandRunnerOptional.Data;
-          await commandRunner.ExecuteAsync(repo, character, command.Parameters, AddLogAsync);
+          await commandRunner.ExecuteAsync(repo, character, command.Parameters, gameObj);
           isCommandExecuted = true;
         }
       }

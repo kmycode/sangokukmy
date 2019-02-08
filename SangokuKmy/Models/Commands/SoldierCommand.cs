@@ -17,7 +17,7 @@ namespace SangokuKmy.Models.Commands
   {
     public override CharacterCommandType Type => CharacterCommandType.Soldier;
 
-    public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, Func<string, Task> loggerAsync)
+    public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
       var soldierTypeOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
@@ -25,11 +25,11 @@ namespace SangokuKmy.Models.Commands
 
       if (!townOptional.HasData)
       {
-        await loggerAsync("ID:" + character.TownId + " の都市は存在しません。<emerge>管理者にお問い合わせください</emerge>");
+        await game.CharacterLogAsync("ID:" + character.TownId + " の都市は存在しません。<emerge>管理者にお問い合わせください</emerge>");
       }
       else if (!soldierTypeOptional.HasData || !soldierNumberOptional.HasData)
       {
-        await loggerAsync("徴兵のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
+        await game.CharacterLogAsync("徴兵のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
       }
       else
       {
@@ -39,31 +39,31 @@ namespace SangokuKmy.Models.Commands
         var soldierNumber = soldierNumberOptional.Data.NumberValue;
         if (town.CountryId != character.CountryId)
         {
-          await loggerAsync("<town>" + town.Name + "</town>は自国の都市ではありません");
+          await game.CharacterLogAsync("<town>" + town.Name + "</town>は自国の都市ではありません");
         }
         else if (!soldierTypeDataOptional.HasData)
         {
-          await loggerAsync("種類 " + soldierType + " の兵種は徴兵することができません。<emerge>管理者にお問い合わせください</emerge>");
+          await game.CharacterLogAsync("種類 " + soldierType + " の兵種は徴兵することができません。<emerge>管理者にお問い合わせください</emerge>");
         }
         else if (soldierNumber == null)
         {
-          await loggerAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
+          await game.CharacterLogAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
         }
         else if (character.SoldierNumber >= character.Leadership)
         {
-          await loggerAsync("兵士数が最大です。");
+          await game.CharacterLogAsync("兵士数が最大です。");
         }
         else if (character.Money < soldierTypeDataOptional.Data.Money * soldierNumber)
         {
-          await loggerAsync("所持金が足りません。");
+          await game.CharacterLogAsync("所持金が足りません。");
         }
         else if (town.People < soldierNumber * 5)
         {
-          await loggerAsync("農民が足りません。");
+          await game.CharacterLogAsync("農民が足りません。");
         }
         else if (town.Security < soldierNumber / 10)
         {
-          await loggerAsync("農民が拒否しました。");
+          await game.CharacterLogAsync("農民が拒否しました。");
         }
         else
         {
@@ -112,7 +112,7 @@ namespace SangokuKmy.Models.Commands
           town.People -= add * 5;
           town.Security -= (short)(add / 10);
 
-          await loggerAsync(soldierTypeDataOptional.Data.Name + " を <num>+" + add + "</num> 徴兵しました");
+          await game.CharacterLogAsync(soldierTypeDataOptional.Data.Name + " を <num>+" + add + "</num> 徴兵しました");
           character.AddStrongEx(50);
         }
       }

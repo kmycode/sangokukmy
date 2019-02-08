@@ -17,13 +17,13 @@ namespace SangokuKmy.Models.Commands
   {
     public override CharacterCommandType Type => CharacterCommandType.Move;
 
-    public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, Func<string, Task> loggerAsync)
+    public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
       var townIdOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
 
       if (!townIdOptional.HasData)
       {
-        await loggerAsync("徴兵のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
+        await game.CharacterLogAsync("徴兵のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
       }
       else
       {
@@ -31,11 +31,11 @@ namespace SangokuKmy.Models.Commands
         var currentTownOptional = await repo.Town.GetByIdAsync(character.TownId);
         if (!townOptional.HasData)
         {
-          await loggerAsync("ID:" + townIdOptional.Data + " の都市は存在しません。<emerge>管理者にお問い合わせください</emerge>");
+          await game.CharacterLogAsync("ID:" + townIdOptional.Data + " の都市は存在しません。<emerge>管理者にお問い合わせください</emerge>");
         }
         else if (!currentTownOptional.HasData)
         {
-          await loggerAsync("現在所在するID:" + townIdOptional.Data + " の都市は存在しません。<emerge>管理者にお問い合わせください</emerge>");
+          await game.CharacterLogAsync("現在所在するID:" + townIdOptional.Data + " の都市は存在しません。<emerge>管理者にお問い合わせください</emerge>");
         }
         else
         {
@@ -44,7 +44,7 @@ namespace SangokuKmy.Models.Commands
 
           if (town.Id == currentTown.Id)
           {
-            await loggerAsync("<town>" + town.Name + "</town> に移動しようとしましたが、すでに所在しています");
+            await game.CharacterLogAsync("<town>" + town.Name + "</town> に移動しようとしましたが、すでに所在しています");
           }
           else if (currentTown.IsNextToTown(town))
           {
@@ -57,11 +57,11 @@ namespace SangokuKmy.Models.Commands
               character.Contribution += 20;
             }
 
-            await loggerAsync("<town>" + town.Name + "</town> へ移動しました");
+            await game.CharacterLogAsync("<town>" + town.Name + "</town> へ移動しました");
           }
           else
           {
-            await loggerAsync("現在都市と隣接していないため、 <town>" + town.Name + "</town> へ移動できませんでした");
+            await game.CharacterLogAsync("現在都市と隣接していないため、 <town>" + town.Name + "</town> へ移動できませんでした");
           }
         }
       }

@@ -27,8 +27,20 @@ namespace SangokuKmy.Models.Commands
     /// コマンドを実行する。例外は出さない
     /// </summary>
     /// <param name="repo">リポジトリ</param>
-    /// <param name="characterId">武将ID</param>
+    /// <param name="character">武将</param>
     /// <param name="options">コマンドパラメータ</param>
-    public abstract Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, Func<string, Task> loggerAsync);
+    /// <param name="game">ゲームオブジェクト</param>
+    public abstract Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game);
   }
+}
+
+public class CommandSystemData
+{
+  public Func<string, Task> CharacterLogAsync { get; set; }
+
+  public Func<uint, string, Task> CharacterLogByIdAsync { get; set; }
+
+  public Func<EventType, string, bool, Task> MapLogAsync { get; set; }
+
+  public GameDateTime GameDateTime { get; set; }
 }

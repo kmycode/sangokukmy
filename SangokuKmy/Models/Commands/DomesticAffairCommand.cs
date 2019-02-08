@@ -14,11 +14,11 @@ namespace SangokuKmy.Models.Commands
   {
     private static readonly Random rand = new Random(DateTime.Now.Millisecond);
 
-    public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, Func<string, Task> loggerAsync)
+    public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
       if (this.GetCharacterAssets(character) < 50)
       {
-        await loggerAsync(this.GetCharacterAssetName() + "が足りません。<num>50</num> 必要です");
+        await game.CharacterLogAsync(this.GetCharacterAssetName() + "が足りません。<num>50</num> 必要です");
         return;
       }
 
@@ -28,7 +28,7 @@ namespace SangokuKmy.Models.Commands
         var town = townOptional.Data;
         if (town.CountryId != character.CountryId)
         {
-          await loggerAsync("<town>" + town.Name + "</town>で内政しようとしましたが、自国の都市ではありません");
+          await game.CharacterLogAsync("<town>" + town.Name + "</town>で内政しようとしましたが、自国の都市ではありません");
           return;
         }
 
@@ -51,11 +51,11 @@ namespace SangokuKmy.Models.Commands
         character.Contribution += 30;
         this.AddCharacterAttributeEx(character, 50);
 
-        await loggerAsync("<town>" + town.Name + "</town> の " + this.GetValueName() + " を <num>+" + add + "</num> " + this.GetValueAddingText() + "しました");
+        await game.CharacterLogAsync("<town>" + town.Name + "</town> の " + this.GetValueName() + " を <num>+" + add + "</num> " + this.GetValueAddingText() + "しました");
       }
       else
       {
-        await loggerAsync("ID:" + character.TownId + " の都市は存在しません。<emerge>管理者にお問い合わせください</emerge>");
+        await game.CharacterLogAsync("ID:" + character.TownId + " の都市は存在しません。<emerge>管理者にお問い合わせください</emerge>");
       }
     }
 
