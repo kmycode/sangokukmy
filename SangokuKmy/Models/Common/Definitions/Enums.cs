@@ -141,6 +141,31 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode InvalidParameterError { get; } = new ErrorCode(400, 23);
 
     /// <summary>
+    /// APIの引数が足りないエラー
+    /// </summary>
+    public static ErrorCode LackOfParameterError { get; } = new ErrorCode(400, 24);
+
+    /// <summary>
+    /// APIの引数のうち、名前が足りないエラー
+    /// </summary>
+    public static ErrorCode LackOfNameParameterError { get; } = new ErrorCode(400, 25);
+
+    /// <summary>
+    /// 不正な操作をしようとしたエラー
+    /// </summary>
+    public static ErrorCode InvalidOperationError { get; } = new ErrorCode(400, 26);
+
+    /// <summary>
+    /// 部隊が見つからないエラー
+    /// </summary>
+    public static ErrorCode UnitNotFoundError { get; } = new ErrorCode(404, 27);
+
+    /// <summary>
+    /// 部隊に制限がかかっているエラー
+    /// </summary>
+    public static ErrorCode UnitJoinLimitedError { get; } = new ErrorCode(403, 28);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }

@@ -32,7 +32,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -87,7 +87,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -107,7 +107,27 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
+        return Optional<Country>.Null();
+      }
+    }
+
+    /// <summary>
+    /// IDから生存中の国を取得する
+    /// </summary>
+    /// <returns>国</returns>
+    /// <param name="id">ID</param>
+    public async Task<Optional<Country>> GetAliveByIdAsync(uint id)
+    {
+      try
+      {
+        return await this.container.Context.Countries
+          .FirstOrDefaultAsync(c => c.Id == id && !c.HasOverthrown)
+          .ToOptionalAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
         return Optional<Country>.Null();
       }
     }
@@ -137,7 +157,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -157,7 +177,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -181,7 +201,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
       }
     }
   }

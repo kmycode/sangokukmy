@@ -56,5 +56,15 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// ストリーミングの初期データの送信完了
     /// </summary>
     EndOfStreamingInitializeData = 4,
+
+    /// <summary>
+    /// 部隊が削除された
+    /// </summary>
+    UnitRemoved = 5,
+
+    /// <summary>
+    /// 部隊集合された
+    /// </summary>
+    UnitGathered = 6,
   }
 }

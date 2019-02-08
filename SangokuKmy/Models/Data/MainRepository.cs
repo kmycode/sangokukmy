@@ -99,6 +99,12 @@ namespace SangokuKmy.Models.Data
     private ChatMessageRepository _chatMessage;
 
     /// <summary>
+    /// 部隊
+    /// </summary>
+    public UnitRepository Unit => this._unit = this._unit ?? new UnitRepository(this.container);
+    private UnitRepository _unit;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>
@@ -123,6 +129,7 @@ namespace SangokuKmy.Models.Data
     private readonly IRepositoryContainer container;
     private IDbContextTransaction transaction;
     private bool isWriteMode = false;
+    private bool isError = false;
 
     private MainRepository()
     {
@@ -133,7 +140,14 @@ namespace SangokuKmy.Models.Data
     {
       if (this.isWriteMode)
       {
-        this.transaction?.Commit();
+        if (!this.isError)
+        {
+          this.transaction?.Commit();
+        }
+        else
+        {
+          this.transaction?.Rollback();
+        }
       }
       this.transaction?.Dispose();
       this.Context?.Dispose();
@@ -171,6 +185,14 @@ namespace SangokuKmy.Models.Data
       }
     }
 
+    public void Error(Exception ex)
+    {
+      this.isError = true;
+      ErrorCode.DatabaseError.Throw(ex);
+
+      // usingを使っているのであれば、このあとDisposeメソッドが呼び出される
+    }
+
     private class Container : IRepositoryContainer
     {
       private readonly MainRepository repo;
@@ -181,6 +203,8 @@ namespace SangokuKmy.Models.Data
       {
         this.repo = repo;
       }
+
+      public void Error(Exception ex) => this.repo.Error(ex);
     }
   }
 
@@ -193,5 +217,7 @@ namespace SangokuKmy.Models.Data
     /// データベースへ直接アクセスするコンテキスト
     /// </summary>
     MainContext Context { get; }
+
+    void Error(Exception ex);
   }
 }

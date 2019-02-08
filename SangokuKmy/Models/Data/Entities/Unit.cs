@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
@@ -40,5 +41,12 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("is_limited")]
     [JsonProperty("isLimited")]
     public bool IsLimited { get; set; }
+
+    /// <summary>
+    /// メンバ一覧
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("members")]
+    public IEnumerable<UnitMember> Members { get; set; }
   }
 }

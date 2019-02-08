@@ -90,5 +90,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<CountryPost> From(CountryPost data) => From(20, data);
     public static ApiData<CountryAlliance> From(CountryAlliance data) => From(21, data);
     public static ApiData<CountryWar> From(CountryWar data) => From(22, data);
+    public static ApiData<Unit> From(Unit data) => From(23, data);
+    public static ApiData<UnitMember> From(UnitMember data) => From(24, data);
   }
 }

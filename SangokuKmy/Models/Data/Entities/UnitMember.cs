@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
+using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Entities
 {
@@ -12,6 +13,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("id")]
     [JsonIgnore]
     public uint Id { get; set; }
+
+    /// <summary>
+    /// 武将データ
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("character")]
+    public CharacterForAnonymous Character { get; set; }
 
     /// <summary>
     /// 武将ID

@@ -177,7 +177,9 @@ namespace SangokuKmy.Streamings
         var values = new StringBuilder();
         values.AppendJoin("\n", data.Select(d => JsonConvert.SerializeObject(d)));
         values.Append("\n");
-        foreach (var d in this.streams.Where(dd => subject(dd)))
+
+        var targets = this.streams.Where(dd => subject(dd)).ToArray();
+        async Task sendFunc(StreamingData<EXTRA> d)
         {
           try
           {
@@ -188,6 +190,18 @@ namespace SangokuKmy.Streamings
             errored.Add(d);
           }
         }
+        if (targets.Count() > 3)
+        {
+          await Task.WhenAll(targets.Select(d => Task.Run(async () => await sendFunc(d))).ToArray());
+        }
+        else
+        {
+          foreach (var d in targets)
+          {
+            await sendFunc(d);
+          }
+        }
+
         if (errored.Any())
         {
           locker.UpgradeToWriterLock(30_000);

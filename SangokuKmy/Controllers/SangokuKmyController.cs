@@ -277,7 +277,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
-        var target = await repo.Country.GetByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
 
         var old = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
         var war = await repo.CountryDiplomacies.GetCountryWarAsync(self.CountryId, targetId);
@@ -421,7 +421,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
-        var target = await repo.Country.GetByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
 
         var old = await repo.CountryDiplomacies.GetCountryWarAsync(self.CountryId, targetId);
         alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
@@ -490,8 +490,8 @@ namespace SangokuKmy.Controllers
         await repo.CountryDiplomacies.SetWarAsync(war);
 
         // 戦争を周りに通知
-        var country1 = await repo.Country.GetByIdAsync(war.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-        var country2 = await repo.Country.GetByIdAsync(war.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var country1 = await repo.Country.GetAliveByIdAsync(war.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var country2 = await repo.Country.GetAliveByIdAsync(war.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
         mapLog = new MapLog
         {
           ApiGameDateTime = (await repo.System.GetAsync()).GameDateTime,
@@ -514,6 +514,214 @@ namespace SangokuKmy.Controllers
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(a), a.RequestedCountryId);
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(a), a.InsistedCountryId);
       }
+    }
+
+    [AuthenticationFilter]
+    [HttpGet("units")]
+    public async Task<IEnumerable<Unit>> GetCountryUnitsAsync()
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var character = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(character.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        return await repo.Unit.GetByCountryIdAsync(country.Id);
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPost("unit")]
+    public async Task CreateUnitAsync(
+      [FromBody] Unit param)
+    {
+      if (param == null)
+      {
+        ErrorCode.LackOfParameterError.Throw();
+      }
+      var unit = new Unit
+      {
+        Name = param.Name,
+        IsLimited = false,
+        Message = param.Message,
+      };
+      if (string.IsNullOrEmpty(unit.Name))
+      {
+        ErrorCode.LackOfNameParameterError.Throw();
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var character = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(character.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+
+        var old = await repo.Unit.GetByMemberIdAsync(character.Id);
+        if (old.Member.HasData)
+        {
+          var oldMember = old.Member.Data;
+          if (oldMember.Post == UnitMemberPostType.Leader)
+          {
+            // 隊長は２つ以上の部隊を持てない
+            ErrorCode.InvalidOperationError.Throw();
+          }
+        }
+
+        unit.CountryId = character.CountryId;
+        await repo.Unit.AddAsync(unit);
+        await repo.SaveChangesAsync();
+
+        await repo.Unit.SetMemberAsync(new UnitMember
+        {
+          CharacterId = character.Id,
+          Post = UnitMemberPostType.Leader,
+          UnitId = unit.Id,
+        });
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPost("unit/{id}/join")]
+    public async Task SetUnitMemberAsync(
+      [FromRoute] uint id)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var character = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(character.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var unit = await repo.Unit.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.UnitNotFoundError);
+
+        if (unit.CountryId != character.CountryId)
+        {
+          // 違う国の部隊には入れない
+          ErrorCode.NotPermissionError.Throw();
+        }
+        if (unit.IsLimited)
+        {
+          // 入隊制限がかかっている
+          ErrorCode.UnitJoinLimitedError.Throw();
+        }
+        
+        var old = await repo.Unit.GetByMemberIdAsync(character.Id);
+        if (old.Member.HasData)
+        {
+          var oldMember = old.Member.Data;
+          if (oldMember.Post == UnitMemberPostType.Leader)
+          {
+            // 隊長は部隊から脱げられない
+            ErrorCode.InvalidOperationError.Throw();
+          }
+          if (oldMember.UnitId == unit.Id)
+          {
+            ErrorCode.MeaninglessOperationError.Throw();
+          }
+        }
+
+        await repo.Unit.SetMemberAsync(new UnitMember
+        {
+          CharacterId = character.Id,
+          Post = UnitMemberPostType.Normal,
+          UnitId = unit.Id,
+        });
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPost("unit/leave")]
+    public async Task LeaveUnitMemberAsync()
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var old = await repo.Unit.GetByMemberIdAsync(this.AuthData.CharacterId);
+        if (old.Member.HasData)
+        {
+          var oldMember = old.Member.Data;
+          if (oldMember.Post == UnitMemberPostType.Leader)
+          {
+            // 隊長は部隊から脱げられない
+            ErrorCode.InvalidOperationError.Throw();
+          }
+        }
+        else
+        {
+          ErrorCode.UnitNotFoundError.Throw();
+        }
+
+        repo.Unit.RemoveMember(this.AuthData.CharacterId);
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("unit/{id}")]
+    public async Task UpdateUnitAsync(
+      [FromRoute] uint id,
+      [FromBody] Unit unit)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var member = await repo.Unit.GetByMemberIdAsync(this.AuthData.CharacterId);
+        var oldUnit = member.Unit.Data;
+        if (member.Unit.HasData && member.Member.HasData)
+        {
+          var unitMember = member.Member.Data;
+          if (unitMember.Post != UnitMemberPostType.Leader)
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+          if (oldUnit.Id != id)
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+        }
+        else
+        {
+          ErrorCode.UnitNotFoundError.Throw();
+        }
+
+        oldUnit.Message = unit.Message;
+        oldUnit.Name = unit.Name;
+        oldUnit.IsLimited = unit.IsLimited;
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpDelete("unit/{id}")]
+    public async Task RemoveUnitAsync(
+      [FromRoute] uint id)
+    {
+      IEnumerable<UnitMember> members = null;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var member = await repo.Unit.GetByMemberIdAsync(this.AuthData.CharacterId);
+        if (member.Unit.HasData && member.Member.HasData)
+        {
+          var unitMember = member.Member.Data;
+          var unit = member.Unit.Data;
+          if (unitMember.Post != UnitMemberPostType.Leader)
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+          if (unit.Id != id)
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+        }
+        else
+        {
+          ErrorCode.UnitNotFoundError.Throw();
+        }
+
+        members = await repo.Unit.GetMembersAsync(id);
+        repo.Unit.RemoveUnit(id);
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
+      {
+        Type = SignalType.UnitRemoved,
+      }), members.Select(um => um.CharacterId));
     }
   }
 }

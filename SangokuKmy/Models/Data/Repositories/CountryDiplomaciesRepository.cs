@@ -32,7 +32,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -52,7 +52,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -74,7 +74,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -92,7 +92,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -117,7 +117,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
       }
     }
 
@@ -134,7 +134,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -152,7 +152,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -174,7 +174,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return default;
       }
     }
@@ -199,7 +199,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
       }
     }
   }

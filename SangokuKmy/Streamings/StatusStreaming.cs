@@ -71,12 +71,26 @@ namespace SangokuKmy.Streamings
     /// <param name="charaId">武将ID</param>
     public async Task SendCharacterAsync<T>(ApiData<T> data, uint charaId) => await this.SendAsync(data, c => c.ExtraData.Id == charaId);
 
-        /// <summary>
+    /// <summary>
+    /// 特定のIDを持った武将にのみ送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    /// <param name="charaIds">武将IDの一覧</param>
+    public async Task SendCharacterAsync<T>(ApiData<T> data, IEnumerable<uint> charaIds) => await this.SendAsync(data, c => charaIds.Contains(c.ExtraData.Id));
+
+    /// <summary>
     /// 特定のIDを持った武将にのみ送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>
     /// <param name="charaId">武将ID</param>
     public async Task SendCharacterAsync(IEnumerable<IApiData> data, uint charaId) => await this.SendAsync(data, c => c.ExtraData.Id == charaId);
+
+    /// <summary>
+    /// 特定のIDを持った武将にのみ送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    /// <param name="charaIds">武将IDの一覧</param>
+    public async Task SendCharacterAsync(IEnumerable<IApiData> data, IEnumerable<uint> charaIds) => await this.SendAsync(data, c => charaIds.Contains(c.ExtraData.Id));
 
     /// <summary>
     /// 特定の国の武将にのみ送信する

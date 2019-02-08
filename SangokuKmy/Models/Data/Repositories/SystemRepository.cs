@@ -31,7 +31,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return null;
       }
     }
@@ -45,7 +45,7 @@ namespace SangokuKmy.Models.Data.Repositories
       }
       catch (Exception ex)
       {
-        ErrorCode.DatabaseError.Throw(ex);
+        this.container.Error(ex);
         return null;
       }
     }
