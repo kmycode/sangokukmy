@@ -425,6 +425,7 @@ namespace SangokuKmy.Models.Updates
     private static async Task UpdateCharacterAsync(MainRepository repo, Character character)
     {
       var notifies = new List<IApiData>();
+      var anonymousNotifies = new List<ApiData<MapLog>>();
       var currentMonth = character.LastUpdatedGameDate.NextMonth();
       var commandOptional = await repo.CharacterCommand.GetAsync(character.Id, currentMonth);
       var oldStrong = character.Strong;
@@ -458,6 +459,7 @@ namespace SangokuKmy.Models.Updates
         };
         await repo.MapLog.AddAsync(log);
         notifies.Add(ApiData.From(log));
+        anonymousNotifies.Add(ApiData.From(log));
       }
       async Task AddLogAsync(string message) => await AddLogByIdAsync(character.Id, message);
 
@@ -524,6 +526,7 @@ namespace SangokuKmy.Models.Updates
 
       // ログイン中のユーザに新しい情報を通知する
       await StatusStreaming.Default.SendCharacterAsync(notifies, character.Id);
+      await AnonymousStreaming.Default.SendAllAsync(anonymousNotifies);
 
       await (await repo.Town.GetByIdAsync(character.TownId)).SomeAsync(async (town) =>
       {
