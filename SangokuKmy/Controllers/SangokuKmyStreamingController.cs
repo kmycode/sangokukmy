@@ -112,11 +112,13 @@ namespace SangokuKmy.Controllers
       SystemData system;
       IEnumerable<MapLog> maplogs;
       IEnumerable<MapLog> importantMaplogs;
+      IEnumerable<CharacterUpdateLog> updateLogs;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
         maplogs = await repo.MapLog.GetNewestAsync(20);
         importantMaplogs = await repo.MapLog.GetImportantNewestAsync(20);
+        updateLogs = await repo.Character.GetCharacterUpdateLogsAsync(20);
       }
 
       // HTTPヘッダを設定する
@@ -130,6 +132,7 @@ namespace SangokuKmy.Controllers
       var sendData = Enumerable.Empty<object>()
         .Concat(new object[] { ApiData.From(system), })
         .Concat(allMaplogs.Select(ml => ApiData.From(ml)))
+        .Concat(updateLogs.Select(ul => ApiData.From(ul)))
         .ToList();
 
       // 初期データを送信する

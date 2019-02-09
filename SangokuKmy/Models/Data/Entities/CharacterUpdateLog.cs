@@ -28,6 +28,13 @@ namespace SangokuKmy.Models.Data.Entities
     public uint CharacterId { get; set; }
 
     /// <summary>
+    /// 武将名
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("characterName")]
+    public string CharacterName { get; set; }
+
+    /// <summary>
     /// 出力された日時
     /// </summary>
     [Column("date")]

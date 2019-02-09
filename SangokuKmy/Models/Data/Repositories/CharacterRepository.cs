@@ -146,6 +146,52 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 武将の更新ログを取得
+    /// </summary>
+    /// <returns>ログのリスト</returns>
+    /// <param name="characterId">武将ID</param>
+    /// <param name="count">取得数</param>
+    public async Task<IReadOnlyList<CharacterUpdateLog>> GetCharacterUpdateLogsAsync(int count)
+    {
+      try
+      {
+        return (await this.container.Context.CharacterUpdateLogs
+          .OrderByDescending(l => l.Id)
+          .GroupJoin(this.container.Context.Characters, ul => ul.CharacterId, c => c.Id, (ul, cs) => new { Log = ul, Names = cs.Select(c => c.Name), })
+          .Take(count)
+          .ToArrayAsync())
+          .Select(ul =>
+          {
+            ul.Log.CharacterName = ul.Names.FirstOrDefault() ?? string.Empty;
+            return ul.Log;
+          })
+          .Reverse()
+          .ToArray();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 武将の更新ログを追加する
+    /// </summary>
+    /// <param name="log">追加するログ</param>
+    public async Task AddCharacterUpdateLogAsync(CharacterUpdateLog log)
+    {
+      try
+      {
+        await this.container.Context.CharacterUpdateLogs.AddAsync(log);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
     /// 武将のすべてのアイコンを取得
     /// </summary>
     /// <param name="characterId">武将ID</param>

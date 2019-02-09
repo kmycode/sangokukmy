@@ -403,11 +403,16 @@ namespace SangokuKmy.Models.Updates
         await repo.SaveChangesAsync();
       }
 
+      // 月の更新を保存
+      var updateLog = new CharacterUpdateLog { IsFirstAtMonth = true, DateTime = DateTime.Now, GameDateTime = system.GameDateTime, };
+      await repo.Character.AddCharacterUpdateLogAsync(updateLog);
+
       // キャッシュを更新
       nextMonthStartDateTime = system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
 
       // ストリーミング中のユーザに新しいデータを通知する
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(system));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(updateLog));
       await AnonymousStreaming.Default.SendAllAsync(notificationMapLogs);
       await StatusStreaming.Default.SendAllAsync(ApiData.From(system.GameDateTime));
       await StatusStreaming.Default.SendAllAsync(notificationMapLogs);
@@ -520,6 +525,15 @@ namespace SangokuKmy.Models.Updates
       await CheckAttributeAsync("人望", oldPopularity, character.Popularity, 4);
 
       // 更新の記録
+      var updateLog = new CharacterUpdateLog
+      {
+        IsFirstAtMonth = false,
+        CharacterId = character.Id,
+        CharacterName = character.Name,
+        DateTime = DateTime.Now,
+        GameDateTime = gameObj.GameDateTime,
+      };
+      await repo.Character.AddCharacterUpdateLogAsync(updateLog);
       await repo.SaveChangesAsync();
 
       // 更新の通知
@@ -536,6 +550,7 @@ namespace SangokuKmy.Models.Updates
       // ログイン中のユーザに新しい情報を通知する
       await StatusStreaming.Default.SendCharacterAsync(notifies, character.Id);
       await AnonymousStreaming.Default.SendAllAsync(anonymousNotifies);
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(updateLog));
       foreach (var charaData in anyoneNotifies.GroupBy(an => an.Item1, (id, items) => new { CharacterId = id, Items = items.Select(i => i.Item2), }))
       {
         await StatusStreaming.Default.SendCharacterAsync(charaData.Items, charaData.CharacterId);
