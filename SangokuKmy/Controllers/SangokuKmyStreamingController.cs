@@ -124,7 +124,7 @@ namespace SangokuKmy.Controllers
       this.Response.Headers.Add("Cache-Control", "no-cache");
 
       // マップログをマージ
-      var allMaplogs = maplogs.Concat(importantMaplogs.Where(im => !maplogs.Any(ml => ml.Id == im.Id)));
+      var allMaplogs = importantMaplogs.Concat(maplogs.Where(im => !importantMaplogs.Any(ml => ml.Id == im.Id)));
 
       // 送信する初期データをリストアップ
       var sendData = Enumerable.Empty<object>()
