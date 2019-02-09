@@ -406,6 +406,7 @@ namespace SangokuKmy.Models.Updates
       // 月の更新を保存
       var updateLog = new CharacterUpdateLog { IsFirstAtMonth = true, DateTime = DateTime.Now, GameDateTime = system.GameDateTime, };
       await repo.Character.AddCharacterUpdateLogAsync(updateLog);
+      await repo.SaveChangesAsync();
 
       // キャッシュを更新
       nextMonthStartDateTime = system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
