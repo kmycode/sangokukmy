@@ -75,6 +75,42 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 指定した国の都市数を数える
+    /// </summary>
+    /// <returns>都市数</returns>
+    /// <param name="countryId">国ID</param>
+    public async Task<int> CountByCountryIdAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.Towns.CountAsync(t => t.CountryId == countryId);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// すべての国が指定した国に支配されてるか調べる
+    /// </summary>
+    /// <returns>支配されているか</returns>
+    /// <param name="countryId">国ID</param>
+    public async Task<bool> IsUnifiedAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.Towns.AllAsync(t => t.CountryId == countryId);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 都市IDから武将を取得
     /// </summary>
     /// <param name="townId">都市ID</param>
@@ -158,6 +194,24 @@ namespace SangokuKmy.Models.Data.Repositories
           TownId = townId,
         };
         await this.container.Context.TownDefenders.AddAsync(def);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 守備武将を削除する
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    public void RemoveDefender(uint characterId)
+    {
+      try
+      {
+        var old = this.container.Context.TownDefenders
+          .Where(td => td.CharacterId == characterId);
+        this.container.Context.TownDefenders.RemoveRange(old);
       }
       catch (Exception ex)
       {

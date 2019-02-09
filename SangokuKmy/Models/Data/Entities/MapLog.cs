@@ -116,5 +116,40 @@ namespace SangokuKmy.Models.Data.Entities
     /// 宣戦布告
     /// </summary>
     WarInReady = 6,
+
+    /// <summary>
+    /// 引き分け（相打ち）
+    /// </summary>
+    BattleDrawLose = 7,
+
+    /// <summary>
+    /// 引き分け
+    /// </summary>
+    BattleDraw = 8,
+
+    /// <summary>
+    /// 戦闘敗北
+    /// </summary>
+    BattleLose = 9,
+
+    /// <summary>
+    /// 戦闘勝利
+    /// </summary>
+    BattleWin = 10,
+
+    /// <summary>
+    /// 支配
+    /// </summary>
+    TakeAway = 11,
+
+    /// <summary>
+    /// 滅亡
+    /// </summary>
+    Overthrown = 12,
+
+    /// <summary>
+    /// 天下統一
+    /// </summary>
+    Unified = 13,
   }
 }

@@ -200,5 +200,28 @@ namespace SangokuKmy.Models.Data.Repositories
         this.container.Error(ex);
       }
     }
+
+    /// <summary>
+    /// 指定した国の部隊をすべて削除する
+    /// </summary>
+    /// <param name="countryId">国ID</param>
+    public void RemoveUnitsByCountryId(uint countryId)
+    {
+      try
+      {
+        var units = this.container.Context.Units
+          .Where(u => u.CountryId == countryId)
+          .GroupJoin(this.container.Context.UnitMembers, u => u.Id, um => um.UnitId, (u, ums) => new { Unit = u, Members = ums, });
+        foreach (var unit in units)
+        {
+          this.container.Context.Units.Remove(unit.Unit);
+          this.container.Context.UnitMembers.RemoveRange(unit.Members);
+        }
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
   }
 }

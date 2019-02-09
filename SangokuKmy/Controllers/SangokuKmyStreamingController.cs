@@ -123,11 +123,13 @@ namespace SangokuKmy.Controllers
       this.Response.Headers.Add("Content-Type", "text/event-stream; charset=UTF-8");
       this.Response.Headers.Add("Cache-Control", "no-cache");
 
+      // マップログをマージ
+      var allMaplogs = maplogs.Concat(importantMaplogs.Where(im => !maplogs.Any(ml => ml.Id == im.Id)));
+
       // 送信する初期データをリストアップ
       var sendData = Enumerable.Empty<object>()
         .Concat(new object[] { ApiData.From(system), })
-        .Concat(maplogs.Select(ml => ApiData.From(ml)))
-        .Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
+        .Concat(allMaplogs.Select(ml => ApiData.From(ml)))
         .ToList();
 
       // 初期データを送信する

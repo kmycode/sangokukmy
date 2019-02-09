@@ -65,6 +65,16 @@ namespace SangokuKmy.Streamings
     public async Task SendAllAsync<T>(IEnumerable<ApiData<T>> data) => await this.SendAsync(data, c => true);
 
     /// <summary>
+    /// 全員に都市データを送信する。その国以外の武将には簡易データのみが送られる
+    /// </summary>
+    /// <param name="data">都市データ</param>
+    public async Task SendTownToAllAsync(ApiData<Town> data)
+    {
+      await this.SendAsync(data, c => c.ExtraData.CountryId == data.Data.CountryId);
+      await this.SendAsync(ApiData.From(new TownForAnonymous(data.Data)), c => c.ExtraData.CountryId != data.Data.CountryId);
+    }
+
+    /// <summary>
     /// 特定のIDを持った武将にのみ送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>

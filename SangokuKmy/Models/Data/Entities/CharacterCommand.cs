@@ -146,6 +146,11 @@ namespace SangokuKmy.Models.Data.Entities
     Defend = 12,
 
     /// <summary>
+    /// 戦争
+    /// </summary>
+    Battle = 13,
+
+    /// <summary>
     /// 移動
     /// </summary>
     Move = 17,

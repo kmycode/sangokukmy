@@ -182,5 +182,27 @@ namespace SangokuKmy.Models.Data.Repositories
         return default;
       }
     }
+
+    /// <summary>
+    /// 国を削除する。指定した国に仕官した武将は、全員無所属になる
+    /// </summary>
+    /// <param name="countryId">国ID</param>
+    public async Task<IReadOnlyList<Character>> RemoveCountryAsync(uint countryId)
+    {
+      try
+      {
+        var charas = await this.container.Context.Characters.Where(c => c.CountryId == countryId).ToListAsync();
+        foreach (var character in charas)
+        {
+          character.CountryId = 0;
+        }
+        return charas;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
   }
 }

@@ -202,5 +202,22 @@ namespace SangokuKmy.Models.Data.Repositories
         this.container.Error(ex);
       }
     }
+
+    /// <summary>
+    /// 指定した国の外交データを全削除する
+    /// </summary>
+    /// <param name="countryId">国ID</param>
+    public void RemoveByCountryId(uint countryId)
+    {
+      try
+      {
+        this.container.Context.CountryAlliances.RemoveRange(this.container.Context.CountryAlliances.Where(ca => ca.InsistedCountryId == countryId || ca.RequestedCountryId == countryId));
+        this.container.Context.CountryWars.RemoveRange(this.container.Context.CountryWars.Where(ca => ca.InsistedCountryId == countryId || ca.RequestedCountryId == countryId));
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
   }
 }

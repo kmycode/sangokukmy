@@ -299,6 +299,11 @@ namespace SangokuKmy.Models.Updates
             break;
         }
 
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(targetTown), targetTown.CountryId);
+        foreach (var town in targetTowns)
+        {
+          await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), town.CountryId);
+        }
         await repo.SaveChangesAsync();
       }
 
@@ -348,6 +353,8 @@ namespace SangokuKmy.Models.Updates
           {
             town.People = 0;
           }
+
+          await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), town.CountryId);
         }
 
         await repo.SaveChangesAsync();
@@ -426,6 +433,7 @@ namespace SangokuKmy.Models.Updates
     {
       var notifies = new List<IApiData>();
       var anonymousNotifies = new List<ApiData<MapLog>>();
+      var anyoneNotifies = new List<Tuple<uint, IApiData>>();
       var currentMonth = character.LastUpdatedGameDate.NextMonth();
       var commandOptional = await repo.CharacterCommand.GetAsync(character.Id, currentMonth);
       var oldStrong = character.Strong;
@@ -445,7 +453,7 @@ namespace SangokuKmy.Models.Updates
           Message = message,
         };
         await repo.Character.AddCharacterLogAsync(character.Id, log);
-        notifies.Add(ApiData.From(log));
+        anyoneNotifies.Add(new Tuple<uint, IApiData>(id, ApiData.From(log)));
       }
       async Task AddMapLogAsync(EventType eventType, string message, bool isImportant)
       {
@@ -458,7 +466,6 @@ namespace SangokuKmy.Models.Updates
           Message = message,
         };
         await repo.MapLog.AddAsync(log);
-        notifies.Add(ApiData.From(log));
         anonymousNotifies.Add(ApiData.From(log));
       }
       async Task AddLogAsync(string message) => await AddLogByIdAsync(character.Id, message);
@@ -489,11 +496,10 @@ namespace SangokuKmy.Models.Updates
         await AddLogAsync("何も実行しませんでした");
       }
 
-      // 古いコマンドの削除、更新の記録
+      // 古いコマンドの削除
       character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime);
       character.LastUpdatedGameDate = currentMonth;
       repo.CharacterCommand.RemoveOlds(character.Id, character.LastUpdatedGameDate);
-      await repo.SaveChangesAsync();
 
       // 能力上昇
       async Task CheckAttributeAsync(string name, int old, int current, int type)
@@ -513,6 +519,9 @@ namespace SangokuKmy.Models.Updates
       await CheckAttributeAsync("統率", oldLeadership, character.Leadership, 3);
       await CheckAttributeAsync("人望", oldPopularity, character.Popularity, 4);
 
+      // 更新の記録
+      await repo.SaveChangesAsync();
+
       // 更新の通知
       notifies.Add(ApiData.From(character));
       notifies.Add(ApiData.From(new ApiSignal
@@ -527,6 +536,10 @@ namespace SangokuKmy.Models.Updates
       // ログイン中のユーザに新しい情報を通知する
       await StatusStreaming.Default.SendCharacterAsync(notifies, character.Id);
       await AnonymousStreaming.Default.SendAllAsync(anonymousNotifies);
+      foreach (var charaData in anyoneNotifies.GroupBy(an => an.Item1, (id, items) => new { CharacterId = id, Items = items.Select(i => i.Item2), }))
+      {
+        await StatusStreaming.Default.SendCharacterAsync(charaData.Items, charaData.CharacterId);
+      }
 
       await (await repo.Town.GetByIdAsync(character.TownId)).SomeAsync(async (town) =>
       {
@@ -546,15 +559,12 @@ namespace SangokuKmy.Models.Updates
           await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), chara.Id);
         }
 
-        // 自分が移動した場合、かつ移動する前の都市が他国の都市だった場合、前の都市のデータを消すよう指示する
         if (oldTownId != town.Id)
         {
           (await repo.Town.GetByIdAsync(oldTownId)).Some(async oldTown =>
           {
-            if (oldTown.CountryId != character.CountryId)
-            {
-              await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new TownForAnonymous(oldTown)), character.Id);
-            }
+            // 支配したときとか、元の都市にいた人に武将数や守備人数の更新を指示する
+            await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(oldTown));
           });
         }
       });

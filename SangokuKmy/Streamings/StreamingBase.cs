@@ -250,10 +250,7 @@ namespace SangokuKmy.Streamings
       foreach (var d in this.Where(cache => data.Any(dd => dd.Id == cache.ExtraData.Id)).ToArray())
       {
         var cache = data.SingleOrDefault(dd => dd.Id == d.ExtraData.Id);
-        if (cache != null)
-        {
-          d.ExtraData = cache;
-        }
+        d.ExtraData = cache;
       }
     }
   }

@@ -20,6 +20,7 @@ namespace SangokuKmy.Models.Commands
       new WallMaxCommand(),
       new SoldierCommand(),
       new DefendCommand(),
+      new BattleCommand(),
       new MoveCommand(),
       new TrainingCommand(),
     };
