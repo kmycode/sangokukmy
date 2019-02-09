@@ -124,11 +124,8 @@ namespace SangokuKmy.Models.Commands
       var town = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { command = "soldier", townId = chara.TownId, });
       var soldierType = (SoldierType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var soldierNumber = options.FirstOrDefault(p => p.Type == 2).Or(ErrorCode.LackOfCommandParameter);
+      var soldierTypeData = SoldierTypes.Get(soldierType).GetOrError(ErrorCode.InvalidCommandParameter);
 
-      if (!SoldierTypes.Get(soldierType).HasData)
-      {
-        ErrorCode.InvalidCommandParameter.Throw();
-      }
       if (soldierNumber.NumberValue <= 0)
       {
         ErrorCode.InvalidCommandParameter.Throw();
@@ -140,8 +137,14 @@ namespace SangokuKmy.Models.Commands
         soldierType = SoldierType.Common;
       }
 
+      // 都市の支配国チェック
+      if (soldierTypeData.Technology > 0 && town.CountryId != chara.CountryId)
+      {
+        ErrorCode.LackOfTownTechnologyForSoldier.Throw();
+      }
+
       // 都市の技術チェック
-      if ((soldierType != SoldierType.Common && town.Technology < 9999))
+      if (town.Technology < soldierTypeData.Technology)
       {
         ErrorCode.LackOfTownTechnologyForSoldier.Throw();
       }

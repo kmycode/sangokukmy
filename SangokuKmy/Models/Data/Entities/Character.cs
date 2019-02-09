@@ -380,25 +380,24 @@ namespace SangokuKmy.Models.Data.Entities
     public string Name { get; set; }
     public SoldierType Type { get; set; }
     public short Money { get; set; }
+    public short Technology { get; set; }
   }
   public static class SoldierTypes
   {
     private static readonly IEnumerable<SoldierTypeData> data = new SoldierTypeData[]
     {
-      new SoldierTypeData { Name = "雑兵", Type = SoldierType.Common, Money = 10, },
-      new SoldierTypeData { Name = "禁兵", Type = SoldierType.Guard, Money = 10, },
-      new SoldierTypeData { Name = "軽歩兵", Type = SoldierType.LightInfantry, Money = 10, },
-      new SoldierTypeData { Name = "弓兵", Type = SoldierType.Archer, Money = 10, },
-      new SoldierTypeData { Name = "軽騎兵", Type = SoldierType.LightCavalry, Money = 10, },
-      new SoldierTypeData { Name = "強弩兵", Type = SoldierType.StrongCrossbow, Money = 10, },
-      new SoldierTypeData { Name = "神鬼兵", Type = SoldierType.LightIntellect, Money = 10, },
-      new SoldierTypeData { Name = "重歩兵", Type = SoldierType.HeavyInfantry, Money = 10, },
-      new SoldierTypeData { Name = "重騎兵", Type = SoldierType.HeavyCavalry, Money = 10, },
-      new SoldierTypeData { Name = "智攻兵", Type = SoldierType.Intellect, Money = 10, },
-      new SoldierTypeData { Name = "連弩兵", Type = SoldierType.RepeatingCrossbow, Money = 10, },
-      new SoldierTypeData { Name = "壁守兵", Type = SoldierType.StrongGuards, Money = 10, },
-      new SoldierTypeData { Name = "衝車", Type = SoldierType.Shosha, Money = 10, },
-      new SoldierTypeData { Name = "井闌", Type = SoldierType.Seiran, Money = 10, },
+      new SoldierTypeData { Name = "雑兵", Type = SoldierType.Common, Money = 10, Technology = 0, },
+      new SoldierTypeData { Name = "禁兵", Type = SoldierType.Guard, Money = 10, Technology = 0, },
+      new SoldierTypeData { Name = "軽歩兵", Type = SoldierType.LightInfantry, Money = 20, Technology = 101, },
+      new SoldierTypeData { Name = "弓兵", Type = SoldierType.Archer, Money = 30, Technology = 201, },
+      new SoldierTypeData { Name = "軽騎兵", Type = SoldierType.LightCavalry, Money = 50, Technology = 301, },
+      new SoldierTypeData { Name = "強弩兵", Type = SoldierType.StrongCrossbow, Money = 70, Technology = 401, },
+      new SoldierTypeData { Name = "神鬼兵", Type = SoldierType.LightIntellect, Money = 100, Technology = 501, },
+      new SoldierTypeData { Name = "重歩兵", Type = SoldierType.HeavyInfantry, Money = 150, Technology = 601, },
+      new SoldierTypeData { Name = "重騎兵", Type = SoldierType.HeavyCavalry, Money = 200, Technology = 701, },
+      new SoldierTypeData { Name = "智攻兵", Type = SoldierType.Intellect, Money = 250, Technology = 801, },
+      new SoldierTypeData { Name = "連弩兵", Type = SoldierType.RepeatingCrossbow, Money = 300, Technology = 901, },
+      new SoldierTypeData { Name = "壁守兵", Type = SoldierType.StrongGuards, Money = 350, Technology = 999, },
     };
     public static Optional<SoldierTypeData> Get(SoldierType type)
     {
