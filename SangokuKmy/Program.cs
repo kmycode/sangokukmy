@@ -25,6 +25,11 @@ namespace SangokuKmy
           logging.ClearProviders();
           logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
         })
+        .UseKestrel((options) =>
+        {
+          options.Limits.MaxConcurrentConnections = 2048;
+          options.Limits.MaxConcurrentUpgradedConnections = 2048;
+        })
         .UseNLog()
         .UseUrls("http://0.0.0.0:5000")
         .UseStartup<Startup>();
