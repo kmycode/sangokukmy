@@ -81,6 +81,13 @@ namespace SangokuKmy.Models.Data.Entities
       get => ApiDateTime.FromDateTime(this.Date);
       set => this.Date = value.ToDateTime();
     }
+
+    /// <summary>
+    /// 戦闘ログのID
+    /// </summary>
+    [Column("battle_log_id")]
+    [JsonProperty("battleLogId")]
+    public uint BattleLogId { get; set; }
   }
 
   public enum EventType : short

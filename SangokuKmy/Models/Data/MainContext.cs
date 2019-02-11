@@ -135,6 +135,21 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public DbSet<UnitMember> UnitMembers { get; set; }
 
+    /// <summary>
+    /// ログに使う武将のキャッシュ
+    /// </summary>
+    public DbSet<LogCharacterCache> CharacterCaches { get; set; }
+
+    /// <summary>
+    /// 戦闘ログ
+    /// </summary>
+    public DbSet<BattleLog> BattleLogs { get; set; }
+
+    /// <summary>
+    /// 戦闘ログの一行
+    /// </summary>
+    public DbSet<BattleLogLine> BattleLogLines { get; set; }
+
     private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
         new DebugLoggerProvider((category, level)
             => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)

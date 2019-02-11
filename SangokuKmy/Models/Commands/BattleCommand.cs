@@ -107,6 +107,15 @@ namespace SangokuKmy.Models.Commands
         }
       }
 
+      var log = new BattleLog
+      {
+        TownId = targetTown.Id,
+        AttackerCharacterId = character.Id,
+      };
+      var logLines = new List<BattleLogLine>();
+      var attackerCache = character.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(character.Id)).GetMainOrFirst().Data ?? new CharacterIcon());
+      uint mapLogId = 0;
+
       var myAttackCorrection = 0;
       var myDefenceCorrection = 0;
       var myExperience = 0;
@@ -165,6 +174,7 @@ namespace SangokuKmy.Models.Commands
       var enemy = new EnemyData();
       var trendStrong = game.GameDateTime.ToInt() / 27;
       var defenders = await repo.Town.GetDefendersAsync(targetTown.Id);
+      LogCharacterCache defenderCache = null;
       if (defenders.Any())
       {
         var defender = defenders.First().Character;
@@ -173,6 +183,9 @@ namespace SangokuKmy.Models.Commands
         enemy.SoldierType = defender.SoldierType;
         enemy.Strong = defender.Strong;
         enemy.Proficiency = defender.Proficiency;
+        log.DefenderCharacterId = defender.Id;
+        log.DefenderType = DefenderType.Character;
+        defenderCache = defender.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(defender.Id)).GetMainOrFirst().Data ?? new CharacterIcon());
 
         var targetCorrections = this.SoldierTypeCorrect(defender);
         targetAttackCorrection += targetCorrections.AttackCorrection;
@@ -181,12 +194,18 @@ namespace SangokuKmy.Models.Commands
       else
       {
         enemy.SoldierNumber = targetTown.Wall;
+        log.DefenderType = DefenderType.Wall;
+        defenderCache = new LogCharacterCache
+        {
+          CountryId = targetTown.CountryId,
+          IconId = 0,
+        };
       }
 
       var myAttack = Math.Max((int)((character.Strong + myAttackCorrection - targetDefenceCorrection - enemy.Proficiency / 2.5f) / 8), 0);
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");
       
-      for (var i = 0; i < 50 && enemy.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
+      for (var i = 1; i <= 50 && enemy.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
       {
         var isNoDamage = false;
         if (enemy.IsWall)
@@ -200,6 +219,14 @@ namespace SangokuKmy.Models.Commands
                                 SoldierType.Common;
             enemy.Strong = trendStrong;
             enemy.Proficiency = 100;
+
+            if (i == 1)
+            {
+              defenderCache.Name = "守兵";
+              defenderCache.Strong = (short)enemy.Strong;
+              defenderCache.SoldierType = enemy.SoldierType;
+              defenderCache.Proficiency = (short)enemy.Proficiency;
+            }
           }
           else
           {
@@ -207,6 +234,18 @@ namespace SangokuKmy.Models.Commands
             enemy.Strong = trendStrong / 2;
             enemy.Proficiency = 0;
             isNoDamage = true;
+
+            if (i == 1)
+            {
+              defenderCache.Name = "城壁";
+              defenderCache.Strong = (short)enemy.Strong;
+              defenderCache.SoldierType = enemy.SoldierType;
+              defenderCache.Proficiency = (short)enemy.Proficiency;
+            }
+            else if (defenderCache.Name == "城壁")
+            {
+              defenderCache.Name = "守兵/" + i + "ターン目より城壁";
+            }
           }
         }
         
@@ -233,6 +272,15 @@ namespace SangokuKmy.Models.Commands
           targetTown.WallGuard = Math.Max(targetTown.WallGuard - targetDamage, 0);
           targetTown.Wall = enemy.SoldierNumber;
         }
+
+        logLines.Add(new BattleLogLine
+        {
+          Turn = (short)i,
+          AttackerNumber = (short)character.SoldierNumber,
+          AttackerDamage = (short)myDamage,
+          DefenderNumber = (short)enemy.SoldierNumber,
+          DefenderDamage = (short)targetDamage,
+        });
       }
 
       {
@@ -244,7 +292,7 @@ namespace SangokuKmy.Models.Commands
         if (character.SoldierNumber <= 0 && enemy.SoldierNumber <= 0)
         {
           repo.Town.RemoveDefender(enemy.Defender.Data.Id);
-          await game.MapLogAsync(EventType.BattleDrawLose, prefix + " と引き分けました", false);
+          mapLogId = await game.MapLogAndSaveAsync(EventType.BattleDrawLose, prefix + " と引き分けました", false);
           await game.CharacterLogAsync("<character>" + enemy.Name + "</character> と引き分けました。貢献:<num>" + myContribution + "</num> 経験:<num>" + myExperience + "</num>");
           if (enemy.Defender.HasData)
           {
@@ -253,7 +301,7 @@ namespace SangokuKmy.Models.Commands
         }
         else if (character.SoldierNumber <= 0 && enemy.SoldierNumber > 0)
         {
-          await game.MapLogAsync(EventType.BattleLose, prefix + " に敗北しました", false);
+          mapLogId = await game.MapLogAndSaveAsync(EventType.BattleLose, prefix + " に敗北しました", false);
           await game.CharacterLogAsync("<character>" + enemy.Name + "</character> に敗北しました。貢献:<num>" + myContribution + "</num> 経験:<num>" + myExperience + "</num>");
           if (enemy.Defender.HasData)
           {
@@ -262,7 +310,7 @@ namespace SangokuKmy.Models.Commands
         }
         else if (character.SoldierNumber > 0 && enemy.SoldierNumber > 0)
         {
-          await game.MapLogAsync(EventType.BattleDraw, prefix + " と引き分けました", false);
+          mapLogId = await game.MapLogAndSaveAsync(EventType.BattleDraw, prefix + " と引き分けました", false);
           await game.CharacterLogAsync("<character>" + enemy.Name + "</character> と引き分けました。貢献:<num>" + myContribution + "</num> 経験:<num>" + myExperience + "</num>");
           if (enemy.Defender.HasData)
           {
@@ -274,7 +322,7 @@ namespace SangokuKmy.Models.Commands
           if (!enemy.IsWall)
           {
             repo.Town.RemoveDefender(enemy.Defender.Data.Id);
-            await game.MapLogAsync(EventType.BattleWin, prefix + " を倒しました", false);
+            mapLogId = await game.MapLogAndSaveAsync(EventType.BattleWin, prefix + " を倒しました", false);
             await game.CharacterLogAsync("<character>" + enemy.Name + "</character> に勝利しました。貢献:<num>" + myContribution + "</num> 経験:<num>" + myExperience + "</num>");
           }
           else
@@ -289,11 +337,8 @@ namespace SangokuKmy.Models.Commands
             myContribution += myExperience;
             character.TownId = targetTown.Id;
             await repo.Town.SetDefenderAsync(character.Id, targetTown.Id);
-            await game.MapLogAsync(EventType.TakeAway, "<country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <town>" + targetTown.Name + "</town> を支配しました", true);
+            mapLogId = await game.MapLogAndSaveAsync(EventType.TakeAway, "<country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <town>" + targetTown.Name + "</town> を支配しました", true);
             await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> を支配しました。貢献:<num>" + myContribution + "</num> 経験:<num>" + myExperience + "</num>");
-
-            // いったん保存する（このあとの滅亡、統一ロジックに影響するので）
-            await repo.SaveChangesAsync();
 
             if (targetCountryOptional.HasData)
             {
@@ -319,6 +364,12 @@ namespace SangokuKmy.Models.Commands
         }
       }
 
+      // 戦闘ログを保存
+      log.MapLogId = mapLogId;
+      await repo.BattleLog.AddLogWithSaveAsync(log, logLines, attackerCache, defenderCache);
+      await repo.MapLog.SetBattleLogIdAsync(mapLogId, log.Id);
+
+      // 貢献、経験値の設定
       myContribution += myExperience;
       character.Contribution += (int)(myContribution * 4.6f);
       character.AddStrongEx((short)myExperience);

@@ -95,5 +95,22 @@ namespace SangokuKmy.Models.Data.Repositories
         this.container.Error(ex);
       }
     }
+
+    /// <summary>
+    /// 既存のログに、戦闘ログIDを設定する
+    /// </summary>
+    /// <param name="maplogId">マップログID</param>
+    /// <param name="battleLogId">戦闘ログID</param>
+    public async Task SetBattleLogIdAsync(uint maplogId, uint battleLogId)
+    {
+      try
+      {
+        (await this.container.Context.MapLogs.FindAsync(maplogId)).BattleLogId = battleLogId;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
   }
 }

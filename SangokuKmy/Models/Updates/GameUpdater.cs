@@ -128,7 +128,7 @@ namespace SangokuKmy.Models.Updates
         await repo.Character.AddCharacterLogAsync(characterId, log);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(log), characterId);
       }
-      async Task AddMapLogAsync(bool isImportant, EventType type, string message)
+      async Task<MapLog> AddMapLogInnerAsync(bool isImportant, EventType type, string message)
       {
         var log = new MapLog
         {
@@ -140,6 +140,17 @@ namespace SangokuKmy.Models.Updates
         };
         await repo.MapLog.AddAsync(log);
         notificationMapLogs.Add(ApiData.From(log));
+        return log;
+      }
+      async Task AddMapLogAsync(bool isImportant, EventType type, string message)
+      {
+        await AddMapLogInnerAsync(isImportant, type, message);
+      }
+      async Task<uint> AddMapLogAndSaveAsync(bool isImportant, EventType type, string message)
+      {
+        var log = await AddMapLogInnerAsync(isImportant, type, message);
+        await repo.SaveChangesAsync();
+        return log.Id;
       }
 
       var allCharacters = await repo.Character.GetAllAsync();
@@ -461,18 +472,29 @@ namespace SangokuKmy.Models.Updates
         await repo.Character.AddCharacterLogAsync(character.Id, log);
         anyoneNotifies.Add(new Tuple<uint, IApiData>(id, ApiData.From(log)));
       }
-      async Task AddMapLogAsync(EventType eventType, string message, bool isImportant)
+      async Task<MapLog> AddMapLogInnerAsync(bool isImportant, EventType type, string message)
       {
         var log = new MapLog
         {
-          EventType = eventType,
-          IsImportant = isImportant,
-          Date = DateTime.Now,
           ApiGameDateTime = currentMonth,
+          Date = DateTime.Now,
+          EventType = type,
+          IsImportant = isImportant,
           Message = message,
         };
         await repo.MapLog.AddAsync(log);
         anonymousNotifies.Add(ApiData.From(log));
+        return log;
+      }
+      async Task AddMapLogAsync(EventType type, string message, bool isImportant)
+      {
+        await AddMapLogInnerAsync(isImportant, type, message);
+      }
+      async Task<uint> AddMapLogAndSaveAsync(EventType type, string message, bool isImportant)
+      {
+        var log = await AddMapLogInnerAsync(isImportant, type, message);
+        await repo.SaveChangesAsync();
+        return log.Id;
       }
       async Task AddLogAsync(string message) => await AddLogByIdAsync(character.Id, message);
 
@@ -481,6 +503,7 @@ namespace SangokuKmy.Models.Updates
         CharacterLogAsync = AddLogAsync,
         CharacterLogByIdAsync = AddLogByIdAsync,
         MapLogAsync = AddMapLogAsync,
+        MapLogAndSaveAsync = AddMapLogAndSaveAsync,
         GameDateTime = currentMonth,
       };
 

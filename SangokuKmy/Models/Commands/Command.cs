@@ -42,5 +42,7 @@ public class CommandSystemData
 
   public Func<EventType, string, bool, Task> MapLogAsync { get; set; }
 
+  public Func<EventType, string, bool, Task<uint>> MapLogAndSaveAsync { get; set; }
+
   public GameDateTime GameDateTime { get; set; }
 }

@@ -724,5 +724,16 @@ namespace SangokuKmy.Controllers
         Type = SignalType.UnitRemoved,
       }), members.Select(um => um.CharacterId));
     }
+
+    [HttpGet("battle/{id}")]
+    public async Task<BattleLog> GetBattleLogAsync(
+      [FromRoute] uint id)
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var log = await repo.BattleLog.GetWithLinesByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        return log;
+      }
+    }
   }
 }

@@ -25,6 +25,13 @@ namespace SangokuKmy.Models.Data.Entities
     public uint CharacterId { get; set; }
 
     /// <summary>
+    /// このアイコンは有効であるか（削除してもDB内では削除されない）
+    /// </summary>
+    [Column("is_available")]
+    [JsonProperty("isAvailable")]
+    public bool IsAvailable { get; set; }
+
+    /// <summary>
     /// メインで使用するアイコンであるか
     /// </summary>
     [Column("is_main")]

@@ -105,6 +105,12 @@ namespace SangokuKmy.Models.Data
     private UnitRepository _unit;
 
     /// <summary>
+    /// 戦闘ログ
+    /// </summary>
+    public BattleLogRepository BattleLog => this._battleLog = this._battleLog ?? new BattleLogRepository(this.container);
+    private BattleLogRepository _battleLog;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>
