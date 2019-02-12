@@ -20,6 +20,7 @@ namespace SangokuKmy.Models.Data.Entities
         X = town.X,
         Y = town.Y,
         People = town.People,
+        PeopleMax = town.PeopleMax,
         Agriculture = town.Agriculture,
         AgricultureMax = town.AgricultureMax,
         Commercial = town.Commercial,

@@ -14,7 +14,7 @@ namespace SangokuKmy.Models.Common
 
     public static int UpdateTime { get; } = 600;
 
-    public static short StartYear { get; } = 150;
+    public static short StartYear { get; } = 0;
 
     public static short StartMonth { get; } = 1;
 

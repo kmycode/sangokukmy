@@ -225,7 +225,10 @@ namespace SangokuKmy.Models.Data
         if (attribute != null)
         {
           var tableName = attribute.Name;
-          await this.Context.Database.ExecuteSqlCommandAsync($"TRUNCATE TABLE[{tableName}]");
+
+          // TRUNCATEはAUTO_INCREMENTがリセットされるのであんま使いたくない
+          // FormattableStringにしたらなぜかエラーになるので、通常の文字列連結で使う
+          await this.Context.Database.ExecuteSqlCommandAsync("DELETE FROM `" + tableName + "`");
         }
         else
         {

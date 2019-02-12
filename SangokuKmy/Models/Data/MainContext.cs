@@ -126,6 +126,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<TownDefender> TownDefenders { get; set; }
 
     /// <summary>
+    /// 初期化に使う都市データ
+    /// </summary>
+    public DbSet<InitialTown> InitialTowns { get; set; }
+
+    /// <summary>
     /// 部隊
     /// </summary>
     public DbSet<Unit> Units { get; set; }
@@ -176,6 +181,48 @@ namespace SangokuKmy.Models.Data
           .Range(0, 99)
           .Select(num => new DefaultIconData { Id = (uint)(num + 1), FileName = num + ".gif", })
           .ToArray());
+      modelBuilder.Entity<InitialTown>().HasData(
+        new InitialTown
+        {
+          Id = 1,
+          Name = "長安",
+          Type = TownType.Any,
+          X = 4,
+          Y = 4,
+        },
+        new InitialTown
+        {
+          Id = 2,
+          Name = "成都",
+          Type = TownType.Any,
+          X = 3,
+          Y = 5,
+        },
+        new InitialTown
+        {
+          Id = 3,
+          Name = "鄴",
+          Type = TownType.Any,
+          X = 5,
+          Y = 4,
+        },
+        new InitialTown
+        {
+          Id = 4,
+          Name = "襄陽",
+          Type = TownType.Any,
+          X = 4,
+          Y = 5,
+        },
+        new InitialTown
+        {
+          Id = 5,
+          Name = "建業",
+          Type = TownType.Any,
+          X = 5,
+          Y = 5,
+        }
+        );
     }
   }
 }

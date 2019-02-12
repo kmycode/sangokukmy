@@ -68,6 +68,13 @@ namespace SangokuKmy.Models.Data.Entities
     public int People { get; set; }
 
     /// <summary>
+    /// 人口最大
+    /// </summary>
+    [Column("people_max")]
+    [JsonProperty("peopleMax")]
+    public int PeopleMax { get; set; }
+
+    /// <summary>
     /// 農業
     /// </summary>
     [Column("agriculture")]
@@ -170,6 +177,11 @@ namespace SangokuKmy.Models.Data.Entities
 
   public enum TownType : byte
   {
+    /// <summary>
+    /// 不問（初期化時用）
+    /// </summary>
+    Any = 0,
+
     /// <summary>
     /// 農業都市
     /// </summary>

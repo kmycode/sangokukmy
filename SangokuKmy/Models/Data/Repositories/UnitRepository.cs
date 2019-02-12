@@ -223,5 +223,21 @@ namespace SangokuKmy.Models.Data.Repositories
         this.container.Error(ex);
       }
     }
+
+    /// <summary>
+    /// 内容をすべてリセットする
+    /// </summary>
+    public async Task ResetAsync()
+    {
+      try
+      {
+        await this.container.RemoveAllRowsAsync(typeof(Unit));
+        await this.container.RemoveAllRowsAsync(typeof(UnitMember));
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
   }
 }

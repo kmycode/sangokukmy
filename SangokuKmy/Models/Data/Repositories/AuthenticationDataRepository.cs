@@ -112,5 +112,18 @@ namespace SangokuKmy.Models.Data.Repositories
         this.container.Error(ex);
       }
     }
+
+    public async Task ResetAsync()
+    {
+      try
+      {
+        await this.container.RemoveAllRowsAsync(typeof(AuthenticationData));
+        await this.Cache.UpdateAsync(this.container.Context.AuthenticationData);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
   }
 }

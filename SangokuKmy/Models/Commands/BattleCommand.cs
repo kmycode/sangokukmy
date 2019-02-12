@@ -8,6 +8,7 @@ using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Services;
 using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Commands
@@ -359,6 +360,7 @@ namespace SangokuKmy.Models.Commands
             if (await repo.Town.IsUnifiedAsync(character.CountryId))
             {
               await game.MapLogAsync(EventType.Unified, "<country>" + myCountry.Name + "</country> によって統一されました", true);
+              await ResetService.RequestResetAsync(repo);
             }
           }
         }

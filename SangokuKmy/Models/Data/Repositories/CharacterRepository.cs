@@ -250,5 +250,24 @@ namespace SangokuKmy.Models.Data.Repositories
         return default;
       }
     }
+
+    /// <summary>
+    /// 内容をすべてリセットする
+    /// </summary>
+    public async Task ResetAsync()
+    {
+      try
+      {
+        await this.container.RemoveAllRowsAsync(typeof(Character));
+        await this.container.RemoveAllRowsAsync(typeof(CharacterIcon));
+        await this.container.RemoveAllRowsAsync(typeof(CharacterLog));
+        await this.container.RemoveAllRowsAsync(typeof(CharacterUpdateLog));
+        await this.container.RemoveAllRowsAsync(typeof(LogCharacterCache));
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
   }
 }

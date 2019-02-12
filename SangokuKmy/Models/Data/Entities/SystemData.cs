@@ -56,6 +56,13 @@ namespace SangokuKmy.Models.Data.Entities
     public short BetaVersion { get; set; }
 
     /// <summary>
+    /// 次の期はベータであるか
+    /// </summary>
+    [Column("is_next_period_beta")]
+    [JsonProperty("isNextPeriodBeta")]
+    public bool IsNextPeriodBeta { get; set; }
+
+    /// <summary>
     /// 現在のゲーム内の年月（DB保存用）
     /// </summary>
     [Column("game_date_time")]
@@ -71,6 +78,30 @@ namespace SangokuKmy.Models.Data.Entities
     [NotMapped]
     [JsonProperty("gameDateTime")]
     public GameDateTime GameDateTime { get; set; }
+
+    /// <summary>
+    /// リセット待ちであるか
+    /// </summary>
+    [Column("is_waiting_reset")]
+    [JsonProperty("isWaitingReset")]
+    public bool IsWaitingReset { get; set; }
+
+    /// <summary>
+    /// リセットするゲーム内の年月（DB保存用）
+    /// </summary>
+    [Column("reset_game_date_time")]
+    public int IntResetGameDateTime
+    {
+      get => this.ResetGameDateTime.ToInt();
+      set => this.ResetGameDateTime = GameDateTime.FromInt(value);
+    }
+
+    /// <summary>
+    /// リセットするゲーム内の年月
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("resetGameDateTime")]
+    public GameDateTime ResetGameDateTime { get; set; }
 
     /// <summary>
     /// 現在の月が始まった時刻

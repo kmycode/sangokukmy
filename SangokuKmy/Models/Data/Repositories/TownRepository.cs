@@ -218,5 +218,53 @@ namespace SangokuKmy.Models.Data.Repositories
         this.container.Error(ex);
       }
     }
+
+    /// <summary>
+    /// 初期化に使うデータを取得
+    /// </summary>
+    public async Task<IReadOnlyList<InitialTown>> GetAllInitialTownsAsync()
+    {
+      try
+      {
+        return await this.container.Context.InitialTowns.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 都市を追加する
+    /// </summary>
+    /// <param name="towns">都市</param>
+    public async Task AddTownsAsync(IEnumerable<Town> towns)
+    {
+      try
+      {
+        await this.container.Context.AddRangeAsync(towns);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 内容をすべてリセットする
+    /// </summary>
+    public async Task ResetAsync()
+    {
+      try
+      {
+        await this.container.RemoveAllRowsAsync(typeof(Town));
+        await this.container.RemoveAllRowsAsync(typeof(TownDefender));
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
   }
 }

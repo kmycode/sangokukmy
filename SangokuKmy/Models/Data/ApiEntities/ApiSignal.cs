@@ -66,5 +66,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 部隊集合された
     /// </summary>
     UnitGathered = 6,
+
+    /// <summary>
+    /// リセットされた
+    /// </summary>
+    Reseted = 7,
   }
 }

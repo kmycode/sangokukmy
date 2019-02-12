@@ -6,6 +6,7 @@ using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Entities
 {
+  [Table("CharacterUpdateLogs")]
   public class CharacterUpdateLog
   {
     [Key]

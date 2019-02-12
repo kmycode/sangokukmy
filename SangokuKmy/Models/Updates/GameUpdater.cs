@@ -12,6 +12,7 @@ using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Streamings;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Updates
 {
@@ -108,10 +109,17 @@ namespace SangokuKmy.Models.Updates
 
     private static async Task UpdateMonthAsync(MainRepository repo)
     {
+      // 月を進める
       var system = await repo.System.GetAsync();
       system.CurrentMonthStartDateTime = system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
       system.GameDateTime = system.GameDateTime.NextMonth();
       await repo.SaveChangesAsync();
+
+      // リセット判定
+      if (await CheckResetAsync(repo, system))
+      {
+        return;
+      }
 
       var notificationMapLogs = new List<ApiData<MapLog>>();
 
@@ -346,7 +354,6 @@ namespace SangokuKmy.Models.Updates
 
           // 人口
           var peopleAdd = 0;
-          var peopleMax = (town.Type == TownType.Large || allCountries.Any(c => c.Id == town.CountryId && c.CapitalTownId == town.Id)) ? 60000 : 50000;
           if (town.Security > 50)
           {
             peopleAdd = Math.Max(80 * (town.Security - 50), 500);
@@ -356,9 +363,9 @@ namespace SangokuKmy.Models.Updates
             peopleAdd = -80 * (50 - town.Security);
           }
           town.People += peopleAdd;
-          if (town.People > peopleMax)
+          if (town.People > town.PeopleMax)
           {
-            town.People = peopleMax;
+            town.People = town.PeopleMax;
           }
           else if (town.People < 0)
           {
@@ -607,6 +614,16 @@ namespace SangokuKmy.Models.Updates
           });
         }
       });
+    }
+
+    private static async Task<bool> CheckResetAsync(MainRepository repo, SystemData system)
+    {
+      if (system.IsWaitingReset && system.IntResetGameDateTime == system.IntGameDateTime)
+      {
+        await ResetService.ResetAsync(repo);
+        return true;
+      }
+      return false;
     }
 
     private class CountrySalary

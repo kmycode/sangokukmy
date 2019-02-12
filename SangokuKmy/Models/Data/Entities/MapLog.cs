@@ -158,5 +158,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 天下統一
     /// </summary>
     Unified = 13,
+
+    /// <summary>
+    /// リセット
+    /// </summary>
+    Reset = 14,
   }
 }

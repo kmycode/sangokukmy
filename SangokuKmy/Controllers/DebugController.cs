@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using SangokuKmy.Filters;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Common;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Controllers
 {
@@ -23,6 +24,26 @@ namespace SangokuKmy.Controllers
       {
         var debug = await repo.System.GetDebugDataAsync();
         debug.UpdatableLastDateTime = debug.UpdatableLastDateTime.AddSeconds(Config.UpdateTime);
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [HttpGet("reset/request")]
+    public async Task RequestReset()
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        await ResetService.RequestResetAsync(repo);
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [HttpGet("reset/run")]
+    public async Task Reset()
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        await ResetService.ResetAsync(repo);
         await repo.SaveChangesAsync();
       }
     }
