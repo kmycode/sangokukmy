@@ -10,6 +10,7 @@ using System.Transactions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SangokuKmy.Models.Data
 {
@@ -109,6 +110,12 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public BattleLogRepository BattleLog => this._battleLog = this._battleLog ?? new BattleLogRepository(this.container);
     private BattleLogRepository _battleLog;
+
+    /// <summary>
+    /// スレッドフロート型の掲示板
+    /// </summary>
+    public ThreadBbsRepository ThreadBbs => this._threadBbs = this._threadBbs ?? new ThreadBbsRepository(this.container);
+    private ThreadBbsRepository _threadBbs;
 
     /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
@@ -211,6 +218,20 @@ namespace SangokuKmy.Models.Data
       }
 
       public void Error(Exception ex) => this.repo.Error(ex);
+
+      public async Task RemoveAllRowsAsync(Type type)
+      {
+        var attribute = type.GetCustomAttributes(typeof(TableAttribute), true).Cast<TableAttribute>().FirstOrDefault();
+        if (attribute != null)
+        {
+          var tableName = attribute.Name;
+          await this.Context.Database.ExecuteSqlCommandAsync($"TRUNCATE TABLE[{tableName}]");
+        }
+        else
+        {
+          throw new InvalidOperationException();
+        }
+      }
     }
   }
 
@@ -225,5 +246,7 @@ namespace SangokuKmy.Models.Data
     MainContext Context { get; }
 
     void Error(Exception ex);
+
+    Task RemoveAllRowsAsync(Type type);
   }
 }

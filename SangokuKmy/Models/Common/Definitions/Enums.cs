@@ -166,6 +166,21 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode UnitJoinLimitedError { get; } = new ErrorCode(403, 28);
 
     /// <summary>
+    /// ツリー階層の親が見つからないなどのエラー
+    /// </summary>
+    public static ErrorCode ParentNodeNotFoundError { get; } = new ErrorCode(404, 29);
+
+    /// <summary>
+    /// ツリー階層で、トップ階層のものでないエラー
+    /// </summary>
+    public static ErrorCode NotTopNodeError { get; } = new ErrorCode(400, 30);
+
+    /// <summary>
+    /// ツリー階層のアイテムが見つからないエラー
+    /// </summary>
+    public static ErrorCode NodeNotFoundError { get; } = new ErrorCode(404, 31);
+
+    /// <summary>
     /// エラーコード
     /// </summary>
     public int Code { get; }

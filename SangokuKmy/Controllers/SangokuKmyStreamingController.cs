@@ -39,6 +39,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<ChatMessage> chatMessages;
       IEnumerable<CountryAlliance> alliances;
       IEnumerable<CountryWar> wars;
+      IEnumerable<ThreadBbsItem> countryBbsItems;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -53,6 +54,7 @@ namespace SangokuKmy.Controllers
         alliances = (await repo.CountryDiplomacies.GetAllPublicAlliancesAsync())
           .Concat(await repo.CountryDiplomacies.GetCountryAllAlliancesAsync(chara.CountryId));
         wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+        countryBbsItems = await repo.ThreadBbs.GetCountryBbsByCountryIdAsync(chara.CountryId);
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
@@ -77,6 +79,7 @@ namespace SangokuKmy.Controllers
         .Concat(chatMessages.Select(cm => ApiData.From(cm)))
         .Concat(alliances.Select(ca => ApiData.From(ca)))
         .Concat(wars.Select(cw => ApiData.From(cw)))
+        .Concat(countryBbsItems.Select(b => ApiData.From(b)))
         .ToList();
       sendData.Add(ApiData.From(new ApiSignal
       {
