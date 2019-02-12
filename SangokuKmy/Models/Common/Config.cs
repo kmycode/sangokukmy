@@ -18,6 +18,8 @@ namespace SangokuKmy.Models.Common
 
     public static short StartMonth { get; } = 1;
 
+    public static short UpdateStartYear { get; } = 24;
+
     /// <summary>
     /// 階級の数（新規登録直後に与えられる階級も含まれるので注意）
     /// </summary>

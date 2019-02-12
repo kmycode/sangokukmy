@@ -515,21 +515,24 @@ namespace SangokuKmy.Models.Updates
       };
 
       // コマンドの実行
-      var isCommandExecuted = false;
-      if (commandOptional.HasData)
+      if (currentMonth.Year >= Config.UpdateStartYear)
       {
-        var command = commandOptional.Data;
-        var commandRunnerOptional = Commands.Commands.Get(command.Type);
-        if (commandRunnerOptional.HasData)
+        var isCommandExecuted = false;
+        if (commandOptional.HasData)
         {
-          var commandRunner = commandRunnerOptional.Data;
-          await commandRunner.ExecuteAsync(repo, character, command.Parameters, gameObj);
-          isCommandExecuted = true;
+          var command = commandOptional.Data;
+          var commandRunnerOptional = Commands.Commands.Get(command.Type);
+          if (commandRunnerOptional.HasData)
+          {
+            var commandRunner = commandRunnerOptional.Data;
+            await commandRunner.ExecuteAsync(repo, character, command.Parameters, gameObj);
+            isCommandExecuted = true;
+          }
         }
-      }
-      if (!isCommandExecuted)
-      {
-        await AddLogAsync("何も実行しませんでした");
+        if (!isCommandExecuted)
+        {
+          await AddLogAsync("何も実行しませんでした");
+        }
       }
 
       // 古いコマンドの削除
