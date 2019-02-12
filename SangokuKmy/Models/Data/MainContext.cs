@@ -186,7 +186,7 @@ namespace SangokuKmy.Models.Data
         {
           Id = 1,
           Name = "長安",
-          Type = TownType.Any,
+          Type = TownType.Large,
           X = 4,
           Y = 4,
         },
