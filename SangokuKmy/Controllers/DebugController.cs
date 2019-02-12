@@ -9,6 +9,7 @@ using SangokuKmy.Filters;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Services;
+using SangokuKmy.Models.Data.Entities;
 
 namespace SangokuKmy.Controllers
 {
@@ -26,6 +27,14 @@ namespace SangokuKmy.Controllers
         debug.UpdatableLastDateTime = debug.UpdatableLastDateTime.AddSeconds(Config.UpdateTime);
         await repo.SaveChangesAsync();
       }
+    }
+    [HttpGet("password/{pass}")]
+    public object PasswordHash(
+      [FromRoute] string pass)
+    {
+      var chara = new Character();
+      chara.SetPassword(pass);
+      return new { password = pass, hash = chara.PasswordHash, };
     }
 
     [HttpGet("reset/request")]
