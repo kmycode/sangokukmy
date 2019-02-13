@@ -57,13 +57,6 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
-    /// アイコンのURI（Gravatar）
-    /// </summary>
-    [Column("uri")]
-    [JsonProperty("uri")]
-    public string Uri { get; set; }
-
-    /// <summary>
     /// アイコンのファイル名（デフォルト、アップロードされたアイコン）
     /// </summary>
     [Column("file_name")]

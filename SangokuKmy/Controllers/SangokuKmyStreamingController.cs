@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using SangokuKmy.Streamings;
 using SangokuKmy.Models.Data.ApiEntities;
 using System.Text;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Controllers
 {
@@ -116,12 +117,16 @@ namespace SangokuKmy.Controllers
       IEnumerable<MapLog> maplogs;
       IEnumerable<MapLog> importantMaplogs;
       IEnumerable<CharacterUpdateLog> updateLogs;
+      IEnumerable<TownForAnonymous> towns;
+      IEnumerable<CountryForAnonymous> countries;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
         maplogs = await repo.MapLog.GetNewestAsync(20);
         importantMaplogs = await repo.MapLog.GetImportantNewestAsync(20);
         updateLogs = await repo.Character.GetCharacterUpdateLogsAsync(20);
+        towns = await repo.Town.GetAllForAnonymousAsync();
+        countries = await repo.Country.GetAllForAnonymousAsync();
       }
 
       // HTTPヘッダを設定する
@@ -136,6 +141,8 @@ namespace SangokuKmy.Controllers
         .Concat(new object[] { ApiData.From(system), })
         .Concat(allMaplogs.Select(ml => ApiData.From(ml)))
         .Concat(updateLogs.Select(ul => ApiData.From(ul)))
+        .Concat(towns.Select(t => ApiData.From(t)))
+        .Concat(countries.Select(c => ApiData.From(c)))
         .ToList();
 
       // 初期データを送信する

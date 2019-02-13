@@ -133,6 +133,23 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 国を追加する
+    /// </summary>
+    /// <param name="country">国</param>
+    public async Task AddAsync(Country country)
+    {
+      try
+      {
+        await this.container.Context.Countries
+          .AddAsync(country);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
     /// 国IDから武将を取得
     /// </summary>
     /// <param name="townId">都市ID</param>
@@ -154,6 +171,25 @@ namespace SangokuKmy.Models.Data.Repositories
             return (data.Character, data.Icons.GetMainOrFirst().Data);
           })
           .ToArray();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 国IDから武将数を数える
+    /// </summary>
+    /// <param name="townId">都市ID</param>
+    /// <returns>その都市に滞在する武将の数</returns>
+    public async Task<int> CountCharactersAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.Characters
+          .CountAsync(c => c.CountryId == countryId);
       }
       catch (Exception ex)
       {

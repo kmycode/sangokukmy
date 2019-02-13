@@ -84,6 +84,25 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 指定した名前の武将がいないか調べる
+    /// </summary>
+    /// <returns>武将</returns>
+    /// <param name="id">ID</param>
+    public async Task<bool> IsAlreadyExistsAsync(string name, string aliasId)
+    {
+      try
+      {
+        return await this.container.Context.Characters
+          .AnyAsync(c => c.Name == name || c.AliasId == aliasId);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// エイリアスIDから武将を取得する
     /// </summary>
     /// <returns>武将</returns>
@@ -100,6 +119,22 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         this.container.Error(ex);
         return Optional<Character>.Null();
+      }
+    }
+
+    /// <summary>
+    /// 武将を追加する
+    /// </summary>
+    /// <param name="character">武将</param>
+    public async Task AddAsync(Character character)
+    {
+      try
+      {
+        await this.container.Context.Characters.AddAsync(character);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
       }
     }
 
@@ -221,6 +256,40 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         return await this.container.Context.CharacterIcons.FindAsync(iconId);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 武将のアイコンを追加する
+    /// </summary>
+    /// <param name="icon">アイコン</param>
+    public async Task AddCharacterIconAsync(CharacterIcon icon)
+    {
+      try
+      {
+        await this.container.Context.CharacterIcons.AddAsync(icon);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// デフォルトのアイコンデータを取得する
+    /// </summary>
+    /// <param name="defaultIconId">アイコンID</param>
+    /// <returns>アイコン</returns>
+    public async Task<Optional<DefaultIconData>> GetDefaultIconByIdAsync(uint defaultIconId)
+    {
+      try
+      {
+        return await this.container.Context.DefaultIconData.FindAsync(defaultIconId).ToOptionalAsync();
       }
       catch (Exception ex)
       {

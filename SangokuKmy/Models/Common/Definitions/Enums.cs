@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualBasic.CompilerServices;
+using Newtonsoft.Json;
 
 namespace SangokuKmy.Models.Common.Definitions
 {
@@ -179,6 +180,60 @@ namespace SangokuKmy.Models.Common.Definitions
     /// ツリー階層のアイテムが見つからないエラー
     /// </summary>
     public static ErrorCode NodeNotFoundError { get; } = new ErrorCode(404, 31);
+
+    /// <summary>
+    /// 数値の範囲エラー
+    /// </summary>
+    public static ErrorCode NumberRangeError { get; } = new ErrorCode(400, 32);
+
+    /// <summary>
+    /// 文字列の長さエラー
+    /// </summary>
+    public static ErrorCode StringLengthError { get; } = new ErrorCode(400, 33);
+
+    /// <summary>
+    /// そこでは建国できないエラー
+    /// </summary>
+    public static ErrorCode CantPublisAtSuchTownhError { get; } = new ErrorCode(403, 34);
+
+    /// <summary>
+    /// そこでは仕官できないエラー
+    /// </summary>
+    public static ErrorCode CantJoinAtSuchTownhError { get; } = new ErrorCode(403, 35);
+
+    /// <summary>
+    /// その国には仕官できないエラー
+    /// </summary>
+    public static ErrorCode CantJoinAtSuchCountryhError { get; } = new ErrorCode(403, 36);
+
+    /// <summary>
+    /// すでに同じ情報が存在するエラー
+    /// </summary>
+    public static ErrorCode DuplicateCharacterNameOrAliasIdError { get; } = new ErrorCode(403, 37);
+
+    /// <summary>
+    /// すでに同じ情報が存在するエラー
+    /// </summary>
+    public static ErrorCode DuplicateCountryNameOrColorError { get; } = new ErrorCode(403, 38);
+
+    public class RangeErrorParameter
+    {
+      [JsonProperty("name")]
+      public string Name { get; }
+      [JsonProperty("current")]
+      public int CurrentLength { get; }
+      [JsonProperty("max")]
+      public int MaxLength { get; }
+      [JsonProperty("min")]
+      public int Minlength { get; }
+      public RangeErrorParameter(string name, int current, int min, int max)
+      {
+        this.Name = name;
+        this.CurrentLength = current;
+        this.MaxLength = max;
+        this.Minlength = min;
+      }
+    }
 
     /// <summary>
     /// エラーコード

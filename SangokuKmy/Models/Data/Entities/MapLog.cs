@@ -163,5 +163,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// リセット
     /// </summary>
     Reset = 14,
+
+    /// <summary>
+    /// 仕官（新規）
+    /// </summary>
+    CharacterEntry = 15,
+
+    /// <summary>
+    /// 建国
+    /// </summary>
+    Publish = 16,
   }
 }

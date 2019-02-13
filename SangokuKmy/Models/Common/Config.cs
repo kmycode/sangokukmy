@@ -34,5 +34,12 @@ namespace SangokuKmy.Models.Common
     /// 建国後の戦闘禁止期間
     /// </summary>
     public static int CountryBattleStopDuring { get; } = 144 * 2;
+
+    /// <summary>
+    /// 仕官制限中の最大仕官数
+    /// </summary>
+    public static int CountryJoinMaxOnLimited { get; } = 6;
+
+    public static int CountryColorMax { get; } = 8;
   }
 }

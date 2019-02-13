@@ -10,28 +10,27 @@ using Newtonsoft.Json;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Data.Entities.Caches;
 using System.Text;
+using Nito.AsyncEx;
 
 namespace SangokuKmy.Streamings
 {
   public abstract class StreamingBase<EXTRA>
   {
     private readonly List<StreamingData<EXTRA>> streams = new List<StreamingData<EXTRA>>();
-    protected readonly ReaderWriterLock locker = new ReaderWriterLock();
+    private readonly AsyncReaderWriterLock locker = new AsyncReaderWriterLock();
 
     protected void Add(StreamingData<EXTRA> data)
     {
       try
       {
-        locker.AcquireWriterLock(30_000);
-        this.streams.Add(data);
+        using (locker.WriterLock())
+        {
+          this.streams.Add(data);
+        }
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
-      }
-      finally
-      {
-        locker.ReleaseWriterLock();
       }
     }
 
@@ -39,19 +38,17 @@ namespace SangokuKmy.Streamings
     {
       try
       {
-        locker.AcquireWriterLock(30_000);
-        foreach (var d in data)
+        using (locker.WriterLock())
         {
-          this.streams.Add(d);
+          foreach (var d in data)
+          {
+            this.streams.Add(d);
+          }
         }
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
-      }
-      finally
-      {
-        locker.ReleaseWriterLock();
       }
     }
 
@@ -61,16 +58,14 @@ namespace SangokuKmy.Streamings
 
       try
       {
-        locker.AcquireReaderLock(30_000);
-        result = this.streams.Where(subject).ToArray();
+        using (locker.ReaderLock())
+        {
+          result = this.streams.Where(subject).ToArray();
+        }
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
-      }
-      finally
-      {
-        locker.ReleaseReaderLock();
       }
 
       return result;
@@ -80,21 +75,19 @@ namespace SangokuKmy.Streamings
     {
       try
       {
-        locker.AcquireWriterLock(30_000);
-        var targets = this.streams.Where(s => subject(s)).ToArray();
-        foreach (var t in targets)
+        using (locker.WriterLock())
         {
-          this.streams.Remove(t);
-          t.OnRemoved();
+          var targets = this.streams.Where(s => subject(s)).ToArray();
+          foreach (var t in targets)
+          {
+            this.streams.Remove(t);
+            t.OnRemoved();
+          }
         }
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
-      }
-      finally
-      {
-        locker.ReleaseWriterLock();
       }
     }
 
@@ -102,17 +95,15 @@ namespace SangokuKmy.Streamings
     {
       try
       {
-        locker.AcquireWriterLock(30_000);
-        this.streams.Remove(data);
-        data.OnRemoved();
+        using (locker.WriterLock())
+        {
+          this.streams.Remove(data);
+          data.OnRemoved();
+        }
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
-      }
-      finally
-      {
-        locker.ReleaseWriterLock();
       }
     }
 
@@ -120,20 +111,18 @@ namespace SangokuKmy.Streamings
     {
       try
       {
-        locker.AcquireWriterLock(30_000);
-        foreach (var d in data)
+        using (locker.WriterLock())
         {
-          this.streams.Remove(d);
-          d.OnRemoved();
+          foreach (var d in data)
+          {
+            this.streams.Remove(d);
+            d.OnRemoved();
+          }
         }
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
-      }
-      finally
-      {
-        locker.ReleaseWriterLock();
       }
     }
 
@@ -144,20 +133,18 @@ namespace SangokuKmy.Streamings
       {
         try
         {
-          locker.AcquireWriterLock(30_000);
-          foreach (var target in targets)
+          using (locker.WriterLock())
           {
-            this.streams.Remove(target);
-            target.OnRemoved();
+            foreach (var target in targets)
+            {
+              this.streams.Remove(target);
+              target.OnRemoved();
+            }
           }
         }
         catch (ApplicationException ex)
         {
           ErrorCode.LockFailedError.Throw(ex);
-        }
-        finally
-        {
-          locker.ReleaseWriterLock();
         }
       }
     }
@@ -172,52 +159,52 @@ namespace SangokuKmy.Streamings
       this.CleanAbortedResponses();
       try
       {
-        locker.AcquireReaderLock(30_000);
-        var errored = new List<StreamingData<EXTRA>>();
-        var values = new StringBuilder();
-        values.AppendJoin("\n", data.Select(d => JsonConvert.SerializeObject(d)));
-        values.Append("\n");
+        using (locker.ReaderLock())
+        {
+          var errored = new List<StreamingData<EXTRA>>();
+          var values = new StringBuilder();
+          values.AppendJoin("\n", data.Select(d => JsonConvert.SerializeObject(d)));
+          values.Append("\n");
 
-        var targets = this.streams.Where(dd => subject(dd)).ToArray();
-        async Task sendFunc(StreamingData<EXTRA> d)
-        {
-          try
+          var targets = this.streams.Where(dd => subject(dd)).ToArray();
+          async Task sendFunc(StreamingData<EXTRA> d)
           {
-            await d.Response.WriteAsync(values.ToString());
+            try
+            {
+              await d.Response.WriteAsync(values.ToString());
+            }
+            catch
+            {
+              errored.Add(d);
+            }
           }
-          catch
+          if (targets.Count() > 3)
           {
-            errored.Add(d);
+            await Task.WhenAll(targets.Select(d => Task.Run(async () => await sendFunc(d))).ToArray());
           }
-        }
-        if (targets.Count() > 3)
-        {
-          await Task.WhenAll(targets.Select(d => Task.Run(async () => await sendFunc(d))).ToArray());
-        }
-        else
-        {
-          foreach (var d in targets)
+          else
           {
-            await sendFunc(d);
+            foreach (var d in targets)
+            {
+              await sendFunc(d);
+            }
           }
-        }
 
-        if (errored.Any())
-        {
-          locker.UpgradeToWriterLock(30_000);
-          foreach (var d in errored)
+          if (errored.Any())
           {
-            this.streams.Remove(d);
+            using (locker.UpgradeableReaderLock())
+            {
+              foreach (var d in errored)
+              {
+                this.streams.Remove(d);
+              }
+            }
           }
         }
       }
       catch (ApplicationException ex)
       {
         ErrorCode.LockFailedError.Throw(ex);
-      }
-      finally
-      {
-        locker.ReleaseLock();
       }
     }
   }
