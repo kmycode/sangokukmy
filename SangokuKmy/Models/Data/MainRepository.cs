@@ -58,6 +58,12 @@ namespace SangokuKmy.Models.Data
     private CharacterRepository _chara;
 
     /// <summary>
+    /// 武将登録時のホスト
+    /// </summary>
+    public EntryHostRepository EntryHost => this._entryHost = this._entryHost ?? new EntryHostRepository(this.container);
+    private EntryHostRepository _entryHost;
+
+    /// <summary>
     /// 武将コマンド
     /// </summary>
     public CharacterCommandRepository CharacterCommand => this._charaCommand = this._charaCommand ?? new CharacterCommandRepository(this.container);

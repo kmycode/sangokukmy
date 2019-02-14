@@ -17,16 +17,22 @@ namespace SangokuKmy.Models.Services
     public static int GetAttributeMax(GameDateTime current) => 100 + (Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) / 16;
     public static int GetAttributeSumMax(GameDateTime current) => 200 + (Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) / 4;
 
-    public static async Task EntryAsync(MainRepository repo, Character newChara, CharacterIcon newIcon, string password, Country newCountry)
+    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry)
     {
       var town = await repo.Town.GetByIdAsync(newChara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
 
       var system = await repo.System.GetAsync();
-      CheckEntryStatus(system.GameDateTime, newChara, password, newIcon, town, newCountry);
+      CheckEntryStatus(system.GameDateTime, ipAddress, newChara, password, newIcon, town, newCountry);
 
       // 既存との重複チェック
-      if (await repo.Character.IsAlreadyExistsAsync(newChara.Name, newChara.AliasId)) {
+      if (await repo.Character.IsAlreadyExistsAsync(newChara.Name, newChara.AliasId))
+      {
         ErrorCode.DuplicateCharacterNameOrAliasIdError.Throw();
+      }
+      if ((system.IsDebug && (await repo.System.GetDebugDataAsync()).IsCheckDuplicateEntry || !system.IsDebug)
+        && await repo.EntryHost.ExistsAsync(ipAddress))
+      {
+        ErrorCode.DuplicateEntryError.Throw();
       }
 
       var updateCountriesRequested = false;
@@ -147,6 +153,13 @@ namespace SangokuKmy.Models.Services
       };
       await repo.Character.AddCharacterIconAsync(icon);
 
+      var host = new EntryHost
+      {
+        CharacterId = chara.Id,
+        IpAddress = ipAddress,
+      };
+      await repo.EntryHost.AddAsync(host);
+
       await repo.SaveChangesAsync();
 
       if (updateCountriesRequested)
@@ -164,8 +177,13 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(maplogData);
     }
 
-    private static void CheckEntryStatus(GameDateTime current, Character chara, string password, CharacterIcon icon, Town town, Country country)
+    private static void CheckEntryStatus(GameDateTime current, string ipAddress, Character chara, string password, CharacterIcon icon, Town town, Country country)
     {
+      if (string.IsNullOrEmpty(ipAddress))
+      {
+        ErrorCode.InvalidIpAddressError.Throw();
+      }
+
       if (string.IsNullOrEmpty(password))
       {
         ErrorCode.LackOfParameterError.Throw();

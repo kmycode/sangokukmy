@@ -13,7 +13,6 @@ using SangokuKmy.Models.Data.Entities;
 
 namespace SangokuKmy.Controllers
 {
-#if DEBUG
   [Route("api/v1/debug")]
   [DebugModeOnlyFilter]
   public class DebugController : Controller
@@ -57,5 +56,4 @@ namespace SangokuKmy.Controllers
       }
     }
   }
-#endif
 }

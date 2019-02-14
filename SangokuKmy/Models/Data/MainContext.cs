@@ -66,6 +66,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<CharacterUpdateLog> CharacterUpdateLogs { get; set; }
 
     /// <summary>
+    /// 登録時のホスト
+    /// </summary>
+    public DbSet<EntryHost> EntryHosts { get; set; }
+
+    /// <summary>
     /// 国データ
     /// </summary>
     public DbSet<Country> Countries { get; set; }

@@ -216,6 +216,16 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode DuplicateCountryNameOrColorError { get; } = new ErrorCode(403, 38);
 
+    /// <summary>
+    /// IPアドレスが正常に取得できないエラー
+    /// </summary>
+    public static ErrorCode InvalidIpAddressError { get; } = new ErrorCode(400, 39);
+
+    /// <summary>
+    /// 重複登録と認定されたエラー
+    /// </summary>
+    public static ErrorCode DuplicateEntryError { get; } = new ErrorCode(403, 40);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

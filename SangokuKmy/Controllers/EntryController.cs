@@ -18,15 +18,16 @@ namespace SangokuKmy.Controllers
 {
   [Route("api/v1")]
   [SangokuKmyErrorFilter]
-  public class EntryController
+  public class EntryController : Controller
   {
     [HttpPost("entry")]
     public async Task<ApiData<AuthenticationData>> Entry(
       [FromBody] EntryData param)
     {
+      var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
       using (var repo = MainRepository.WithReadAndWrite())
       {
-        await EntryService.EntryAsync(repo, param.Character, param.Icon, param.Password, param.Country);
+        await EntryService.EntryAsync(repo, ip, param.Character, param.Icon, param.Password, param.Country);
         await repo.SaveChangesAsync();
 
         var authData = await AuthenticationService.WithIdAndPasswordAsync(repo, param.Character.AliasId, param.Password);
