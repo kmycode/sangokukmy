@@ -151,6 +151,11 @@ namespace SangokuKmy.Models.Data.Entities
     Battle = 13,
 
     /// <summary>
+    /// 集合
+    /// </summary>
+    Gather = 14,
+
+    /// <summary>
     /// 移動
     /// </summary>
     Move = 17,

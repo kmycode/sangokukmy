@@ -21,6 +21,7 @@ namespace SangokuKmy.Models.Commands
       new SoldierCommand(),
       new DefendCommand(),
       new BattleCommand(),
+      new GatherCommand(),
       new MoveCommand(),
       new TrainingCommand(),
     };
