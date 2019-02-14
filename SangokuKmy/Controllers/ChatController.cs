@@ -86,6 +86,56 @@ namespace SangokuKmy.Controllers
       await StatusStreaming.Default.SendAllAsync(ApiData.From(message));
     }
 
+    [AuthenticationFilter]
+    [HttpPost("chat/character/{id}")]
+    public async Task PostCharacterChatMessageAsync(
+      [FromRoute] uint id,
+      [FromBody] ChatMessage param)
+    {
+      ChatMessage message;
+      Character chara;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var to = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+
+        message = await this.PostChatMessageAsync(repo, param, chara, ChatMessageType.Private, chara.Id, id);
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(message), new uint[] { chara.Id, id, });
+    }
+
+    [AuthenticationFilter]
+    [HttpPost("chat/country/{id}")]
+    public async Task PostOtherCountryChatMessageAsync(
+      [FromRoute] uint id,
+      [FromBody] ChatMessage param)
+    {
+      ChatMessage message;
+      Character chara;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var to = await repo.Country.GetAliveByIdAsync(id).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(id).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+
+        var posts = (await repo.Country.GetPostsAsync(chara.CountryId)).Where(p => p.CharacterId == chara.Id);
+        if (!posts.Any(p => p.Type == CountryPostType.Monarch || p.Type == CountryPostType.Warrior))
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        message = await this.PostChatMessageAsync(repo, param, chara, ChatMessageType.OtherCountry, chara.CountryId, id);
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(message), chara.CountryId);
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(message), id);
+    }
+
     public struct GetChatMessageParameter
     {
       [JsonProperty("sinceId")]

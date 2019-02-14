@@ -28,7 +28,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <returns>国宛の一覧</returns>
     public async Task<IReadOnlyCollection<ChatMessage>> GetCountryMessagesAsync(uint countryId, uint sinceId, int count)
     {
-      return await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.SelfCountry && mes.TypeData == countryId, sinceId, count);
+      return await this.GetMessagesAsync(mes => (mes.Type == ChatMessageType.SelfCountry && mes.TypeData == countryId) || (mes.Type == ChatMessageType.OtherCountry && (mes.TypeData == countryId || mes.TypeData2 == countryId)), sinceId, count);
     }
 
     /// <summary>
@@ -40,6 +40,17 @@ namespace SangokuKmy.Models.Data.Repositories
     public async Task<IReadOnlyCollection<ChatMessage>> GetGlobalMessagesAsync(uint sinceId, int count)
     {
       return await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.Global, sinceId, count);
+    }
+
+    /// <summary>
+    /// 個人宛を取得する
+    /// </summary>
+    /// <param name="sinceId">最初のID</param>
+    /// <param name="count">取得数</param>
+    /// <returns>個人宛の一覧</returns>
+    public async Task<IReadOnlyCollection<ChatMessage>> GetPrivateMessagesAsync(uint characterId, uint sinceId, int count)
+    {
+      return await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.Private && (mes.TypeData == characterId || mes.TypeData2 == characterId), sinceId, count);
     }
 
     /// <summary>
