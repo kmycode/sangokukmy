@@ -173,5 +173,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 建国
     /// </summary>
     Publish = 16,
+
+    /// <summary>
+    /// 仕官（無所属から）
+    /// </summary>
+    CharacterJoin = 17,
+
+    /// <summary>
+    /// 放置削除
+    /// </summary>
+    CharacterRemoved = 18,
   }
 }
