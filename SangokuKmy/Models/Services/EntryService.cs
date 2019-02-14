@@ -51,7 +51,7 @@ namespace SangokuKmy.Models.Services
         PopularityEx = 0,
         Contribution = 0,
         Class = 0,
-        DeleteTurn = 0,
+        DeleteTurn = (short)(Config.DeleteTurns - 10),
         LastUpdated = DateTime.Now,
         LastUpdatedGameDate = system.GameDateTime,
         Message = newChara.Message,
