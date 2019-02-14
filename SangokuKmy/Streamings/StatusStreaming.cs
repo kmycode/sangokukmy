@@ -43,6 +43,11 @@ namespace SangokuKmy.Streamings
       this.Add(data);
     }
 
+    public void Disconnect(Character chara)
+    {
+      this.Remove(s => s.ExtraData.Id == chara.Id);
+    }
+
     /// <summary>
     /// ストリーミングの条件分岐で使う武将のキャッシュを更新する
     /// </summary>

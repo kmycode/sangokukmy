@@ -159,7 +159,7 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         return (await this.container.Context.Characters
-          .Where(c => c.CountryId == countryId)
+          .Where(c => c.CountryId == countryId && !c.HasRemoved)
           .GroupJoin(this.container.Context.CharacterIcons,
             c => c.Id,
             i => i.CharacterId,

@@ -176,6 +176,25 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 武将データだけを削除する
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    public void RemoveCharacter(uint characterId)
+    {
+      try
+      {
+        this.container.Context.ScoutedCharacters
+          .RemoveRange(this.container.Context.ScoutedCharacters.Where(c => c.CharacterId == characterId));
+        this.container.Context.ScoutedDefenders
+          .RemoveRange(this.container.Context.ScoutedDefenders.Where(d => d.CharacterId == characterId));
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
     /// 内容をすべてリセットする
     /// </summary>
     public async Task ResetAsync()

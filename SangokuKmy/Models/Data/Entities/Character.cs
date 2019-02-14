@@ -225,6 +225,13 @@ namespace SangokuKmy.Models.Data.Entities
       set => this.IntLastUpdatedGameDate = value.ToInt();
     }
 
+    /// <summary>
+    /// 削除されたか
+    /// </summary>
+    [Column("has_removed")]
+    [JsonProperty("hasRemoved")]
+    public bool HasRemoved { get; set; }
+
     #endregion
 
     public void AddStrongEx(short ex)

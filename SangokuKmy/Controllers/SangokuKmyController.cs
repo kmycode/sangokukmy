@@ -647,7 +647,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.UnitNotFoundError.Throw();
         }
 
-        repo.Unit.RemoveMember(this.AuthData.CharacterId);
+        UnitService.Leave(repo, this.AuthData.CharacterId);
         await repo.SaveChangesAsync();
       }
     }
@@ -714,15 +714,9 @@ namespace SangokuKmy.Controllers
           ErrorCode.UnitNotFoundError.Throw();
         }
 
-        members = await repo.Unit.GetMembersAsync(id);
-        repo.Unit.RemoveUnit(id);
+        await UnitService.RemoveAsync(repo, id);
         await repo.SaveChangesAsync();
       }
-
-      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
-      {
-        Type = SignalType.UnitRemoved,
-      }), members.Select(um => um.CharacterId));
     }
 
     [HttpGet("battle/{id}")]

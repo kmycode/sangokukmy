@@ -56,7 +56,7 @@ namespace SangokuKmy.Models.Services
 
       var chara = (await repo.Character.GetByAliasIdAsync(aliasId))
         .GetOrError(ErrorCode.LoginCharacterNotFoundError);
-      if (!chara.TryLogin(password))
+      if (chara.HasRemoved || !chara.TryLogin(password))
       {
         ErrorCode.LoginParameterIncorrectError.Throw();
       }

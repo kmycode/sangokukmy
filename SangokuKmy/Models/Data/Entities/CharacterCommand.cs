@@ -164,5 +164,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 能力強化
     /// </summary>
     Training = 18,
+
+    /// <summary>
+    /// 仕官
+    /// </summary>
+    Join = 23,
   }
 }

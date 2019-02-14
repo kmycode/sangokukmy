@@ -24,11 +24,13 @@ namespace SangokuKmy.Models.Data.Repositories
     /// すべての武将を取得する
     /// </summary>
     /// <returns>武将</returns>
-    public async Task<IReadOnlyList<Character>> GetAllAsync()
+    public async Task<IReadOnlyList<Character>> GetAllAliveAsync()
     {
       try
       {
-        return await this.container.Context.Characters.ToArrayAsync();
+        return await this.container.Context.Characters
+          .Where(c => !c.HasRemoved)
+          .ToArrayAsync();
       }
       catch (Exception ex)
       {
@@ -42,7 +44,10 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     public async Task<IReadOnlyList<CharacterCache>> GetAllCachesAsync()
     {
-      return await this.container.Context.Characters.Select(c => c.ToCache()).ToArrayAsync();
+      return await this.container.Context.Characters
+        .Where(c => !c.HasRemoved)
+        .Select(c => c.ToCache())
+        .ToArrayAsync();
     }
 
     /// <summary>
@@ -80,6 +85,26 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         this.container.Error(ex);
         return Optional<Character>.Null();
+      }
+    }
+
+    /// <summary>
+    /// IDから武将を取得する
+    /// </summary>
+    /// <returns>武将</returns>
+    /// <param name="ids">ID</param>
+    public async Task<IReadOnlyList<Character>> GetByIdAsync(IEnumerable<uint> ids)
+    {
+      try
+      {
+        return await this.container.Context.Characters
+          .Where(c => ids.Contains(c.Id))
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
       }
     }
 
@@ -131,6 +156,22 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         await this.container.Context.Characters.AddAsync(character);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 武将を削除する
+    /// </summary>
+    /// <param name="character">武将</param>
+    public void Remove(Character character)
+    {
+      try
+      {
+        this.container.Context.Characters.Remove(character);
       }
       catch (Exception ex)
       {
