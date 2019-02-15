@@ -40,6 +40,27 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// すべての武将を取得する
+    /// </summary>
+    /// <returns>武将</returns>
+    public async Task<IReadOnlyList<(Character Character, CharacterIcon Icon)>> GetAllAliveWithIconAsync()
+    {
+      try
+      {
+        var charaData = await this.container.Context.Characters
+          .Where(c => !c.HasRemoved)
+          .GroupJoin(this.container.Context.CharacterIcons, c => c.Id, i => i.CharacterId, (c, ics) => new { Character = c, Icons = ics, })
+          .ToArrayAsync();
+        return charaData.Select(d => (d.Character, d.Icons.GetMainOrFirst().Data)).ToArray();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 武将のキャッシュを取得する
     /// </summary>
     public async Task<IReadOnlyList<CharacterCache>> GetAllCachesAsync()

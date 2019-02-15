@@ -42,6 +42,12 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("soldierType")]
     public int? SoldierType { get; set; }
 
+    [JsonProperty("deleteTurn")]
+    public int DeleteTurn { get; set; }
+
+    [JsonProperty("classValue")]
+    public int Class { get; set; }
+
     public CharacterForAnonymous(Character character, CharacterIcon mainIcon, CharacterShareLevel level)
     {
       this.Id = character.Id;
@@ -56,6 +62,11 @@ namespace SangokuKmy.Models.Data.ApiEntities
       {
         this.SoldierNumber = character.SoldierNumber;
         this.SoldierType = character.ApiSoldierType;
+      }
+      if (level == CharacterShareLevel.AllCharacterList)
+      {
+        this.DeleteTurn = character.DeleteTurn;
+        this.Class = character.Class;
       }
     }
   }
@@ -74,5 +85,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 同じ都市に滞在する武将の範囲内
     /// </summary>
     SameTown,
+
+    /// <summary>
+    /// 登録武将一覧または名将一覧
+    /// </summary>
+    AllCharacterList,
   }
 }
