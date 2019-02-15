@@ -24,6 +24,11 @@ namespace SangokuKmy.Models.Services
       var system = await repo.System.GetAsync();
       CheckEntryStatus(system.GameDateTime, ipAddress, newChara, password, newIcon, town, newCountry);
 
+      // 文字数チェックしてからエスケープ
+      newChara.Name = HtmlUtil.Escape(newChara.Name);
+      newCountry.Name = HtmlUtil.Escape(newCountry.Name);
+      newChara.Message = HtmlUtil.Escape(newChara.Message);
+
       // 既存との重複チェック
       if (await repo.Character.IsAlreadyExistsAsync(newChara.Name, newChara.AliasId))
       {

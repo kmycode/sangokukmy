@@ -26,13 +26,14 @@ namespace SangokuKmy.Controllers
     [AuthenticationFilter]
     [HttpGet("chat/country")]
     public async Task<ApiArrayData<ChatMessage>> GetCountryChatMessagesAsync(
-      [FromBody] GetChatMessageParameter param)
+      [FromQuery] uint sinceId = default,
+      [FromQuery] int count = default)
     {
       IEnumerable<ChatMessage> messages;
       using (var repo = MainRepository.WithRead())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        messages = await repo.ChatMessage.GetCountryMessagesAsync(chara.CountryId, param.SinceId, param.Count);
+        messages = await repo.ChatMessage.GetCountryMessagesAsync(chara.CountryId, sinceId, count);
       }
       return ApiData.From(messages);
     }
@@ -58,12 +59,13 @@ namespace SangokuKmy.Controllers
     [AuthenticationFilter]
     [HttpGet("chat/global")]
     public async Task<ApiArrayData<ChatMessage>> GetGlobalChatMessagesAsync(
-      [FromBody] GetChatMessageParameter param)
+      [FromQuery] uint sinceId = default,
+      [FromQuery] int count = default)
     {
       IEnumerable<ChatMessage> messages;
       using (var repo = MainRepository.WithRead())
       {
-        messages = await repo.ChatMessage.GetGlobalMessagesAsync(param.SinceId, param.Count);
+        messages = await repo.ChatMessage.GetGlobalMessagesAsync(sinceId, count);
       }
       return ApiData.From(messages);
     }
@@ -136,14 +138,6 @@ namespace SangokuKmy.Controllers
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(message), id);
     }
 
-    public struct GetChatMessageParameter
-    {
-      [JsonProperty("sinceId")]
-      public uint SinceId { get; set; }
-      [JsonProperty("count")]
-      public int Count { get; set; }
-    }
-
     private async Task<ChatMessage> PostChatMessageAsync(MainRepository repo, ChatMessage param, Character chara, ChatMessageType type, uint typeData = default, uint typeData2 = default)
     {
       ChatMessage message;
@@ -174,6 +168,17 @@ namespace SangokuKmy.Controllers
         }
         message.CharacterIconId = icon.Id;
         message.CharacterIcon = icon;
+      }
+
+      if (message.Type == ChatMessageType.Private)
+      {
+        var receiver = await repo.Character.GetByIdAsync(message.TypeData2).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        message.ReceiverName = receiver.Name;
+      }
+      else if (message.Type == ChatMessageType.OtherCountry)
+      {
+        var receiver = await repo.Country.GetByIdAsync(message.TypeData2).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        message.ReceiverName = receiver.Name;
       }
 
       await repo.ChatMessage.AddMessageAsync(message);

@@ -50,6 +50,13 @@ namespace SangokuKmy.Models.Data.Entities
     public uint CharacterCountryId { get; set; }
 
     /// <summary>
+    /// 受信者の情報
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("receiverName")]
+    public string ReceiverName { get; set; }
+
+    /// <summary>
     /// 発言の種類
     /// </summary>
     [Column("type")]

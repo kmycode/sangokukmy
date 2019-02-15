@@ -62,6 +62,15 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <returns>手紙の一覧</returns>
     private async Task<IReadOnlyCollection<ChatMessage>> GetMessagesAsync(Expression<Func<ChatMessage, bool>> subject, uint sinceId, int count)
     {
+      if (sinceId == default)
+      {
+        sinceId = uint.MaxValue;
+      }
+      if (count == default)
+      {
+        count = 50;
+      }
+
       try
       {
         var data = await this.container.Context.ChatMessages
@@ -83,6 +92,20 @@ namespace SangokuKmy.Models.Data.Repositories
           d.Message.CharacterIcon = d.Icon;
           d.Message.Character = d.Character;
         }
+
+        // 受信者情報を付加。受信者名以外は参照渡しなので、後で処理結果にマージする必要はない
+        var data2 = data
+          .Where(d => d.Message.Type == ChatMessageType.Private)
+          .Join(this.container.Context.Characters, d => d.Message.TypeData2, c => c.Id, (d, c) => new { d.Message, d.Character, d.Icon, ReceiverName = c.Name, })
+          .ToArray();
+        var data3 = data
+          .Where(d => d.Message.Type == ChatMessageType.OtherCountry)
+          .Join(this.container.Context.Countries, d => d.Message.TypeData2, c => c.Id, (d, c) => new { d.Message, d.Character, d.Icon, ReceiverName = c.Name, });
+        foreach (var d in data2.Concat(data3))
+        {
+          d.Message.ReceiverName = d.ReceiverName;
+        }
+
         return data.Select(d => d.Message).OrderBy(m => m.Id).ToArray();
       }
       catch (Exception ex)
