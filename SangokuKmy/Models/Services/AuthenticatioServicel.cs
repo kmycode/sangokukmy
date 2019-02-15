@@ -65,7 +65,7 @@ namespace SangokuKmy.Models.Services
       {
         AccessToken = GenerateAccessToken(aliasId, password),
         CharacterId = chara.Id,
-        ExpirationTime = DateTime.Now.AddDays(365),
+        ExpirationTime = DateTime.Now.AddDays(3),
         Scope = Scope.All,
       };
 
