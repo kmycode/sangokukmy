@@ -57,7 +57,8 @@ namespace SangokuKmy
       app.UseStaticFiles();
 
       // CORSを有効にする
-      app.UseCors(builder => builder.AllowAnyOrigin()
+      app.UseCors(builder => builder
+                      .WithOrigins("http://localhost:8080", "http://127.0.0.1:8080", "https://sangoku.kmycode.net")
                       .AllowAnyMethod()
                       .AllowAnyHeader()
                       .WithExposedHeaders("WWW-Authenticate"));
