@@ -30,6 +30,11 @@ namespace SangokuKmy
           options.Limits.MaxConcurrentConnections = 2048;
           options.Limits.MaxConcurrentUpgradedConnections = 2048;
         })
+        .ConfigureAppConfiguration(c =>
+        {
+          c.AddJsonFile("appsettings.json");
+          c.AddJsonFile("appsettings.Production.json");
+        })
         .UseNLog()
         .UseUrls("http://0.0.0.0:5000")
         .UseStartup<Startup>();
