@@ -3,7 +3,7 @@
 ASP.NET Core MVCとVue.jsで来年４月までに実装したける！！！！！！（フラグ）
 
 2018年中は多分そんなに進めません。2019年2～3月が主な開発時期になるかと。
-また、これはAPIサーバの開発リポジトリですが、別にクライアントアプリ（HTML+SCSS+JavaScript+Vue.js+axios+Bootstrap）のリポジトリを立ち上げる予定です。後日
+また、これはAPIサーバの開発リポジトリですが、別に[クライアントアプリ（HTML+SCSS+TypeScript+Vue.js+axios+Bootstrap）のリポジトリ](https://github.com/kmycode/sangokukmy-client)があります。あわせてご利用くださいまし。
 
 API一覧はWikiへ。
 
