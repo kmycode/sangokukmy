@@ -1,0 +1,12 @@
+version: 0.2
+ 
+phases:
+  build:
+    commands:
+      - echo Build started on `date`
+      - dotnet publish --configuration Release SangokuKmy
+artifacts:
+  files:
+    - SangokuKmy/bin/Release/netcoreapp2.1/publish/*
+    - appspec.yml
+    - cp-scripts/*

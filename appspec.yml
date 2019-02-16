@@ -1,0 +1,12 @@
+version: 0.0
+os: linux
+files:
+  - source: /SangokuKmy/bin/Release/netcoreapp2.1/publish/
+    destination: /home/sangokukmy/publish/
+hooks:
+  ApplicationStop:
+    - location: cp-scripts/stop.sh
+      timeout: 180
+  ApplicationStart:
+    - location: cp-scripts/start.sh
+      timeout: 180
