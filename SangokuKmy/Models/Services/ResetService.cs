@@ -162,7 +162,7 @@ namespace SangokuKmy.Models.Services
 
         public override int CommercialMax => rand.Next(3, 7) * 100;
 
-        public override int TechnologyMax => 901;
+        public override int TechnologyMax => 900;
 
         public override int WallMax => rand.Next(10, 17) * 100;
 
@@ -177,59 +177,59 @@ namespace SangokuKmy.Models.Services
 
       private class CommercialTownType : TownTypeDefinition
       {
-        public override int AgricultureMax => rand.Next(10, 16) * 100;
+        public override int AgricultureMax => rand.Next(3, 7) * 100;
 
-        public override int CommercialMax => rand.Next(3, 7) * 100;
+        public override int CommercialMax => rand.Next(10, 16) * 100;
 
-        public override int TechnologyMax => 901;
+        public override int TechnologyMax => 900;
 
-        public override int WallMax => rand.Next(10, 17) * 100;
+        public override int WallMax => rand.Next(1, 6) * 100;
 
-        public override int WallGuardMax => rand.Next(4, 11) * 100;
+        public override int WallGuardMax => rand.Next(8, 16) * 100;
 
         public override int PeopleMax => 50000;
 
-        public override int People => 8000;
+        public override int People => 14000;
 
-        public override int Security => 80;
+        public override int Security => 40;
       }
 
       private class FortressTownType : TownTypeDefinition
       {
-        public override int AgricultureMax => rand.Next(10, 16) * 100;
+        public override int AgricultureMax => rand.Next(2, 6) * 100;
 
-        public override int CommercialMax => rand.Next(3, 7) * 100;
+        public override int CommercialMax => rand.Next(2, 6) * 100;
 
-        public override int TechnologyMax => 901;
+        public override int TechnologyMax => 999;
 
-        public override int WallMax => rand.Next(10, 17) * 100;
+        public override int WallMax => rand.Next(21, 31) * 100;
 
-        public override int WallGuardMax => rand.Next(4, 11) * 100;
+        public override int WallGuardMax => rand.Next(18, 32) * 100;
 
-        public override int PeopleMax => 50000;
+        public override int PeopleMax => 40000;
 
-        public override int People => 8000;
+        public override int People => 4000;
 
-        public override int Security => 80;
+        public override int Security => 70;
       }
 
       private class LargeTownType : TownTypeDefinition
       {
-        public override int AgricultureMax => rand.Next(10, 16) * 100;
+        public override int AgricultureMax => rand.Next(7, 12) * 100;
 
-        public override int CommercialMax => rand.Next(3, 7) * 100;
+        public override int CommercialMax => rand.Next(9, 14) * 100;
 
-        public override int TechnologyMax => 901;
+        public override int TechnologyMax => 999;
 
-        public override int WallMax => rand.Next(10, 17) * 100;
+        public override int WallMax => rand.Next(14, 21) * 100;
 
-        public override int WallGuardMax => rand.Next(4, 11) * 100;
+        public override int WallGuardMax => rand.Next(14, 21) * 100;
 
-        public override int PeopleMax => 50000;
+        public override int PeopleMax => 60000;
 
-        public override int People => 8000;
+        public override int People => 20000;
 
-        public override int Security => 80;
+        public override int Security => 60;
       }
     }
   }
