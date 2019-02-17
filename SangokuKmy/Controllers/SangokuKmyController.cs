@@ -18,6 +18,7 @@ using SangokuKmy.Common;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Streamings;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 namespace SangokuKmy.Controllers
 {
@@ -25,7 +26,13 @@ namespace SangokuKmy.Controllers
   [SangokuKmyErrorFilter]
   public class SangokuKmyController : Controller, IAuthenticationDataReceiver
   {
+    private readonly ILogger _logger;
     public AuthenticationData AuthData { private get; set; }
+
+    public SangokuKmyController(ILogger<SangokuKmyController> logger)
+    {
+      this._logger = logger;
+    }
 
     [HttpPost("authenticate")]
     public async Task<ApiData<AuthenticationData>> AuthenticateAsync
