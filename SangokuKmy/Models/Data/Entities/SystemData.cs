@@ -120,5 +120,12 @@ namespace SangokuKmy.Models.Data.Entities
       get => ApiDateTime.FromDateTime(this.CurrentMonthStartDateTime);
       set => this.CurrentMonthStartDateTime = value.ToDateTime();
     }
+
+    /// <summary>
+    /// 新規登録時に招待コードが必要であるか
+    /// </summary>
+    [Column("invitation_code_requested_entry")]
+    [JsonProperty("invitationCodeRequestedAtEntry")]
+    public bool InvitationCodeRequestedAtEntry { get; set; }
   }
 }

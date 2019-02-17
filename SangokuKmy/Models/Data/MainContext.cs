@@ -165,6 +165,11 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public DbSet<ThreadBbsItem> ThreadBbsItems { get; set; }
 
+    /// <summary>
+    /// 招待コード
+    /// </summary>
+    public DbSet<InvitationCode> InvitationCodes { get; set; }
+
     private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
         new DebugLoggerProvider((category, level)
             => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)

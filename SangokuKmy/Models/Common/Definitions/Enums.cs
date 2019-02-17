@@ -226,6 +226,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode DuplicateEntryError { get; } = new ErrorCode(403, 40);
 
+    /// <summary>
+    /// 招待コードが必要エラー
+    /// </summary>
+    public static ErrorCode InvitationCodeRequestedError { get; } = new ErrorCode(403, 41);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

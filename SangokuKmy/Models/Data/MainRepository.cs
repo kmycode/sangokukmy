@@ -124,6 +124,12 @@ namespace SangokuKmy.Models.Data
     private ThreadBbsRepository _threadBbs;
 
     /// <summary>
+    /// 招待コード
+    /// </summary>
+    public InvitationCodeRepository InvitationCode => this._invitationCode = this._invitationCode ?? new InvitationCodeRepository(this.container);
+    private InvitationCodeRepository _invitationCode;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>

@@ -17,7 +17,7 @@ namespace SangokuKmy.Models.Services
     public static int GetAttributeMax(GameDateTime current) => 100 + (Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) / 16;
     public static int GetAttributeSumMax(GameDateTime current) => 200 + (Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) / 4;
 
-    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry)
+    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode)
     {
       var town = await repo.Town.GetByIdAsync(newChara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
 
@@ -38,6 +38,17 @@ namespace SangokuKmy.Models.Services
         && await repo.EntryHost.ExistsAsync(ipAddress))
       {
         ErrorCode.DuplicateEntryError.Throw();
+      }
+
+      // 招待コードチェック
+      Optional<InvitationCode> invitationCodeOptional = default;
+      if (system.InvitationCodeRequestedAtEntry)
+      {
+        invitationCodeOptional = await repo.InvitationCode.GetByCodeAsync(invitationCode);
+        if (!invitationCodeOptional.HasData || invitationCodeOptional.Data.HasUsed || invitationCodeOptional.Data.Aim != InvitationCodeAim.Entry)
+        {
+          ErrorCode.InvitationCodeRequestedError.Throw();
+        }
       }
 
       var updateCountriesRequested = false;
@@ -147,6 +158,14 @@ namespace SangokuKmy.Models.Services
       }
 
       await repo.SaveChangesAsync();
+
+      if (invitationCodeOptional.HasData)
+      {
+        var code = invitationCodeOptional.Data;
+        code.HasUsed = true;
+        code.Used = DateTime.Now;
+        code.CharacterId = chara.Id;
+      }
 
       var icon = new CharacterIcon
       {
