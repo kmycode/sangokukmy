@@ -260,3 +260,4 @@ paket-files/
 __pycache__/
 *.pyc
 SangokuKmy/memo.txt
+SangokuKmy/wwwroot/images/character-default-icons/*.gif

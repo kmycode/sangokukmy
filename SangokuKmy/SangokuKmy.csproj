@@ -6,12 +6,261 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20181026034127_Initial.cs" />
+    <Compile Remove="Migrations\20181026034127_Initial.Designer.cs" />
+    <Compile Remove="Migrations\20181026034359_Initial.cs" />
+    <Compile Remove="Migrations\20181026034359_Initial.Designer.cs" />
+    <Compile Remove="Controllers\ValuesController.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
+    <Folder Include="wwwroot\images\" />
+    <Folder Include="wwwroot\images\character-default-icons\" />
+    <Folder Include="Common\" />
+    <Folder Include="Streamings\" />
+    <Folder Include="Models\Data\Entities\Caches\" />
+    <Folder Include="Models\Updates\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.1.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.1.2" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="4.7.0" />
+    <PackageReference Include="Nito.AsyncEx" Version="4.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="appsettings.Development.json" />
+    <Content Remove="appsettings.json" />
+    <Content Remove="wwwroot\images\character-default-icons\0.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\1.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\2.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\3.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\4.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\5.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\6.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\7.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\8.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\9.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\10.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\11.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\12.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\13.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\14.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\15.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\16.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\17.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\18.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\19.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\20.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\21.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\22.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\23.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\24.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\25.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\26.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\27.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\28.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\29.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\30.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\31.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\32.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\33.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\34.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\35.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\36.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\37.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\38.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\39.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\40.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\41.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\42.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\43.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\44.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\45.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\46.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\47.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\48.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\49.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\50.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\51.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\52.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\53.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\54.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\55.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\56.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\57.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\58.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\59.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\60.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\61.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\62.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\63.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\64.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\65.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\66.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\67.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\68.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\69.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\70.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\71.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\72.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\73.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\74.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\75.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\76.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\77.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\78.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\79.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\80.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\81.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\82.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\83.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\84.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\85.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\86.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\87.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\88.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\89.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\90.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\91.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\92.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\93.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\94.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\95.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\96.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\97.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\98.gif" />
+    <Content Remove="wwwroot\images\character-default-icons\wiz.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="appsettings.Development.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="appsettings.Development.json">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="appsettings.json">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="wwwroot\images\character-default-icons\0.gif" />
+    <None Include="wwwroot\images\character-default-icons\1.gif" />
+    <None Include="wwwroot\images\character-default-icons\2.gif" />
+    <None Include="wwwroot\images\character-default-icons\3.gif" />
+    <None Include="wwwroot\images\character-default-icons\4.gif" />
+    <None Include="wwwroot\images\character-default-icons\5.gif" />
+    <None Include="wwwroot\images\character-default-icons\6.gif" />
+    <None Include="wwwroot\images\character-default-icons\7.gif" />
+    <None Include="wwwroot\images\character-default-icons\8.gif" />
+    <None Include="wwwroot\images\character-default-icons\9.gif" />
+    <None Include="wwwroot\images\character-default-icons\10.gif" />
+    <None Include="wwwroot\images\character-default-icons\11.gif" />
+    <None Include="wwwroot\images\character-default-icons\12.gif" />
+    <None Include="wwwroot\images\character-default-icons\13.gif" />
+    <None Include="wwwroot\images\character-default-icons\14.gif" />
+    <None Include="wwwroot\images\character-default-icons\15.gif" />
+    <None Include="wwwroot\images\character-default-icons\16.gif" />
+    <None Include="wwwroot\images\character-default-icons\17.gif" />
+    <None Include="wwwroot\images\character-default-icons\18.gif" />
+    <None Include="wwwroot\images\character-default-icons\19.gif" />
+    <None Include="wwwroot\images\character-default-icons\20.gif" />
+    <None Include="wwwroot\images\character-default-icons\21.gif" />
+    <None Include="wwwroot\images\character-default-icons\22.gif" />
+    <None Include="wwwroot\images\character-default-icons\23.gif" />
+    <None Include="wwwroot\images\character-default-icons\24.gif" />
+    <None Include="wwwroot\images\character-default-icons\25.gif" />
+    <None Include="wwwroot\images\character-default-icons\26.gif" />
+    <None Include="wwwroot\images\character-default-icons\27.gif" />
+    <None Include="wwwroot\images\character-default-icons\28.gif" />
+    <None Include="wwwroot\images\character-default-icons\29.gif" />
+    <None Include="wwwroot\images\character-default-icons\30.gif" />
+    <None Include="wwwroot\images\character-default-icons\31.gif" />
+    <None Include="wwwroot\images\character-default-icons\32.gif" />
+    <None Include="wwwroot\images\character-default-icons\33.gif" />
+    <None Include="wwwroot\images\character-default-icons\34.gif" />
+    <None Include="wwwroot\images\character-default-icons\35.gif" />
+    <None Include="wwwroot\images\character-default-icons\36.gif" />
+    <None Include="wwwroot\images\character-default-icons\37.gif" />
+    <None Include="wwwroot\images\character-default-icons\38.gif" />
+    <None Include="wwwroot\images\character-default-icons\39.gif" />
+    <None Include="wwwroot\images\character-default-icons\40.gif" />
+    <None Include="wwwroot\images\character-default-icons\41.gif" />
+    <None Include="wwwroot\images\character-default-icons\42.gif" />
+    <None Include="wwwroot\images\character-default-icons\43.gif" />
+    <None Include="wwwroot\images\character-default-icons\44.gif" />
+    <None Include="wwwroot\images\character-default-icons\45.gif" />
+    <None Include="wwwroot\images\character-default-icons\46.gif" />
+    <None Include="wwwroot\images\character-default-icons\47.gif" />
+    <None Include="wwwroot\images\character-default-icons\48.gif" />
+    <None Include="wwwroot\images\character-default-icons\49.gif" />
+    <None Include="wwwroot\images\character-default-icons\50.gif" />
+    <None Include="wwwroot\images\character-default-icons\51.gif" />
+    <None Include="wwwroot\images\character-default-icons\52.gif" />
+    <None Include="wwwroot\images\character-default-icons\53.gif" />
+    <None Include="wwwroot\images\character-default-icons\54.gif" />
+    <None Include="wwwroot\images\character-default-icons\55.gif" />
+    <None Include="wwwroot\images\character-default-icons\56.gif" />
+    <None Include="wwwroot\images\character-default-icons\57.gif" />
+    <None Include="wwwroot\images\character-default-icons\58.gif" />
+    <None Include="wwwroot\images\character-default-icons\59.gif" />
+    <None Include="wwwroot\images\character-default-icons\60.gif" />
+    <None Include="wwwroot\images\character-default-icons\61.gif" />
+    <None Include="wwwroot\images\character-default-icons\62.gif" />
+    <None Include="wwwroot\images\character-default-icons\63.gif" />
+    <None Include="wwwroot\images\character-default-icons\64.gif" />
+    <None Include="wwwroot\images\character-default-icons\65.gif" />
+    <None Include="wwwroot\images\character-default-icons\66.gif" />
+    <None Include="wwwroot\images\character-default-icons\67.gif" />
+    <None Include="wwwroot\images\character-default-icons\68.gif" />
+    <None Include="wwwroot\images\character-default-icons\69.gif" />
+    <None Include="wwwroot\images\character-default-icons\70.gif" />
+    <None Include="wwwroot\images\character-default-icons\71.gif" />
+    <None Include="wwwroot\images\character-default-icons\72.gif" />
+    <None Include="wwwroot\images\character-default-icons\73.gif" />
+    <None Include="wwwroot\images\character-default-icons\74.gif" />
+    <None Include="wwwroot\images\character-default-icons\75.gif" />
+    <None Include="wwwroot\images\character-default-icons\76.gif" />
+    <None Include="wwwroot\images\character-default-icons\77.gif" />
+    <None Include="wwwroot\images\character-default-icons\78.gif" />
+    <None Include="wwwroot\images\character-default-icons\79.gif" />
+    <None Include="wwwroot\images\character-default-icons\80.gif" />
+    <None Include="wwwroot\images\character-default-icons\81.gif" />
+    <None Include="wwwroot\images\character-default-icons\82.gif" />
+    <None Include="wwwroot\images\character-default-icons\83.gif" />
+    <None Include="wwwroot\images\character-default-icons\84.gif" />
+    <None Include="wwwroot\images\character-default-icons\85.gif" />
+    <None Include="wwwroot\images\character-default-icons\86.gif" />
+    <None Include="wwwroot\images\character-default-icons\87.gif" />
+    <None Include="wwwroot\images\character-default-icons\88.gif" />
+    <None Include="wwwroot\images\character-default-icons\89.gif" />
+    <None Include="wwwroot\images\character-default-icons\90.gif" />
+    <None Include="wwwroot\images\character-default-icons\91.gif" />
+    <None Include="wwwroot\images\character-default-icons\92.gif" />
+    <None Include="wwwroot\images\character-default-icons\93.gif" />
+    <None Include="wwwroot\images\character-default-icons\94.gif" />
+    <None Include="wwwroot\images\character-default-icons\95.gif" />
+    <None Include="wwwroot\images\character-default-icons\96.gif" />
+    <None Include="wwwroot\images\character-default-icons\97.gif" />
+    <None Include="wwwroot\images\character-default-icons\98.gif" />
+    <None Include="wwwroot\images\character-default-icons\wiz.gif" />
+  </ItemGroup>
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

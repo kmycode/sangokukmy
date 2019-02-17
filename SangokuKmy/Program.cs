@@ -7,19 +7,36 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using NLog.Web;
 
 namespace SangokuKmy
 {
-    public class Program
+  public class Program
+  {
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            CreateWebHostBuilder(args).Build().Run();
-        }
-
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseUrls("http://0.0.0.0:5000")
-                .UseStartup<Startup>();
+      CreateWebHostBuilder(args).Build().Run();
     }
+
+    public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+      WebHost.CreateDefaultBuilder(args)
+        .ConfigureLogging(logging =>
+        {
+          logging.ClearProviders();
+          logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+        })
+        .UseKestrel((options) =>
+        {
+          options.Limits.MaxConcurrentConnections = 2048;
+          options.Limits.MaxConcurrentUpgradedConnections = 2048;
+        })
+        .ConfigureAppConfiguration(c =>
+        {
+          c.AddJsonFile("appsettings.json");
+          c.AddJsonFile("appsettings.Production.json");
+        })
+        .UseNLog()
+        .UseUrls("http://0.0.0.0:5000")
+        .UseStartup<Startup>();
+  }
 }

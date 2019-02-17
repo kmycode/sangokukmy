@@ -14,4 +14,24 @@ API一覧はWikiへ。
 
 BB氏の作成された画像ファイルは再頒布不可ということで本リポジトリに置く予定はありません。必要があれば適当なとこから落としてください。
 
-連絡などはツイッター（[@askyq](https://twitter.com/askyq)）へ。
+連絡などはツイッター（[@askyq](https://twitter.com/askyq)）へ。[三国志NET 翼](http://ysks.sakura.ne.jp/tubasa/index.cgi)にもいるかもしれません。
+
+# ビルド手順
+## 画像について
+
+画像は、[三国志NET原作](https://github.com/runtBlue/sangokushi-NET.original)の `image` フォルダの中にあります。
+
+このフォルダの中身のうち、以下のものをコピーします。
+
+~~~
+1.gif
+2.gif
+3.gif
+
+ ...
+
+98.gif
+wiz.gif
+~~~
+
+コピー先は `/SangokuKmy/wwwroot/images/character-default-icons` フォルダ内です。
