@@ -126,7 +126,7 @@ namespace SangokuKmy.Streamings
       }
     }
 
-    private void CleanAbortedResponses()
+    protected void CleanAbortedResponses()
     {
       var targets = this.streams.Where(s => s.Response.HttpContext.RequestAborted.IsCancellationRequested).ToList();
       if (targets.Any())
