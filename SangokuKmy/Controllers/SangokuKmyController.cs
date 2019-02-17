@@ -752,5 +752,17 @@ namespace SangokuKmy.Controllers
         return log;
       }
     }
+
+    [HttpGet("maplog")]
+    public async Task<IEnumerable<MapLog>> GetMapLogsAsync(
+      [FromQuery] uint since = uint.MaxValue,
+      [FromQuery] int count = 50)
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var logs = await repo.MapLog.GetRangeAsync(since, count);
+        return logs;
+      }
+    }
   }
 }

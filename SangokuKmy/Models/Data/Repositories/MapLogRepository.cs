@@ -25,7 +25,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <returns>最新ログ</returns>
     /// <param name="count">取得数</param>
     public async Task<IEnumerable<MapLog>> GetNewestAsync(int count)
-      => await this.GetRangeAsync(0, count, false);
+      => await this.GetRangeAsync(uint.MaxValue, count, false);
 
     /// <summary>
     /// 最新の重要ログを取得
@@ -33,7 +33,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <returns>最新ログ</returns>
     /// <param name="count">取得数</param>
     public async Task<IEnumerable<MapLog>> GetImportantNewestAsync(int count)
-      => await this.GetRangeAsync(0, count, true);
+      => await this.GetRangeAsync(uint.MaxValue, count, true);
 
     /// <summary>
     /// 範囲を指定して、ログを取得
@@ -41,8 +41,8 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <returns>ログ</returns>
     /// <param name="startIndex">開始位置</param>
     /// <param name="count">取得数</param>
-    public async Task<IEnumerable<MapLog>> GetRangeAsync(int startIndex, int count)
-      => await this.GetRangeAsync(startIndex, count, false);
+    public async Task<IEnumerable<MapLog>> GetRangeAsync(uint lastId, int count)
+      => await this.GetRangeAsync(lastId, count, false);
 
     /// <summary>
     /// 範囲を指定して、重要ログを取得
@@ -50,8 +50,8 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <returns>ログ</returns>
     /// <param name="startIndex">開始位置</param>
     /// <param name="count">取得数</param>
-    public async Task<IEnumerable<MapLog>> GetImportantRangeAsync(int startIndex, int count)
-      => await this.GetRangeAsync(startIndex, count, true);
+    public async Task<IEnumerable<MapLog>> GetImportantRangeAsync(uint lastId, int count)
+      => await this.GetRangeAsync(lastId, count, true);
 
     /// <summary>
     /// 範囲を指定して、ログを取得
@@ -60,14 +60,14 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <param name="startIndex">取得開始位置</param>
     /// <param name="count">取得数</param>
     /// <param name="isImportant">重要ログであるか</param>
-    private async Task<IReadOnlyList<MapLog>> GetRangeAsync(int startIndex, int count, bool isImportant)
+    private async Task<IReadOnlyList<MapLog>> GetRangeAsync(uint lastId, int count, bool isImportant)
     {
       try
       {
         return (await this.container.Context.MapLogs
           .Where(ml => isImportant ? ml.IsImportant : true)
+          .Where(ml => ml.Id < lastId)
           .OrderByDescending(ml => ml.Id)
-          .Skip(startIndex)
           .Take(count)
           .ToArrayAsync())
           .Reverse()
