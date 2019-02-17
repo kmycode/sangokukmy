@@ -23,6 +23,8 @@ namespace SangokuKmy.Streamings
 
     public void Add(HttpResponse response, Action onRemoved)
     {
+      this.CleanAbortedResponses();
+
       var data = new StreamingData<object>
       {
         AuthData = null,
