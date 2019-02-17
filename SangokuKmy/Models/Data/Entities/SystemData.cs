@@ -19,7 +19,7 @@ namespace SangokuKmy.Models.Data.Entities
     public static SystemData Initialized => new SystemData
     {
       IsDebug = false,
-      Period = 1,
+      Period = 0,
       BetaVersion = 0,
       GameDateTime = new GameDateTime
       {

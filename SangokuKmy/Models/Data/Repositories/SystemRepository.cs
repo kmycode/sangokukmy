@@ -40,7 +40,13 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        var data = (await container.Context.SystemDebugData.FirstOrDefaultAsync()) ?? new SystemDebugData();
+        var data = (await container.Context.SystemDebugData.FirstOrDefaultAsync());
+        if (data == null)
+        {
+          data = new SystemDebugData();
+          await this.container.Context.AddAsync(data);
+          await this.container.Context.SaveChangesAsync();
+        }
         return data;
       }
       catch (Exception ex)
