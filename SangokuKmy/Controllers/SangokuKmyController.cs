@@ -62,7 +62,7 @@ namespace SangokuKmy.Controllers
         commands = await repo.CharacterCommand.GetAllAsync(this.AuthData.CharacterId, firstMonth);
 
         // 次のコマンドが実行されるまでの秒数
-        secondsNextCommand = (int)((isCurrentMonthExecuted ? chara.LastUpdated.AddSeconds(Config.UpdateTime) : chara.LastUpdated) - DateTime.Now).TotalSeconds;
+        secondsNextCommand = (int)(chara.LastUpdated.AddSeconds(Config.UpdateTime) - DateTime.Now).TotalSeconds;
       }
       return new GetCharacterAllCommandsResponse
       {
