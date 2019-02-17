@@ -200,6 +200,7 @@ namespace SangokuKmy.Models.Commands
         {
           CountryId = targetTown.CountryId,
           IconId = 0,
+          SoldierNumber = enemy.SoldierNumber,
         };
       }
 
@@ -243,7 +244,7 @@ namespace SangokuKmy.Models.Commands
               defenderCache.SoldierType = enemy.SoldierType;
               defenderCache.Proficiency = (short)enemy.Proficiency;
             }
-            else if (defenderCache.Name == "城壁")
+            else if (defenderCache.Name == "守兵")
             {
               defenderCache.Name = "守兵/" + i + "ターン目より城壁";
             }

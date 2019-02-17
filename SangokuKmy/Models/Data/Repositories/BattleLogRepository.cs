@@ -60,10 +60,10 @@ namespace SangokuKmy.Models.Data.Repositories
             .FindAsync(log.Data.AttackerCacheId);
           log.Data.AttackerCache.MainIcon = await this.container.Context.CharacterIcons
             .FindAsync(log.Data.AttackerCache.IconId);
+          log.Data.DefenderCache = await this.container.Context.CharacterCaches
+            .FindAsync(log.Data.DefenderCacheId);
           if (log.Data.DefenderType == DefenderType.Character)
           {
-            log.Data.DefenderCache = await this.container.Context.CharacterCaches
-              .FindAsync(log.Data.DefenderCacheId);
             log.Data.DefenderCache.MainIcon = await this.container.Context.CharacterIcons
               .FindAsync(log.Data.DefenderCache.IconId);
           }
