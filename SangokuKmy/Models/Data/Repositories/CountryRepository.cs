@@ -68,7 +68,7 @@ namespace SangokuKmy.Models.Data.Repositories
               c => c.Id,
               (cp, c) => new { Post = cp, Character = c, }),
             c => c.Id,
-            cpds => cpds.Character.CountryId,
+            cpds => cpds.Post.CountryId,
             (c, cps) => new { Country = c, PostData = cps, })
           .ToArrayAsync())
           .Select(data =>
@@ -234,6 +234,26 @@ namespace SangokuKmy.Models.Data.Repositories
         {
           await this.container.Context.CountryPosts.AddAsync(post);
         }
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 国のデータを削除する
+    /// </summary>
+    public void RemoveDataByCountryId(uint countryId)
+    {
+      try
+      {
+        this.container.Context.CountryPosts.RemoveRange(
+          this.container.Context.CountryPosts
+            .Where(p => p.CountryId == countryId));
+        this.container.Context.CountryMessages.RemoveRange(
+          this.container.Context.CountryMessages
+            .Where(cm => cm.CountryId == countryId));
       }
       catch (Exception ex)
       {

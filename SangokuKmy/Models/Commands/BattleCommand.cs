@@ -354,6 +354,7 @@ namespace SangokuKmy.Models.Commands
                 var targetCountryCharacters = await repo.Character.RemoveCountryAsync(targetCountry.Id);
                 repo.Unit.RemoveUnitsByCountryId(targetCountry.Id);
                 repo.CountryDiplomacies.RemoveByCountryId(targetCountry.Id);
+                repo.Country.RemoveDataByCountryId(targetCountry.Id);
 
                 // 滅亡国武将に通知
                 foreach (var targetCountryCharacter in await repo.Country.GetCharactersAsync(targetCountry.Id))
