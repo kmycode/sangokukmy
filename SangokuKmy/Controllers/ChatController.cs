@@ -90,7 +90,7 @@ namespace SangokuKmy.Controllers
 
     [AuthenticationFilter]
     [HttpPost("chat/character/{id}")]
-    public async Task PostCharacterChatMessageAsync(
+    public async Task PostPrivateChatMessageAsync(
       [FromRoute] uint id,
       [FromBody] ChatMessage param)
     {
@@ -101,6 +101,11 @@ namespace SangokuKmy.Controllers
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var to = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        if (chara.Id == to.Id)
+        {
+          // 自分に対して個人宛は送れない
+          ErrorCode.MeaninglessOperationError.Throw();
+        }
 
         message = await this.PostChatMessageAsync(repo, param, chara, ChatMessageType.Private, chara.Id, id);
         await repo.SaveChangesAsync();
