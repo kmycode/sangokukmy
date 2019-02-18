@@ -191,7 +191,7 @@ namespace SangokuKmy.Models.Services
 
         public override int People => 14000;
 
-        public override int Security => 40;
+        public override int Security => 50;
       }
 
       private class FortressTownType : TownTypeDefinition
