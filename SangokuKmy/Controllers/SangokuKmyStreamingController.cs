@@ -66,7 +66,7 @@ namespace SangokuKmy.Controllers
 
       // HTTPヘッダを設定する
       this.Response.Headers.Add("Content-Type", "text/event-stream; charset=UTF-8");
-      this.Response.Headers.Add("Cache-Control", "no-cache");
+      this.Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
 
       // 送信する初期データをリストアップ
       var sendData = Enumerable.Empty<object>()
@@ -132,7 +132,7 @@ namespace SangokuKmy.Controllers
 
       // HTTPヘッダを設定する
       this.Response.Headers.Add("Content-Type", "text/event-stream; charset=UTF-8");
-      this.Response.Headers.Add("Cache-Control", "no-cache");
+      this.Response.Headers.Add("Cache-Control", "no-cache, no-store, must-revalidate");
 
       // マップログをマージ
       var allMaplogs = importantMaplogs
