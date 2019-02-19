@@ -130,6 +130,12 @@ namespace SangokuKmy.Models.Data
     private InvitationCodeRepository _invitationCode;
 
     /// <summary>
+    /// 統一記録
+    /// </summary>
+    public HistoryRepository History => this._history = this._history ?? new HistoryRepository(this.container);
+    private HistoryRepository _history;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>

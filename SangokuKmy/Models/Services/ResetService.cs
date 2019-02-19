@@ -80,6 +80,44 @@ namespace SangokuKmy.Models.Services
       var sinceResetTime = resetHour - currentMonth;
       var resetTurn = (int)Math.Round(sinceResetTime.TotalMinutes / 10.0f);
       system.ResetGameDateTime = GameDateTime.FromInt(system.GameDateTime.ToInt() + resetTurn);
+
+      await RecordHistoryAsync(repo, system);
+    }
+
+    private static async Task RecordHistoryAsync(MainRepository repo, SystemData system)
+    {
+      await repo.SaveChangesAsync();
+      
+      var countries = await repo.Country.GetAllAsync();
+      var characters = await repo.Character.GetAllAliveWithIconAsync();
+
+      var unifiedCountry = countries.FirstOrDefault(c => !c.HasOverthrown);
+      CountryMessage unifiedCountryMessage = null;
+      if (unifiedCountry != null)
+      {
+        var messageOptional = await repo.Country.GetMessageAsync(unifiedCountry.Id, CountryMessageType.Unified);
+        messageOptional.Some((message) => unifiedCountryMessage = message);
+      }
+
+      var history = new History
+      {
+        Period = system.Period,
+        BetaVersion = system.BetaVersion,
+        UnifiedDateTime = DateTime.Now,
+        UnifiedCountryMessage = unifiedCountryMessage?.Message ?? string.Empty,
+        Characters = characters.Select(c =>
+        {
+          var chara = HistoricalCharacter.FromCharacter(c.Character);
+          chara.Icon = HistoricalCharacterIcon.FromCharacterIcon(c.Icon);
+          return chara;
+        }).ToArray(),
+        Countries = countries.Select(c =>
+        {
+          var country = HistoricalCountry.FromCountry(c);
+          return country;
+        }).ToArray(),
+      };
+      await repo.History.RecordAndSaveAsync(history);
     }
 
     private static async Task ResetTownsAsync(MainRepository repo)

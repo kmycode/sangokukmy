@@ -55,5 +55,15 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
     }
+
+    [HttpGet("reset/record")]
+    public async Task ResetRecord()
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        await ResetService.RecordHistoryAsync(repo, await repo.System.GetAsync());
+        await repo.SaveChangesAsync();
+      }
+    }
   }
 }

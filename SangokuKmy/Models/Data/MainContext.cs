@@ -170,6 +170,26 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public DbSet<InvitationCode> InvitationCodes { get; set; }
 
+    /// <summary>
+    /// 統一記録
+    /// </summary>
+    public DbSet<History> Histories { get; set; }
+
+    /// <summary>
+    /// 統一記録の国一覧
+    /// </summary>
+    public DbSet<HistoricalCountry> HistoricalCountries { get; set; }
+
+    /// <summary>
+    /// 統一記録の武将一覧
+    /// </summary>
+    public DbSet<HistoricalCharacter> HistoricalCharacters { get; set; }
+
+    /// <summary>
+    /// 統一記録の武将のアイコン
+    /// </summary>
+    public DbSet<HistoricalCharacterIcon> HistoricalCharacterIcons { get; set; }
+
     private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
         new DebugLoggerProvider((category, level)
             => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)

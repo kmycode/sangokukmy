@@ -46,5 +46,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 新規登録者への勧誘
     /// </summary>
     Solicitation = 2,
+
+    /// <summary>
+    /// 統一記録
+    /// </summary>
+    Unified = 3,
   }
 }
