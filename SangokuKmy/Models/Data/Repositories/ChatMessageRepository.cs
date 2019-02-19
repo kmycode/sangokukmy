@@ -75,7 +75,7 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         var data = await this.container.Context.ChatMessages
           .Where(subject)
-          .Where(m => m.Id <= sinceId)
+          .Where(m => m.Id < sinceId)
           .OrderByDescending(m => m.Id)
           .Take(count)
           .Join(this.container.Context.Characters,

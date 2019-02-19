@@ -89,6 +89,20 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpGet("chat/character")]
+    public async Task<ApiArrayData<ChatMessage>> GetPrivateChatMessagesAsync(
+      [FromQuery] uint sinceId = default,
+      [FromQuery] int count = default)
+    {
+      IEnumerable<ChatMessage> messages;
+      using (var repo = MainRepository.WithRead())
+      {
+        messages = await repo.ChatMessage.GetPrivateMessagesAsync(this.AuthData.CharacterId, sinceId, count);
+      }
+      return ApiData.From(messages);
+    }
+
+    [AuthenticationFilter]
     [HttpPost("chat/character/{id}")]
     public async Task PostPrivateChatMessageAsync(
       [FromRoute] uint id,
