@@ -37,6 +37,10 @@ namespace SangokuKmy.Models.Commands
         var current = this.GetCurrentValue(town);
         var max = this.GetMaxValue(town);
         var add = (int)(this.GetCharacterAttribute(character) / 20.0f + rand.Next(0, this.GetCharacterAttribute(character)) / 40.0f);
+        if (add < 1)
+        {
+          add = 1;
+        }
         if (current + add >= max)
         {
           this.SetValue(town, max);
