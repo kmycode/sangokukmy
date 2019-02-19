@@ -18,36 +18,21 @@ using SangokuKmy.Streamings;
 namespace SangokuKmy.Controllers
 {
   [Route("api/v1")]
-  [SangokuKmyErrorFilter]
+  [ServiceFilter(typeof(SangokuKmyErrorFilterAttribute))]
   public class EntryController : Controller
   {
-    private readonly ILogger _logger;
-
-    public EntryController(ILogger<EntryController> logger)
-    {
-      this._logger = logger;
-    }
-
     [HttpPost("entry")]
     public async Task<ApiData<AuthenticationData>> Entry(
       [FromBody] EntryData param)
     {
-      try
+      var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
+      using (var repo = MainRepository.WithReadAndWrite())
       {
-        var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
-        using (var repo = MainRepository.WithReadAndWrite())
-        {
-          await EntryService.EntryAsync(repo, ip, param.Character, param.Icon, param.Password, param.Country, param.InvitationCode);
-          await repo.SaveChangesAsync();
+        await EntryService.EntryAsync(repo, ip, param.Character, param.Icon, param.Password, param.Country, param.InvitationCode);
+        await repo.SaveChangesAsync();
 
-          var authData = await AuthenticationService.WithIdAndPasswordAsync(repo, param.Character.AliasId, param.Password);
-          return ApiData.From(authData);
-        }
-      }
-      catch (Exception ex)
-      {
-        this._logger.LogError(ex, "/entry");
-        throw ex;
+        var authData = await AuthenticationService.WithIdAndPasswordAsync(repo, param.Character.AliasId, param.Password);
+        return ApiData.From(authData);
       }
     }
 

@@ -23,7 +23,7 @@ using Microsoft.Extensions.Logging;
 namespace SangokuKmy.Controllers
 {
   [Route("api/v1")]
-  [SangokuKmyErrorFilter]
+  [ServiceFilter(typeof(SangokuKmyErrorFilterAttribute))]
   public class SangokuKmyController : Controller, IAuthenticationDataReceiver
   {
     private readonly ILogger _logger;
@@ -293,7 +293,8 @@ namespace SangokuKmy.Controllers
           param.Status != CountryAllianceStatus.ChangeRequesting &&
           param.Status != CountryAllianceStatus.Dismissed &&
           param.Status != CountryAllianceStatus.InBreaking &&
-          param.Status != CountryAllianceStatus.Requesting)
+          param.Status != CountryAllianceStatus.Requesting &&
+          param.Status != CountryAllianceStatus.None)
       {
         ErrorCode.InvalidParameterError.Throw();
       }
@@ -490,6 +491,11 @@ namespace SangokuKmy.Controllers
           else if (param.StartGameDate.ToInt() < system.IntGameDateTime + 12 * 12 + 1)
           {
             // 開戦が早すぎる
+            ErrorCode.InvalidParameterError.Throw();
+          }
+          else if (param.StartGameDate.ToInt() > system.IntGameDateTime + 12 * 48)
+          {
+            // 開戦が遅すぎる
             ErrorCode.InvalidParameterError.Throw();
           }
 

@@ -242,6 +242,65 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 国のメッセージデータを取得する
+    /// </summary>
+    /// <param name="countryId">国ID</param>
+    /// <param name="type">メッセージの種類</param>
+    public async Task<Optional<CountryMessage>> GetMessageAsync(uint countryId, CountryMessageType type)
+    {
+      try
+      {
+        return await this.container.Context.CountryMessages
+          .FirstOrDefaultAsync(m => m.CountryId == countryId && m.Type == type)
+          .ToOptionalAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 国のメッセージデータを取得する
+    /// </summary>
+    /// <param name="countryId">国ID</param>
+    public async Task<IReadOnlyList<CountryMessage>> GetMessagesAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.CountryMessages
+          .Where(m => m.CountryId == countryId)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 国のメッセージデータを設定する
+    /// </summary>
+    /// <param name="message">メッセージ</param>
+    public async Task SetMessageAsync(CountryMessage message)
+    {
+      try
+      {
+        var olds = this.container.Context.CountryMessages
+          .Where(m => m.CountryId == message.CountryId && m.Type == message.Type);
+        this.container.Context.CountryMessages.RemoveRange(olds);
+
+        await this.container.Context.CountryMessages.AddAsync(message);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
     /// 国のデータを削除する
     /// </summary>
     public void RemoveDataByCountryId(uint countryId)

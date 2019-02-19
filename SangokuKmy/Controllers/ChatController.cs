@@ -17,7 +17,7 @@ using SangokuKmy.Streamings;
 namespace SangokuKmy.Controllers
 {
   [Route("api/v1")]
-  [SangokuKmyErrorFilter]
+  [ServiceFilter(typeof(SangokuKmyErrorFilterAttribute))]
   [AuthenticationFilter]
   public class ChatController : Controller, IAuthenticationDataReceiver
   {
@@ -86,6 +86,20 @@ namespace SangokuKmy.Controllers
       }
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(message));
+    }
+
+    [AuthenticationFilter]
+    [HttpGet("chat/character")]
+    public async Task<ApiArrayData<ChatMessage>> GetPrivateChatMessagesAsync(
+      [FromQuery] uint sinceId = default,
+      [FromQuery] int count = default)
+    {
+      IEnumerable<ChatMessage> messages;
+      using (var repo = MainRepository.WithRead())
+      {
+        messages = await repo.ChatMessage.GetPrivateMessagesAsync(this.AuthData.CharacterId, sinceId, count);
+      }
+      return ApiData.From(messages);
     }
 
     [AuthenticationFilter]

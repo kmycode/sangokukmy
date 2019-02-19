@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SangokuKmy.Filters;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Updates;
@@ -34,6 +35,7 @@ namespace SangokuKmy
     {
       services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
       services.AddCors();
+      services.AddScoped<SangokuKmyErrorFilterAttribute>();
 
       // データベースの設定
       Config.Database.MySqlConnectionString = this.Configuration.GetConnectionString("MySql");
