@@ -293,7 +293,8 @@ namespace SangokuKmy.Controllers
           param.Status != CountryAllianceStatus.ChangeRequesting &&
           param.Status != CountryAllianceStatus.Dismissed &&
           param.Status != CountryAllianceStatus.InBreaking &&
-          param.Status != CountryAllianceStatus.Requesting)
+          param.Status != CountryAllianceStatus.Requesting &&
+          param.Status != CountryAllianceStatus.None)
       {
         ErrorCode.InvalidParameterError.Throw();
       }
