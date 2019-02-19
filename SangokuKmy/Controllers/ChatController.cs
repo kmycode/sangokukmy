@@ -17,7 +17,7 @@ using SangokuKmy.Streamings;
 namespace SangokuKmy.Controllers
 {
   [Route("api/v1")]
-  [SangokuKmyErrorFilter]
+  [ServiceFilter(typeof(SangokuKmyErrorFilterAttribute))]
   [AuthenticationFilter]
   public class ChatController : Controller, IAuthenticationDataReceiver
   {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Data.ApiEntities;
+using Microsoft.Extensions.Logging;
 
 namespace SangokuKmy.Filters
 {
@@ -14,6 +15,13 @@ namespace SangokuKmy.Filters
   /// </summary>
   public class SangokuKmyErrorFilterAttribute: ExceptionFilterAttribute
   {
+    private ILogger logger;
+
+    public SangokuKmyErrorFilterAttribute(ILogger<SangokuKmyErrorFilterAttribute> logger)
+    {
+      this.logger = logger;
+    }
+
     public override void OnException(ExceptionContext context)
     {
       base.OnException(context);
@@ -22,6 +30,8 @@ namespace SangokuKmy.Filters
       {
         exception = new SangokuKmyException(new Exception(), ErrorCode.InternalError);
       }
+
+      this.logger.LogError(exception, $"{context.HttpContext.Request.Method} [{(context.HttpContext.Request.Path.HasValue ? context.HttpContext.Request.Path.Value : "no-path")}]");
 
       try
       {

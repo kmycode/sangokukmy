@@ -23,7 +23,7 @@ using Microsoft.Extensions.Logging;
 namespace SangokuKmy.Controllers
 {
   [Route("api/v1")]
-  [SangokuKmyErrorFilter]
+  [ServiceFilter(typeof(SangokuKmyErrorFilterAttribute))]
   public class SangokuKmyController : Controller, IAuthenticationDataReceiver
   {
     private readonly ILogger _logger;

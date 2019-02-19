@@ -18,7 +18,7 @@ using SangokuKmy.Models.Common;
 namespace SangokuKmy.Controllers
 {
   [Route("api/v1/streaming")]
-  [SangokuKmyErrorFilter]
+  [ServiceFilter(typeof(SangokuKmyErrorFilterAttribute))]
   public class SangokuKmyStreamingController : Controller, IAuthenticationDataReceiver
   {
     public AuthenticationData AuthData { private get; set; }
