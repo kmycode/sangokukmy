@@ -414,6 +414,7 @@ namespace SangokuKmy.Controllers
         if (mapLog != null)
         {
           await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+          await AnonymousStreaming.Default.SendAllAsync(ApiData.From(mapLog));
         }
       }
       else
