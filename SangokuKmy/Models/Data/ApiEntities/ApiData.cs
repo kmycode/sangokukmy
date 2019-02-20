@@ -96,5 +96,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<UnitMember> From(UnitMember data) => From(24, data);
     public static ApiData<CharacterUpdateLog> From(CharacterUpdateLog data) => From(25, data);
     public static ApiData<ThreadBbsItem> From(ThreadBbsItem data) => From(26, data);
+    public static ApiData<CharacterOnline> From(CharacterOnline data) => From(27, data);
   }
 }

@@ -14,6 +14,7 @@ using SangokuKmy.Streamings;
 using SangokuKmy.Models.Data.ApiEntities;
 using System.Text;
 using SangokuKmy.Models.Common;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Controllers
 {
@@ -41,6 +42,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<CountryAlliance> alliances;
       IEnumerable<CountryWar> wars;
       IEnumerable<ThreadBbsItem> countryBbsItems;
+      IEnumerable<CharacterOnline> onlines = await OnlineService.GetAsync();
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -82,6 +84,7 @@ namespace SangokuKmy.Controllers
         .Concat(alliances.Select(ca => ApiData.From(ca)))
         .Concat(wars.Select(cw => ApiData.From(cw)))
         .Concat(countryBbsItems.Select(b => ApiData.From(b)))
+        .Concat(onlines.Select(o => ApiData.From(o)))
         .ToList();
       sendData.Add(ApiData.From(new ApiSignal
       {
@@ -120,6 +123,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<CharacterUpdateLog> updateLogs;
       IEnumerable<TownForAnonymous> towns;
       IEnumerable<CountryForAnonymous> countries;
+      IEnumerable<CharacterOnline> onlines = await OnlineService.GetAsync();
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -147,6 +151,7 @@ namespace SangokuKmy.Controllers
         .Concat(updateLogs.Select(ul => ApiData.From(ul)))
         .Concat(towns.Select(t => ApiData.From(t)))
         .Concat(countries.Select(c => ApiData.From(c)))
+        .Concat(onlines.Select(o => ApiData.From(o)))
         .ToList();
 
       // 初期データを送信する

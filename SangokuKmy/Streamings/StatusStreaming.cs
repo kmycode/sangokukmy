@@ -58,6 +58,12 @@ namespace SangokuKmy.Streamings
     }
 
     /// <summary>
+    /// 現在ストリーミング中のユーザを取得する
+    /// </summary>
+    /// <returns>ストリーミング中のユーザ一覧</returns>
+    public IReadOnlyList<CharacterCache> GetStreamingCharacters() => this.GetList();
+
+    /// <summary>
     /// 全員にデータを送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>

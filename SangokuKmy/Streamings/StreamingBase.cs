@@ -207,6 +207,22 @@ namespace SangokuKmy.Streamings
         ErrorCode.LockFailedError.Throw(ex);
       }
     }
+
+    protected IReadOnlyList<EXTRA> GetList()
+    {
+      try
+      {
+        using (locker.ReaderLock())
+        {
+          return this.streams.Select(s => s.ExtraData).ToArray();
+        }
+      }
+      catch (ApplicationException ex)
+      {
+        ErrorCode.LockFailedError.Throw(ex);
+        return default;
+      }
+    }
   }
 
   public abstract class CacheStreamingBase<UE> : StreamingBase<UE> where UE : IEntityCache
