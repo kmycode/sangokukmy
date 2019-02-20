@@ -310,47 +310,41 @@ namespace SangokuKmy.Controllers
         }
 
         var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-
+        
         var old = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
         var war = await repo.CountryDiplomacies.GetCountryWarAsync(self.CountryId, targetId);
-        old.Some((o) =>
+        if (old.HasData &&
+          old.Data.Status != CountryAllianceStatus.Broken &&
+          old.Data.Status != CountryAllianceStatus.Dismissed &&
+          old.Data.Status != CountryAllianceStatus.None)
         {
-          if (o.Status != CountryAllianceStatus.Broken)
+          var o = old.Data;
+          
+          if ((param.Status == CountryAllianceStatus.Available || param.Status == CountryAllianceStatus.ChangeRequesting) &&
+                o.Status == CountryAllianceStatus.Requesting)
           {
-            if ((param.Status == CountryAllianceStatus.Available || param.Status == CountryAllianceStatus.ChangeRequesting) &&
-                 o.Status == CountryAllianceStatus.Requesting)
+            if (self.CountryId == o.RequestedCountryId)
             {
-              if (self.CountryId == o.RequestedCountryId)
-              {
-                // 自分で自分の要求を承認しようとした
-                ErrorCode.NotPermissionError.Throw();
-              }
-            }
-            else if (param.Status == CountryAllianceStatus.InBreaking &&
-                     (o.Status != CountryAllianceStatus.Available && o.Status != CountryAllianceStatus.ChangeRequesting))
-            {
-              // 結んでいないのに破棄はエラー
+              // 自分で自分の要求を承認しようとした
               ErrorCode.NotPermissionError.Throw();
-            }
-            else if ((param.Status == CountryAllianceStatus.None || param.Status == CountryAllianceStatus.Requesting) &&
-                     (o.Status == CountryAllianceStatus.Available || o.Status == CountryAllianceStatus.ChangeRequesting))
-            {
-              // 結んでいるものを一瞬でなかったことにするのはエラー
-              ErrorCode.NotPermissionError.Throw();
-            }
-            else if (param.Status == o.Status && param.Status == CountryAllianceStatus.Available)
-            {
-              // 再承認はできない
-              ErrorCode.MeaninglessOperationError.Throw();
             }
           }
-          else
+          else if (param.Status == CountryAllianceStatus.InBreaking &&
+                    (o.Status != CountryAllianceStatus.Available && o.Status != CountryAllianceStatus.ChangeRequesting))
           {
-            if (param.Status != CountryAllianceStatus.Requesting)
-            {
-              // 同盟を結んでいない場合、同盟の要求以外にできることはない
-              ErrorCode.NotPermissionError.Throw();
-            }
+            // 結んでいないのに破棄はエラー
+            ErrorCode.NotPermissionError.Throw();
+          }
+          else if ((param.Status == CountryAllianceStatus.None || param.Status == CountryAllianceStatus.Requesting) &&
+                    (o.Status == CountryAllianceStatus.Available || o.Status == CountryAllianceStatus.ChangeRequesting))
+          {
+            // 結んでいるものを一瞬でなかったことにするのはエラー
+            ErrorCode.NotPermissionError.Throw();
+          }
+          else if (param.Status == o.Status && param.Status == CountryAllianceStatus.Available)
+          {
+            // 再承認はできない
+            ErrorCode.MeaninglessOperationError.Throw();
           }
 
           if (param.Status == CountryAllianceStatus.Available)
@@ -358,8 +352,8 @@ namespace SangokuKmy.Controllers
             param.BreakingDelay = o.BreakingDelay;
             param.IsPublic = o.IsPublic;
           }
-        });
-        old.None(() =>
+        }
+        else
         {
           if (param.Status != CountryAllianceStatus.Requesting)
           {
@@ -377,7 +371,7 @@ namespace SangokuKmy.Controllers
               ErrorCode.NotPermissionError.Throw();
             }
           });
-        });
+        }
 
         alliance = new CountryAlliance
         {
@@ -391,19 +385,23 @@ namespace SangokuKmy.Controllers
         await repo.CountryDiplomacies.SetAllianceAsync(alliance);
 
         // 同盟関係を周りに通知
-        if (alliance.IsPublic)
+        if (alliance.IsPublic && old.HasData)
         {
-          var country1 = await repo.Country.GetByIdAsync(alliance.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-          var country2 = await repo.Country.GetByIdAsync(alliance.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-          mapLog = new MapLog
+          if (old.Data.Status == CountryAllianceStatus.Requesting &&
+              alliance.Status == CountryAllianceStatus.Available)
           {
-            ApiGameDateTime = (await repo.System.GetAsync()).GameDateTime,
-            Date = DateTime.Now,
-            EventType = EventType.AllianceStart,
-            IsImportant = true,
-            Message = "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> は、同盟を締結しました",
-          };
-          await repo.MapLog.AddAsync(mapLog);
+            var country1 = await repo.Country.GetByIdAsync(alliance.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+            var country2 = await repo.Country.GetByIdAsync(alliance.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+            mapLog = new MapLog
+            {
+              ApiGameDateTime = (await repo.System.GetAsync()).GameDateTime,
+              Date = DateTime.Now,
+              EventType = EventType.AllianceStart,
+              IsImportant = true,
+              Message = "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> は、同盟を締結しました",
+            };
+            await repo.MapLog.AddAsync(mapLog);
+          }
         }
 
         await repo.SaveChangesAsync();
