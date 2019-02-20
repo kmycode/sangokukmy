@@ -51,7 +51,7 @@ namespace SangokuKmy.Models.Commands
         }
 
         // 経験値、金の増減
-        character.Money -= 50;
+        this.SetCharacterAssets(character, this.GetCharacterAssets(character) - 50);
         character.Contribution += 30;
         this.AddCharacterAttributeEx(character, 50);
 
