@@ -243,6 +243,32 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 武将のログを取得
+    /// </summary>
+    /// <returns>ログのリスト</returns>
+    /// <param name="characterId">武将ID</param>
+    /// <param name="count">取得数</param>
+    public async Task<IReadOnlyList<CharacterLog>> GetCharacterLogsAsync(uint characterId, uint sinceId, int count)
+    {
+      try
+      {
+        return (await this.container.Context.CharacterLogs
+          .Where(l => l.CharacterId == characterId)
+          .Where(l => l.Id < sinceId)
+          .OrderByDescending(l => l.Id)
+          .Take(count)
+          .ToArrayAsync())
+          .Reverse()
+          .ToArray();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 武将の更新ログを取得
     /// </summary>
     /// <returns>ログのリスト</returns>
