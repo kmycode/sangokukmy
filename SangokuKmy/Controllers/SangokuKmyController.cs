@@ -130,6 +130,20 @@ namespace SangokuKmy.Controllers
       return ApiData.From(charas);
     }
 
+    [AuthenticationFilter]
+    [HttpGet("character/log")]
+    public async Task<ApiArrayData<CharacterLog>> GetCharacterLogAsync(
+      [FromQuery] uint since = default,
+      [FromQuery] int count = default)
+    {
+      IEnumerable<CharacterLog> logs;
+      using (var repo = MainRepository.WithRead())
+      {
+        logs = await repo.Character.GetCharacterLogsAsync(this.AuthData.CharacterId, since, count);
+      }
+      return ApiData.From(logs);
+    }
+
     [HttpGet("countries")]
     public async Task<ApiArrayData<CountryForAnonymous>> GetAllCountriesAsync()
     {
