@@ -557,6 +557,7 @@ namespace SangokuKmy.Controllers
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(mapLog));
 
       if (alliance.HasData)
       {
