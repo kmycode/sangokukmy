@@ -37,6 +37,7 @@ namespace SangokuKmy.Models.Commands
         }
         else
         {
+          character.Contribution += 25;
           await repo.Town.SetDefenderAsync(character.Id, town.Id);
           await game.CharacterLogAsync("<town>" + town.Name + "</town> の守備につきました");
         }

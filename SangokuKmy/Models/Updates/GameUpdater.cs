@@ -246,6 +246,8 @@ namespace SangokuKmy.Models.Updates
               // データ保存
               character.Class += character.Contribution;
               character.Contribution = 0;
+
+              await StatusStreaming.Default.SendCharacterAsync(ApiData.From(character), character.Id);
             }
           }
 
@@ -322,9 +324,11 @@ namespace SangokuKmy.Models.Updates
           }
 
           await StatusStreaming.Default.SendCountryAsync(ApiData.From(targetTown), targetTown.CountryId);
+          await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown));
           foreach (var town in targetTowns)
           {
             await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), town.CountryId);
+            await StatusStreaming.Default.SendTownToAllAsync(ApiData.From((Town)town));
           }
           await repo.SaveChangesAsync();
         }
@@ -376,6 +380,7 @@ namespace SangokuKmy.Models.Updates
             }
 
             await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), town.CountryId);
+            await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town));
           }
 
           await repo.SaveChangesAsync();

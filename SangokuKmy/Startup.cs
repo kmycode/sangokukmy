@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using SangokuKmy.Filters;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data;
+using SangokuKmy.Models.Services;
 using SangokuKmy.Models.Updates;
 
 namespace SangokuKmy
@@ -73,6 +74,7 @@ namespace SangokuKmy
 
       // 更新処理を開始する
       GameUpdater.BeginUpdate(_logger);
+      OnlineService.BeginWatch(_logger);
 
       app.UseMvc();
     }
