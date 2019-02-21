@@ -72,7 +72,11 @@ namespace SangokuKmy.Controllers
 
       // 送信する初期データをリストアップ
       var sendData = Enumerable.Empty<object>()
-        .Concat(new object[] { ApiData.From(chara), ApiData.From(system.GameDateTime), })
+        .Concat(new object[]
+        {
+          ApiData.From(chara),
+          ApiData.From(system.GameDateTime),
+        })
         .Concat(maplogs.Select(ml => ApiData.From(ml)))
         .Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
         .Concat(characterLogs.Select(cl => ApiData.From(cl)))
@@ -112,6 +116,9 @@ namespace SangokuKmy.Controllers
       {
         await Task.Delay(5000);
       }
+
+      // オフラインになったことを通知
+      await OnlineService.SetAsync(chara, OnlineStatus.Offline);
     }
     
     [HttpGet("anonymous")]

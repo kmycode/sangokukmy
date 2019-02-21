@@ -214,7 +214,7 @@ namespace SangokuKmy.Streamings
       {
         using (locker.ReaderLock())
         {
-          return this.streams.Select(s => s.ExtraData).ToArray();
+          return this.streams.Where(s => !s.Response.HttpContext.RequestAborted.IsCancellationRequested).Select(s => s.ExtraData).ToArray();
         }
       }
       catch (ApplicationException ex)
