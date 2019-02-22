@@ -525,6 +525,7 @@ namespace SangokuKmy.Models.Updates
         };
         await repo.MapLog.AddAsync(log);
         anonymousNotifies.Add(ApiData.From(log));
+        notifies.Add(ApiData.From(log));
         return log;
       }
       async Task AddMapLogAsync(EventType type, string message, bool isImportant)
