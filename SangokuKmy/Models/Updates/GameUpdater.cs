@@ -212,7 +212,7 @@ namespace SangokuKmy.Models.Updates
               }
 
               // 昇格
-              if (character.Class % Config.NextLank + character.Contribution > Config.NextLank)
+              if (character.Contribution > 0 && character.Class % Config.NextLank + character.Contribution >= Config.NextLank)
               {
                 var newLank = Math.Min(Config.LankCount - 1, (character.Class + character.Contribution) / Config.NextLank);
                 var tecName = string.Empty;
