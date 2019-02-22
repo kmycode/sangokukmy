@@ -255,7 +255,7 @@ namespace SangokuKmy.Models.Updates
         }
 
         // イベント
-        if (rand.Next(0, 40) == 0)
+        if (rand.Next(0, 100) == 0)
         {
           var targetTown = allTowns[rand.Next(0, allTowns.Count)];
           var targetTowns = allTowns.GetAroundTowns(targetTown);
