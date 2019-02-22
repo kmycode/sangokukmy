@@ -136,6 +136,12 @@ namespace SangokuKmy.Models.Data
     private HistoryRepository _history;
 
     /// <summary>
+    /// 援軍
+    /// </summary>
+    public ReinforcementRepository Reinforcement => this._reinforcement = this._reinforcement ?? new ReinforcementRepository(this.container);
+    private ReinforcementRepository _reinforcement;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>

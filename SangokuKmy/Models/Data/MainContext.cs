@@ -190,6 +190,11 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public DbSet<HistoricalCharacterIcon> HistoricalCharacterIcons { get; set; }
 
+    /// <summary>
+    /// 援軍
+    /// </summary>
+    public DbSet<Reinforcement> Reinforcements { get; set; }
+
     private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
         new DebugLoggerProvider((category, level)
             => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)

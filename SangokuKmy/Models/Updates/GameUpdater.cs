@@ -409,6 +409,31 @@ namespace SangokuKmy.Models.Updates
                 await StatusStreaming.Default.SendCountryAsync(ApiData.From(alliance), alliance.RequestedCountryId);
                 await StatusStreaming.Default.SendCountryAsync(ApiData.From(alliance), alliance.InsistedCountryId);
               }
+
+              var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(alliance.RequestedCountryId))
+                .Concat(await repo.Reinforcement.GetByCountryIdAsync(alliance.InsistedCountryId))
+                .Where(r => r.Status == ReinforcementStatus.Active)
+                .Where(r => (r.RequestedCountryId == alliance.RequestedCountryId && r.CharacterCountryId == alliance.InsistedCountryId) ||
+                            (r.RequestedCountryId == alliance.InsistedCountryId && r.CharacterCountryId == alliance.RequestedCountryId));
+              foreach (var reinforcement in reinforcements)
+              {
+                reinforcement.Status = ReinforcementStatus.Returned;
+                var chara = await repo.Character.GetByIdAsync(reinforcement.CharacterId);
+                if (chara.HasData && !chara.Data.HasRemoved)
+                {
+                  var character = chara.Data;
+                  var originalCountry = await repo.Country.GetByIdAsync(reinforcement.CharacterCountryId);
+                  var country = await repo.Country.GetByIdAsync(character.CountryId);
+
+                  character.CountryId = reinforcement.CharacterCountryId;
+                  if (originalCountry.HasData && country.HasData)
+                  {
+                    character.TownId = originalCountry.Data.CapitalTownId;
+                    await AddMapLogAsync(false, EventType.ReinforcementReturned, $"<country>{originalCountry.Data.Name}</country> の援軍 <character>{character.Name}</character> は、同盟破棄に伴い <country>{country.Data.Name}</country> から帰還しました");
+                    await AddLogAsync(character.Id, $"同盟破棄に伴い、 <country>{originalCountry.Data.Name}</country> から強制帰還しました");
+                  }
+                }
+              }
             }
           }
           foreach (var war in (await repo.CountryDiplomacies.GetReadyWarsAsync()).Where(cw => cw.Status == CountryWarStatus.InReady))
