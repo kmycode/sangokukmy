@@ -525,7 +525,6 @@ namespace SangokuKmy.Models.Updates
         };
         await repo.MapLog.AddAsync(log);
         anonymousNotifies.Add(ApiData.From(log));
-        notifies.Add(ApiData.From(log));
         return log;
       }
       async Task AddMapLogAsync(EventType type, string message, bool isImportant)
@@ -632,6 +631,7 @@ namespace SangokuKmy.Models.Updates
 
       // ログイン中のユーザに新しい情報を通知する
       await StatusStreaming.Default.SendCharacterAsync(notifies, character.Id);
+      await StatusStreaming.Default.SendAllAsync(anonymousNotifies);
       await AnonymousStreaming.Default.SendAllAsync(anonymousNotifies);
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(updateLog));
       foreach (var charaData in anyoneNotifies.GroupBy(an => an.Item1, (id, items) => new { CharacterId = id, Items = items.Select(i => i.Item2), }))
