@@ -171,7 +171,7 @@ namespace SangokuKmy.Controllers
             {
               ApiGameDateTime = system.GameDateTime,
               Date = DateTime.Now,
-              EventType = EventType.ReinforcementActived,
+              EventType = EventType.ReinforcementReturned,
               IsImportant = false,
               Message = $"<country>{originalCountry.Name}</country> の援軍 <character>{chara.Name}</character> は、 <country>{country.Name}</country> から帰還しました",
             };
