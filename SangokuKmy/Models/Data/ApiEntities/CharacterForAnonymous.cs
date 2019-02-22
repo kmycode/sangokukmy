@@ -48,7 +48,15 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("classValue")]
     public int Class { get; set; }
 
+    [JsonProperty("reinforcement")]
+    public Reinforcement Reinforcement { get; set; }
+
     public CharacterForAnonymous(Character character, CharacterIcon mainIcon, CharacterShareLevel level)
+      : this(character, mainIcon, null, level)
+    {
+    }
+
+    public CharacterForAnonymous(Character character, CharacterIcon mainIcon, Reinforcement reinforcement, CharacterShareLevel level)
     {
       this.Id = character.Id;
       this.Name = character.Name;
@@ -58,6 +66,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.Intellect = character.Intellect;
       this.Leadership = character.Leadership;
       this.Popularity = character.Popularity;
+      this.Reinforcement = reinforcement;
       if (level == CharacterShareLevel.SameTown)
       {
         this.SoldierNumber = character.SoldierNumber;

@@ -247,7 +247,8 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithRead())
       {
         charas = (await repo.Country.GetCharactersAsync(countryId))
-          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.Anonymous));
+          .GroupJoin(await repo.Reinforcement.GetByCountryIdAsync(countryId), c => c.Character.Id, r => r.CharacterId, (c, rs) => new { CharacterData = c, Reinforcements = rs })
+          .Select(c => new CharacterForAnonymous(c.CharacterData.Character, c.CharacterData.Icon, c.Reinforcements.FirstOrDefault(), CharacterShareLevel.Anonymous));
       }
       return ApiData.From(charas);
     }
@@ -557,6 +558,7 @@ namespace SangokuKmy.Controllers
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(mapLog));
 
       if (alliance.HasData)
       {

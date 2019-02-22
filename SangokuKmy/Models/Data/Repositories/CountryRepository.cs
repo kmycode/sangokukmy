@@ -242,6 +242,23 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 武将の役職を削除する
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    public void RemoveCharacterPosts(uint characterId)
+    {
+      try
+      {
+        this.container.Context.CountryPosts.RemoveRange(
+          this.container.Context.CountryPosts.Where(p => p.CharacterId == characterId));
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
     /// 国のメッセージデータを取得する
     /// </summary>
     /// <param name="countryId">国ID</param>

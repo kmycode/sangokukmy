@@ -120,7 +120,14 @@ namespace SangokuKmy.Streamings
     /// <param name="countryId">国ID</param>
     public async Task SendCountryAsync<T>(ApiData<T> data, uint countryId) => await this.SendAsync(data, c => c.ExtraData.CountryId == countryId);
 
-        /// <summary>
+    /// <summary>
+    /// 特定の国の武将にのみ送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    /// <param name="countryId">国ID</param>
+    public async Task SendCountryAsync<T>(ApiData<T> data, IEnumerable<uint> countryIds) => await this.SendAsync(data, c => countryIds.Contains(c.ExtraData.CountryId));
+
+    /// <summary>
     /// 特定の国の武将にのみ送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>

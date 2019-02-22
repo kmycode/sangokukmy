@@ -183,5 +183,20 @@ namespace SangokuKmy.Models.Data.Entities
     /// 放置削除
     /// </summary>
     CharacterRemoved = 18,
+
+    /// <summary>
+    /// 援軍
+    /// </summary>
+    ReinforcementActived = 19,
+
+    /// <summary>
+    /// 帰還
+    /// </summary>
+    ReinforcementReturned = 20,
+
+    /// <summary>
+    /// 帰順
+    /// </summary>
+    ReinforcementSubmited = 21,
   }
 }

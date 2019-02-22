@@ -27,6 +27,7 @@ namespace SangokuKmy.Models.Services
       await repo.ThreadBbs.ResetAsync();
       await repo.Town.ResetAsync();
       await repo.Unit.ResetAsync();
+      await repo.Reinforcement.ResetAsync();
 
       await ResetTownsAsync(repo);
 
