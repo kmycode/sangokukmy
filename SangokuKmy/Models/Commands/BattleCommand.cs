@@ -178,7 +178,7 @@ namespace SangokuKmy.Models.Commands
       LogCharacterCache defenderCache = null;
       if (defenders.Any())
       {
-        var defender = defenders.Last().Character;
+        var defender = defenders.First().Character;
         enemy.Defender = defender.ToOptional();
         enemy.SoldierNumber = defender.SoldierNumber;
         enemy.SoldierType = defender.SoldierType;
