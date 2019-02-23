@@ -214,10 +214,10 @@ namespace SangokuKmy.Models.Commands
         {
           if (targetTown.WallGuard > 0)
           {
-            enemy.SoldierType = targetTown.Technology > 900 ? SoldierType.RepeatingCrossbow :
-                                targetTown.Technology > 700 ? SoldierType.StrongCrossbow :
-                                targetTown.Technology > 500 ? SoldierType.HeavyInfantry :
-                                targetTown.Technology > 300 ? SoldierType.LightInfantry :
+            enemy.SoldierType = targetTown.Technology > 900 ? SoldierType.Guard_Step4 :
+                                targetTown.Technology > 700 ? SoldierType.Guard_Step3 :
+                                targetTown.Technology > 500 ? SoldierType.Guard_Step2 :
+                                targetTown.Technology > 300 ? SoldierType.Guard_Step1 :
                                 SoldierType.Common;
             enemy.Strong = trendStrong;
             enemy.Proficiency = 100;
@@ -445,6 +445,22 @@ namespace SangokuKmy.Models.Commands
           break;
         case SoldierType.StrongGuards:
           d = character.Intellect;
+          break;
+        case SoldierType.Guard_Step1:
+          a = 20;
+          d = 20;
+          break;
+        case SoldierType.Guard_Step2:
+          a = 40;
+          d = 40;
+          break;
+        case SoldierType.Guard_Step3:
+          a = 60;
+          d = 60;
+          break;
+        case SoldierType.Guard_Step4:
+          a = 90;
+          d = 90;
           break;
       }
       return (a, d);
