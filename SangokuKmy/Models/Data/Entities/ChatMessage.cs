@@ -150,5 +150,20 @@ namespace SangokuKmy.Models.Data.Entities
     /// 専用BBS（簡易）
     /// </summary>
     SimpleBbs = 7,
+
+    /// <summary>
+    /// 登用（補足は個宛と同じ）
+    /// </summary>
+    Promotion = 8,
+
+    /// <summary>
+    /// 登用承諾
+    /// </summary>
+    PromotionAccepted = 9,
+
+    /// <summary>
+    /// 登用拒否
+    /// </summary>
+    PromotionRefused = 10,
   }
 }

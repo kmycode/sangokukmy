@@ -13,6 +13,7 @@ using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Streamings;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Controllers
 {
@@ -49,7 +50,7 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        message = await this.PostChatMessageAsync(repo, param, chara, ChatMessageType.SelfCountry, chara.CountryId);
+        message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.SelfCountry, chara.CountryId);
         await repo.SaveChangesAsync();
       }
 
@@ -81,7 +82,7 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        message = await this.PostChatMessageAsync(repo, param, chara, ChatMessageType.Global);
+        message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.Global);
         await repo.SaveChangesAsync();
       }
 
@@ -121,7 +122,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.MeaninglessOperationError.Throw();
         }
 
-        message = await this.PostChatMessageAsync(repo, param, chara, ChatMessageType.Private, chara.Id, id);
+        message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.Private, chara.Id, id);
         await repo.SaveChangesAsync();
       }
 
@@ -149,7 +150,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
-        message = await this.PostChatMessageAsync(repo, param, chara, ChatMessageType.OtherCountry, chara.CountryId, id);
+        message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.OtherCountry, chara.CountryId, id);
         await repo.SaveChangesAsync();
       }
 
@@ -157,51 +158,148 @@ namespace SangokuKmy.Controllers
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(message), id);
     }
 
-    private async Task<ChatMessage> PostChatMessageAsync(MainRepository repo, ChatMessage param, Character chara, ChatMessageType type, uint typeData = default, uint typeData2 = default)
+    /// <summary>
+    /// 登用文を承諾または拒否する
+    /// </summary>
+    [HttpPost("chat/promotion")]
+    public async Task SetPromotionStatusAsync(
+      [FromBody] ChatMessage message)
     {
-      ChatMessage message;
+      Character newCharacter = null;
+      CharacterLog charalog = null;
+      CharacterLog senderCharalog = null;
+      MapLog maplog = null;
+      Town newTown = null;
+      Town oldTown = null;
+      IEnumerable<uint> oldTownCharacters = null;
+      IEnumerable<uint> newTownCharacters = null;
+      ChatMessage newMessage;
 
-      message = new ChatMessage
+      using (var repo = MainRepository.WithReadAndWrite())
       {
-        CharacterId = chara.Id,
-        Character = new CharacterChatData(chara),
-        CharacterCountryId = chara.CountryId,
-        Posted = DateTime.Now,
-        Message = param.Message,
-        Type = type,
-        TypeData = typeData,
-        TypeData2 = typeData2,
-      };
-      if (param.CharacterIconId > 0)
-      {
-        message.CharacterIconId = param.CharacterIconId;
-        message.CharacterIcon = await repo.Character.GetCharacterIconByIdAsync(message.CharacterIconId);
-      }
-      else
-      {
-        var icons = await repo.Character.GetCharacterAllIconsAsync(chara.Id);
-        var icon = icons.FirstOrDefault(i => i.IsMain) ?? icons.FirstOrDefault();
-        if (icon == null)
+        var system = await repo.System.GetAsync();
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        var old = await repo.ChatMessage.GetByIdAsync(message.Id).GetOrErrorAsync(ErrorCode.InvalidParameterError);
+        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId);
+
+        if (country.HasData)
         {
-          ErrorCode.CharacterIconNotFoundError.Throw();
+          // 無所属以外は実行できない
+          ErrorCode.InvalidOperationError.Throw();
         }
-        message.CharacterIconId = icon.Id;
-        message.CharacterIcon = icon;
+        if (old.Type != ChatMessageType.Promotion)
+        {
+          // 登用文ではない
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        if (message.Type == ChatMessageType.PromotionAccepted)
+        {
+          var sender = await repo.Character.GetByIdAsync(old.TypeData).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+          var senderCountry = await repo.Country.GetAliveByIdAsync(sender.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+          oldTown = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+          newTown = await repo.Town.GetByIdAsync(senderCountry.CapitalTownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+          oldTownCharacters = (await repo.Town.GetCharactersAsync(oldTown.Id)).Select(c => c.Character.Id);
+          newTownCharacters = (await repo.Town.GetCharactersAsync(newTown.Id)).Select(c => c.Character.Id);
+
+          chara.CountryId = senderCountry.Id;
+          chara.TownId = senderCountry.CapitalTownId;
+
+          charalog = new CharacterLog
+          {
+            CharacterId = chara.Id,
+            DateTime = DateTime.Now,
+            GameDateTime = system.GameDateTime,
+            Message = $"<character>{sender.Name}</character> の登用に応じ、 <country>{senderCountry.Name}</country> に仕官しました",
+          };
+          senderCharalog = new CharacterLog
+          {
+            CharacterId = old.TypeData,
+            DateTime = DateTime.Now,
+            GameDateTime = system.GameDateTime,
+            Message = $"<character>{chara.Name}</character> があなたの登用に応じ、 <country>{senderCountry.Name}</country> に仕官しました",
+          };
+          maplog = new MapLog
+          {
+            Date = DateTime.Now,
+            ApiGameDateTime = system.GameDateTime,
+            IsImportant = false,
+            EventType = EventType.PromotionAccepted,
+            Message = $"<character>{chara.Name}</character> は <country>{senderCountry.Name}</country> に仕官しました",
+          };
+
+          old.Type = message.Type;
+          newCharacter = chara;
+        }
+        else if (message.Type == ChatMessageType.PromotionRefused)
+        {
+          var sender = await repo.Character.GetByIdAsync(old.TypeData).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+
+          charalog = new CharacterLog
+          {
+            CharacterId = chara.Id,
+            DateTime = DateTime.Now,
+            GameDateTime = system.GameDateTime,
+            Message = $"<character>{sender.Name}</character> の登用を断りました",
+          };
+          senderCharalog = new CharacterLog
+          {
+            CharacterId = old.TypeData,
+            DateTime = DateTime.Now,
+            GameDateTime = system.GameDateTime,
+            Message = $"<character>{chara.Name}</character> は、あなたの登用を断りました",
+          };
+
+          old.Type = message.Type;
+        }
+        else
+        {
+          ErrorCode.InvalidParameterError.Throw();
+        }
+
+        if (maplog != null)
+        {
+          await repo.MapLog.AddAsync(maplog);
+        }
+        if (charalog != null)
+        {
+          await repo.Character.AddCharacterLogAsync(charalog);
+        }
+        if (senderCharalog != null)
+        {
+          await repo.Character.AddCharacterLogAsync(senderCharalog);
+        }
+
+        message = old;
+        await repo.SaveChangesAsync();
       }
 
-      if (message.Type == ChatMessageType.Private)
+      if (newCharacter != null)
       {
-        var receiver = await repo.Character.GetByIdAsync(message.TypeData2).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
-        message.ReceiverName = receiver.Name;
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(newCharacter), newCharacter.Id);
       }
-      else if (message.Type == ChatMessageType.OtherCountry)
+      if (charalog != null)
       {
-        var receiver = await repo.Country.GetByIdAsync(message.TypeData2).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-        message.ReceiverName = receiver.Name;
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(charalog), charalog.CharacterId);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(message), charalog.CharacterId);
       }
-
-      await repo.ChatMessage.AddMessageAsync(message);
-      return message;
+      if (senderCharalog != null)
+      {
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(senderCharalog), senderCharalog.CharacterId);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(message), senderCharalog.CharacterId);
+      }
+      if (maplog != null)
+      {
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(maplog));
+        await AnonymousStreaming.Default.SendAllAsync(ApiData.From(maplog));
+      }
+      if (newTown != null && oldTown != null)
+      {
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(newTown), this.AuthData.CharacterId);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(newTown), newTownCharacters);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new TownForAnonymous(oldTown)), this.AuthData.CharacterId);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(oldTown), oldTownCharacters);
+      }
     }
   }
 }

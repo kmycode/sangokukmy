@@ -198,5 +198,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 帰順
     /// </summary>
     ReinforcementSubmited = 21,
+
+    /// <summary>
+    /// 登用（無所属から）
+    /// </summary>
+    PromotionAccepted = 22,
   }
 }

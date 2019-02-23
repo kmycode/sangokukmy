@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SangokuKmy.Common;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
@@ -17,6 +18,24 @@ namespace SangokuKmy.Models.Data.Repositories
     public ChatMessageRepository(IRepositoryContainer container)
     {
       this.container = container;
+    }
+
+    /// <summary>
+    /// メッセージIDからメッセージを取得する
+    /// </summary>
+    /// <returns>メッセージ</returns>
+    /// <param name="id">ID</param>
+    public async Task<Optional<ChatMessage>> GetByIdAsync(uint id)
+    {
+      try
+      {
+        return await this.container.Context.ChatMessages.FindAsync(id).ToOptionalAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
     }
 
     /// <summary>
@@ -51,6 +70,17 @@ namespace SangokuKmy.Models.Data.Repositories
     public async Task<IReadOnlyCollection<ChatMessage>> GetPrivateMessagesAsync(uint characterId, uint sinceId, int count)
     {
       return await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.Private && (mes.TypeData == characterId || mes.TypeData2 == characterId), sinceId, count);
+    }
+
+    /// <summary>
+    /// 登用を取得する
+    /// </summary>
+    /// <param name="sinceId">最初のID</param>
+    /// <param name="count">取得数</param>
+    /// <returns>個人宛の一覧</returns>
+    public async Task<IReadOnlyCollection<ChatMessage>> GetPromotionMessagesAsync(uint characterId, uint sinceId, int count)
+    {
+      return await this.GetMessagesAsync(mes => (mes.Type == ChatMessageType.Promotion || mes.Type == ChatMessageType.PromotionRefused || mes.Type == ChatMessageType.PromotionAccepted) && (mes.TypeData == characterId || mes.TypeData2 == characterId), sinceId, count);
     }
 
     /// <summary>
@@ -95,7 +125,7 @@ namespace SangokuKmy.Models.Data.Repositories
 
         // 受信者情報を付加。受信者名以外は参照渡しなので、後で処理結果にマージする必要はない
         var data2 = data
-          .Where(d => d.Message.Type == ChatMessageType.Private)
+          .Where(d => d.Message.Type == ChatMessageType.Private || d.Message.Type == ChatMessageType.Promotion || d.Message.Type == ChatMessageType.PromotionAccepted || d.Message.Type == ChatMessageType.PromotionRefused)
           .Join(this.container.Context.Characters, d => d.Message.TypeData2, c => c.Id, (d, c) => new { d.Message, d.Character, d.Icon, ReceiverName = c.Name, })
           .ToArray();
         var data3 = data
