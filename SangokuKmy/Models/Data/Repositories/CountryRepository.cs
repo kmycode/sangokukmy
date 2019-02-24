@@ -286,9 +286,45 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        return await this.container.Context.CountryMessages
+        return (await this.container.Context.CountryMessages
           .Where(m => m.CountryId == countryId)
-          .ToArrayAsync();
+          .Join(this.container.Context.Characters, m => m.WriterCharacterId, c => c.Id, (m, c) => new { Message = m, CharacterName = c.Name, })
+          .Join(this.container.Context.CharacterIcons, m => m.Message.WriterIconId, i => i.Id, (m, i) => new { m.Message, m.CharacterName, Icon = i, })
+          .ToArrayAsync())
+          .Select(m =>
+          {
+            m.Message.WriterCharacterName = m.CharacterName;
+            m.Message.WriterIcon = m.Icon;
+            return m.Message;
+          })
+          .ToArray();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// すべての国のメッセージデータを取得する
+    /// </summary>
+    public async Task<IReadOnlyList<CountryMessage>> GetAllMessagesByTypeAsync(CountryMessageType type)
+    {
+      try
+      {
+        return (await this.container.Context.CountryMessages
+          .Where(m => m.Type == type)
+          .Join(this.container.Context.Characters, m => m.WriterCharacterId, c => c.Id, (m, c) => new { Message = m, CharacterName = c.Name, })
+          .Join(this.container.Context.CharacterIcons, m => m.Message.WriterIconId, i => i.Id, (m, i) => new { m.Message, m.CharacterName, Icon = i, })
+          .ToArrayAsync())
+          .Select(m =>
+          {
+            m.Message.WriterCharacterName = m.CharacterName;
+            m.Message.WriterIcon = m.Icon;
+            return m.Message;
+          })
+          .ToArray();
       }
       catch (Exception ex)
       {

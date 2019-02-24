@@ -44,6 +44,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<ThreadBbsItem> countryBbsItems;
       IEnumerable<Reinforcement> reinforcements;
       IEnumerable<CharacterOnline> onlines = await OnlineService.GetAsync();
+      IEnumerable<CountryMessage> countryMessages;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -62,6 +63,7 @@ namespace SangokuKmy.Controllers
         wars = await repo.CountryDiplomacies.GetAllWarsAsync();
         countryBbsItems = await repo.ThreadBbs.GetCountryBbsByCountryIdAsync(chara.CountryId);
         reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
+        countryMessages = await repo.Country.GetMessagesAsync(chara.CountryId);
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
@@ -93,6 +95,7 @@ namespace SangokuKmy.Controllers
         .Concat(countryBbsItems.Select(b => ApiData.From(b)))
         .Concat(reinforcements.Select(r => ApiData.From(r)))
         .Concat(onlines.Select(o => ApiData.From(o)))
+        .Concat(countryMessages.Select(c => ApiData.From(c)))
         .ToList();
       sendData.Add(ApiData.From(new ApiSignal
       {
@@ -134,6 +137,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<CharacterUpdateLog> updateLogs;
       IEnumerable<TownForAnonymous> towns;
       IEnumerable<CountryForAnonymous> countries;
+      IEnumerable<CountryMessage> countryMessages;
       IEnumerable<CharacterOnline> onlines = await OnlineService.GetAsync();
       using (var repo = MainRepository.WithRead())
       {
@@ -143,6 +147,7 @@ namespace SangokuKmy.Controllers
         updateLogs = await repo.Character.GetCharacterUpdateLogsAsync(20);
         towns = await repo.Town.GetAllForAnonymousAsync();
         countries = await repo.Country.GetAllForAnonymousAsync();
+        countryMessages = await repo.Country.GetAllMessagesByTypeAsync(CountryMessageType.Solicitation);
       }
 
       // HTTPヘッダを設定する
@@ -163,6 +168,7 @@ namespace SangokuKmy.Controllers
         .Concat(towns.Select(t => ApiData.From(t)))
         .Concat(countries.Select(c => ApiData.From(c)))
         .Concat(onlines.Select(o => ApiData.From(o)))
+        .Concat(countryMessages.Select(c => ApiData.From(c)))
         .ToList();
 
       // 初期データを送信する

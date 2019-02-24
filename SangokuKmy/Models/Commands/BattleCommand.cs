@@ -119,16 +119,20 @@ namespace SangokuKmy.Models.Commands
 
       var myAttackCorrection = 0;
       var myDefenceCorrection = 0;
+      var myAttackSoldierTypeCorrection = 0;
+      var myDefenceSoldierTypeCorrection = 0;
       var myExperience = 0;
       var myContribution = 20;
       var targetAttackCorrection = 0;
       var targetDefenceCorrection = 0;
+      var targetAttackSoldierTypeCorrection = 0;
+      var targetDefenceSoldierTypeCorrection = 0;
       var targetExperience = 0;
       var targetContribution = 0;
 
       var myCorrections = this.SoldierTypeCorrect(character);
-      myAttackCorrection += myCorrections.AttackCorrection;
-      myDefenceCorrection += myCorrections.DefenceCorrection;
+      myAttackSoldierTypeCorrection = myCorrections.AttackCorrection;
+      myDefenceSoldierTypeCorrection = myCorrections.DefenceCorrection;
 
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
@@ -189,8 +193,8 @@ namespace SangokuKmy.Models.Commands
         defenderCache = defender.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(defender.Id)).GetMainOrFirst().Data ?? new CharacterIcon());
 
         var targetCorrections = this.SoldierTypeCorrect(defender);
-        targetAttackCorrection += targetCorrections.AttackCorrection;
-        targetDefenceCorrection += targetCorrections.DefenceCorrection;
+        targetAttackSoldierTypeCorrection = targetCorrections.AttackCorrection;
+        targetDefenceSoldierTypeCorrection = targetCorrections.DefenceCorrection;
       }
       else
       {
@@ -204,7 +208,7 @@ namespace SangokuKmy.Models.Commands
         };
       }
 
-      var myAttack = Math.Max((int)((character.Strong + myAttackCorrection - targetDefenceCorrection - enemy.Proficiency / 2.5f) / 8), 0);
+      var myAttack = Math.Max((int)((character.Strong + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - enemy.Proficiency / 2.5f) / 8), 0);
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");
       
       for (var i = 1; i <= 50 && enemy.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
@@ -249,9 +253,23 @@ namespace SangokuKmy.Models.Commands
               defenderCache.Name = "守兵/" + i + "ターン目より城壁";
             }
           }
+
+          var defenderChara = new Character
+          {
+            Strong = defenderCache.Strong,
+            Intellect = defenderCache.Intellect,
+            Leadership = defenderCache.Leadership,
+            Popularity = defenderCache.Popularity,
+            SoldierType = defenderCache.SoldierType,
+            SoldierNumber = defenderCache.SoldierNumber,
+            Proficiency = defenderCache.Proficiency,
+          };
+          var (a, d) = this.SoldierTypeCorrect(defenderChara);
+          targetAttackSoldierTypeCorrection = a;
+          targetDefenceSoldierTypeCorrection = d;
         }
         
-        var targetAttack = Math.Max((int)((enemy.Strong + targetAttackCorrection - myDefenceCorrection - character.Proficiency / 2.5f) / 8), 0);
+        var targetAttack = Math.Max((int)((enemy.Strong + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
         var targetDamage = Math.Min(Math.Max(rand.Next(myAttack + 1), 1), enemy.SoldierNumber);
         var myDamage = Math.Min(Math.Max(rand.Next(targetAttack + 1), 1), character.SoldierNumber);
         if (isNoDamage)
