@@ -49,7 +49,7 @@ namespace SangokuKmy.Controllers
       {
         system = await repo.System.GetAsync();
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        maplogs = await repo.MapLog.GetNewestAsync(10);
+        maplogs = await repo.MapLog.GetNewestAsync(50);
         importantMaplogs = await repo.MapLog.GetImportantNewestAsync(50);
         characterLogs = await repo.Character.GetCharacterLogsAsync(this.AuthData.CharacterId, 50);
         country = (await repo.Country.GetByIdAsync(chara.CountryId)).Data;
