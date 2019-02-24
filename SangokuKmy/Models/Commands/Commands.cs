@@ -25,6 +25,7 @@ namespace SangokuKmy.Models.Commands
       new DefendCommand(),
       new BattleCommand(),
       new GatherCommand(),
+      new PromotionCommand(),
       new MoveCommand(),
       new TrainingCommand(),
       new JoinCommand(),

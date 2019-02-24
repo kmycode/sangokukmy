@@ -156,6 +156,11 @@ namespace SangokuKmy.Models.Data.Entities
     Gather = 14,
 
     /// <summary>
+    /// 登用
+    /// </summary>
+    Promotion = 15,
+
+    /// <summary>
     /// 移動
     /// </summary>
     Move = 17,

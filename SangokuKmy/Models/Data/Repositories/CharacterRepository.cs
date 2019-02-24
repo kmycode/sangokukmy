@@ -203,9 +203,8 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <summary>
     /// 武将のログを追加する
     /// </summary>
-    /// <param name="characterId">武将ID</param>
     /// <param name="log">ログ</param>
-    public async Task AddCharacterLogAsync(uint characterId, CharacterLog log)
+    public async Task AddCharacterLogAsync(CharacterLog log)
     {
       try
       {
@@ -216,6 +215,15 @@ namespace SangokuKmy.Models.Data.Repositories
         this.container.Error(ex);
       }
     }
+
+    /// <summary>
+    /// 武将のログを追加する
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    /// <param name="log">ログ</param>
+    [Obsolete("characterId引数は不要")]
+    public async Task AddCharacterLogAsync(uint characterId, CharacterLog log)
+      => await this.AddCharacterLogAsync(log);
 
     /// <summary>
     /// 武将のログを取得
