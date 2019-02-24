@@ -83,7 +83,7 @@ namespace SangokuKmy.Controllers
           ApiData.From(system.GameDateTime),
         })
         .Concat(maplogs.Select(ml => ApiData.From(ml)))
-        .Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
+        //.Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
         .Concat(characterLogs.Select(cl => ApiData.From(cl)))
         .Concat(countries.Select(c => ApiData.From(c)))
         .Concat(towns.Select(tw => ApiData.From(tw)))

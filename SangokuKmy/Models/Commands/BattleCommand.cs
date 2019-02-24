@@ -177,6 +177,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       var enemy = new EnemyData();
+      var wallChara = new Character();
       var trendStrong = game.GameDateTime.ToInt() / 27;
       var defenders = await repo.Town.GetDefendersAsync(targetTown.Id);
       LogCharacterCache defenderCache = null;
@@ -208,7 +209,6 @@ namespace SangokuKmy.Models.Commands
         };
       }
 
-      var myAttack = Math.Max((int)((character.Strong + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - enemy.Proficiency / 2.5f) / 8), 0);
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");
       
       for (var i = 1; i <= 50 && enemy.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
@@ -254,21 +254,20 @@ namespace SangokuKmy.Models.Commands
             }
           }
 
-          var defenderChara = new Character
-          {
-            Strong = defenderCache.Strong,
-            Intellect = defenderCache.Intellect,
-            Leadership = defenderCache.Leadership,
-            Popularity = defenderCache.Popularity,
-            SoldierType = defenderCache.SoldierType,
-            SoldierNumber = defenderCache.SoldierNumber,
-            Proficiency = defenderCache.Proficiency,
-          };
-          var (a, d) = this.SoldierTypeCorrect(defenderChara);
+          wallChara.Strong = defenderCache.Strong;
+          wallChara.Intellect = defenderCache.Intellect;
+          wallChara.Leadership = defenderCache.Leadership;
+          wallChara.Popularity = defenderCache.Popularity;
+          wallChara.SoldierType = defenderCache.SoldierType;
+          wallChara.SoldierNumber = defenderCache.SoldierNumber;
+          wallChara.Proficiency = defenderCache.Proficiency;
+
+          var (a, d) = this.SoldierTypeCorrect(wallChara);
           targetAttackSoldierTypeCorrection = a;
           targetDefenceSoldierTypeCorrection = d;
         }
-        
+
+        var myAttack = Math.Max((int)((character.Strong + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - enemy.Proficiency / 2.5f) / 8), 0);
         var targetAttack = Math.Max((int)((enemy.Strong + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
         var targetDamage = Math.Min(Math.Max(rand.Next(myAttack + 1), 1), enemy.SoldierNumber);
         var myDamage = Math.Min(Math.Max(rand.Next(targetAttack + 1), 1), character.SoldierNumber);

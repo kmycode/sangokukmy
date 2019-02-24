@@ -567,9 +567,25 @@ namespace SangokuKmy.Controllers
             ErrorCode.NotPermissionError.Throw();
           }
 
-          param.RequestedCountryId = o.RequestedCountryId;
-          param.InsistedCountryId = o.InsistedCountryId;
-          param.StartGameDate = o.StartGameDate;
+          if (o.Status == CountryWarStatus.Stoped && param.Status == CountryWarStatus.InReady)
+          {
+            if (param.StartGameDate.ToInt() < system.IntGameDateTime + 12 * 12 + 1)
+            {
+              // 開戦が早すぎる
+              ErrorCode.InvalidParameterError.Throw();
+            }
+            else if (param.StartGameDate.ToInt() > system.IntGameDateTime + 12 * 48)
+            {
+              // 開戦が遅すぎる
+              ErrorCode.InvalidParameterError.Throw();
+            }
+          }
+          else
+          {
+            param.RequestedCountryId = o.RequestedCountryId;
+            param.InsistedCountryId = o.InsistedCountryId;
+            param.StartGameDate = o.StartGameDate;
+          }
         });
         old.None(() =>
         {
