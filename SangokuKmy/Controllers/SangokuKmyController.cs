@@ -308,6 +308,70 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("country/messages")]
+    public async Task SetCountryMessageAsync(
+      [FromBody] CountryMessage param)
+    {
+      CountryMessage message;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(chara.CountryId);
+        var myPosts = posts.Where(p => p.CharacterId == chara.Id);
+        if (!myPosts.CanCountrySetting())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        CharacterIcon icon;
+        if (param.WriterIconId > 0)
+        {
+          icon = await repo.Character.GetCharacterIconByIdAsync(param.WriterIconId);
+          if (icon == null)
+          {
+            ErrorCode.CharacterIconNotFoundError.Throw();
+          }
+        }
+        else
+        {
+          icon = (await repo.Character.GetCharacterAllIconsAsync(chara.Id)).GetMainOrFirst().GetOrError(ErrorCode.CharacterIconNotFoundError);
+        }
+
+        var old = await repo.Country.GetMessageAsync(chara.CountryId, param.Type);
+        if (old.HasData)
+        {
+          message = old.Data;
+        }
+        else
+        {
+          message = new CountryMessage
+          {
+            CountryId = chara.CountryId,
+            Type = param.Type,
+          };
+          await repo.Country.SetMessageAsync(message);
+        }
+
+        message.Message = param.Message;
+        message.WriterPost = myPosts.GetTopmostPost().Data.Type;
+        message.WriterCharacterId = chara.Id;
+        message.WriterCharacterName = chara.Name;
+        message.WriterIconId = icon.Id;
+        message.WriterIcon = icon;
+
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(message), message.CountryId);
+      if (message.Type == CountryMessageType.Solicitation)
+      {
+        await AnonymousStreaming.Default.SendAllAsync(ApiData.From(message));
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpPut("country/{targetId}/alliance")]
     public async Task SetCountryAllianceAsync(
       [FromRoute] uint targetId,

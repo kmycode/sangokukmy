@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Newtonsoft.Json;
+using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Entities
 {
@@ -17,8 +18,54 @@ namespace SangokuKmy.Models.Data.Entities
     /// 国のID
     /// </summary>
     [Column("country_id")]
-    [JsonIgnore]
+    [JsonProperty("countryId")]
     public uint CountryId { get; set; }
+
+    /// <summary>
+    /// メッセージを書いた人のID
+    /// </summary>
+    [Column("writer_character_id")]
+    [JsonIgnore]
+    public uint WriterCharacterId { get; set; }
+
+    /// <summary>
+    /// メッセージを書いた人
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("writerCharacterName")]
+    public string WriterCharacterName { get; set; }
+
+    /// <summary>
+    /// メッセージを書いた人の役職
+    /// </summary>
+    [Column("writer_post")]
+    [JsonIgnore]
+    public CountryPostType WriterPost { get; set; }
+
+    /// <summary>
+    /// メッセージを書いた人の役職（JSON出力用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("writerPost")]
+    public short ApiWriterPost
+    {
+      get => (short)this.WriterPost;
+      set => this.WriterPost = (CountryPostType)value;
+    }
+
+    /// <summary>
+    /// メッセージを書いた人のアイコンID
+    /// </summary>
+    [Column("writer_icon")]
+    [JsonIgnore]
+    public uint WriterIconId { get; set; }
+
+    /// <summary>
+    /// メッセージを書いた人のアイコン
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("writerIcon")]
+    public CharacterIcon WriterIcon { get; set; }
 
     /// <summary>
     /// メッセージの種類
@@ -26,6 +73,17 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("type")]
     [JsonIgnore]
     public CountryMessageType Type { get; set; }
+
+    /// <summary>
+    /// メッセージの種類（API出力用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("type")]
+    public byte ApiType
+    {
+      get => (byte)this.Type;
+      set => this.Type = (CountryMessageType)value;
+    }
 
     /// <summary>
     /// メッセージ

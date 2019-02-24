@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using SangokuKmy.Common;
 using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Entities
@@ -98,6 +101,15 @@ namespace SangokuKmy.Models.Data.Entities
   public static class CountryPostExtentions
   {
     /// <summary>
+    /// 最高位の役職を取得する
+    /// </summary>
+    /// <returns>最高位の役職</returns>
+    public static Optional<CountryPost> GetTopmostPost(this IEnumerable<CountryPost> posts)
+    {
+      return posts.OrderBy(p => p.ApiType).First().ToOptional();
+    }
+
+    /// <summary>
     /// 任命権限があるか確認する
     /// </summary>
     /// <returns>任命権限があるか</returns>
@@ -113,6 +125,24 @@ namespace SangokuKmy.Models.Data.Entities
     public static bool CanDiplomacy(this CountryPostType type)
     {
       return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+    }
+
+    /// <summary>
+    /// 国の設定をする権限があるか確認する
+    /// </summary>
+    /// <returns>設定権限があるか</returns>
+    public static bool CanCountrySetting(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+    }
+
+    /// <summary>
+    /// 国の設定をする権限があるか確認する
+    /// </summary>
+    /// <returns>設定権限があるか</returns>
+    public static bool CanCountrySetting(this IEnumerable<CountryPost> posts)
+    {
+      return posts.Any(p => p.Type.CanCountrySetting());
     }
   }
 }
