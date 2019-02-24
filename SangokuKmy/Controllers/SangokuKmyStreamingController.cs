@@ -49,7 +49,7 @@ namespace SangokuKmy.Controllers
       {
         system = await repo.System.GetAsync();
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        maplogs = await repo.MapLog.GetNewestAsync(50);
+        maplogs = await repo.MapLog.GetNewestAsync(10);
         importantMaplogs = await repo.MapLog.GetImportantNewestAsync(50);
         characterLogs = await repo.Character.GetCharacterLogsAsync(this.AuthData.CharacterId, 50);
         country = (await repo.Country.GetByIdAsync(chara.CountryId)).Data;
@@ -83,7 +83,7 @@ namespace SangokuKmy.Controllers
           ApiData.From(system.GameDateTime),
         })
         .Concat(maplogs.Select(ml => ApiData.From(ml)))
-        .Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
+        //.Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
         .Concat(characterLogs.Select(cl => ApiData.From(cl)))
         .Concat(countries.Select(c => ApiData.From(c)))
         .Concat(towns.Select(tw => ApiData.From(tw)))
