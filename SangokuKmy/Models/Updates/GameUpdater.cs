@@ -588,6 +588,19 @@ namespace SangokuKmy.Models.Updates
       character.LastUpdatedGameDate = currentMonth;
       repo.CharacterCommand.RemoveOlds(character.Id, character.LastUpdatedGameDate);
 
+      // 兵士の兵糧
+      if (character.Rice >= character.SoldierNumber)
+      {
+        character.Rice -= character.SoldierNumber;
+      }
+      else
+      {
+        var dec = character.SoldierNumber - character.Rice;
+        character.SoldierNumber = character.Rice;
+        character.Rice = 0;
+        await AddLogAsync($"米が足りず、兵士 <num>{dec}</num> を解雇しました");
+      }
+
       // 能力上昇
       async Task CheckAttributeAsync(string name, int old, int current, int type)
       {

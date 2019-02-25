@@ -130,10 +130,6 @@ namespace SangokuKmy.Models.Commands
       var targetExperience = 0;
       var targetContribution = 0;
 
-      var myCorrections = this.SoldierTypeCorrect(character);
-      myAttackSoldierTypeCorrection = myCorrections.AttackCorrection;
-      myDefenceSoldierTypeCorrection = myCorrections.DefenceCorrection;
-
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
       {
@@ -193,7 +189,7 @@ namespace SangokuKmy.Models.Commands
         log.DefenderType = DefenderType.Character;
         defenderCache = defender.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(defender.Id)).GetMainOrFirst().Data ?? new CharacterIcon());
 
-        var targetCorrections = this.SoldierTypeCorrect(defender);
+        var targetCorrections = this.SoldierTypeCorrect(defender, BattlerType.Character);
         targetAttackSoldierTypeCorrection = targetCorrections.AttackCorrection;
         targetDefenceSoldierTypeCorrection = targetCorrections.DefenceCorrection;
       }
@@ -214,6 +210,8 @@ namespace SangokuKmy.Models.Commands
       for (var i = 1; i <= 50 && enemy.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
       {
         var isNoDamage = false;
+        BattlerType enemyType;
+
         if (enemy.IsWall)
         {
           if (targetTown.WallGuard > 0)
@@ -233,6 +231,8 @@ namespace SangokuKmy.Models.Commands
               defenderCache.SoldierType = enemy.SoldierType;
               defenderCache.Proficiency = (short)enemy.Proficiency;
             }
+
+            enemyType = BattlerType.WallGuard;
           }
           else
           {
@@ -252,6 +252,8 @@ namespace SangokuKmy.Models.Commands
             {
               defenderCache.Name = "守兵/" + i + "ターン目より城壁";
             }
+
+            enemyType = BattlerType.Wall;
           }
 
           wallChara.Strong = defenderCache.Strong;
@@ -262,10 +264,18 @@ namespace SangokuKmy.Models.Commands
           wallChara.SoldierNumber = defenderCache.SoldierNumber;
           wallChara.Proficiency = defenderCache.Proficiency;
 
-          var (a, d) = this.SoldierTypeCorrect(wallChara);
+          var (a, d) = this.SoldierTypeCorrect(wallChara, BattlerType.Character);
           targetAttackSoldierTypeCorrection = a;
           targetDefenceSoldierTypeCorrection = d;
         }
+        else
+        {
+          enemyType = enemy.SoldierType == SoldierType.StrongGuards ? BattlerType.StrongGuards : BattlerType.Character;
+        }
+
+        var myCorrections = this.SoldierTypeCorrect(character, enemyType);
+        myAttackSoldierTypeCorrection = myCorrections.AttackCorrection;
+        myDefenceSoldierTypeCorrection = myCorrections.DefenceCorrection;
 
         var myAttack = Math.Max((int)((character.Strong + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - enemy.Proficiency / 2.5f) / 8), 0);
         var targetAttack = Math.Max((int)((enemy.Strong + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
@@ -417,15 +427,15 @@ namespace SangokuKmy.Models.Commands
       await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown));
     }
 
-    private (int AttackCorrection, int DefenceCorrection) SoldierTypeCorrect(Character character)
+    private (int AttackCorrection, int DefenceCorrection) SoldierTypeCorrect(Character character, BattlerType enemy)
     {
       var a = 0;
       var d = 0;
       switch (character.SoldierType)
       {
         case SoldierType.Guard:
-          a = 20;
-          d = 20;
+          a = 10;
+          d = 10;
           break;
         case SoldierType.LightInfantry:
           a = 10;
@@ -463,6 +473,14 @@ namespace SangokuKmy.Models.Commands
         case SoldierType.StrongGuards:
           d = character.Intellect;
           break;
+        case SoldierType.Seiran:
+          a = 20;
+          d = 20;
+          if (enemy == BattlerType.StrongGuards || enemy == BattlerType.Wall || enemy == BattlerType.WallGuard)
+          {
+            a = 200;
+          }
+          break;
         case SoldierType.Guard_Step1:
           a = 20;
           d = 20;
@@ -481,6 +499,14 @@ namespace SangokuKmy.Models.Commands
           break;
       }
       return (a, d);
+    }
+
+    private enum BattlerType
+    {
+      Character,
+      WallGuard,
+      Wall,
+      StrongGuards,
     }
 
     private class EnemyData
