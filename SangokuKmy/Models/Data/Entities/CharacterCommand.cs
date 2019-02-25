@@ -141,6 +141,11 @@ namespace SangokuKmy.Models.Data.Entities
     Soldier = 10,
 
     /// <summary>
+    /// 訓練
+    /// </summary>
+    SoldierTraining = 11,
+
+    /// <summary>
     /// 城の守備
     /// </summary>
     Defend = 12,

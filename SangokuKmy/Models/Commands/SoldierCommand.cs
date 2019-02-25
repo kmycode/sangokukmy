@@ -49,10 +49,6 @@ namespace SangokuKmy.Models.Commands
         {
           await game.CharacterLogAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
         }
-        else if (character.SoldierNumber >= character.Leadership)
-        {
-          await game.CharacterLogAsync("兵士数が最大です。");
-        }
         else if (character.Money < soldierTypeDataOptional.Data.Money * soldierNumber)
         {
           await game.CharacterLogAsync("所持金が足りません。");
