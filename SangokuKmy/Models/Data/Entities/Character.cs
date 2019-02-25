@@ -413,6 +413,7 @@ namespace SangokuKmy.Models.Data.Entities
       new SoldierTypeData { Name = "智攻兵", Type = SoldierType.Intellect, Money = 250, Technology = 800, },
       new SoldierTypeData { Name = "連弩兵", Type = SoldierType.RepeatingCrossbow, Money = 300, Technology = 900, },
       new SoldierTypeData { Name = "壁守兵", Type = SoldierType.StrongGuards, Money = 350, Technology = 999, },
+      new SoldierTypeData { Name = "井闌", Type = SoldierType.Seiran, Money = 100, Technology = 500, },
       new SoldierTypeData { Name = "守兵A", Type = SoldierType.Guard_Step1, Money = 0, Technology = short.MaxValue, },
       new SoldierTypeData { Name = "守兵B", Type = SoldierType.Guard_Step2, Money = 0, Technology = short.MaxValue, },
       new SoldierTypeData { Name = "守兵C", Type = SoldierType.Guard_Step3, Money = 0, Technology = short.MaxValue, },
