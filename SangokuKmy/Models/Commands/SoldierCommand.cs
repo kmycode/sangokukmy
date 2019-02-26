@@ -35,7 +35,7 @@ namespace SangokuKmy.Models.Commands
       {
         var town = townOptional.Data;
         var soldierType = (SoldierType)soldierTypeOptional.Data.NumberValue;
-        var soldierTypeDataOptional = SoldierTypes.Get(soldierType);
+        var soldierTypeDataOptional = DefaultCharacterSoldierTypes.Get(soldierType);
         var soldierNumber = soldierNumberOptional.Data.NumberValue;
         if (town.CountryId != character.CountryId)
         {
@@ -120,7 +120,7 @@ namespace SangokuKmy.Models.Commands
       var town = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { command = "soldier", townId = chara.TownId, });
       var soldierType = (SoldierType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var soldierNumber = options.FirstOrDefault(p => p.Type == 2).Or(ErrorCode.LackOfCommandParameter);
-      var soldierTypeData = SoldierTypes.Get(soldierType).GetOrError(ErrorCode.InvalidCommandParameter);
+      var soldierTypeData = DefaultCharacterSoldierTypes.Get(soldierType).GetOrError(ErrorCode.InvalidCommandParameter);
 
       if (soldierNumber.NumberValue <= 0)
       {

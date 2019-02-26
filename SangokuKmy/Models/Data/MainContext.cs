@@ -66,6 +66,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<CharacterUpdateLog> CharacterUpdateLogs { get; set; }
 
     /// <summary>
+    /// 武将の兵種
+    /// </summary>
+    public DbSet<CharacterSoldierType> CharacterSoldierTypes { get; set; }
+
+    /// <summary>
     /// 登録時のホスト
     /// </summary>
     public DbSet<EntryHost> EntryHosts { get; set; }
@@ -96,6 +101,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<CountryWar> CountryWars { get; set; }
 
     /// <summary>
+    /// 研究
+    /// </summary>
+    public DbSet<CountryResearch> CountryResearches { get; set; }
+
+    /// <summary>
     /// マップログ
     /// </summary>
     public DbSet<MapLog> MapLogs { get; set; }
@@ -111,6 +121,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<Town> Towns { get; set; }
 
     /// <summary>
+    /// 都市の施設
+    /// </summary>
+    public DbSet<TownBuilding> TownBuildings { get; set; }
+
+    /// <summary>
     /// 諜報された都市データ
     /// </summary>
     public DbSet<ScoutedTown> ScoutedTowns { get; set; }
@@ -124,6 +139,11 @@ namespace SangokuKmy.Models.Data
     /// 諜報された都市の守備データ
     /// </summary>
     public DbSet<ScoutedDefender> ScoutedDefenders { get; set; }
+
+    /// <summary>
+    /// 諜報された都市の施設データ
+    /// </summary>
+    public DbSet<ScoutedBuilding> ScoutedBuildings { get; set; }
 
     /// <summary>
     /// 都市の守備武将

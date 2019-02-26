@@ -68,17 +68,42 @@ namespace SangokuKmy.Controllers
 
     [AuthenticationFilter]
     [HttpGet("commands")]
-    public async Task<GetCharacterAllCommandsResponse> GetCharacterAllCommandsAsync()
+    public async Task<GetCharacterAllCommandsResponse> GetCharacterAllCommandsAsync(
+      [FromQuery] string months = "")
     {
       IEnumerable<CharacterCommand> commands;
       int secondsNextCommand;
+
+      List<GameDateTime> mons = null;
+      if (!string.IsNullOrEmpty(months))
+      {
+        var numTexts = months.Split(',');
+        var nums = new List<GameDateTime>();
+        foreach (var text in numTexts)
+        {
+          if (int.TryParse(text, out var value))
+          {
+            nums.Add(GameDateTime.FromInt(value));
+          }
+        }
+        mons = nums;
+      }
+
       using (var repo = MainRepository.WithRead())
       {
         var system = await repo.System.GetAsync();
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var isCurrentMonthExecuted = chara.LastUpdated >= system.CurrentMonthStartDateTime;
         var firstMonth = isCurrentMonthExecuted ? system.GameDateTime.NextMonth() : system.GameDateTime;
-        commands = await repo.CharacterCommand.GetAllAsync(this.AuthData.CharacterId, firstMonth);
+
+        if (mons != null && mons.Any())
+        {
+          commands = await repo.CharacterCommand.GetAsync(this.AuthData.CharacterId, mons);
+        }
+        else
+        {
+          commands = await repo.CharacterCommand.GetAllAsync(this.AuthData.CharacterId, firstMonth);
+        }
 
         // 次のコマンドが実行されるまでの秒数
         secondsNextCommand = (int)(chara.LastUpdated.AddSeconds(Config.UpdateTime) - DateTime.Now).TotalSeconds;
@@ -183,7 +208,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
-        charas = (await repo.Town.GetCharactersAsync(townId))
+        charas = (await repo.Town.GetCharactersWithIconAsync(townId))
           .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);

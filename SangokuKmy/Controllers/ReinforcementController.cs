@@ -227,8 +227,8 @@ namespace SangokuKmy.Controllers
           await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
           var oldTown = await repo.Town.GetByIdAsync(oldTownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           var town = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
-          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(oldTown), (await repo.Town.GetCharactersAsync(oldTownId)).Select(c => c.Character.Id).Distinct());
-          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(chara.TownId)).Select(c => c.Character.Id).Distinct());
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(oldTown), (await repo.Town.GetCharactersWithIconAsync(oldTownId)).Select(c => c.Character.Id).Distinct());
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersWithIconAsync(chara.TownId)).Select(c => c.Character.Id).Distinct());
           await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new TownForAnonymous(oldTown)), chara.Id);
         }
       }
