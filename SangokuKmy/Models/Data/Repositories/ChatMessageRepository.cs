@@ -162,6 +162,22 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public void RemoveByCountryId(uint countryId)
+    {
+      try
+      {
+        foreach (var message in this.container.Context.ChatMessages.Where(r => r.Type == ChatMessageType.SelfCountry))
+        {
+          message.TypeData = 0;
+          message.TypeData2 = 0;
+        }
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     /// <summary>
     /// 内容をすべてリセットする
     /// </summary>

@@ -383,6 +383,7 @@ namespace SangokuKmy.Models.Commands
                 var targetCountryCharacters = await repo.Character.RemoveCountryAsync(targetCountry.Id);
                 repo.Unit.RemoveUnitsByCountryId(targetCountry.Id);
                 repo.Reinforcement.RemoveByCountryId(targetCountry.Id);
+                repo.ChatMessage.RemoveByCountryId(targetCountry.Id);
                 repo.CountryDiplomacies.RemoveByCountryId(targetCountry.Id);
                 repo.Country.RemoveDataByCountryId(targetCountry.Id);
 
