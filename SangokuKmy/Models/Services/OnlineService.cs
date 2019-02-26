@@ -96,12 +96,20 @@ namespace SangokuKmy.Models.Services
           var exists = streamings.Where(s => onlines.Any(o => o.Character.Id == s.Id)).ToArray();
           var newers = streamings.Except(exists).ToArray();
           var leaves = onlines.Where(o => !streamings.Any(s => o.Character.Id == s.Id)).ToArray();
+          var countryChanges = streamings
+            .Join(onlines, s => s.Id, o => o.Character.Id, (s, o) => new { Streaming = s, Online = o, })
+            .Where(d => d.Streaming.CountryId != d.Online.Character.CountryId);
 
           foreach (var leave in leaves)
           {
             leave.Status = OnlineStatus.Offline;
             onlines.Remove(leave);
             updates.Add(leave);
+          }
+          foreach (var data in countryChanges)
+          {
+            data.Online.Character.CountryId = data.Streaming.CountryId;
+            updates.Add(data.Online);
           }
           foreach (var chara in newers)
           {
