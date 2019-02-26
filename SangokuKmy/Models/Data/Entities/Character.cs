@@ -389,39 +389,4 @@ namespace SangokuKmy.Models.Data.Entities
 
     Guard_Step4 = 103,
   }
-
-  public class SoldierTypeData
-  {
-    public string Name { get; set; }
-    public SoldierType Type { get; set; }
-    public short Money { get; set; }
-    public short Technology { get; set; }
-  }
-  public static class SoldierTypes
-  {
-    private static readonly IEnumerable<SoldierTypeData> data = new SoldierTypeData[]
-    {
-      new SoldierTypeData { Name = "雑兵", Type = SoldierType.Common, Money = 10, Technology = 0, },
-      new SoldierTypeData { Name = "禁兵", Type = SoldierType.Guard, Money = 10, Technology = 0, },
-      new SoldierTypeData { Name = "軽歩兵", Type = SoldierType.LightInfantry, Money = 20, Technology = 100, },
-      new SoldierTypeData { Name = "弓兵", Type = SoldierType.Archer, Money = 30, Technology = 200, },
-      new SoldierTypeData { Name = "軽騎兵", Type = SoldierType.LightCavalry, Money = 50, Technology = 300, },
-      new SoldierTypeData { Name = "強弩兵", Type = SoldierType.StrongCrossbow, Money = 70, Technology = 400, },
-      new SoldierTypeData { Name = "神鬼兵", Type = SoldierType.LightIntellect, Money = 100, Technology = 500, },
-      new SoldierTypeData { Name = "重歩兵", Type = SoldierType.HeavyInfantry, Money = 150, Technology = 600, },
-      new SoldierTypeData { Name = "重騎兵", Type = SoldierType.HeavyCavalry, Money = 200, Technology = 700, },
-      new SoldierTypeData { Name = "智攻兵", Type = SoldierType.Intellect, Money = 250, Technology = 800, },
-      new SoldierTypeData { Name = "連弩兵", Type = SoldierType.RepeatingCrossbow, Money = 300, Technology = 900, },
-      new SoldierTypeData { Name = "壁守兵", Type = SoldierType.StrongGuards, Money = 350, Technology = 999, },
-      new SoldierTypeData { Name = "井闌", Type = SoldierType.Seiran, Money = 100, Technology = 500, },
-      new SoldierTypeData { Name = "守兵A", Type = SoldierType.Guard_Step1, Money = 0, Technology = short.MaxValue, },
-      new SoldierTypeData { Name = "守兵B", Type = SoldierType.Guard_Step2, Money = 0, Technology = short.MaxValue, },
-      new SoldierTypeData { Name = "守兵C", Type = SoldierType.Guard_Step3, Money = 0, Technology = short.MaxValue, },
-      new SoldierTypeData { Name = "守兵D", Type = SoldierType.Guard_Step4, Money = 0, Technology = short.MaxValue, },
-    };
-    public static Optional<SoldierTypeData> Get(SoldierType type)
-    {
-      return data.SingleOrDefault(d => d.Type == type).ToOptional();
-    }
-  }
 }

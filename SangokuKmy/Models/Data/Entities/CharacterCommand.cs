@@ -176,6 +176,11 @@ namespace SangokuKmy.Models.Data.Entities
     Training = 18,
 
     /// <summary>
+    /// 米売買
+    /// </summary>
+    Rice = 19,
+
+    /// <summary>
     /// 仕官
     /// </summary>
     Join = 23,

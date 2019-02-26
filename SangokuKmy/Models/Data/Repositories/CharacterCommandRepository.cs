@@ -101,6 +101,34 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 指定した武将の設定したコマンドを取得
+    /// </summary>
+    /// <returns>指定月のすべてのコマンド</returns>
+    /// <param name="characterId">武将ID</param>
+    /// <param name="monthes">月</param>
+    public async Task<IEnumerable<CharacterCommand>> GetAsync(uint characterId, IEnumerable<GameDateTime> monthes)
+    {
+      var intMonthes = monthes.Select(m => m.ToInt()).ToArray();
+
+      try
+      {
+        return (await this.container.Context.CharacterCommands
+          .Where(c => c.CharacterId == characterId && intMonthes.Contains(c.IntGameDateTime))
+          .OrderBy(c => c.IntGameDateTime)
+          .GroupJoin(this.container.Context.CharacterCommandParameters,
+            c => c.Id,
+            cp => cp.CharacterCommandId,
+            (c, cps) => c.SetParameters(cps))
+          .ToArrayAsync());
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 指定した武将のコマンドを設定
     /// </summary>
     /// <param name="characterId">武将ID</param>

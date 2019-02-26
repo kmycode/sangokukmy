@@ -50,7 +50,7 @@ namespace SangokuKmy.Models.Commands
       await game.CharacterLogAsync("<country>" + country.Name + "</country> に仕官しました");
       await game.MapLogAsync(EventType.CharacterJoin, "<character>" + character.Name + "</character> は <country>" + country.Name + "</country> に仕官しました", false);
 
-      var townCharas = await repo.Town.GetCharactersAsync(town.Id);
+      var townCharas = await repo.Town.GetCharactersWithIconAsync(town.Id);
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), townCharas.Select(tc => tc.Character.Id));
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(country), character.Id);
     }

@@ -29,9 +29,19 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        return await this.container.Context.Towns
-          .FindAsync(id)
-          .ToOptionalAsync();
+        var town = await this.container.Context.Towns
+          .FindAsync(id);
+        if (town != null)
+        {
+          town.Buildings = await this.container.Context.TownBuildings
+            .Where(b => b.TownId == town.Id)
+            .ToArrayAsync();
+          return town.ToOptional();
+        }
+        else
+        {
+          return default;
+        }
       }
       catch (Exception ex)
       {
@@ -48,7 +58,15 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        return await this.container.Context.Towns.ToArrayAsync();
+        return (await this.container.Context.Towns
+          .GroupJoin(this.container.Context.TownBuildings, t => t.Id, b => b.TownId, (t, bs) => new { Town = t, Buildings = bs, })
+          .ToArrayAsync())
+          .Select(t =>
+          {
+            t.Town.Buildings = t.Buildings;
+            return t.Town;
+          })
+          .ToArray();
       }
       catch (Exception ex)
       {
@@ -115,7 +133,28 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="townId">都市ID</param>
     /// <returns>その都市に滞在する武将</returns>
-    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon)>> GetCharactersAsync(uint townId)
+    public async Task<IReadOnlyCollection<Character>> GetCharactersAsync(uint townId)
+    {
+      try
+      {
+        return (await this.container.Context.Characters
+          .Where(c => c.TownId == townId && !c.HasRemoved)
+          .OrderBy(c => c.LastUpdated)
+          .ToArrayAsync());
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 都市IDから武将を取得
+    /// </summary>
+    /// <param name="townId">都市ID</param>
+    /// <returns>その都市に滞在する武将</returns>
+    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon)>> GetCharactersWithIconAsync(uint townId)
     {
       try
       {

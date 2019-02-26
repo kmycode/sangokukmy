@@ -28,6 +28,7 @@ namespace SangokuKmy.Models.Commands
       new GatherCommand(),
       new PromotionCommand(),
       new MoveCommand(),
+      new RiceCommand(),
       new TrainingCommand(),
       new JoinCommand(),
     };

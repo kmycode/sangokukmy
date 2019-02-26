@@ -43,5 +43,7 @@ namespace SangokuKmy.Models.Common
     public static int CountryColorMax { get; } = 8;
 
     public static int DeleteTurns { get; } = 500;
+
+    public static int RiceBuyMax { get; } = 10000;
   }
 }
