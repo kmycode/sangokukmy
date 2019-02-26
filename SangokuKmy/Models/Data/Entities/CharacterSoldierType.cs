@@ -286,7 +286,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "智攻兵",
         Money = 250,
         Technology = 800,
-        IntellectAttack = 700,
+        IntellectAttack = 800,
         IntellectDefend = 400,
       },
       new CharacterSoldierType
