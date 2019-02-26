@@ -209,7 +209,7 @@ namespace SangokuKmy.Controllers
         }
 
         charas = (await repo.Town.GetCharactersWithIconAsync(townId))
-          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown));
+          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
     }
@@ -285,7 +285,7 @@ namespace SangokuKmy.Controllers
       {
         charas = (await repo.Country.GetCharactersAsync(countryId))
           .GroupJoin(await repo.Reinforcement.GetByCountryIdAsync(countryId), c => c.Character.Id, r => r.CharacterId, (c, rs) => new { CharacterData = c, Reinforcements = rs })
-          .Select(c => new CharacterForAnonymous(c.CharacterData.Character, c.CharacterData.Icon, c.Reinforcements.FirstOrDefault(), CharacterShareLevel.Anonymous));
+          .Select(c => new CharacterForAnonymous(c.CharacterData.Character, c.CharacterData.Icon, c.Reinforcements.FirstOrDefault(), CharacterShareLevel.SameCountry));
       }
       return ApiData.From(charas);
     }

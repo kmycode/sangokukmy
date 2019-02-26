@@ -51,6 +51,16 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("reinforcement")]
     public Reinforcement Reinforcement { get; set; }
 
+    [JsonIgnore]
+    public DateTime LastUpdated { get; set; }
+
+    [JsonProperty("lastUpdated")]
+    public ApiDateTime ApiLastUpdated
+    {
+      get => ApiDateTime.FromDateTime(this.LastUpdated);
+      set => this.LastUpdated = value.ToDateTime();
+    }
+
     public CharacterForAnonymous(Character character, CharacterIcon mainIcon, CharacterShareLevel level)
       : this(character, mainIcon, null, level)
     {
@@ -67,10 +77,14 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.Leadership = character.Leadership;
       this.Popularity = character.Popularity;
       this.Reinforcement = reinforcement;
-      if (level == CharacterShareLevel.SameTown)
+      if (level == CharacterShareLevel.SameTown || level == CharacterShareLevel.SameTownAndSameCountry)
       {
         this.SoldierNumber = character.SoldierNumber;
         this.SoldierType = character.ApiSoldierType;
+      }
+      if (level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountry)
+      {
+        this.LastUpdated = character.LastUpdated;
       }
       if (level == CharacterShareLevel.AllCharacterList)
       {
@@ -94,6 +108,16 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 同じ都市に滞在する武将の範囲内
     /// </summary>
     SameTown,
+
+    /// <summary>
+    /// 同じ都市に滞在し、かつ同じ国に仕官している
+    /// </summary>
+    SameTownAndSameCountry,
+
+    /// <summary>
+    /// 同じ国である
+    /// </summary>
+    SameCountry,
 
     /// <summary>
     /// 登録武将一覧または名将一覧
