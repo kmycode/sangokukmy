@@ -133,7 +133,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <returns>設定権限があるか</returns>
     public static bool CanCountrySetting(this CountryPostType type)
     {
-      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior || type == CountryPostType.GrandGeneral;
     }
 
     /// <summary>
@@ -143,6 +143,24 @@ namespace SangokuKmy.Models.Data.Entities
     public static bool CanCountrySetting(this IEnumerable<CountryPost> posts)
     {
       return posts.Any(p => p.Type.CanCountrySetting());
+    }
+
+    /// <summary>
+    /// 国の設定をする権限があるか確認する
+    /// </summary>
+    /// <returns>設定権限があるか</returns>
+    public static bool CanCountrySettingExceptForCommands(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+    }
+
+    /// <summary>
+    /// 国の設定をする権限があるか確認する
+    /// </summary>
+    /// <returns>設定権限があるか</returns>
+    public static bool CanCountrySettingExceptForCommands(this IEnumerable<CountryPost> posts)
+    {
+      return posts.Any(p => p.Type.CanCountrySettingExceptForCommands());
     }
   }
 }

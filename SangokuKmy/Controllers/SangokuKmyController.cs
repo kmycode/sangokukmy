@@ -349,6 +349,10 @@ namespace SangokuKmy.Controllers
         {
           ErrorCode.NotPermissionError.Throw();
         }
+        if (param.Type != CountryMessageType.Commanders && !myPosts.CanCountrySettingExceptForCommands())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
 
         CharacterIcon icon;
         if (param.WriterIconId > 0)
