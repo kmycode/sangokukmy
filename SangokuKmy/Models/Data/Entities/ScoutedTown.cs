@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using Newtonsoft.Json;
 using SangokuKmy.Models.Data.ApiEntities;
 
@@ -34,6 +35,18 @@ namespace SangokuKmy.Models.Data.Entities
         Security = town.Security,
         IntRicePrice = town.IntRicePrice,
       };
+      if (town.Buildings != null)
+      {
+        t.Buildings = town.Buildings
+          .Select(b => new TownBuilding
+          {
+            TownId = b.TownId,
+            Type = b.Type,
+            Value = b.Value,
+            ValueMax = b.ValueMax,
+          })
+          .ToArray();
+      }
       return t;
     }
 

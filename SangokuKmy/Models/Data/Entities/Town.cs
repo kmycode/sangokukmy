@@ -168,6 +168,13 @@ namespace SangokuKmy.Models.Data.Entities
       get => this.IntRicePrice / 1000000.0f;
       set => this.IntRicePrice = (int)(value * 1000000);
     }
+
+    /// <summary>
+    /// 施設
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("buildings")]
+    public IEnumerable<TownBuildingBase> Buildings { get; set; }
   }
 
   [Table("town")]

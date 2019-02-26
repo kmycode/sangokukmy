@@ -112,8 +112,12 @@ namespace SangokuKmy.Models.Data.Repositories
           };
           return data;
         });
+      var buildings = await this.container.Context.ScoutedBuildings
+        .Where(sb => sb.ScoutId == t.Id)
+        .ToArrayAsync();
       t.Characters = characters;
       t.Defenders = defenders;
+      t.Buildings = buildings;
     }
 
     /// <summary>
@@ -132,6 +136,8 @@ namespace SangokuKmy.Models.Data.Repositories
             this.container.Context.ScoutedCharacters.Where(sc => sc.ScoutId == old.Id));
           this.container.Context.ScoutedDefenders.RemoveRange(
             this.container.Context.ScoutedDefenders.Where(sd => sd.ScoutId == old.Id));
+          this.container.Context.ScoutedBuildings.RemoveRange(
+            this.container.Context.ScoutedBuildings.Where(sb => sb.ScoutId == old.Id));
           this.container.Context.ScoutedTowns.Remove(old);
         }
 
@@ -166,8 +172,13 @@ namespace SangokuKmy.Models.Data.Repositories
               SoldierType = c.ApiSoldierType,
               SoldierNumber = c.SoldierNumber,
             });
+        foreach (var building in town.Buildings.Cast<ScoutedBuilding>())
+        {
+          building.ScoutId = town.Id;
+        }
         await this.container.Context.ScoutedCharacters.AddRangeAsync(characters);
         await this.container.Context.ScoutedDefenders.AddRangeAsync(defenders);
+        await this.container.Context.ScoutedBuildings.AddRangeAsync(town.Buildings.Cast<ScoutedBuilding>());
       }
       catch (Exception ex)
       {
@@ -204,6 +215,7 @@ namespace SangokuKmy.Models.Data.Repositories
         await this.container.RemoveAllRowsAsync(typeof(ScoutedTown));
         await this.container.RemoveAllRowsAsync(typeof(ScoutedCharacter));
         await this.container.RemoveAllRowsAsync(typeof(ScoutedDefender));
+        await this.container.RemoveAllRowsAsync(typeof(ScoutedBuilding));
       }
       catch (Exception ex)
       {
