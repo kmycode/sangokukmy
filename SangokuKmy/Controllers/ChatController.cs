@@ -171,6 +171,7 @@ namespace SangokuKmy.Controllers
       MapLog maplog = null;
       Town newTown = null;
       Town oldTown = null;
+      CountryMessage commanders = null;
       IEnumerable<uint> oldTownCharacters = null;
       IEnumerable<uint> newTownCharacters = null;
       ChatMessage newMessage;
@@ -201,6 +202,7 @@ namespace SangokuKmy.Controllers
           newTown = await repo.Town.GetByIdAsync(senderCountry.CapitalTownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           oldTownCharacters = (await repo.Town.GetCharactersWithIconAsync(oldTown.Id)).Select(c => c.Character.Id);
           newTownCharacters = (await repo.Town.GetCharactersWithIconAsync(newTown.Id)).Select(c => c.Character.Id);
+          commanders = (await repo.Country.GetMessageAsync(sender.CountryId, CountryMessageType.Commanders)).Data;
 
           chara.CountryId = senderCountry.Id;
           chara.TownId = senderCountry.CapitalTownId;
@@ -297,6 +299,10 @@ namespace SangokuKmy.Controllers
       {
         await StatusStreaming.Default.SendAllAsync(ApiData.From(maplog));
         await AnonymousStreaming.Default.SendAllAsync(ApiData.From(maplog));
+      }
+      if (commanders != null)
+      {
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), newCharacter.Id);
       }
       if (newTown != null && oldTown != null)
       {
