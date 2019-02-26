@@ -387,9 +387,16 @@ namespace SangokuKmy.Models.Commands
                 repo.Country.RemoveDataByCountryId(targetCountry.Id);
 
                 // 滅亡国武将に通知
+                var commanders = new CountryMessage
+                {
+                  Type = CountryMessageType.Commanders,
+                  Message = string.Empty,
+                  CountryId = 0,
+                };
                 foreach (var targetCountryCharacter in await repo.Country.GetCharactersAsync(targetCountry.Id))
                 {
                   await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCountryCharacter.Character), targetCountryCharacter.Character.Id);
+                  await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), targetCountryCharacter.Character.Id);
                 }
 
                 StatusStreaming.Default.UpdateCache(targetCountryCharacters);
