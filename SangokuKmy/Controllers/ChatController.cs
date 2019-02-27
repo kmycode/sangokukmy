@@ -174,7 +174,6 @@ namespace SangokuKmy.Controllers
       CountryMessage commanders = null;
       IEnumerable<uint> oldTownCharacters = null;
       IEnumerable<uint> newTownCharacters = null;
-      ChatMessage newMessage;
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
@@ -204,8 +203,8 @@ namespace SangokuKmy.Controllers
           newTownCharacters = (await repo.Town.GetCharactersWithIconAsync(newTown.Id)).Select(c => c.Character.Id);
           commanders = (await repo.Country.GetMessageAsync(sender.CountryId, CountryMessageType.Commanders)).Data;
 
-          chara.CountryId = senderCountry.Id;
-          chara.TownId = senderCountry.CapitalTownId;
+          await CharacterService.ChangeTownAsync(repo, senderCountry.CapitalTownId, chara);
+          await CharacterService.ChangeCountryAsync(repo, senderCountry.Id, new Character[] { chara, });
 
           charalog = new CharacterLog
           {
@@ -299,17 +298,6 @@ namespace SangokuKmy.Controllers
       {
         await StatusStreaming.Default.SendAllAsync(ApiData.From(maplog));
         await AnonymousStreaming.Default.SendAllAsync(ApiData.From(maplog));
-      }
-      if (commanders != null)
-      {
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), newCharacter.Id);
-      }
-      if (newTown != null && oldTown != null)
-      {
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(newTown), this.AuthData.CharacterId);
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(newTown), newTownCharacters);
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new TownForAnonymous(oldTown)), this.AuthData.CharacterId);
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(oldTown), oldTownCharacters);
       }
     }
   }
