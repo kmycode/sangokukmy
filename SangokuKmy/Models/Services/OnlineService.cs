@@ -156,11 +156,14 @@ namespace SangokuKmy.Models.Services
           }
         }
 
-        var apiData = updates.Select(u => ApiData.From(u)).ToArray();
-        await Task.WhenAll(
-          StatusStreaming.Default.SendAllAsync(apiData),
-          AnonymousStreaming.Default.SendAllAsync(apiData));
-        updates.Clear();
+        if (updates.Any())
+        {
+          var apiData = updates.Select(u => ApiData.From(u)).ToArray();
+          await Task.WhenAll(
+            StatusStreaming.Default.SendAllAsync(apiData),
+            AnonymousStreaming.Default.SendAllAsync(apiData));
+          updates.Clear();
+        }
       }
       catch (Exception ex)
       {
