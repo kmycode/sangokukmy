@@ -54,6 +54,16 @@ namespace SangokuKmy.Models.Updates
         return command;
       }
 
+      if (this.Town.Id == this.Country.CapitalTownId)
+      {
+        var currentDefenders = await repo.Town.GetDefendersAsync(this.Town.Id);
+        if (!currentDefenders.Any(d => d.Character.Id == this.Character.Id))
+        {
+          command.Type = CharacterCommandType.Defend;
+          return command;
+        }
+      }
+
       var availableWar = wars
         .FirstOrDefault(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
       if (availableWar != null)
