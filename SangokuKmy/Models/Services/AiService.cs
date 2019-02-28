@@ -206,8 +206,8 @@ namespace SangokuKmy.Models.Services
       await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Data.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
       await repo.SaveChangesAsync();
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(town.Data));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(town.Data));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
 
