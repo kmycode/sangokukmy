@@ -12,6 +12,8 @@ namespace SangokuKmy.Models.Services
 {
   public static class ResetService
   {
+    private static readonly Random rand = new Random(DateTime.Now.Millisecond);
+
     public static async Task ResetAsync(MainRepository repo)
     {
       await repo.AuthenticationData.ResetAsync();
@@ -123,51 +125,56 @@ namespace SangokuKmy.Models.Services
 
     private static async Task ResetTownsAsync(MainRepository repo)
     {
-      var rand = new Random(DateTime.Now.Millisecond);
       var initialTowns = await repo.Town.GetAllInitialTownsAsync();
       var towns = new List<Town>();
       foreach (var itown in initialTowns)
       {
         var typeId = itown.Type;
-        if (typeId == TownType.Any)
-        {
-          var r = rand.Next(1, 4);
-          if (r == 1)
-          {
-            typeId = TownType.Agriculture;
-          }
-          else if (r == 2)
-          {
-            typeId = TownType.Commercial;
-          }
-          else
-          {
-            typeId = TownType.Fortress;
-          }
-        }
-        var type = typeId == TownType.Agriculture ? TownTypeDefinition.Agriculture :
-                   typeId == TownType.Commercial ? TownTypeDefinition.Commercial :
-                   typeId == TownType.Fortress ? TownTypeDefinition.Fortress :
-                   TownTypeDefinition.Large;
-        var town = new Town
-        {
-          Name = itown.Name,
-          X = itown.X,
-          Y = itown.Y,
-          Type = typeId,
-          AgricultureMax = type.AgricultureMax,
-          CommercialMax = type.CommercialMax,
-          TechnologyMax = type.TechnologyMax,
-          WallMax = type.WallMax,
-          WallGuardMax = type.WallGuardMax,
-          PeopleMax = type.PeopleMax,
-          People = type.People,
-          Security = (short)type.Security,
-        };
+        var town = CreateTown(typeId);
+        town.Name = itown.Name;
+        town.X = itown.X;
+        town.Y = itown.Y;
         towns.Add(town);
       }
 
       await repo.Town.AddTownsAsync(towns);
+    }
+
+    public static Town CreateTown(TownType typeId)
+    {
+      if (typeId == TownType.Any)
+      {
+        var r = rand.Next(1, 4);
+        if (r == 1)
+        {
+          typeId = TownType.Agriculture;
+        }
+        else if (r == 2)
+        {
+          typeId = TownType.Commercial;
+        }
+        else
+        {
+          typeId = TownType.Fortress;
+        }
+      }
+      var type = typeId == TownType.Agriculture ? TownTypeDefinition.Agriculture :
+                 typeId == TownType.Commercial ? TownTypeDefinition.Commercial :
+                 typeId == TownType.Fortress ? TownTypeDefinition.Fortress :
+                 TownTypeDefinition.Large;
+      var town = new Town
+      {
+        Type = typeId,
+        AgricultureMax = type.AgricultureMax,
+        CommercialMax = type.CommercialMax,
+        TechnologyMax = type.TechnologyMax,
+        WallMax = type.WallMax,
+        WallGuardMax = type.WallGuardMax,
+        PeopleMax = type.PeopleMax,
+        People = type.People,
+        Security = (short)type.Security,
+      };
+      return town;
     }
 
     private abstract class TownTypeDefinition

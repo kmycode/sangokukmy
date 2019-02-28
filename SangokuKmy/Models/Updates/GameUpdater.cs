@@ -453,6 +453,16 @@ namespace SangokuKmy.Models.Updates
 
           await repo.SaveChangesAsync();
         }
+
+        // 異民族
+        if (system.TerroristCount <= 0 && !system.IsWaitingReset && system.GameDateTime.Year >= (system.Period == 0 && system.BetaVersion == 1 ? 131 : 200))
+        {
+          var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          if (isCreated)
+          {
+            system.TerroristCount++;
+          }
+        }
       }
 
       // 月の更新を保存
@@ -493,7 +503,6 @@ namespace SangokuKmy.Models.Updates
       var anonymousNotifies = new List<ApiData<MapLog>>();
       var anyoneNotifies = new List<Tuple<uint, IApiData>>();
       var currentMonth = character.LastUpdatedGameDate.NextMonth();
-      var commandOptional = await repo.CharacterCommand.GetAsync(character.Id, currentMonth);
       var oldStrong = character.Strong;
       var oldIntellect = character.Intellect;
       var oldLeadership = character.Leadership;
@@ -549,6 +558,8 @@ namespace SangokuKmy.Models.Updates
       };
 
       // コマンドの実行
+      var ai = AiCharacterFactory.Create(character);
+      var commandOptional = await ai.GetCommandAsync(repo, currentMonth);
       if (currentMonth.Year >= Config.UpdateStartYear)
       {
         var isCommandExecuted = false;

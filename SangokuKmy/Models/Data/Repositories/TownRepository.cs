@@ -119,6 +119,7 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
+        var a = await this.container.Context.Towns.CountAsync(t => t.CountryId == countryId);
         return await this.container.Context.Towns.AllAsync(t => t.CountryId == countryId);
       }
       catch (Exception ex)

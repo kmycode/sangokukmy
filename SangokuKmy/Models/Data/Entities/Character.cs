@@ -46,6 +46,13 @@ namespace SangokuKmy.Models.Data.Entities
     public string Name { get; set; }
 
     /// <summary>
+    /// AIの種類
+    /// </summary>
+    [Column("ai_type")]
+    [JsonIgnore]
+    public CharacterAiType AiType { get; set; }
+
+    /// <summary>
     /// 国のID
     /// </summary>
     [Column("country_id")]
@@ -388,5 +395,17 @@ namespace SangokuKmy.Models.Data.Entities
     Guard_Step3 = 102,
 
     Guard_Step4 = 103,
+  }
+
+  public enum CharacterAiType
+  {
+    Human = 0,
+    FarmerBattler = 1,
+    FarmerCivilOfficial = 2,
+    FarmerPatroller = 3,
+    TerroristBattler = 4,
+    TerroristWallBattler = 5,
+    TerroristCivilOfficial = 6,
+    TerroristPatroller = 7,
   }
 }
