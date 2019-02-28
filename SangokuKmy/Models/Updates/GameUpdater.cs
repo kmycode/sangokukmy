@@ -457,7 +457,7 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 異民族
-        if (system.TerroristCount <= 0 && !system.IsWaitingReset && system.GameDateTime.Year >= (system.Period == 0 && system.BetaVersion == 1 ? 131 : 200))
+        if (system.TerroristCount <= 0 && !system.IsWaitingReset && system.GameDateTime.Year >= 131)
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
