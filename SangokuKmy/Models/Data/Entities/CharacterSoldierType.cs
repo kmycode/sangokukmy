@@ -266,7 +266,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Preset = SoldierType.HeavyInfantry,
         Name = "重歩兵",
-        Money = 150,
+        Money = 125,
         Technology = 600,
         BaseAttack = 50,
         BaseDefend = 30,
@@ -275,7 +275,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Preset = SoldierType.HeavyCavalry,
         Name = "重騎兵",
-        Money = 200,
+        Money = 150,
         Technology = 700,
         BaseAttack = 60,
         BaseDefend = 40,
@@ -284,7 +284,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Preset = SoldierType.Intellect,
         Name = "智攻兵",
-        Money = 250,
+        Money = 175,
         Technology = 800,
         IntellectAttack = 800,
         IntellectDefend = 400,
@@ -293,7 +293,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Preset = SoldierType.RepeatingCrossbow,
         Name = "連弩兵",
-        Money = 300,
+        Money = 200,
         Technology = 900,
         BaseAttack = 90,
         BaseDefend = 30,
@@ -302,7 +302,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Preset = SoldierType.StrongGuards,
         Name = "壁守兵",
-        Money = 350,
+        Money = 225,
         Technology = 999,
         IntellectDefend = 1000,
       },

@@ -336,6 +336,10 @@ namespace SangokuKmy.Models.Commands
           if (enemy.Defender.HasData)
           {
             await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, "<character>" + character.Name + "</character> を撃退しました");
+            if (enemy.Defender.Data.AiType != CharacterAiType.Human)
+            {
+              enemy.Defender.Data.AddStrongEx(1000 * 10);
+            }
           }
         }
         else if (character.SoldierNumber > 0 && enemy.SoldierNumber > 0)
@@ -349,6 +353,10 @@ namespace SangokuKmy.Models.Commands
         }
         else
         {
+          if (character.AiType != CharacterAiType.Human)
+          {
+            character.AddStrongEx(1000 * 10);
+          }
           if (!enemy.IsWall)
           {
             repo.Town.RemoveDefender(enemy.Defender.Data.Id);

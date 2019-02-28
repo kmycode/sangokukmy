@@ -178,7 +178,9 @@ namespace SangokuKmy.Models.Updates
             var salary = new CountrySalary
             {
               CountryId = country.Country.Id,
-              AllSalary = country.Towns.Sum(t => (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People / 10000),
+              AllSalary = (int)country
+                .Towns
+                .Sum(t => (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People * (t.Id == country.Country.CapitalTownId ? 1.4f : 1.0f) / 10000),
               AllContributions = country.Characters.Sum(c => c.Contribution),
             };
             salary.AllSalary = Math.Max(salary.AllSalary, 0);
@@ -197,7 +199,7 @@ namespace SangokuKmy.Models.Updates
               var currentLank = Math.Min(Config.LankCount - 1, character.Class / Config.NextLank);
               var add = salary.AllContributions > 0 ?
                 (int)(salary.AllSalary * (float)character.Contribution / salary.AllContributions + character.Contribution * 1.3f) : 0;
-              var addMax = 1000 + currentLank * 300;
+              var addMax = 1000 + currentLank * 150;
               add = Math.Min(Math.Max(add, 0), addMax);
 
               if (system.GameDateTime.Month == 1)
@@ -453,6 +455,16 @@ namespace SangokuKmy.Models.Updates
 
           await repo.SaveChangesAsync();
         }
+
+        // 異民族
+        if (system.TerroristCount <= 0 && !system.IsWaitingReset && ((system.BetaVersion == 1 && system.Period == 0) || (system.GameDateTime.Year >= 194 && rand.Next(0, 200) == 0))
+        {
+          var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          if (isCreated)
+          {
+            system.TerroristCount++;
+          }
+        }
       }
 
       // 月の更新を保存
@@ -493,7 +505,6 @@ namespace SangokuKmy.Models.Updates
       var anonymousNotifies = new List<ApiData<MapLog>>();
       var anyoneNotifies = new List<Tuple<uint, IApiData>>();
       var currentMonth = character.LastUpdatedGameDate.NextMonth();
-      var commandOptional = await repo.CharacterCommand.GetAsync(character.Id, currentMonth);
       var oldStrong = character.Strong;
       var oldIntellect = character.Intellect;
       var oldLeadership = character.Leadership;
@@ -549,6 +560,8 @@ namespace SangokuKmy.Models.Updates
       };
 
       // コマンドの実行
+      var ai = AiCharacterFactory.Create(character);
+      var commandOptional = await ai.GetCommandAsync(repo, currentMonth);
       if (currentMonth.Year >= Config.UpdateStartYear)
       {
         var isCommandExecuted = false;

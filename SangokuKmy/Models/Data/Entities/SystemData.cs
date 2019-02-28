@@ -38,7 +38,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// デバッグモードであるぁ
     /// </summary>
     [Column("is_debug")]
-    [JsonProperty("isDebug")]
+    [JsonIgnore]
     public bool IsDebug { get; set; }
 
     /// <summary>
@@ -59,7 +59,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// 次の期はベータであるか
     /// </summary>
     [Column("is_next_period_beta")]
-    [JsonProperty("isNextPeriodBeta")]
+    [JsonIgnore]
     public bool IsNextPeriodBeta { get; set; }
 
     /// <summary>
@@ -127,5 +127,12 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("invitation_code_requested_entry")]
     [JsonProperty("invitationCodeRequestedAtEntry")]
     public bool InvitationCodeRequestedAtEntry { get; set; }
+
+    /// <summary>
+    /// 異民族の出現回数
+    /// </summary>
+    [Column("terrorist_count")]
+    [JsonIgnore]
+    public short TerroristCount { get; set; }
   }
 }

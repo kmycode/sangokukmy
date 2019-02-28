@@ -203,5 +203,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 登用（無所属から）
     /// </summary>
     PromotionAccepted = 22,
+
+    /// <summary>
+    /// 異民族
+    /// </summary>
+    AppendTerrorists = 23,
   }
 }
