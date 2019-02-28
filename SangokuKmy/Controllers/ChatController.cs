@@ -203,6 +203,12 @@ namespace SangokuKmy.Controllers
           newTownCharacters = (await repo.Town.GetCharactersWithIconAsync(newTown.Id)).Select(c => c.Character.Id);
           commanders = (await repo.Country.GetMessageAsync(sender.CountryId, CountryMessageType.Commanders)).Data;
 
+          var reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
+          if (reinforcements.Any(r => r.Status == ReinforcementStatus.Active))
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+
           await CharacterService.ChangeTownAsync(repo, senderCountry.CapitalTownId, chara);
           await CharacterService.ChangeCountryAsync(repo, senderCountry.Id, new Character[] { chara, });
 
