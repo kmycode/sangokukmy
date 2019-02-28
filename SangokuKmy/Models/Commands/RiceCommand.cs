@@ -39,6 +39,7 @@ namespace SangokuKmy.Models.Commands
         }
         character.Money -= assets;
         character.Rice += result;
+        await game.CharacterLogAsync($"<num>{assets}</num> の金を <num>{result}</num> の米に交換しました");
       }
       else if (type == RiceCommandType.RiceToMoney)
       {
@@ -49,6 +50,7 @@ namespace SangokuKmy.Models.Commands
         }
         character.Rice -= assets;
         character.Money += result;
+        await game.CharacterLogAsync($"<num>{assets}</num> の米を <num>{result}</num> の金に交換しました");
       }
 
       character.AddIntellectEx(50);
