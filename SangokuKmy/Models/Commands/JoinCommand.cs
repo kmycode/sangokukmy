@@ -8,6 +8,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Streamings;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -46,12 +47,12 @@ namespace SangokuKmy.Models.Commands
       }
       var country = countryOptional.Data;
 
-      character.CountryId = country.Id;
+      await CharacterService.ChangeCountryAsync(repo, country.Id, new Character[] { character, });
       await game.CharacterLogAsync("<country>" + country.Name + "</country> に仕官しました");
       await game.MapLogAsync(EventType.CharacterJoin, "<character>" + character.Name + "</character> は <country>" + country.Name + "</country> に仕官しました", false);
 
-      var townCharas = await repo.Town.GetCharactersWithIconAsync(town.Id);
-      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), townCharas.Select(tc => tc.Character.Id));
+      var townCharas = await repo.Town.GetCharactersAsync(town.Id);
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), townCharas.Select(tc => tc.Id));
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(country), character.Id);
     }
 

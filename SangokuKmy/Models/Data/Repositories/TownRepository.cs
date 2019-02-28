@@ -154,21 +154,34 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="townId">都市ID</param>
     /// <returns>その都市に滞在する武将</returns>
-    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon)>> GetCharactersWithIconAsync(uint townId)
+    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon, IReadOnlyList<CharacterCommand> Commands)>> GetCharactersWithIconAsync(uint townId)
     {
       try
       {
+        var system = await this.container.Context.SystemData.FirstAsync();
         return (await this.container.Context.Characters
           .Where(c => c.TownId == townId && !c.HasRemoved)
           .GroupJoin(this.container.Context.CharacterIcons,
             c => c.Id,
             i => i.CharacterId,
             (c, i) => new { Character = c, Icons = i, })
+          .GroupJoin(this.container.Context.CharacterCommands.Where(c => c.IntGameDateTime <= system.IntGameDateTime + 8)
+              .GroupJoin(this.container.Context.CharacterCommandParameters,
+                c => c.Id,
+                p => p.CharacterCommandId,
+                (c, ps) => new { Command = c, Parameters = ps, }),
+            c => c.Character.Id,
+            c => c.Command.CharacterId,
+            (c, cs) => new { c.Character, c.Icons, Commands = cs.ToArray(), })
           .ToArrayAsync())
           .OrderBy(data => data.Character.LastUpdated)
           .Select(data =>
           {
-            return (data.Character, data.Icons.GetMainOrFirst().Data);
+            return (data.Character, data.Icons.GetMainOrFirst().Data, (IReadOnlyList<CharacterCommand>)data.Commands.Select(c =>
+            {
+              c.Command.SetParameters(c.Parameters);
+              return c.Command;
+            }).ToArray());
           })
           .ToArray();
       }

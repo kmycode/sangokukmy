@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Controllers
 {
@@ -26,12 +27,14 @@ namespace SangokuKmy.Controllers
     {
       Reinforcement reinforcement;
       MapLog maplog = null;
+      Character self;
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
         var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
         var system = await repo.System.GetAsync();
+        self = chara;
 
         var oldTownId = chara.TownId;
 
@@ -141,8 +144,8 @@ namespace SangokuKmy.Controllers
               ErrorCode.NotPermissionError.Throw();
             }
 
-            chara.CountryId = requestedCountry.Id;
-            chara.TownId = requestedCountry.CapitalTownId;
+            await CharacterService.ChangeTownAsync(repo, requestedCountry.CapitalTownId, chara);
+            await CharacterService.ChangeCountryAsync(repo, requestedCountry.Id, new Character[] { chara, });
             maplog = new MapLog
             {
               ApiGameDateTime = system.GameDateTime,
@@ -165,8 +168,8 @@ namespace SangokuKmy.Controllers
               ErrorCode.InvalidOperationError.Throw();
             }
 
-            chara.CountryId = originalCountry.Id;
-            chara.TownId = originalCountry.CapitalTownId;
+            await CharacterService.ChangeTownAsync(repo, originalCountry.CapitalTownId, chara);
+            await CharacterService.ChangeCountryAsync(repo, originalCountry.Id, new Character[] { chara, });
             maplog = new MapLog
             {
               ApiGameDateTime = system.GameDateTime,
@@ -213,24 +216,7 @@ namespace SangokuKmy.Controllers
           await repo.MapLog.AddAsync(maplog);
         }
 
-        // 国変わった場合、役職を消す
-        if (chara.TownId != oldTownId)
-        {
-          repo.Country.RemoveCharacterPosts(chara.Id);
-        }
-
         await repo.SaveChangesAsync();
-
-        // 援軍にいったことを通知
-        if (chara.TownId != oldTownId)
-        {
-          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
-          var oldTown = await repo.Town.GetByIdAsync(oldTownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
-          var town = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
-          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(oldTown), (await repo.Town.GetCharactersWithIconAsync(oldTownId)).Select(c => c.Character.Id).Distinct());
-          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersWithIconAsync(chara.TownId)).Select(c => c.Character.Id).Distinct());
-          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new TownForAnonymous(oldTown)), chara.Id);
-        }
       }
 
       // マップログ、援軍情報を通知
@@ -240,6 +226,7 @@ namespace SangokuKmy.Controllers
         await StatusStreaming.Default.SendAllAsync(ApiData.From(maplog));
         await AnonymousStreaming.Default.SendAllAsync(ApiData.From(maplog));
       }
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(self), self.Id);
     }
   }
 }

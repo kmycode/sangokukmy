@@ -209,7 +209,7 @@ namespace SangokuKmy.Controllers
         }
 
         charas = (await repo.Town.GetCharactersWithIconAsync(townId))
-          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown));
+          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, c.Commands, c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
     }
@@ -283,9 +283,10 @@ namespace SangokuKmy.Controllers
       IEnumerable<CharacterForAnonymous> charas;
       using (var repo = MainRepository.WithRead())
       {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         charas = (await repo.Country.GetCharactersAsync(countryId))
           .GroupJoin(await repo.Reinforcement.GetByCountryIdAsync(countryId), c => c.Character.Id, r => r.CharacterId, (c, rs) => new { CharacterData = c, Reinforcements = rs })
-          .Select(c => new CharacterForAnonymous(c.CharacterData.Character, c.CharacterData.Icon, c.Reinforcements.FirstOrDefault(), CharacterShareLevel.SameCountry));
+          .Select(c => new CharacterForAnonymous(c.CharacterData.Character, c.CharacterData.Icon, c.Reinforcements.FirstOrDefault(), c.CharacterData.Commands, chara.CountryId == c.CharacterData.Character.CountryId ? CharacterShareLevel.SameCountry : CharacterShareLevel.Anonymous));
       }
       return ApiData.From(charas);
     }

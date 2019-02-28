@@ -295,8 +295,8 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "連弩兵",
         Money = 300,
         Technology = 900,
-        BaseAttack = 80,
-        BaseDefend = 10,
+        BaseAttack = 90,
+        BaseDefend = 30,
       },
       new CharacterSoldierType
       {

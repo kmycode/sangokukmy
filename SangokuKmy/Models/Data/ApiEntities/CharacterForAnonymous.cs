@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections;
 
 namespace SangokuKmy.Models.Data.ApiEntities
 {
@@ -61,12 +62,20 @@ namespace SangokuKmy.Models.Data.ApiEntities
       set => this.LastUpdated = value.ToDateTime();
     }
 
+    [JsonProperty("commands")]
+    public IEnumerable<CharacterCommand> Commands { get; set; }
+
     public CharacterForAnonymous(Character character, CharacterIcon mainIcon, CharacterShareLevel level)
-      : this(character, mainIcon, null, level)
+      : this(character, mainIcon, null, null, level)
     {
     }
 
-    public CharacterForAnonymous(Character character, CharacterIcon mainIcon, Reinforcement reinforcement, CharacterShareLevel level)
+
+    public CharacterForAnonymous(Character character, CharacterIcon mainIcon, IReadOnlyList<CharacterCommand> commands, CharacterShareLevel level)
+      : this(character, mainIcon, null, commands, level)
+    {
+    }
+    public CharacterForAnonymous(Character character, CharacterIcon mainIcon, Reinforcement reinforcement, IReadOnlyList<CharacterCommand> commands, CharacterShareLevel level)
     {
       this.Id = character.Id;
       this.Name = character.Name;
@@ -85,6 +94,20 @@ namespace SangokuKmy.Models.Data.ApiEntities
       if (level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountry)
       {
         this.LastUpdated = character.LastUpdated;
+        if (commands != null)
+        {
+          var cmds = new List<CharacterCommand>();
+          for (var i = character.IntLastUpdatedGameDate + 1; i <= character.IntLastUpdatedGameDate + 4; i++)
+          {
+            cmds.Add(commands.FirstOrDefault(c => c.IntGameDateTime == i) ?? new CharacterCommand
+            {
+              CharacterId = character.Id,
+              IntGameDateTime = i,
+              Type = CharacterCommandType.None,
+            });
+          }
+          this.Commands = cmds;
+        }
       }
       if (level == CharacterShareLevel.AllCharacterList)
       {
