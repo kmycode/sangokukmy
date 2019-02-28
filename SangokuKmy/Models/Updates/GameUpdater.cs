@@ -197,7 +197,7 @@ namespace SangokuKmy.Models.Updates
               var currentLank = Math.Min(Config.LankCount - 1, character.Class / Config.NextLank);
               var add = salary.AllContributions > 0 ?
                 (int)(salary.AllSalary * (float)character.Contribution / salary.AllContributions + character.Contribution * 1.3f) : 0;
-              var addMax = 1000 + currentLank * 300;
+              var addMax = 1000 + currentLank * 150;
               add = Math.Min(Math.Max(add, 0), addMax);
 
               if (system.GameDateTime.Month == 1)

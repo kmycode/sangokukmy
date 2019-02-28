@@ -199,7 +199,7 @@ namespace SangokuKmy.Models.Services
         return false;
       }
       town.Data.Name = name;
-      var country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller);
+      var country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller);
       country.CountryColorId = countryColor;
       country.Name = name;
 
