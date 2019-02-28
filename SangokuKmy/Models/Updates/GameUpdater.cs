@@ -178,7 +178,9 @@ namespace SangokuKmy.Models.Updates
             var salary = new CountrySalary
             {
               CountryId = country.Country.Id,
-              AllSalary = country.Towns.Sum(t => (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People / 10000),
+              AllSalary = (int)country
+                .Towns
+                .Sum(t => (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People * (t.Id == country.Country.CapitalTownId ? 1.4f : 1.0f) / 10000),
               AllContributions = country.Characters.Sum(c => c.Contribution),
             };
             salary.AllSalary = Math.Max(salary.AllSalary, 0);
