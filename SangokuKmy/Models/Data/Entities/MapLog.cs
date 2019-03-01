@@ -208,5 +208,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 異民族
     /// </summary>
     AppendTerrorists = 23,
+
+    /// <summary>
+    /// 農民反乱
+    /// </summary>
+    AppendFarmers = 24,
+
+    /// <summary>
+    /// 都市攻略
+    /// </summary>
+    TownWarInReady = 25,
   }
 }

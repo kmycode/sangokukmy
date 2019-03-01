@@ -86,25 +86,39 @@ namespace SangokuKmy.Models.Commands
       if (targetCountryOptional.HasData)
       {
         var warOptional = await repo.CountryDiplomacies.GetCountryWarAsync(character.CountryId, targetTown.CountryId);
+        var targetTownWarOptional = await repo.CountryDiplomacies.GetTownWarAsync(targetTown.CountryId, character.CountryId, targetTown.Id);
 
-        if (!warOptional.HasData)
+        var isTownWar = false;
+        if (targetTownWarOptional.HasData)
         {
-          await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> の所持国 <country>" + targetCountryOptional.Data.Name + "</country> とは宣戦の関係にありません");
-          return;
-        }
-        var war = warOptional.Data;
-        if (war.Status == CountryWarStatus.Available || war.Status == CountryWarStatus.StopRequesting || war.Status == CountryWarStatus.InReady)
-        {
-          if (war.StartGameDate.ToInt() > game.GameDateTime.ToInt())
+          var townWar = targetTownWarOptional.Data;
+          if (townWar.Status == TownWarStatus.Available && townWar.RequestedCountryId == character.CountryId)
           {
-            await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> の所持国 <country>" + targetCountryOptional.Data.Name + "</country> とはまだ開戦していません");
-            return;
+            isTownWar = true;
           }
         }
-        else
+
+        if (!isTownWar)
         {
-          await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> の所持国 <country>" + targetCountryOptional.Data.Name + "</country> とは宣戦の関係にありません");
-          return;
+          if (!warOptional.HasData)
+          {
+            await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> の所持国 <country>" + targetCountryOptional.Data.Name + "</country> とは宣戦の関係にありません");
+            return;
+          }
+          var war = warOptional.Data;
+          if (war.Status == CountryWarStatus.Available || war.Status == CountryWarStatus.StopRequesting || war.Status == CountryWarStatus.InReady)
+          {
+            if (war.StartGameDate.ToInt() > game.GameDateTime.ToInt())
+            {
+              await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> の所持国 <country>" + targetCountryOptional.Data.Name + "</country> とはまだ開戦していません");
+              return;
+            }
+          }
+          else
+          {
+            await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> の所持国 <country>" + targetCountryOptional.Data.Name + "</country> とは宣戦の関係にありません");
+            return;
+          }
         }
       }
 

@@ -691,6 +691,90 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("town/{townId}/war")]
+    public async Task SetTownWarAsync(
+      [FromRoute] uint townId)
+    {
+      TownWar war;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var system = await repo.System.GetAsync();
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(chara.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
+        if (myPost == null || !myPost.Type.CanDiplomacy())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var targetTown = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+        var targetCountry = await repo.Country.GetAliveByIdAsync(targetTown.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+
+        if (await repo.Town.CountByCountryIdAsync(targetCountry.Id) <= 1)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(country.Id, targetCountry.Id);
+        var countryWar = await repo.CountryDiplomacies.GetCountryWarAsync(country.Id, targetCountry.Id);
+        if (alliance.HasData)
+        {
+          if (alliance.Data.Status == CountryAllianceStatus.Available ||
+              alliance.Data.Status == CountryAllianceStatus.InBreaking ||
+              alliance.Data.Status == CountryAllianceStatus.ChangeRequesting ||
+              alliance.Data.Status == CountryAllianceStatus.Requesting)
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+        }
+        if (countryWar.HasData)
+        {
+          if (countryWar.Data.Status == CountryWarStatus.Available ||
+              countryWar.Data.Status == CountryWarStatus.StopRequesting)
+          {
+            ErrorCode.MeaninglessOperationError.Throw();
+          }
+          if (countryWar.Data.Status == CountryWarStatus.InReady)
+          {
+            if (system.IntGameDateTime > countryWar.Data.IntStartGameDate - 6)
+            {
+              ErrorCode.NotPermissionError.Throw();
+            }
+          }
+        }
+
+        var olds = (await repo.CountryDiplomacies.GetAllTownWarsAsync())
+          .Where(o => o.RequestedCountryId == country.Id);
+        if (olds.Any(o => o.Status == TownWarStatus.Available || o.Status == TownWarStatus.InReady))
+        {
+          // 重複して宣戦布告はできない
+          ErrorCode.MeaninglessOperationError.Throw();
+        }
+        else if (olds.Any(o => o.Status == TownWarStatus.Terminated &&
+                               system.IntGameDateTime - o.IntGameDate < 12 * 10))
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        war = new TownWar
+        {
+          RequestedCountryId = country.Id,
+          InsistedCountryId = targetCountry.Id,
+          IntGameDate = system.IntGameDateTime + 1,
+          TownId = townId,
+          Status = TownWarStatus.InReady,
+        };
+        await repo.CountryDiplomacies.SetTownWarAsync(war);
+
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
+    }
+
+    [AuthenticationFilter]
     [HttpGet("units")]
     public async Task<IEnumerable<Unit>> GetCountryUnitsAsync()
     {
