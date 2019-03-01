@@ -492,6 +492,12 @@ namespace SangokuKmy.Models.Updates
             system.TerroristCount++;
           }
         }
+
+        // 農民反乱
+        if (rand.Next(0, 12 * 70) == 0)
+        {
+          await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+        }
       }
 
       // 月の更新を保存
