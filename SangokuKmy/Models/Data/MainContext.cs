@@ -101,6 +101,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<CountryWar> CountryWars { get; set; }
 
     /// <summary>
+    /// 攻略
+    /// </summary>
+    public DbSet<TownWar> TownWars { get; set; }
+
+    /// <summary>
     /// 研究
     /// </summary>
     public DbSet<CountryResearch> CountryResearches { get; set; }

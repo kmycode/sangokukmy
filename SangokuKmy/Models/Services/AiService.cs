@@ -39,7 +39,10 @@ namespace SangokuKmy.Models.Services
         new Tuple<int, int>(nearTown.X - 1, nearTown.Y + 1),
         new Tuple<int, int>(nearTown.X + 0, nearTown.Y + 1),
         new Tuple<int, int>(nearTown.X + 1, nearTown.Y + 1),
-      }.Where(t => !towns.Any(tt => tt.X == t.Item1 && tt.Y == t.Item2)).ToArray();
+      }
+      .Where(t => t.Item1 >= 0 && t.Item1 < 10 && t.Item2 >= 0 && t.Item2 < 10)
+      .Where(t => !towns.Any(tt => tt.X == t.Item1 && tt.Y == t.Item2))
+      .ToArray();
       var townPosition = townPositions[rand.Next(0, townPositions.Length)];
 
       var town = ResetService.CreateTown(TownType.Fortress);
@@ -157,13 +160,32 @@ namespace SangokuKmy.Models.Services
       return true;
     }
 
+    public static async Task<bool> CreateWarQuicklyAsync(MainRepository repo, Country self, Country target)
+    {
+      var startMonth = (await repo.System.GetAsync()).GameDateTime;
+      var war = new CountryWar
+      {
+        RequestedCountryId = self.Id,
+        InsistedCountryId = target.Id,
+        StartGameDate = startMonth,
+        Status = CountryWarStatus.InReady,
+      };
+      await repo.CountryDiplomacies.SetWarAsync(war);
+      await repo.SaveChangesAsync();
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(war));
+
+      return true;
+    }
+
     private static short GetNotUsingCountryColor(IEnumerable<Country> countries)
     {
       var usedCountryColors = countries
         .Where(c => !c.HasOverthrown)
         .Select(c => c.CountryColorId);
       var notUsingCountryColors = Enumerable
-        .Range(1, Config.CountryColorMax)
+        .Range(1, Config.CountryColorMax - 1)
         .Select(n => (short)n)
         .Except(usedCountryColors)
         .ToArray();
@@ -206,14 +228,97 @@ namespace SangokuKmy.Models.Services
       await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Data.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
       await repo.SaveChangesAsync();
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(town.Data));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(town.Data));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
 
       await CreateWarIfNotWarAsync(repo, country, town.Data, mapLogAsync);
 
       return true;
+    }
+
+    public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync)
+    {
+      var system = await repo.System.GetAsync();
+      var targetCountryOptional = await repo.Country.GetAliveByIdAsync(town.CountryId);
+
+      if (!targetCountryOptional.HasData)
+      {
+        return false;
+      }
+      if (await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1)
+      {
+        return false;
+      }
+      if ((await repo.Town.GetDefendersAsync(town.Id)).Count > 0)
+      {
+        return false;
+      }
+
+      var targetCountry = targetCountryOptional.Data;
+      var countryColor = GetNotUsingCountryColor(await repo.Country.GetAllAsync());
+      if (countryColor == 0)
+      {
+        return false;
+      }
+      
+      var country = await CreateCountryAsync(repo, system, town, CharacterAiType.FarmerBattler, CharacterAiType.FarmerBattler, CharacterAiType.FarmerCivilOfficial);
+      country.CountryColorId = countryColor;
+      country.Name = $"{town.Name}農民団";
+
+      await mapLogAsync(EventType.AppendFarmers, $"<town>{town.Name}</town> の <country>{country.Name}</country> が <country>{targetCountry.Name}</country> に対して蜂起しました", true);
+      await repo.SaveChangesAsync();
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(town.Id)).Select(c => c.Id));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+
+      await CreateWarQuicklyAsync(repo, country, targetCountry);
+
+      return true;
+    }
+
+    public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
+    {
+      var system = await repo.System.GetAsync();
+
+      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+      var townWars = (await repo.CountryDiplomacies.GetAllTownWarsAsync())
+        .Where(t => t.Status != TownWarStatus.InReady && t.Status != TownWarStatus.Available);
+      var warCountries = wars
+        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
+        .Where(w => w.Status != CountryWarStatus.InReady || w.IntStartGameDate - system.IntGameDateTime > 12)
+        .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
+        .Distinct();
+
+      var towns = (await repo.Town.GetAllAsync())
+        .Where(t => t.CountryId > 0 && t.Security <= 0 && t.People <= 5000)
+        .Where(t => !warCountries.Contains(t.CountryId) && !townWars.Select(tt => tt.TownId).Contains(t.Id))
+        .ToList();
+
+      // 守備のいる都市は除外
+      var removeTowns = new List<Town>();
+      foreach (var town in towns)
+      {
+        if ((await repo.Town.GetDefendersAsync(town.Id)).Count > 0 ||
+            (await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1))
+        {
+          removeTowns.Add(town);
+        }
+      }
+      foreach (var town in removeTowns)
+      {
+        towns.Remove(town);
+      }
+      if (!towns.Any())
+      {
+        return default;
+      }
+
+      return await CreateFarmerCountryAsync(repo, towns[rand.Next(0, towns.Count)], mapLogAsync);
     }
   }
 }

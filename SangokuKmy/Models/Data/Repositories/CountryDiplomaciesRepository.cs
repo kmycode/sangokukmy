@@ -204,6 +204,90 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// すべての攻略を取得
+    /// </summary>
+    /// <returns>公開されている同盟情報</returns>
+    public async Task<IReadOnlyList<TownWar>> GetAllTownWarsAsync()
+    {
+      try
+      {
+        return await this.container.Context.TownWars
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// すべての開戦準備中の攻略を取得
+    /// </summary>
+    public async Task<IReadOnlyList<TownWar>> GetReadyTownWarsAsync()
+    {
+      try
+      {
+        return await this.container.Context.TownWars
+          .Where(ca => ca.Status == TownWarStatus.InReady)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 特定都市の攻略戦争を取得する
+    /// </summary>
+    /// <returns>戦争データ</returns>
+    /// <param name="townId">都市</param>
+    /// <param name="country1">国１</param>
+    /// <param name="country2">国２</param>
+    public async Task<Optional<TownWar>> GetTownWarAsync(uint country1, uint country2, uint townId)
+    {
+      try
+      {
+        return await this.container.Context.TownWars
+          .FirstOrDefaultAsync(ca => ((ca.RequestedCountryId == country1 && ca.InsistedCountryId == country2) ||
+                                      (ca.RequestedCountryId == country2 && ca.InsistedCountryId == country1)) &&
+                                     ca.TownId == townId)
+          .ToOptionalAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 攻略を設定する
+    /// </summary>
+    /// <param name="war">新しい戦争</param>
+    public async Task SetTownWarAsync(TownWar war)
+    {
+      try
+      {
+        var old = await this.GetTownWarAsync(war.RequestedCountryId, war.InsistedCountryId, war.TownId);
+        old.Some(o =>
+        {
+          this.container.Context.TownWars.Remove(o);
+        });
+        if (war.Status != TownWarStatus.None)
+        {
+          await this.container.Context.TownWars.AddAsync(war);
+        }
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
     /// 指定した国の外交データを全削除する
     /// </summary>
     /// <param name="countryId">国ID</param>

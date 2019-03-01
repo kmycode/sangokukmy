@@ -452,18 +452,52 @@ namespace SangokuKmy.Models.Updates
               await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
             }
           }
+          foreach (var war in (await repo.CountryDiplomacies.GetAllTownWarsAsync()))
+          {
+            if (war.Status == TownWarStatus.InReady)
+            {
+              if (war.IntGameDate == system.IntGameDateTime)
+              {
+                war.Status = TownWarStatus.Available;
+                var country1 = allCountries.FirstOrDefault(c => c.Id == war.RequestedCountryId);
+                var country2 = allCountries.FirstOrDefault(c => c.Id == war.InsistedCountryId);
+                var town = allTowns.FirstOrDefault(t => t.Id == war.TownId);
+                if (country1 != null && country2 != null)
+                {
+                  await AddMapLogAsync(true, EventType.TownWarInReady, $"<country>{country1.Name}</country> は、<date>{war.GameDate.ToString()}</date> の間 <country>{country2.Name}</country> の <town>{town.Name}</town> を攻略します");
+                }
+                await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
+              }
+              else if (war.IntGameDate < system.IntGameDateTime)
+              {
+                war.Status = TownWarStatus.Terminated;
+                await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
+              }
+            }
+            else if (war.Status == TownWarStatus.Available)
+            {
+              war.Status = TownWarStatus.Terminated;
+              await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
+            }
+          }
 
           await repo.SaveChangesAsync();
         }
 
         // 異民族
-        if (system.TerroristCount <= 0 && !system.IsWaitingReset && ((system.BetaVersion == 1 && system.Period == 0) || (system.GameDateTime.Year >= 194 && rand.Next(0, 200) == 0)))
+        if (system.TerroristCount <= 0 && !system.IsWaitingReset && system.GameDateTime.Year >= 194 && rand.Next(0, 200) == 0)
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
           {
             system.TerroristCount++;
           }
+        }
+
+        // 農民反乱
+        if (rand.Next(0, 12 * 70) == 0)
+        {
+          await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
         }
       }
 
