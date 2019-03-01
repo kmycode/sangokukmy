@@ -771,7 +771,7 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(war), war.RequestedCountryId);
     }
 
     [AuthenticationFilter]

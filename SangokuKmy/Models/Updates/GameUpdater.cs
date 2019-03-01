@@ -471,6 +471,7 @@ namespace SangokuKmy.Models.Updates
               else if (war.IntGameDate < system.IntGameDateTime)
               {
                 war.Status = TownWarStatus.Terminated;
+                await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
               }
             }
             else if (war.Status == TownWarStatus.Available)
