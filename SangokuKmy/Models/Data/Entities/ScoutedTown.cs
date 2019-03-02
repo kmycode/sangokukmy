@@ -34,19 +34,13 @@ namespace SangokuKmy.Models.Data.Entities
         WallGuardMax = town.WallGuardMax,
         Security = town.Security,
         IntRicePrice = town.IntRicePrice,
+        TownBuilding = town.TownBuilding,
+        TownBuildingValue = town.TownBuildingValue,
+        CountryBuilding = town.CountryBuilding,
+        CountryBuildingValue = town.CountryBuildingValue,
+        CountryLaboratory = town.CountryLaboratory,
+        CountryLaboratoryValue = town.CountryLaboratoryValue,
       };
-      if (town.Buildings != null)
-      {
-        t.Buildings = town.Buildings
-          .Select(b => new TownBuilding
-          {
-            TownId = b.TownId,
-            Type = b.Type,
-            Value = b.Value,
-            ValueMax = b.ValueMax,
-          })
-          .ToArray();
-      }
       return t;
     }
 

@@ -29,19 +29,9 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        var town = await this.container.Context.Towns
-          .FindAsync(id);
-        if (town != null)
-        {
-          town.Buildings = await this.container.Context.TownBuildings
-            .Where(b => b.TownId == town.Id)
-            .ToArrayAsync();
-          return town.ToOptional();
-        }
-        else
-        {
-          return default;
-        }
+        return await this.container.Context.Towns
+          .FindAsync(id)
+          .ToOptionalAsync();
       }
       catch (Exception ex)
       {
@@ -58,15 +48,8 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        return (await this.container.Context.Towns
-          .GroupJoin(this.container.Context.TownBuildings, t => t.Id, b => b.TownId, (t, bs) => new { Town = t, Buildings = bs, })
-          .ToArrayAsync())
-          .Select(t =>
-          {
-            t.Town.Buildings = t.Buildings;
-            return t.Town;
-          })
-          .ToArray();
+        return await this.container.Context.Towns
+          .ToArrayAsync();
       }
       catch (Exception ex)
       {
