@@ -346,7 +346,7 @@ namespace SangokuKmy.Models.Commands
         else if (character.SoldierNumber <= 0 && enemy.SoldierNumber > 0)
         {
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleLose, prefix + " に敗北しました", false);
-          await game.CharacterLogAsync($"<character>{enemy.Name}</character> に敗北しました。<town>{targetTown.Name}</town> の守備から外れました");
+          await game.CharacterLogAsync($"<character>{enemy.Name}</character> に敗北しました");
           if (enemy.Defender.HasData)
           {
             await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, "<character>" + character.Name + "</character> を撃退しました");
