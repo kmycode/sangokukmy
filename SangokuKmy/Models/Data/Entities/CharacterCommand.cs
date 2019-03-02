@@ -184,5 +184,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 仕官
     /// </summary>
     Join = 23,
+
+    /// <summary>
+    /// 緊急米施し
+    /// </summary>
+    SuperSecurity = 30,
   }
 }

@@ -16,9 +16,9 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
-      if (this.GetCharacterAssets(character) < 50)
+      if (this.GetCharacterAssets(character) < this.UseAssetsLength())
       {
-        await game.CharacterLogAsync(this.GetCharacterAssetName() + "が足りません。<num>50</num> 必要です");
+        await game.CharacterLogAsync(this.GetCharacterAssetName() + $"が足りません。<num>{this.UseAssetsLength()}</num> 必要です");
         return;
       }
 
@@ -51,8 +51,8 @@ namespace SangokuKmy.Models.Commands
         }
 
         // 経験値、金の増減
-        this.SetCharacterAssets(character, this.GetCharacterAssets(character) - 50);
-        character.Contribution += 30;
+        this.SetCharacterAssets(character, this.GetCharacterAssets(character) - this.UseAssetsLength());
+        character.Contribution += this.Contributes();
         this.AddCharacterAttributeEx(character, 50);
 
         await game.CharacterLogAsync("<town>" + town.Name + "</town> の " + this.GetValueName() + " を <num>+" + add + "</num> " + this.GetValueAddingText() + "しました");
@@ -78,6 +78,8 @@ namespace SangokuKmy.Models.Commands
     protected virtual int GetCharacterAssets(Character character) => character.Money;
     protected virtual void SetCharacterAssets(Character character, int value) => character.Money = value;
     protected virtual string GetCharacterAssetName() => "金";
+    protected virtual int UseAssetsLength() => 50;
+    protected virtual int Contributes() => 30;
   }
 
   /// <summary>
@@ -158,6 +160,17 @@ namespace SangokuKmy.Models.Commands
     protected override void SetCharacterAssets(Character character, int value) => character.Rice = value;
     protected override int GetCharacterAttribute(Character character) => character.Popularity;
     protected override void AddCharacterAttributeEx(Character character, short ex) => character.AddPopularityEx(ex);
+  }
+
+  /// <summary>
+  /// 緊急米施し
+  /// </summary>
+  public class SuperSecurityCommand : SecurityCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.SuperSecurity;
+    protected override int GetCharacterAttribute(Character character) => character.Popularity * 2;
+    protected override int UseAssetsLength() => 200;
+    protected override int Contributes() => 60;
   }
 
   public abstract class DomesticAffairMaxCommand : DomesticAffairCommand
