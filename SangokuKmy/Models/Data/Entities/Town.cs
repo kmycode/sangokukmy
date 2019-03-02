@@ -269,6 +269,56 @@ namespace SangokuKmy.Models.Data.Entities
   public enum TownBuilding : short
   {
     None = 0,
+
+    /// <summary>
+    /// 洪水対策
+    /// </summary>
+    AntiFlood = 1,
+
+    /// <summary>
+    /// いなご対策
+    /// </summary>
+    AntiLocusts = 2,
+
+    /// <summary>
+    /// 疫病対策
+    /// </summary>
+    AntiSicks = 3,
+
+    /// <summary>
+    /// 地震対策
+    /// </summary>
+    AntiEarthquakes = 4,
+
+    /// <summary>
+    /// 経済評論
+    /// </summary>
+    Economy = 5,
+
+    /// <summary>
+    /// 武力
+    /// </summary>
+    TrainStrong = 6,
+
+    /// <summary>
+    /// 知力
+    /// </summary>
+    TrainIntellect = 7,
+
+    /// <summary>
+    /// 統率
+    /// </summary>
+    TrainLeadership = 8,
+
+    /// <summary>
+    /// 人望
+    /// </summary>
+    TrainPopularity = 9,
+
+    /// <summary>
+    /// 人口変動を大きく
+    /// </summary>
+    OpenWall = 10,
   }
 
   public enum CountryBuilding : short

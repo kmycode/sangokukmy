@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -224,5 +225,58 @@ namespace SangokuKmy.Models.Commands
     protected override int GetCurrentValue(Town town) => town.WallMax;
     protected override int GetMaxValue(Town town) => 5000;
     protected override void SetValue(Town town, int value) => town.WallMax = (short)value;
+  }
+
+  public abstract class BuildingCommand : DomesticAffairCommand
+  {
+    protected override string GetValueAddingText() => "建築";
+    protected override int GetCharacterAttribute(Character character) => Math.Max(character.Strong, character.Intellect);
+    protected override void AddCharacterAttributeEx(Character character, short ex)
+    {
+      if (character.Intellect > character.Strong)
+      {
+        character.AddIntellectEx(ex);
+      }
+      else
+      {
+        character.AddStrongEx(ex);
+      }
+    }
+  }
+
+  /// <summary>
+  /// 都市施設
+  /// </summary>
+  public class TownBuildingCommand : BuildingCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.TownBuilding;
+    protected override string GetValueName() => "都市施設";
+    protected override int GetCurrentValue(Town town) => town.TownBuildingValue;
+    protected override int GetMaxValue(Town town) => Config.TownBuildingMax;
+    protected override void SetValue(Town town, int value) => town.TownBuildingValue = value;
+  }
+
+  /// <summary>
+  /// 国家施設
+  /// </summary>
+  public class CountryBuildingCommand : BuildingCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.CountryBuilding;
+    protected override string GetValueName() => "国家施設";
+    protected override int GetCurrentValue(Town town) => town.CountryBuildingValue;
+    protected override int GetMaxValue(Town town) => Config.CountryBuildingMax;
+    protected override void SetValue(Town town, int value) => town.CountryBuildingValue = value;
+  }
+
+  /// <summary>
+  /// 研究所
+  /// </summary>
+  public class CountryLaboratoryCommand : BuildingCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.CountryLaboratory;
+    protected override string GetValueName() => "研究所";
+    protected override int GetCurrentValue(Town town) => town.CountryLaboratoryValue;
+    protected override int GetMaxValue(Town town) => Config.CountryLaboratoryMax;
+    protected override void SetValue(Town town, int value) => town.CountryLaboratoryValue = value;
   }
 }
