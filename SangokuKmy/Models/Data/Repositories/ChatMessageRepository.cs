@@ -166,7 +166,7 @@ namespace SangokuKmy.Models.Data.Repositories
     {
       try
       {
-        foreach (var message in this.container.Context.ChatMessages.Where(r => r.Type == ChatMessageType.SelfCountry))
+        foreach (var message in this.container.Context.ChatMessages.Where(r => r.Type == ChatMessageType.SelfCountry && r.TypeData == countryId))
         {
           message.TypeData = 0;
           message.TypeData2 = 0;
