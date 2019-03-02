@@ -161,6 +161,7 @@ namespace SangokuKmy.Models.Updates
     {
       this.Character.Name = "農民_文官";
       this.Character.Intellect = (short)(100 + current.Year / 3.2f);
+      this.Character.Leadership = 100;
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;
     }
