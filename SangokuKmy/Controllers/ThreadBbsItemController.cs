@@ -123,5 +123,86 @@ namespace SangokuKmy.Controllers
       message.IsRemove = true;
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(message), chara.CountryId);
     }
+
+    [AuthenticationFilter]
+    [HttpPost("bbs/global")]
+    public async Task PostGlobalBbsAsync(
+      [FromBody] ThreadBbsItem param)
+    {
+      ThreadBbsItem message;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var iconId = param.CharacterIconId;
+        if (iconId == 0)
+        {
+          iconId = (await repo.Character.GetCharacterAllIconsAsync(chara.Id)).GetMainOrFirst().Data?.Id ?? 0;
+        }
+        if (param.ParentId != 0)
+        {
+          var parent = await repo.ThreadBbs.GetByIdAsync(param.ParentId).GetOrErrorAsync(ErrorCode.ParentNodeNotFoundError);
+          if (parent.ParentId != 0)
+          {
+            ErrorCode.NotTopNodeError.Throw();
+          }
+          if (!string.IsNullOrEmpty(param.Title))
+          {
+            ErrorCode.LackOfParameterError.Throw();
+          }
+        }
+        else
+        {
+          if (string.IsNullOrEmpty(param.Title))
+          {
+            ErrorCode.InvalidParameterError.Throw();
+          }
+        }
+        message = new ThreadBbsItem
+        {
+          CharacterId = chara.Id,
+          CountryId = chara.CountryId,
+          ParentId = param.ParentId,
+          Title = param.Title,
+          Text = param.Text,
+          CharacterIconId = iconId,
+          Written = DateTime.Now,
+          Type = BbsType.GlobalBbs,
+        };
+        await repo.ThreadBbs.AddAsync(message);
+
+        await repo.SaveChangesAsync();
+
+        var icon = await repo.Character.GetCharacterIconByIdAsync(iconId);
+        message.Character = new CharacterForAnonymous(chara, icon, CharacterShareLevel.Anonymous);
+      }
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(message));
+    }
+
+    [AuthenticationFilter]
+    [HttpDelete("bbs/global/{id}")]
+    public async Task DeleteGlobalBbsAsync(
+      [FromRoute] uint id)
+    {
+      ThreadBbsItem message;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var item = await repo.ThreadBbs.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.NodeNotFoundError);
+        if (item.CharacterId != chara.Id)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        message = item;
+        repo.ThreadBbs.Remove(item);
+        await repo.SaveChangesAsync();
+      }
+
+      message.IsRemove = true;
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(message));
+    }
   }
 }

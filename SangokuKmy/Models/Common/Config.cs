@@ -45,5 +45,11 @@ namespace SangokuKmy.Models.Common
     public static int DeleteTurns { get; } = 500;
 
     public static int RiceBuyMax { get; } = 10000;
+
+    public static int TownBuildingMax { get; } = 2000;
+
+    public static int CountryBuildingMax { get; } = 2000;
+
+    public static int CountryLaboratoryMax { get; } = 2000;
   }
 }

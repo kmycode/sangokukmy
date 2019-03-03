@@ -189,5 +189,20 @@ namespace SangokuKmy.Models.Data.Entities
     /// 緊急米施し
     /// </summary>
     SuperSecurity = 30,
+
+    /// <summary>
+    /// 都市施設
+    /// </summary>
+    TownBuilding = 31,
+
+    /// <summary>
+    /// 国家施設
+    /// </summary>
+    CountryBuilding = 32,
+
+    /// <summary>
+    /// 研究所
+    /// </summary>
+    CountryLaboratory = 33,
   }
 }

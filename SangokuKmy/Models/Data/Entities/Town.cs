@@ -170,11 +170,67 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
-    /// 施設
+    /// 都市施設
+    /// </summary>
+    [Column("town_building")]
+    [JsonIgnore]
+    public TownBuilding TownBuilding { get; set; }
+
+    /// <summary>
+    /// 都市施設（JSON用）
     /// </summary>
     [NotMapped]
-    [JsonProperty("buildings")]
-    public IEnumerable<TownBuildingBase> Buildings { get; set; }
+    [JsonProperty("townBuilding")]
+    public short ApiTownBuilding { get => (short)this.TownBuilding; set => this.TownBuilding = (TownBuilding)value; }
+
+    /// <summary>
+    /// 都市施設の耐久
+    /// </summary>
+    [Column("town_building_value")]
+    [JsonProperty("townBuildingValue")]
+    public int TownBuildingValue { get; set; }
+
+    /// <summary>
+    /// 国家施設
+    /// </summary>
+    [Column("country_building")]
+    [JsonIgnore]
+    public CountryBuilding CountryBuilding { get; set; }
+
+    /// <summary>
+    /// 国家施設（JSON用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("countryBuilding")]
+    public short ApiCountryBuilding { get => (short)this.CountryBuilding; set => this.CountryBuilding = (CountryBuilding)value; }
+
+    /// <summary>
+    /// 国家施設の耐久
+    /// </summary>
+    [Column("country_building_value")]
+    [JsonProperty("countryBuildingValue")]
+    public int CountryBuildingValue { get; set; }
+
+    /// <summary>
+    /// 研究施設
+    /// </summary>
+    [Column("country_laboratory")]
+    [JsonIgnore]
+    public CountryLaboratory CountryLaboratory { get; set; }
+
+    /// <summary>
+    /// 研究施設（JSON用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("countryLaboratory")]
+    public short ApiCountryLaboratory { get => (short)this.CountryLaboratory; set => this.CountryLaboratory = (CountryLaboratory)value; }
+
+    /// <summary>
+    /// 研究施設の耐久
+    /// </summary>
+    [Column("country_laboratory_value")]
+    [JsonProperty("countryLaboratoryValue")]
+    public int CountryLaboratoryValue { get; set; }
   }
 
   [Table("town")]
@@ -208,6 +264,71 @@ namespace SangokuKmy.Models.Data.Entities
     /// 大都市
     /// </summary>
     Large = 4,
+  }
+
+  public enum TownBuilding : short
+  {
+    None = 0,
+
+    /// <summary>
+    /// 洪水対策
+    /// </summary>
+    AntiFlood = 1,
+
+    /// <summary>
+    /// いなご対策
+    /// </summary>
+    AntiLocusts = 2,
+
+    /// <summary>
+    /// 疫病対策
+    /// </summary>
+    AntiSicks = 3,
+
+    /// <summary>
+    /// 地震対策
+    /// </summary>
+    AntiEarthquakes = 4,
+
+    /// <summary>
+    /// 経済評論
+    /// </summary>
+    Economy = 5,
+
+    /// <summary>
+    /// 武力
+    /// </summary>
+    TrainStrong = 6,
+
+    /// <summary>
+    /// 知力
+    /// </summary>
+    TrainIntellect = 7,
+
+    /// <summary>
+    /// 統率
+    /// </summary>
+    TrainLeadership = 8,
+
+    /// <summary>
+    /// 人望
+    /// </summary>
+    TrainPopularity = 9,
+
+    /// <summary>
+    /// 人口変動を大きく
+    /// </summary>
+    OpenWall = 10,
+  }
+
+  public enum CountryBuilding : short
+  {
+    None = 0,
+  }
+
+  public enum CountryLaboratory : short
+  {
+    None = 0,
   }
 
   public static class TownExtensions

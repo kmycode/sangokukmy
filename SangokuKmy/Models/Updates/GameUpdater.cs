@@ -262,6 +262,8 @@ namespace SangokuKmy.Models.Updates
           var targetTown = allTowns[rand.Next(0, allTowns.Count)];
           var targetTowns = allTowns.GetAroundTowns(targetTown);
 
+          float val, val2;
+
           var eventId = rand.Next(0, 6);
           switch (eventId)
           {
@@ -269,59 +271,72 @@ namespace SangokuKmy.Models.Updates
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺でいなごの大群が畑を襲いました");
               foreach (var town in targetTowns)
               {
-                town.Agriculture = (int)(town.Agriculture * 0.85f);
+                val = town.TownBuilding != TownBuilding.AntiLocusts ? 0.85f : 0.85f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
+                town.Agriculture = (int)(town.Agriculture * val);
               }
-              targetTown.Agriculture = (int)(targetTown.Agriculture * 0.75f);
+              val2 = targetTown.TownBuilding != TownBuilding.AntiLocusts ? 0.75f : 0.75f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
+              targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
               break;
             case 1:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で洪水がおこりました");
               foreach (var town in targetTowns)
               {
-                town.Agriculture = (int)(town.Agriculture * 0.94f);
-                town.Commercial = (int)(town.Commercial * 0.94f);
-                town.Wall = (int)(town.Wall * 0.94f);
+                val = town.TownBuilding != TownBuilding.AntiFlood ? 0.94f : 0.94f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.06f;
+                town.Agriculture = (int)(town.Agriculture * val);
+                town.Commercial = (int)(town.Commercial * val);
+                town.Wall = (int)(town.Wall * val);
               }
-              targetTown.Agriculture = (int)(targetTown.Agriculture * 0.85f);
-              targetTown.Commercial = (int)(targetTown.Commercial * 0.85f);
-              targetTown.Wall = (int)(targetTown.Wall * 0.85f);
+              val2 = targetTown.TownBuilding != TownBuilding.AntiFlood ? 0.85f : 0.85f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
+              targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
+              targetTown.Commercial = (int)(targetTown.Commercial * val2);
+              targetTown.Wall = (int)(targetTown.Wall * val2);
               break;
             case 2:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> を中心に疫病が広がっています。町の人も苦しんでいます");
               foreach (var town in targetTowns)
               {
-                town.People = (int)(town.People * 0.85f);
+                val = town.TownBuilding != TownBuilding.AntiSicks ? 0.85f : 0.85f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
+                town.People = (int)(town.People * val);
               }
-              targetTown.People = (int)(targetTown.People * 0.75f);
+              val2 = targetTown.TownBuilding != TownBuilding.AntiSicks ? 0.75f : 0.75f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
+              targetTown.People = (int)(targetTown.People * val2);
               break;
             case 3:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺は、今年は豊作になりそうです");
               foreach (var town in targetTowns)
               {
-                town.Agriculture = Math.Min((int)(town.Agriculture * 1.12f), town.AgricultureMax);
+                val = town.TownBuilding != TownBuilding.Economy ? 1.12f : 1.12f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
+                town.Agriculture = Math.Min((int)(town.Agriculture * val), town.AgricultureMax);
               }
-              targetTown.Agriculture = Math.Min((int)(targetTown.Agriculture * 1.24f), targetTown.AgricultureMax);
+              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 1.24f : 1.24f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.22f;
+              targetTown.Agriculture = Math.Min((int)(targetTown.Agriculture * val2), targetTown.AgricultureMax);
               break;
             case 4:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で地震が起こりました");
               foreach (var town in targetTowns)
               {
-                town.Agriculture = (int)(town.Agriculture * 0.86f);
-                town.Commercial = (int)(town.Commercial * 0.86f);
-                town.Wall = (int)(town.Wall * 0.86f);
-                town.People = (int)(town.People * 0.94f);
+                val = town.TownBuilding != TownBuilding.AntiEarthquakes ? 0.86f : 0.86f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.14f;
+                town.Agriculture = (int)(town.Agriculture * val);
+                town.Commercial = (int)(town.Commercial * val);
+                town.Wall = (int)(town.Wall * val);
+                val = town.TownBuilding != TownBuilding.AntiEarthquakes ? 0.94f : 0.94f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.06f;
+                town.People = (int)(town.People * val);
               }
-              targetTown.Agriculture = (int)(targetTown.Agriculture * 0.76f);
-              targetTown.Commercial = (int)(targetTown.Commercial * 0.76f);
-              targetTown.Wall = (int)(targetTown.Wall * 0.76f);
-              targetTown.People = (int)(targetTown.People * 0.76f);
+              val2 = targetTown.TownBuilding != TownBuilding.AntiSicks ? 0.76f : 0.76f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.19f;
+              targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
+              targetTown.Commercial = (int)(targetTown.Commercial * val2);
+              targetTown.Wall = (int)(targetTown.Wall * val2);
+              targetTown.People = (int)(targetTown.People * val2);
               break;
             case 5:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺の市場が賑わっています");
               foreach (var town in targetTowns)
               {
-                town.Commercial = Math.Min((int)(town.Commercial * 1.12f), town.CommercialMax);
+                val = town.TownBuilding != TownBuilding.Economy ? 1.12f : 1.12f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
+                town.Commercial = Math.Min((int)(town.Commercial * val), town.CommercialMax);
               }
-              targetTown.Commercial = Math.Min((int)(targetTown.Commercial * 1.24f), targetTown.CommercialMax);
+              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 1.24f : 1.24f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.22f;
+              targetTown.Commercial = Math.Min((int)(targetTown.Commercial * val2), targetTown.CommercialMax);
               break;
           }
 
@@ -371,6 +386,10 @@ namespace SangokuKmy.Models.Updates
             {
               peopleAdd = -80 * (50 - town.Security);
             }
+            if (town.TownBuilding == TownBuilding.OpenWall)
+            {
+              peopleAdd = (int)((((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.12f + 1.0f) * peopleAdd);
+            }
             town.People += peopleAdd;
             if (town.People > town.PeopleMax)
             {
@@ -386,6 +405,40 @@ namespace SangokuKmy.Models.Updates
           }
 
           await repo.SaveChangesAsync();
+        }
+
+        // 都市施設
+        {
+          foreach (var town in allTowns)
+          {
+            if (town.TownBuilding == TownBuilding.TrainStrong ||
+                town.TownBuilding == TownBuilding.TrainIntellect ||
+                town.TownBuilding == TownBuilding.TrainLeadership ||
+                town.TownBuilding == TownBuilding.TrainPopularity)
+            {
+              var charas = await repo.Town.GetCharactersAsync(town.Id);
+              var size = (short)((float)town.TownBuildingValue / Config.TownBuildingMax);
+              foreach (var chara in charas)
+              {
+                if (town.TownBuilding == TownBuilding.TrainStrong)
+                {
+                  chara.AddStrongEx(size);
+                }
+                else if (town.TownBuilding == TownBuilding.TrainIntellect)
+                {
+                  chara.AddIntellectEx(size);
+                }
+                else if (town.TownBuilding == TownBuilding.TrainLeadership)
+                {
+                  chara.AddLeadershipEx(size);
+                }
+                else if (town.TownBuilding == TownBuilding.TrainPopularity)
+                {
+                  chara.AddPopularityEx(size);
+                }
+              }
+            }
+          }
         }
 
         // 同盟破棄・戦争開始
@@ -555,7 +608,6 @@ namespace SangokuKmy.Models.Updates
           CharacterId = id,
           Message = message,
         };
-        await repo.Character.AddCharacterLogAsync(log);
         anyoneNotifies.Add(new Tuple<uint, IApiData>(id, ApiData.From(log)));
       }
       async Task<MapLog> AddMapLogInnerAsync(bool isImportant, EventType type, string message)
@@ -696,6 +748,12 @@ namespace SangokuKmy.Models.Updates
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(updateLog));
       foreach (var charaData in anyoneNotifies.GroupBy(an => an.Item1, (id, items) => new { CharacterId = id, Items = items.Select(i => i.Item2), }))
       {
+        var charaLogs = charaData.Items.OfType<ApiData<CharacterLog>>();
+        if (charaLogs.Any())
+        {
+          // ログを一括追加（戦闘ログの順番がランダムになることがあるので、一括にやってしまう）
+          await repo.Character.AddCharacterLogAsync(charaLogs.Select(l => l.Data));
+        }
         await StatusStreaming.Default.SendCharacterAsync(charaData.Items, charaData.CharacterId);
       }
 

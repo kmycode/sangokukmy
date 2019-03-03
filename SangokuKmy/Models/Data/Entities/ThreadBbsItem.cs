@@ -126,5 +126,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 会議室
     /// </summary>
     CountryBbs = 1,
+
+    /// <summary>
+    /// 全国会議室
+    /// </summary>
+    GlobalBbs = 2,
   }
 }

@@ -302,9 +302,9 @@ namespace SangokuKmy.Models.Commands
         }
 
         character.SoldierNumber -= myDamage;
-        myExperience += targetDamage;
+        myExperience += (int)(targetDamage * (enemyType == BattlerEnemyType.Character ? 0.3f : 0.1f));
         enemy.SoldierNumber -= targetDamage;
-        targetExperience += myDamage;
+        targetExperience += (int)(myDamage * 0.3f);
 
         await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + enemy.Name + "</character> <num>" + enemy.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
         if (!enemy.IsWall)
@@ -346,7 +346,7 @@ namespace SangokuKmy.Models.Commands
         else if (character.SoldierNumber <= 0 && enemy.SoldierNumber > 0)
         {
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleLose, prefix + " に敗北しました", false);
-          await game.CharacterLogAsync($"<character>{enemy.Name}</character> に敗北しました。<town>{targetTown.Name}</town> の守備から外れました");
+          await game.CharacterLogAsync($"<character>{enemy.Name}</character> に敗北しました");
           if (enemy.Defender.HasData)
           {
             await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, "<character>" + character.Name + "</character> を撃退しました");
