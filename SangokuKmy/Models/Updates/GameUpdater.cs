@@ -784,6 +784,8 @@ namespace SangokuKmy.Models.Updates
           });
         }
       });
+
+      await repo.SaveChangesAsync();
     }
 
     private static async Task<bool> CheckResetAsync(MainRepository repo, SystemData system)
