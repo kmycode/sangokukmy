@@ -608,7 +608,6 @@ namespace SangokuKmy.Models.Updates
           CharacterId = id,
           Message = message,
         };
-        await repo.Character.AddCharacterLogAsync(log);
         anyoneNotifies.Add(new Tuple<uint, IApiData>(id, ApiData.From(log)));
       }
       async Task<MapLog> AddMapLogInnerAsync(bool isImportant, EventType type, string message)
@@ -749,6 +748,12 @@ namespace SangokuKmy.Models.Updates
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(updateLog));
       foreach (var charaData in anyoneNotifies.GroupBy(an => an.Item1, (id, items) => new { CharacterId = id, Items = items.Select(i => i.Item2), }))
       {
+        var charaLogs = charaData.Items.OfType<ApiData<CharacterLog>>();
+        if (charaLogs.Any())
+        {
+          // ログを一括追加（戦闘ログの順番がランダムになることがあるので、一括にやってしまう）
+          await repo.Character.AddCharacterLogAsync(charaLogs.Select(l => l.Data));
+        }
         await StatusStreaming.Default.SendCharacterAsync(charaData.Items, charaData.CharacterId);
       }
 

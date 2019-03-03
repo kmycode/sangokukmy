@@ -219,6 +219,22 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <summary>
     /// 武将のログを追加する
     /// </summary>
+    /// <param name="log">ログ</param>
+    public async Task AddCharacterLogAsync(IEnumerable<CharacterLog> logs)
+    {
+      try
+      {
+        await this.container.Context.CharacterLogs.AddRangeAsync(logs);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 武将のログを追加する
+    /// </summary>
     /// <param name="characterId">武将ID</param>
     /// <param name="log">ログ</param>
     [Obsolete("characterId引数は不要")]
