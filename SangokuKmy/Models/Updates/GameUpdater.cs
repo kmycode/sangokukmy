@@ -417,7 +417,7 @@ namespace SangokuKmy.Models.Updates
                 town.TownBuilding == TownBuilding.TrainPopularity)
             {
               var charas = await repo.Town.GetCharactersAsync(town.Id);
-              var size = (short)((float)town.TownBuildingValue / Config.TownBuildingMax);
+              var size = (short)(((float)town.TownBuildingValue / Config.TownBuildingMax) * 7);
               foreach (var chara in charas)
               {
                 if (town.TownBuilding == TownBuilding.TrainStrong)
