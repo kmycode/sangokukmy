@@ -63,6 +63,13 @@ namespace SangokuKmy.Models.Data.Repositories
       => await this.GetItemsAsync(c => c.CountryId == countryId, BbsType.CountryBbs);
 
     /// <summary>
+    /// すべての全国会議室の書き込みを取得する
+    /// </summary>
+    /// <returns></returns>
+    public async Task<IReadOnlyList<ThreadBbsItem>> GetGlobalBbsAsync()
+      => await this.GetItemsAsync(c => true, BbsType.GlobalBbs);
+
+    /// <summary>
     /// 書き込みを追加する
     /// </summary>
     /// <param name="item">書き込み</param>

@@ -43,6 +43,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<CountryWar> wars;
       IEnumerable<TownWar> townWars;
       IEnumerable<ThreadBbsItem> countryBbsItems;
+      IEnumerable<ThreadBbsItem> globalBbsItems;
       IEnumerable<Reinforcement> reinforcements;
       IEnumerable<CharacterOnline> onlines = await OnlineService.GetAsync();
       IEnumerable<CountryMessage> countryMessages;
@@ -64,6 +65,7 @@ namespace SangokuKmy.Controllers
         wars = await repo.CountryDiplomacies.GetAllWarsAsync();
         townWars = await repo.CountryDiplomacies.GetAllTownWarsAsync();
         countryBbsItems = await repo.ThreadBbs.GetCountryBbsByCountryIdAsync(chara.CountryId);
+        globalBbsItems = await repo.ThreadBbs.GetGlobalBbsAsync();
         reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
         countryMessages = await repo.Country.GetMessagesAsync(chara.CountryId);
 
@@ -96,6 +98,7 @@ namespace SangokuKmy.Controllers
         .Concat(wars.Select(cw => ApiData.From(cw)))
         .Concat(townWars.Select(tw => ApiData.From(tw)))
         .Concat(countryBbsItems.Select(b => ApiData.From(b)))
+        .Concat(globalBbsItems.Select(b => ApiData.From(b)))
         .Concat(reinforcements.Select(r => ApiData.From(r)))
         .Concat(onlines.Select(o => ApiData.From(o)))
         .Concat(countryMessages.Select(c => ApiData.From(c)))
