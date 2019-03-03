@@ -33,13 +33,14 @@ namespace SangokuKmy.Models.Services
 
       await ResetTownsAsync(repo);
 
+      var now = DateTime.Now;
       var system = await repo.System.GetAsync();
       system.GameDateTime = new GameDateTime
       {
         Year = Config.StartYear,
         Month = Config.StartMonth,
       };
-      system.CurrentMonthStartDateTime = DateTime.Now;
+      system.CurrentMonthStartDateTime = new DateTime(now.Year, now.Month, now.Day, 21, 0, 0, 0);
       system.IsWaitingReset = false;
       system.IntResetGameDateTime = 0;
       if (system.IsNextPeriodBeta)
