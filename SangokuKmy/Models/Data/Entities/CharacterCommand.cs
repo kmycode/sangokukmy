@@ -204,5 +204,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 研究所
     /// </summary>
     CountryLaboratory = 33,
+
+    /// <summary>
+    /// 国庫納入
+    /// </summary>
+    SafeIn = 34,
+
+    /// <summary>
+    /// 国庫搬出
+    /// </summary>
+    SafeOut = 35,
   }
 }

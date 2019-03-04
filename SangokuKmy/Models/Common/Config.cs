@@ -51,5 +51,9 @@ namespace SangokuKmy.Models.Common
     public static int CountryBuildingMax { get; } = 2000;
 
     public static int CountryLaboratoryMax { get; } = 2000;
+
+    public static int PaySafeMax { get; } = 30000;
+
+    public static int SafePerEndurance { get; } = 2000;
   }
 }

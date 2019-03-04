@@ -119,6 +119,15 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
+    /// 国庫権限があるか確認する
+    /// </summary>
+    /// <returns>国庫権限があるか</returns>
+    public static bool CanSafe(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+    }
+
+    /// <summary>
     /// 外交権限があるか確認する
     /// </summary>
     /// <returns>外交権限があるか</returns>

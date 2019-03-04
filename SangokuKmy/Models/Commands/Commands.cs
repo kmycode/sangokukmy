@@ -35,6 +35,8 @@ namespace SangokuKmy.Models.Commands
       new RiceCommand(),
       new TrainingCommand(),
       new JoinCommand(),
+      new SafeInCommand(),
+      new SafeOutCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

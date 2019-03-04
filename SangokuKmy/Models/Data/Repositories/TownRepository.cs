@@ -76,6 +76,25 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// すべての都市を取得する
+    /// </summary>
+    /// <returns>都市</returns>
+    public async Task<IReadOnlyList<Town>> GetByCountryIdAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.Towns
+          .Where(t => t.CountryId == countryId)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return null;
+      }
+    }
+
+    /// <summary>
     /// 指定した国の都市数を数える
     /// </summary>
     /// <returns>都市数</returns>

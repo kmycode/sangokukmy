@@ -92,5 +92,12 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("last_rice_incomes")]
     [JsonProperty("lastRiceIncomes")]
     public int LastRiceIncomes { get; set; }
+
+    /// <summary>
+    /// 国庫の金
+    /// </summary>
+    [Column("safe_money")]
+    [JsonProperty("safeMoney")]
+    public int SafeMoney { get; set; }
   }
 }
