@@ -172,6 +172,14 @@ namespace SangokuKmy.Models.Commands
           soldierType = SoldierType.Common;
         }
       }
+      else
+      {
+        var type = await repo.CharacterSoldierType.GetByIdAsync((uint)soldierType);
+        if (!type.HasData || type.Data.Status != CharacterSoldierStatus.Available || type.Data.CharacterId != characterId)
+        {
+          ErrorCode.InvalidCommandParameter.Throw();
+        }
+      }
 
       // 都市の支配国チェック
       if (soldierTypeData.Technology > 0 && town.CountryId != chara.CountryId)
