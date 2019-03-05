@@ -134,6 +134,13 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
+    /// カスタム兵種のID
+    /// </summary>
+    [Column("character_soldier_type_id")]
+    [JsonProperty("characterSoldierTypeId")]
+    public uint CharacterSoldierTypeId { get; set; }
+
+    /// <summary>
     /// 兵士数
     /// </summary>
     [Column("soldier_number")]
@@ -387,6 +394,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 井闌
     /// </summary>
     Seiran = 14,
+
+    /// <summary>
+    /// カスタム
+    /// </summary>
+    Custom = 15,
 
     Guard_Step1 = 100,
 

@@ -70,6 +70,12 @@ namespace SangokuKmy.Models.Data
     private CharacterCommandRepository _charaCommand;
 
     /// <summary>
+    /// 武将兵種
+    /// </summary>
+    public CharacterSoldierTypeRepository CharacterSoldierType => this._charaSoldierType = this._charaSoldierType ?? new CharacterSoldierTypeRepository(this.container);
+    private CharacterSoldierTypeRepository _charaSoldierType;
+
+    /// <summary>
     /// マップログ
     /// </summary>
     public MapLogRepository MapLog => this._maplog = this._maplog ?? new MapLogRepository(this.container);

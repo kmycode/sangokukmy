@@ -131,8 +131,8 @@ namespace SangokuKmy.Models.Commands
       var attackerCache = character.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(character.Id)).GetMainOrFirst().Data ?? new CharacterIcon());
       uint mapLogId = 0;
 
-      var mySoldierType = DefaultCharacterSoldierTypes.Get(character.SoldierType).Data ?? DefaultCharacterSoldierTypes.Get(SoldierType.Common).Data;
-      CharacterSoldierType targetSoldierType;
+      var mySoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(character.SoldierType);
+      CharacterSoldierTypeData targetSoldierType;
       var myAttackCorrection = 0;
       var myDefenceCorrection = 0;
       var myAttackSoldierTypeCorrection = 0;
@@ -282,7 +282,7 @@ namespace SangokuKmy.Models.Commands
         {
           enemyType = enemy.SoldierType == SoldierType.StrongGuards ? BattlerEnemyType.StrongGuards : BattlerEnemyType.Character;
         }
-        targetSoldierType = DefaultCharacterSoldierTypes.Get(enemy.SoldierType).Data ?? DefaultCharacterSoldierTypes.Get(SoldierType.Common).Data;
+        targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(enemy.SoldierType);
 
         var (ka, kd) = mySoldierType.CalcCorrections(character, enemyType);
         myAttackSoldierTypeCorrection = ka;
