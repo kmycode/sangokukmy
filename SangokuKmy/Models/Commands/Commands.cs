@@ -37,6 +37,8 @@ namespace SangokuKmy.Models.Commands
       new JoinCommand(),
       new SafeInCommand(),
       new SafeOutCommand(),
+      new BurnCommand(),
+      new AgitationCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

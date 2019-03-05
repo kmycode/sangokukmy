@@ -214,5 +214,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 国庫搬出
     /// </summary>
     SafeOut = 35,
+
+    /// <summary>
+    /// 焼討
+    /// </summary>
+    Burn = 36,
+
+    /// <summary>
+    /// 扇動
+    /// </summary>
+    Agitation = 37,
   }
 }

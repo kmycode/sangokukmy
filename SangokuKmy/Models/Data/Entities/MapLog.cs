@@ -218,5 +218,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 都市攻略
     /// </summary>
     TownWarInReady = 25,
+
+    /// <summary>
+    /// 焼討
+    /// </summary>
+    Burn = 26,
+
+    /// <summary>
+    /// 扇動
+    /// </summary>
+    Agitation = 27,
   }
 }
