@@ -36,6 +36,12 @@ namespace SangokuKmy.Controllers
       CharacterSoldierType type;
       using (var repo = MainRepository.WithReadAndWrite())
       {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        if (!(await this.CheckAsync(repo, chara.CountryId, param)))
+        {
+          ErrorCode.InvalidParameterError.Throw();
+        }
+
         param.CharacterId = this.AuthData.CharacterId;
         param.Status = CharacterSoldierStatus.InDraft;
         await repo.CharacterSoldierType.AddAsync(param);
@@ -51,6 +57,12 @@ namespace SangokuKmy.Controllers
       CharacterSoldierType type;
       using (var repo = MainRepository.WithReadAndWrite())
       {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        if (!(await this.CheckAsync(repo, chara.CountryId, param)))
+        {
+          ErrorCode.InvalidParameterError.Throw();
+        }
+
         var old = await repo.CharacterSoldierType.GetByIdAsync(param.Id).GetOrErrorAsync(ErrorCode.SoldierTypeNotFoundError);
         if (old.Status != CharacterSoldierStatus.InDraft)
         {
@@ -96,6 +108,11 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(type), this.AuthData.CharacterId);
+    }
+
+    private async Task<bool> CheckAsync(MainRepository repo, uint countryId, CharacterSoldierType type)
+    {
+      return type.IsVerify && type.Size == 10;
     }
   }
 }

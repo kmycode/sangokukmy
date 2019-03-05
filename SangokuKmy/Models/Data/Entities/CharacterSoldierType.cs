@@ -119,6 +119,17 @@ namespace SangokuKmy.Models.Data.Entities
               this.RepeatingCrossbow >= 0 && this.StrongGuards >= 0 && this.Seiran >= 0;
       }
     }
+
+    public int Size
+    {
+      get
+      {
+        return this.Common + this.LightInfantry + this.Archer +
+              this.LightCavalry + this.StrongCrossbow + this.LightIntellect +
+              this.HeavyInfantry + this.HeavyCavalry + this.Intellect +
+              this.RepeatingCrossbow + this.StrongGuards + this.Seiran;
+      }
+    }
   }
 
   public enum CharacterSoldierStatus : short
