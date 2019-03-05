@@ -39,12 +39,14 @@ namespace SangokuKmy.Models.Commands
       else
       {
         var town = townOptional.Data;
+        var soldierTypeName = string.Empty;
         var soldierType = (SoldierType)soldierTypeOptional.Data.NumberValue;
         var isDefaultSoldierType = isDefaultSoldierTypeOptional.Data.NumberValue == 0;
 
         CharacterSoldierTypeData soldierTypeData = null;
         if (isDefaultSoldierType)
         {
+          soldierTypeName = DefaultCharacterSoldierTypeParts.Get(soldierType).Data?.Name ?? "雑兵";
           soldierTypeData = DefaultCharacterSoldierTypeParts.GetDataByDefault(soldierType);
         }
         else
@@ -53,6 +55,7 @@ namespace SangokuKmy.Models.Commands
           if (typeOptional.HasData)
           {
             var type = typeOptional.Data;
+            soldierTypeName = type.Name;
             soldierTypeData = type.ToParts().ToData();
           }
           else
@@ -88,7 +91,7 @@ namespace SangokuKmy.Models.Commands
           var add = soldierNumber.Value;
 
           // 首都なら雑兵ではなく禁兵
-          if (soldierType == SoldierType.Common)
+          if (isDefaultSoldierType && soldierType == SoldierType.Common)
           {
             var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
             countryOptional.Some((country) =>
@@ -100,7 +103,7 @@ namespace SangokuKmy.Models.Commands
             });
           }
 
-          if (character.SoldierType == soldierType)
+          if ((isDefaultSoldierType && character.SoldierType == soldierType) || (!isDefaultSoldierType && character.CharacterSoldierTypeId == (uint)soldierType))
           {
             // 兵種は変えない
             if (character.SoldierNumber + add > character.Leadership)
@@ -135,7 +138,7 @@ namespace SangokuKmy.Models.Commands
           town.People -= add * 5;
           town.Security -= (short)(add / 10);
 
-          await game.CharacterLogAsync(soldierTypeData.Description + " を <num>+" + add + "</num> 徴兵しました");
+          await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");
           character.AddStrongEx(50);
         }
       }
