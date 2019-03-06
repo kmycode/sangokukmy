@@ -26,7 +26,12 @@ namespace SangokuKmy.Controllers
     {
       using (var repo = MainRepository.WithRead())
       {
-        return await repo.CharacterSoldierType.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.SoldierTypeNotFoundError);
+        var type = await repo.CharacterSoldierType.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.SoldierTypeNotFoundError);
+        if (type.CharacterId != this.AuthData.CharacterId && type.Status != CharacterSoldierStatus.Available)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+        return type;
       }
     }
 
