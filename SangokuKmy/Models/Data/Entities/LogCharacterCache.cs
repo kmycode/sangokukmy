@@ -92,6 +92,10 @@ namespace SangokuKmy.Models.Data.Entities
       set => this.SoldierType = (SoldierType)value;
     }
 
+    [Column("character_soldier_type_id")]
+    [JsonProperty("characterSoldierTypeId")]
+    public uint CharacterSoldierTypeId { get; set; }
+
     /// <summary>
     /// 兵士数
     /// </summary>
@@ -122,6 +126,7 @@ namespace SangokuKmy.Models.Data.Entities
         Popularity = c.Popularity,
         Proficiency = c.Proficiency,
         SoldierType = c.SoldierType,
+        CharacterSoldierTypeId = c.CharacterSoldierTypeId,
         SoldierNumber = c.SoldierNumber,
         IconId = icon.Id,
       };

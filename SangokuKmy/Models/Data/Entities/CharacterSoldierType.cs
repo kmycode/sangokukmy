@@ -309,6 +309,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.Guard_Step1,
+        Name = "守兵A",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 2,
@@ -320,6 +321,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.Guard_Step2,
+        Name = "守兵B",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 4,
@@ -331,6 +333,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.Guard_Step3,
+        Name = "守兵C",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 6,
@@ -342,6 +345,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.Guard_Step4,
+        Name = "守兵D",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 9,

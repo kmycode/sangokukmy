@@ -131,8 +131,25 @@ namespace SangokuKmy.Models.Commands
       var attackerCache = character.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(character.Id)).GetMainOrFirst().Data ?? new CharacterIcon());
       uint mapLogId = 0;
 
-      var mySoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(character.SoldierType);
-      CharacterSoldierTypeData targetSoldierType;
+      CharacterSoldierTypeData mySoldierType;
+      if (character.SoldierType != SoldierType.Custom)
+      {
+        mySoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(character.SoldierType);
+      }
+      else
+      {
+        var type = await repo.CharacterSoldierType.GetByIdAsync(character.CharacterSoldierTypeId);
+        if (type.HasData)
+        {
+          mySoldierType = type.Data.ToParts().ToData();
+        }
+        else
+        {
+          await game.CharacterLogAsync($"カスタム兵種ID: {character.CharacterSoldierTypeId} は存在しません。<emerge>管理者にお問い合わせください</emerge>");
+          return;
+        }
+      }
+      CharacterSoldierTypeData targetSoldierType = null;
       var myAttackCorrection = 0;
       var myDefenceCorrection = 0;
       var myAttackSoldierTypeCorrection = 0;
@@ -199,11 +216,29 @@ namespace SangokuKmy.Models.Commands
         enemy.Defender = defender.ToOptional();
         enemy.SoldierNumber = defender.SoldierNumber;
         enemy.SoldierType = defender.SoldierType;
+        enemy.SoldierTypeId = defender.CharacterSoldierTypeId;
         enemy.Strong = defender.Strong;
         enemy.Proficiency = defender.Proficiency;
         log.DefenderCharacterId = defender.Id;
         log.DefenderType = DefenderType.Character;
         defenderCache = defender.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(defender.Id)).GetMainOrFirst().Data ?? new CharacterIcon());
+
+        if (defender.SoldierType != SoldierType.Custom)
+        {
+          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(defender.SoldierType);
+        }
+        else
+        {
+          var type = await repo.CharacterSoldierType.GetByIdAsync(defender.CharacterSoldierTypeId);
+          if (type.HasData)
+          {
+            targetSoldierType = type.Data.ToParts().ToData();
+          }
+          else
+          {
+            targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(SoldierType.Common);
+          }
+        }
 
         await game.CharacterLogByIdAsync(defender.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
       }
@@ -277,12 +312,12 @@ namespace SangokuKmy.Models.Commands
           wallChara.SoldierType = defenderCache.SoldierType;
           wallChara.SoldierNumber = defenderCache.SoldierNumber;
           wallChara.Proficiency = defenderCache.Proficiency;
+          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(enemy.SoldierType);
         }
         else
         {
           enemyType = enemy.SoldierType == SoldierType.StrongGuards ? BattlerEnemyType.StrongGuards : BattlerEnemyType.Character;
         }
-        targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(enemy.SoldierType);
 
         var (ka, kd) = mySoldierType.CalcCorrections(character, enemyType);
         myAttackSoldierTypeCorrection = ka;
@@ -472,6 +507,8 @@ namespace SangokuKmy.Models.Commands
       public int SoldierNumber { get; set; }
 
       public SoldierType SoldierType { get; set; }
+
+      public uint SoldierTypeId { get; set; }
 
       public int Strong { get; set; }
 
