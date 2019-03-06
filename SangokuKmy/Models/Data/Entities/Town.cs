@@ -339,6 +339,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 職業斡旋所
     /// </summary>
     Work = 3,
+
+    /// <summary>
+    /// 兵種研究所
+    /// </summary>
+    SoldierLaboratory = 4,
   }
 
   public enum CountryLaboratory : short

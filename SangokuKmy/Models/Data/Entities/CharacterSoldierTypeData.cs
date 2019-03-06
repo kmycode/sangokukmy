@@ -86,6 +86,24 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("recovery")]
     public short Recovery { get; set; }
 
+    [JsonIgnore]
+    public float ResearchMoneyBase
+    {
+      get
+      {
+        return this.Money * 160;
+      }
+    }
+
+    [JsonIgnore]
+    public float ResearchCostBase
+    {
+      get
+      {
+        return this.Money * (this.Technology / 230.0f);
+      }
+    }
+
     public (int AttackCorrection, int DefendCorrection) CalcCorrections(Character chara, BattlerEnemyType enemyType)
     {
       var a = (float)this.BaseAttack;

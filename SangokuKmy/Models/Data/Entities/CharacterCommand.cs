@@ -224,5 +224,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 扇動
     /// </summary>
     Agitation = 37,
+
+    /// <summary>
+    /// 兵種研究
+    /// </summary>
+    ResearchSoldier = 38,
   }
 }
