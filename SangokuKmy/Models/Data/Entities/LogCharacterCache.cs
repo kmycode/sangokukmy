@@ -96,6 +96,10 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("characterSoldierTypeId")]
     public uint CharacterSoldierTypeId { get; set; }
 
+    [NotMapped]
+    [JsonProperty("characterSoldierType")]
+    public CharacterSoldierType CharacterSoldierType { get; set; }
+
     /// <summary>
     /// 兵士数
     /// </summary>

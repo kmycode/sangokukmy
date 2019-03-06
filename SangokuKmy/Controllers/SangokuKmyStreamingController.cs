@@ -83,6 +83,7 @@ namespace SangokuKmy.Controllers
 
       // 送信する初期データをリストアップ
       var sendData = Enumerable.Empty<object>()
+        .Concat(solidierTypes.Select(s => ApiData.From(s)))
         .Concat(new object[]
         {
           ApiData.From(chara),
@@ -104,7 +105,6 @@ namespace SangokuKmy.Controllers
         .Concat(reinforcements.Select(r => ApiData.From(r)))
         .Concat(onlines.Select(o => ApiData.From(o)))
         .Concat(countryMessages.Select(c => ApiData.From(c)))
-        .Concat(solidierTypes.Select(s => ApiData.From(s)))
         .ToList();
       sendData.Add(ApiData.From(new ApiSignal
       {
