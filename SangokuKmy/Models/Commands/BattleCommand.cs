@@ -508,10 +508,10 @@ namespace SangokuKmy.Models.Commands
 
     private string AddExperience(int ex, Character chara, CharacterSoldierTypeData soldierType)
     {
-      var strong = (short)(ex / 10 * soldierType.StrongEx);
-      var intellect = (short)(ex / 10 * soldierType.IntellectEx);
-      var leadership = (short)(ex / 10 * soldierType.LeadershipEx);
-      var popularity = (short)(ex / 10 * soldierType.PopularityEx);
+      var strong = (short)(ex / 10.0f * soldierType.StrongEx);
+      var intellect = (short)(ex / 10.0f * soldierType.IntellectEx);
+      var leadership = (short)(ex / 10.0f * soldierType.LeadershipEx);
+      var popularity = (short)(ex / 10.0f * soldierType.PopularityEx);
       chara.AddStrongEx(strong);
       chara.AddIntellectEx(intellect);
       chara.AddLeadershipEx(leadership);
