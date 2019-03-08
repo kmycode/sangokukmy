@@ -127,7 +127,7 @@ namespace SangokuKmy.Controllers
 
     private async Task<bool> CheckAsync(MainRepository repo, uint countryId, CharacterSoldierType type)
     {
-      return type.IsVerify && type.Size >= 10 && type.Size <= 15;
+      return type.IsVerify && type.Size >= 10 && type.Size <= 15 && type.ToParts().All(t => t.CanConscript);
     }
   }
 }
