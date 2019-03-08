@@ -176,6 +176,35 @@ namespace SangokuKmy.Models.Services
         People = type.People,
         Security = (short)type.Security,
       };
+      {
+        // 都市施設
+        var b = new TownBuilding[]
+        {
+          TownBuilding.Economy,
+          TownBuilding.MilitaryStation,
+          TownBuilding.OpenWall,
+          TownBuilding.RepairWall,
+          TownBuilding.SaveWall,
+          TownBuilding.TrainIntellect,
+          TownBuilding.TrainLeadership,
+          TownBuilding.TrainPopularity,
+          TownBuilding.TrainStrong,
+        };
+        var r = rand.Next(0, b.Length);
+        town.TownBuilding = b[r];
+      }
+      {
+        // 国家施設
+        var b = new CountryBuilding[]
+        {
+          CountryBuilding.CountrySafe,
+          CountryBuilding.Secretary,
+          CountryBuilding.SoldierLaboratory,
+          CountryBuilding.Spy,
+        };
+        var r = rand.Next(0, b.Length);
+        town.CountryBuilding = b[r];
+      }
       return town;
     }
 
