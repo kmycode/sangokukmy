@@ -484,13 +484,13 @@ namespace SangokuKmy.Models.Commands
 
       // 貢献、経験値の設定
       myContribution += myExperience;
-      character.Contribution += (int)(myContribution * 4.6f);
+      character.Contribution += (int)(myContribution);
       await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType));
       if (enemy.Defender.HasData)
       {
         var defender = enemy.Defender.Data;
         targetContribution += targetExperience;
-        defender.Contribution += (int)(targetContribution * 4.6f);
+        defender.Contribution += (int)(targetContribution);
         defender.SoldierNumber = enemy.SoldierNumber;
         await game.CharacterLogByIdAsync(defender.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, defender, targetSoldierType));
 
