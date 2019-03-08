@@ -211,7 +211,7 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
+      var names = new string[] { "南蛮", "烏丸", "羌", "山越", "倭", };
       var name = names[rand.Next(0, names.Length)];
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
@@ -226,7 +226,15 @@ namespace SangokuKmy.Models.Services
         return false;
       }
       town.Data.Name = name;
-      var country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller);
+      Country country;
+      if (name != "倭")
+      {
+        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller);
+      }
+      else
+      {
+        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller);
+      }
       country.CountryColorId = countryColor;
       country.Name = name;
 
