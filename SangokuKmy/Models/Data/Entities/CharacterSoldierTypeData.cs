@@ -86,6 +86,18 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("recovery")]
     public short Recovery { get; set; }
 
+    [JsonProperty("strongEx")]
+    public short StrongEx { get; set; }
+
+    [JsonProperty("intellectEx")]
+    public short IntellectEx { get; set; }
+
+    [JsonProperty("leadershipEx")]
+    public short LeadershipEx { get; set; }
+
+    [JsonProperty("popularityEx")]
+    public short PopularityEx { get; set; }
+
     [JsonIgnore]
     public float ResearchMoneyBase
     {
@@ -144,6 +156,10 @@ namespace SangokuKmy.Models.Data.Entities
         IntellectAttack = (short)parts.Sum(p => p.Data.IntellectAttack),
         IntellectDefend = (short)parts.Sum(p => p.Data.IntellectDefend),
         WallAttack = (short)parts.Sum(p => p.Data.WallAttack),
+        StrongEx = (short)parts.Sum(p => p.Data.StrongEx),
+        IntellectEx = (short)parts.Sum(p => p.Data.IntellectEx),
+        LeadershipEx = (short)parts.Sum(p => p.Data.LeadershipEx),
+        PopularityEx = (short)parts.Sum(p => p.Data.PopularityEx),
       };
       return d;
     }

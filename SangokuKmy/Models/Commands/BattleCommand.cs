@@ -485,16 +485,14 @@ namespace SangokuKmy.Models.Commands
       // 貢献、経験値の設定
       myContribution += myExperience;
       character.Contribution += (int)(myContribution * 4.6f);
-      character.AddStrongEx((short)myExperience);
-      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num> 武力経験: <num>{myExperience}</num>");
+      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType));
       if (enemy.Defender.HasData)
       {
         var defender = enemy.Defender.Data;
         targetContribution += targetExperience;
         defender.Contribution += (int)(targetContribution * 4.6f);
-        defender.AddStrongEx((short)targetExperience);
         defender.SoldierNumber = enemy.SoldierNumber;
-        await game.CharacterLogByIdAsync(defender.Id, $"戦闘終了 貢献: <num>{targetContribution}</num> 武力経験: <num>{targetExperience}</num>");
+        await game.CharacterLogByIdAsync(defender.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, defender, targetSoldierType));
 
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(defender), defender.Id);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
@@ -506,6 +504,37 @@ namespace SangokuKmy.Models.Commands
 
       // 更新された都市データを通知
       await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown));
+    }
+
+    private string AddExperience(int ex, Character chara, CharacterSoldierTypeData soldierType)
+    {
+      var strong = (short)(ex / 10 * soldierType.StrongEx);
+      var intellect = (short)(ex / 10 * soldierType.IntellectEx);
+      var leadership = (short)(ex / 10 * soldierType.LeadershipEx);
+      var popularity = (short)(ex / 10 * soldierType.PopularityEx);
+      chara.AddStrongEx(strong);
+      chara.AddIntellectEx(intellect);
+      chara.AddLeadershipEx(leadership);
+      chara.AddPopularityEx(popularity);
+
+      var str = string.Empty;
+      if (strong > 0)
+      {
+        str += $" 武力ex: <num>{strong}</num>";
+      }
+      if (intellect > 0)
+      {
+        str += $" 知力ex: <num>{intellect}</num>";
+      }
+      if (leadership > 0)
+      {
+        str += $" 統率ex: <num>{leadership}</num>";
+      }
+      if (popularity > 0)
+      {
+        str += $" 人望ex: <num>{popularity}</num>";
+      }
+      return str;
     }
 
     private class EnemyData
