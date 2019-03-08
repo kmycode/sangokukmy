@@ -416,6 +416,9 @@ namespace SangokuKmy.Models.Commands
             targetTown.Agriculture = (int)(targetTown.Agriculture * 0.8f);
             targetTown.Commercial = (int)(targetTown.Commercial * 0.8f);
             targetTown.Technology = (int)(targetTown.Technology * 0.8f);
+            targetTown.TownBuildingValue = (int)(targetTown.TownBuildingValue * 0.8f);
+            targetTown.CountryBuildingValue = (int)(targetTown.CountryBuildingValue * 0.8f);
+            targetTown.CountryLaboratoryValue = (int)(targetTown.CountryLaboratoryValue * 0.8f);
             targetTown.People = (int)(targetTown.People * 0.8f);
             targetTown.Security = (short)(targetTown.Security * 0.8f);
             myExperience += 50;
