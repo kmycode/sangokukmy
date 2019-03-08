@@ -56,9 +56,15 @@ namespace SangokuKmy.Models.Commands
       }
       var soldierTypeData = soldierType.ToParts().ToData();
 
+      var buildingSize = await CountryService.GetCountryBuildingSizeAsync(repo, character.CountryId, CountryBuilding.SoldierLaboratory);
+      if (buildingSize <= 0.0f)
+      {
+        await game.CharacterLogAsync($"兵種研究をしようとしましたが、対応する国家施設がないか、必要な耐久がありません");
+        return;
+      }
+
       if (soldierType.Status == CharacterSoldierStatus.InDraft)
       {
-        var buildingSize = await CountryService.GetCountryBuildingSizeAsync(repo, character.CountryId, CountryBuilding.SoldierLaboratory);
         var researchMoney = (int)(soldierTypeData.ResearchMoneyBase / buildingSize);
         var researchCost = (int)(soldierTypeData.ResearchCostBase / buildingSize);
 
@@ -72,6 +78,7 @@ namespace SangokuKmy.Models.Commands
         soldierType.ResearchCost = (short)researchCost;
         soldierType.Status = CharacterSoldierStatus.Available;
         await game.CharacterLogAsync($"兵種 {soldierType.Name} の研究の初期費用として <num>{researchMoney}</num> を消費しました");
+        await game.CharacterLogAsync($"兵種 {soldierType.Name} の研究のコストは <num>{researchCost}</num> で確定しました");
       }
       else if (soldierType.Status == CharacterSoldierStatus.Available)
       {
