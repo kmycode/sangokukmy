@@ -428,6 +428,9 @@ namespace SangokuKmy.Models.Commands
             mapLogId = await game.MapLogAndSaveAsync(EventType.TakeAway, "<country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <town>" + targetTown.Name + "</town> を支配しました", true);
             await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> を支配しました");
 
+            // 支配したときのみ匿名ストリーミング
+            await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(targetTown)));
+
             if (targetCountryOptional.HasData)
             {
               var targetCountryTownCount = await repo.Town.CountByCountryIdAsync(targetCountry.Id);
