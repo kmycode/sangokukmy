@@ -38,7 +38,7 @@ namespace SangokuKmy.Controllers
     [HttpPost("soldiertypes")]
     public async Task<CharacterSoldierType> AddAsync([FromBody] CharacterSoldierType param)
     {
-      if (!string.IsNullOrEmpty(param.Name) || param.Name.Length > 10)
+      if (string.IsNullOrEmpty(param.Name) || param.Name.Length > 10)
       {
         ErrorCode.StringLengthError.Throw(new ErrorCode.RangeErrorParameter("name", param.Name?.Length ?? 0, 1, 10));
       }
@@ -64,7 +64,7 @@ namespace SangokuKmy.Controllers
     [HttpPut("soldiertypes")]
     public async Task<CharacterSoldierType> PutAsync([FromBody] CharacterSoldierType param)
     {
-      if (!string.IsNullOrEmpty(param.Name) || param.Name.Length > 10)
+      if (string.IsNullOrEmpty(param.Name) || param.Name.Length > 10)
       {
         ErrorCode.StringLengthError.Throw(new ErrorCode.RangeErrorParameter("name", param.Name?.Length ?? 0, 1, 10));
       }

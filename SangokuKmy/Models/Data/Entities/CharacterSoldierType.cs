@@ -168,6 +168,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
         },
         Money = 1,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -180,6 +181,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
         },
         Money = 1,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -192,6 +194,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 2,
         Technology = 100,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -204,6 +207,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 3,
         Technology = 200,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -217,6 +221,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 5,
         Technology = 300,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -230,6 +235,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 7,
         Technology = 400,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -242,6 +248,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 10,
         Technology = 500,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -255,6 +262,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 12,
         Technology = 600,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -268,6 +276,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 15,
         Technology = 700,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -281,6 +290,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 17,
         Technology = 800,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -294,6 +304,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 20,
         Technology = 900,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -306,6 +317,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 22,
         Technology = 999,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
@@ -318,6 +330,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 30,
         Technology = 500,
+        CanConscript = true,
       },
       new CharacterSoldierTypePart
       {
