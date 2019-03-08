@@ -76,7 +76,7 @@ namespace SangokuKmy.Models.Commands
 
         character.Money -= researchMoney;
         soldierType.ResearchCost = (short)researchCost;
-        soldierType.Status = CharacterSoldierStatus.Available;
+        soldierType.Status = CharacterSoldierStatus.Researching;
         await game.CharacterLogAsync($"兵種 {soldierType.Name} の研究の初期費用として <num>{researchMoney}</num> を消費しました");
         await game.CharacterLogAsync($"兵種 {soldierType.Name} の研究のコストは <num>{researchCost}</num> で確定しました");
       }

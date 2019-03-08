@@ -42,6 +42,7 @@ namespace SangokuKmy.Models.Commands
       new AddSecretaryCommand(),
       new EditSecretaryCommand(),
       new RemoveSecretaryCommand(),
+      new SoldierResearchCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)
