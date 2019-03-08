@@ -490,6 +490,11 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogByIdAsync(defender.Id, $"戦闘終了 貢献: <num>{targetContribution}</num> 武力経験: <num>{targetExperience}</num>");
 
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(defender), defender.Id);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
+        {
+          Type = SignalType.DefenderBattled,
+          Data = new { townName = targetTown.Name, targetName = character.Name, isWin = defender.SoldierNumber > 0, },
+        }), defender.Id);
       }
 
       // 更新された都市データを通知

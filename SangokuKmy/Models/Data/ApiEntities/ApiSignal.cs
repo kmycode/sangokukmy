@@ -71,5 +71,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// リセットされた
     /// </summary>
     Reseted = 7,
+
+    /// <summary>
+    /// 守備で戦闘があった
+    /// </summary>
+    DefenderBattled = 8,
   }
 }
