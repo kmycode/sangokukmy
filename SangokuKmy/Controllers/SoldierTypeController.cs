@@ -36,7 +36,7 @@ namespace SangokuKmy.Controllers
     }
 
     [HttpPost("soldiertypes")]
-    public async Task AddAsync([FromBody] CharacterSoldierType param)
+    public async Task<CharacterSoldierType> AddAsync([FromBody] CharacterSoldierType param)
     {
       CharacterSoldierType type;
       using (var repo = MainRepository.WithReadAndWrite())
@@ -54,10 +54,11 @@ namespace SangokuKmy.Controllers
         type = param;
       }
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(type), this.AuthData.CharacterId);
+      return type;
     }
 
     [HttpPut("soldiertypes")]
-    public async Task PutAsync([FromBody] CharacterSoldierType param)
+    public async Task<CharacterSoldierType> PutAsync([FromBody] CharacterSoldierType param)
     {
       CharacterSoldierType type;
       using (var repo = MainRepository.WithReadAndWrite())
@@ -96,6 +97,7 @@ namespace SangokuKmy.Controllers
         type = param;
       }
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(type), this.AuthData.CharacterId);
+      return type;
     }
 
     [HttpDelete("soldiertypes/{id}")]
