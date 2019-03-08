@@ -304,22 +304,22 @@ namespace SangokuKmy.Models.Updates
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺でいなごの大群が畑を襲いました");
               foreach (var town in targetTowns)
               {
-                val = town.TownBuilding != TownBuilding.AntiLocusts ? 0.85f : 0.85f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
+                val = town.TownBuilding != TownBuilding.Economy ? 0.85f : 0.85f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
                 town.Agriculture = (int)(town.Agriculture * val);
               }
-              val2 = targetTown.TownBuilding != TownBuilding.AntiLocusts ? 0.75f : 0.75f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
+              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 0.75f : 0.75f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
               targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
               break;
             case 1:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で洪水がおこりました");
               foreach (var town in targetTowns)
               {
-                val = town.TownBuilding != TownBuilding.AntiFlood ? 0.94f : 0.94f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.06f;
+                val = town.TownBuilding != TownBuilding.SaveWall ? 0.94f : 0.94f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.06f;
                 town.Agriculture = (int)(town.Agriculture * val);
                 town.Commercial = (int)(town.Commercial * val);
                 town.Wall = (int)(town.Wall * val);
               }
-              val2 = targetTown.TownBuilding != TownBuilding.AntiFlood ? 0.85f : 0.85f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
+              val2 = targetTown.TownBuilding != TownBuilding.SaveWall ? 0.85f : 0.85f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
               targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
               targetTown.Commercial = (int)(targetTown.Commercial * val2);
               targetTown.Wall = (int)(targetTown.Wall * val2);
@@ -328,10 +328,10 @@ namespace SangokuKmy.Models.Updates
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> を中心に疫病が広がっています。町の人も苦しんでいます");
               foreach (var town in targetTowns)
               {
-                val = town.TownBuilding != TownBuilding.AntiSicks ? 0.85f : 0.85f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
+                val = town.TownBuilding != TownBuilding.Economy ? 0.85f : 0.85f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
                 town.People = (int)(town.People * val);
               }
-              val2 = targetTown.TownBuilding != TownBuilding.AntiSicks ? 0.75f : 0.75f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
+              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 0.75f : 0.75f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
               targetTown.People = (int)(targetTown.People * val2);
               break;
             case 3:
@@ -348,14 +348,14 @@ namespace SangokuKmy.Models.Updates
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で地震が起こりました");
               foreach (var town in targetTowns)
               {
-                val = town.TownBuilding != TownBuilding.AntiEarthquakes ? 0.86f : 0.86f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.14f;
+                val = town.TownBuilding != TownBuilding.SaveWall ? 0.86f : 0.86f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.14f;
                 town.Agriculture = (int)(town.Agriculture * val);
                 town.Commercial = (int)(town.Commercial * val);
                 town.Wall = (int)(town.Wall * val);
-                val = town.TownBuilding != TownBuilding.AntiEarthquakes ? 0.94f : 0.94f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.06f;
+                val = town.TownBuilding != TownBuilding.SaveWall ? 0.94f : 0.94f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.06f;
                 town.People = (int)(town.People * val);
               }
-              val2 = targetTown.TownBuilding != TownBuilding.AntiSicks ? 0.76f : 0.76f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.19f;
+              val2 = targetTown.TownBuilding != TownBuilding.SaveWall ? 0.76f : 0.76f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.19f;
               targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
               targetTown.Commercial = (int)(targetTown.Commercial * val2);
               targetTown.Wall = (int)(targetTown.Wall * val2);

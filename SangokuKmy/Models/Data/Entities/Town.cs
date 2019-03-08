@@ -273,21 +273,25 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 洪水対策
     /// </summary>
+    [Obsolete]
     AntiFlood = 1,
 
     /// <summary>
     /// いなご対策
     /// </summary>
+    [Obsolete]
     AntiLocusts = 2,
 
     /// <summary>
     /// 疫病対策
     /// </summary>
+    [Obsolete]
     AntiSicks = 3,
 
     /// <summary>
     /// 地震対策
     /// </summary>
+    [Obsolete]
     AntiEarthquakes = 4,
 
     /// <summary>
