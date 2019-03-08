@@ -32,13 +32,18 @@ namespace SangokuKmy.Models.Commands
 
       var unit = unitData.Unit.Data;
       var unitLeader = unitData.Member.Data;
-      if (unitLeader.Post != UnitMemberPostType.Leader)
+      if (unitLeader.Post != UnitMemberPostType.Leader && unitLeader.Post != UnitMemberPostType.Helper)
       {
         await game.CharacterLogAsync("集合しようとしましたが、部隊長ではありません");
         return;
       }
 
+      var postName = unitLeader.Post == UnitMemberPostType.Leader ? "隊長" : "政務官";
       var members = (await repo.Unit.GetMembersAsync(unit.Id)).Where(m => m.CharacterId != character.Id);
+      if (unitLeader.Post == UnitMemberPostType.Helper)
+      {
+        members = members.Where(m => m.Post != UnitMemberPostType.Leader);
+      }
       var memberIds = members.Select(m => m.CharacterId);
       if (members.Any())
       {
@@ -46,7 +51,7 @@ namespace SangokuKmy.Models.Commands
         foreach (var memberChara in memberCharas)
         {
           memberChara.TownId = town.Id;
-          await game.CharacterLogByIdAsync(memberChara.Id, "部隊 <unit>" + unit.Name + "</unit> の隊長 <character>" + character.Name + "</character> の指示で、<town>" + town.Name + "</town> に集合しました");
+          await game.CharacterLogByIdAsync(memberChara.Id, "部隊 <unit>" + unit.Name + "</unit> の" + postName + " <character>" + character.Name + "</character> の指示で、<town>" + town.Name + "</town> に集合しました");
           await StatusStreaming.Default.SendCharacterAsync(new IApiData[] {
             ApiData.From(town),
             ApiData.From(memberChara),

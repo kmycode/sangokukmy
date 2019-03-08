@@ -65,5 +65,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 部隊長
     /// </summary>
     Leader = 2,
+
+    /// <summary>
+    /// ヘルパ（集合担当政務官用）
+    /// </summary>
+    Helper = 3,
   }
 }

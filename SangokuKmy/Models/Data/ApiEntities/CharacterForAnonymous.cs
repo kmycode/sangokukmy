@@ -25,6 +25,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("mainIcon")]
     public CharacterIcon MainIcon { get; set; }
 
+    [JsonProperty("aiType")]
+    public short ApiAiType { get; set; }
+
     [JsonProperty("strong")]
     public int Strong { get; set; }
 
@@ -80,6 +83,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.Id = character.Id;
       this.Name = character.Name;
       this.MainIcon = mainIcon;
+      this.ApiAiType = character.ApiAiType;
       this.CountryId = character.CountryId;
       this.Strong = character.Strong;
       this.Intellect = character.Intellect;

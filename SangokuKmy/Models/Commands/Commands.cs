@@ -39,6 +39,9 @@ namespace SangokuKmy.Models.Commands
       new SafeOutCommand(),
       new BurnCommand(),
       new AgitationCommand(),
+      new AddSecretaryCommand(),
+      new EditSecretaryCommand(),
+      new RemoveSecretaryCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

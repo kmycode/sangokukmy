@@ -229,5 +229,20 @@ namespace SangokuKmy.Models.Data.Entities
     /// 兵種研究
     /// </summary>
     ResearchSoldier = 38,
+
+    /// <summary>
+    /// 政務官募集
+    /// </summary>
+    AddSecretary = 39,
+
+    /// <summary>
+    /// 政務官配属
+    /// </summary>
+    Secretary = 40,
+
+    /// <summary>
+    /// 政務官削除
+    /// </summary>
+    RemoveSecretary = 41,
   }
 }

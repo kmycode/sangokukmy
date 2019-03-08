@@ -87,18 +87,23 @@ namespace SangokuKmy.Models.Services
 
       foreach (var chara in charas)
       {
-        var icon = new CharacterIcon
-        {
-          CharacterId = chara.Id,
-          IsAvailable = true,
-          IsMain = true,
-          Type = CharacterIconType.Default,
-          FileName = "0.gif",
-        };
-        await repo.Character.AddCharacterIconAsync(icon);
+        await SetIconAsync(repo, chara);
       }
 
       return country;
+    }
+
+    public static async Task SetIconAsync(MainRepository repo, Character chara)
+    {
+      var icon = new CharacterIcon
+      {
+        CharacterId = chara.Id,
+        IsAvailable = true,
+        IsMain = true,
+        Type = CharacterIconType.Default,
+        FileName = "0.gif",
+      };
+      await repo.Character.AddCharacterIconAsync(icon);
     }
 
     public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, Country self, Town selfTown, Func<EventType, string, bool, Task> mapLogAsync)

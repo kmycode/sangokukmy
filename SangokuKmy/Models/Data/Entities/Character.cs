@@ -53,6 +53,17 @@ namespace SangokuKmy.Models.Data.Entities
     public CharacterAiType AiType { get; set; }
 
     /// <summary>
+    /// AIの種類（API用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("aiType")]
+    public short ApiAiType
+    {
+      get => (short)this.AiType;
+      set => this.AiType = (CharacterAiType)value;
+    }
+
+    /// <summary>
     /// 国のID
     /// </summary>
     [Column("country_id")]
@@ -419,5 +430,16 @@ namespace SangokuKmy.Models.Data.Entities
     TerroristWallBattler = 5,
     TerroristCivilOfficial = 6,
     TerroristPatroller = 7,
+    SecretaryPatroller = 8,
+    SecretaryUnitGather = 9,
+    RemovedSecretary = 10,
+  }
+
+  public static class CharacterAiTypeExtensions
+  {
+    public static bool IsSecretary(this CharacterAiType type)
+    {
+      return type == CharacterAiType.SecretaryPatroller || type == CharacterAiType.SecretaryUnitGather;
+    }
   }
 }

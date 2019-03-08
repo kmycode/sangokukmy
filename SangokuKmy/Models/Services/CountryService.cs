@@ -16,6 +16,12 @@ namespace SangokuKmy.Models.Services
       return GetSize(towns.Where(t => t.CountryBuilding == type).Select(t => t.CountryBuildingValue));
     }
 
+    public static async Task<bool> HasCountryBuildingAsync(MainRepository repo, uint countryId, CountryBuilding type)
+    {
+      var towns = await repo.Town.GetByCountryIdAsync(countryId);
+      return towns.Any(t => t.CountryBuilding == type);
+    }
+
     public static async Task<float> GetCountryLaboratorySizeAsync(MainRepository repo, uint countryId, CountryLaboratory type)
     {
       var towns = await repo.Town.GetByCountryIdAsync(countryId);

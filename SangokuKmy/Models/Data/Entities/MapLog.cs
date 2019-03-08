@@ -228,5 +228,20 @@ namespace SangokuKmy.Models.Data.Entities
     /// 扇動
     /// </summary>
     Agitation = 27,
+
+    /// <summary>
+    /// 政務官雇用
+    /// </summary>
+    SecretaryAdded = 28,
+
+    /// <summary>
+    /// 政務官解任
+    /// </summary>
+    SecretaryRemoved = 29,
+
+    /// <summary>
+    /// 給与不足による政務官削除
+    /// </summary>
+    SecretaryRemovedWithNoSalary = 30,
   }
 }
