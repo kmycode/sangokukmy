@@ -146,18 +146,26 @@ namespace SangokuKmy.Models.Services
     {
       if (typeId == TownType.Any)
       {
-        var r = rand.Next(1, 4);
-        if (r == 1)
+        var r = rand.Next(0, 9);
+        if (r <= 2)
         {
           typeId = TownType.Agriculture;
         }
-        else if (r == 2)
+        else if (r <= 5)
         {
           typeId = TownType.Commercial;
         }
-        else
+        else if (r <= 7)
         {
           typeId = TownType.Fortress;
+        }
+        else if (r == 8)
+        {
+          typeId = TownType.Large;
+        }
+        else
+        {
+          typeId = TownType.Agriculture;
         }
       }
       var type = typeId == TownType.Agriculture ? TownTypeDefinition.Agriculture :
