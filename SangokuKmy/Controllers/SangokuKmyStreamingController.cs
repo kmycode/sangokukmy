@@ -47,6 +47,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<Reinforcement> reinforcements;
       IEnumerable<CharacterOnline> onlines = await OnlineService.GetAsync();
       IEnumerable<CountryMessage> countryMessages;
+      IEnumerable<CharacterSoldierType> solidierTypes;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -68,6 +69,7 @@ namespace SangokuKmy.Controllers
         globalBbsItems = await repo.ThreadBbs.GetGlobalBbsAsync();
         reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
         countryMessages = await repo.Country.GetMessagesAsync(chara.CountryId);
+        solidierTypes = await repo.CharacterSoldierType.GetByCharacterIdAsync(chara.Id);
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
@@ -81,6 +83,7 @@ namespace SangokuKmy.Controllers
 
       // 送信する初期データをリストアップ
       var sendData = Enumerable.Empty<object>()
+        .Concat(solidierTypes.Select(s => ApiData.From(s)))
         .Concat(new object[]
         {
           ApiData.From(chara),

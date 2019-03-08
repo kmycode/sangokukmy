@@ -983,6 +983,16 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithRead())
       {
         var log = await repo.BattleLog.GetWithLinesByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        if (log.AttackerCache.SoldierType == SoldierType.Custom)
+        {
+          var type = await repo.CharacterSoldierType.GetByIdAsync(log.AttackerCache.CharacterSoldierTypeId);
+          log.AttackerCache.CharacterSoldierType = type.Data;
+        }
+        if (log.DefenderCache.SoldierType == SoldierType.Custom)
+        {
+          var type = await repo.CharacterSoldierType.GetByIdAsync(log.DefenderCache.CharacterSoldierTypeId);
+          log.DefenderCache.CharacterSoldierType = type.Data;
+        }
         return log;
       }
     }

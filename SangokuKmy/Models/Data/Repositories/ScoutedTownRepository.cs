@@ -143,6 +143,7 @@ namespace SangokuKmy.Models.Data.Repositories
         var characters =
           (await this.container.Context.Characters
             .Where(c => c.TownId == town.ScoutedTownId)
+            .Where(c => !c.HasRemoved)
             .ToArrayAsync())
             .Select(c => new ScoutedCharacter
             {
@@ -154,7 +155,7 @@ namespace SangokuKmy.Models.Data.Repositories
         var defenders =
           (await this.container.Context.TownDefenders
             .Where(td => td.TownId == town.ScoutedTownId)
-            .Join(this.container.Context.Characters,
+            .Join(this.container.Context.Characters.Where(c => !c.HasRemoved),
               td => td.CharacterId,
               c => c.Id,
               (td, c) => c)

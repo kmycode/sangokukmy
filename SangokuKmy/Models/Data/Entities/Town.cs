@@ -324,6 +324,31 @@ namespace SangokuKmy.Models.Data.Entities
   public enum CountryBuilding : short
   {
     None = 0,
+
+    /// <summary>
+    /// 国庫
+    /// </summary>
+    CountrySafe = 1,
+
+    /// <summary>
+    /// 諜報府
+    /// </summary>
+    Spy = 2,
+
+    /// <summary>
+    /// 職業斡旋所
+    /// </summary>
+    Work = 3,
+
+    /// <summary>
+    /// 兵種研究所
+    /// </summary>
+    SoldierLaboratory = 4,
+
+    /// <summary>
+    /// 政務官
+    /// </summary>
+    Secretary = 5,
   }
 
   public enum CountryLaboratory : short

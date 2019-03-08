@@ -41,7 +41,7 @@ namespace SangokuKmy.Models.Updates
     {
       base.Initialize(current);
       this.Character.Name = "異民族_武将";
-      this.Character.Strong = (short)(this.Character.Strong * 1.4f);
+      this.Character.Strong = (short)(this.Character.Strong * 1.8f);
       this.Character.Leadership = 170;
       this.Character.Money = 99999999;
     }

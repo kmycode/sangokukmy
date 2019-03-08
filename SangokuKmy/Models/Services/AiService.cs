@@ -87,18 +87,23 @@ namespace SangokuKmy.Models.Services
 
       foreach (var chara in charas)
       {
-        var icon = new CharacterIcon
-        {
-          CharacterId = chara.Id,
-          IsAvailable = true,
-          IsMain = true,
-          Type = CharacterIconType.Default,
-          FileName = "0.gif",
-        };
-        await repo.Character.AddCharacterIconAsync(icon);
+        await SetIconAsync(repo, chara);
       }
 
       return country;
+    }
+
+    public static async Task SetIconAsync(MainRepository repo, Character chara)
+    {
+      var icon = new CharacterIcon
+      {
+        CharacterId = chara.Id,
+        IsAvailable = true,
+        IsMain = true,
+        Type = CharacterIconType.Default,
+        FileName = "0.gif",
+      };
+      await repo.Character.AddCharacterIconAsync(icon);
     }
 
     public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, Country self, Town selfTown, Func<EventType, string, bool, Task> mapLogAsync)
@@ -206,7 +211,7 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
+      var names = new string[] { "南蛮", "烏丸", "羌", "山越", "倭", };
       var name = names[rand.Next(0, names.Length)];
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
@@ -221,9 +226,18 @@ namespace SangokuKmy.Models.Services
         return false;
       }
       town.Data.Name = name;
-      var country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller);
+      Country country;
+      if (name != "倭")
+      {
+        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller);
+      }
+      else
+      {
+        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller);
+      }
       country.CountryColorId = countryColor;
       country.Name = name;
+      country.AiType = CountryAiType.Terrorists;
 
       await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Data.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
       await repo.SaveChangesAsync();
@@ -266,6 +280,7 @@ namespace SangokuKmy.Models.Services
       var country = await CreateCountryAsync(repo, system, town, CharacterAiType.FarmerBattler, CharacterAiType.FarmerBattler, CharacterAiType.FarmerCivilOfficial);
       country.CountryColorId = countryColor;
       country.Name = $"{town.Name}農民団";
+      country.AiType = CountryAiType.Farmers;
 
       await mapLogAsync(EventType.AppendFarmers, $"<town>{town.Name}</town> の <country>{country.Name}</country> が <country>{targetCountry.Name}</country> に対して蜂起しました", true);
       await repo.SaveChangesAsync();

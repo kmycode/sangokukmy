@@ -194,12 +194,12 @@ namespace SangokuKmy.Models.Updates
             }
 
             // 収入を武将に配る
-            foreach (var character in country.Characters)
+            foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary()))
             {
               var currentLank = Math.Min(Config.LankCount - 1, character.Class / Config.NextLank);
               var add = salary.AllContributions > 0 ?
                 (int)(salary.AllSalary * (float)character.Contribution / salary.AllContributions + character.Contribution * 1.3f) : 0;
-              var addMax = 1000 + currentLank * 150;
+              var addMax = 1000 + currentLank * 200;
               add = Math.Min(Math.Max(add, 0), addMax);
 
               if (system.GameDateTime.Month == 1)
@@ -237,7 +237,7 @@ namespace SangokuKmy.Models.Updates
                     tecName = "人望";
                     break;
                 }
-                var newAddMax = 1000 + newLank * 150;
+                var newAddMax = 1000 + newLank * 200;
                 await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました");
                 if (currentLank != newLank)
                 {
@@ -251,6 +251,39 @@ namespace SangokuKmy.Models.Updates
 
               await StatusStreaming.Default.SendCharacterAsync(ApiData.From(character), character.Id);
             }
+
+            // 政務官収入
+            var secretarySize = await CountryService.GetCountryBuildingSizeAsync(repo, country.Country.Id, CountryBuilding.Secretary);
+            if (secretarySize > 0.0f)
+            {
+              var income = (int)(2000 / secretarySize);
+              var secretaries = country.Characters.Where(c => c.AiType.IsSecretary());
+              foreach (var character in secretaries)
+              {
+                if (country.Country.SafeMoney < income)
+                {
+                  character.Money = 0;
+                  character.Rice = 0;
+                }
+                else
+                {
+                  character.Money = 10000;
+                  character.Rice = 10000;
+                  country.Country.SafeMoney -= income;
+                }
+              }
+            }
+            else
+            {
+              foreach (var character in country.Characters.Where(c => c.AiType.IsSecretary()))
+              {
+                character.Money = 0;
+                character.Rice = 0;
+              }
+            }
+
+            // 新しい収入、国庫を配信
+            await StatusStreaming.Default.SendCountryAsync(ApiData.From(country.Country), country.Country.Id);
           }
 
           await repo.SaveChangesAsync();
@@ -673,12 +706,29 @@ namespace SangokuKmy.Models.Updates
         }
       }
 
+      // 政務官の削除
+      if (character.AiType.IsSecretary() && (character.Money <= 0 || character.Rice <= 0))
+      {
+        var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
+        character.DeleteTurn = (short)Config.DeleteTurns;
+        await AddMapLogAsync(EventType.SecretaryRemovedWithNoSalary, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、給与不足により解任されました", false);
+      }
+      if (character.AiType == CharacterAiType.RemovedSecretary)
+      {
+        var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
+        character.DeleteTurn = (short)Config.DeleteTurns;
+        await AddMapLogAsync(EventType.SecretaryRemovedWithNoSalary, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、解雇されました", false);
+      }
+
       // 放置削除の確認
       if (character.DeleteTurn >= Config.DeleteTurns)
       {
         var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
         await CharacterService.RemoveAsync(repo, character);
-        await AddMapLogAsync(EventType.CharacterRemoved, "<country>" + (countryOptional.Data?.Name ?? "無所属") + "</country> の <character>" + character.Name + "</character> は放置削除されました", false);
+        if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary)
+        {
+          await AddMapLogAsync(EventType.CharacterRemoved, "<country>" + (countryOptional.Data?.Name ?? "無所属") + "</country> の <character>" + character.Name + "</character> は放置削除されました", false);
+        }
         StatusStreaming.Default.Disconnect(character);
       }
 

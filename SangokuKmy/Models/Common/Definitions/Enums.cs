@@ -231,6 +231,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode InvitationCodeRequestedError { get; } = new ErrorCode(403, 41);
 
+    /// <summary>
+    /// 兵種が見つからないエラー
+    /// </summary>
+    public static ErrorCode SoldierTypeNotFoundError { get; } = new ErrorCode(404, 42);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

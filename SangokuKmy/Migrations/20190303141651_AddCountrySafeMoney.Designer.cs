@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20190303141651_AddCountrySafeMoney")]
+    partial class AddCountrySafeMoney
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -114,9 +116,6 @@ namespace SangokuKmy.Migrations
                     b.Property<string>("AliasId")
                         .HasColumnName("alias_id")
                         .HasColumnType("varchar(32)");
-
-                    b.Property<uint>("CharacterSoldierTypeId")
-                        .HasColumnName("character_soldier_type_id");
 
                     b.Property<int>("Class")
                         .HasColumnName("class");
@@ -295,51 +294,57 @@ namespace SangokuKmy.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id");
 
-                    b.Property<short>("Archer")
-                        .HasColumnName("archer");
+                    b.Property<short>("BaseAttack")
+                        .HasColumnName("base_attack");
+
+                    b.Property<short>("BaseDefend")
+                        .HasColumnName("base_defend");
 
                     b.Property<uint>("CharacterId")
                         .HasColumnName("character_id");
 
-                    b.Property<short>("Common")
-                        .HasColumnName("common_soldier");
+                    b.Property<short>("ContinuousAttack")
+                        .HasColumnName("continuous_attack");
 
-                    b.Property<short>("Guard_Step1")
-                        .HasColumnName("guard_1");
+                    b.Property<short>("ContinuousDefend")
+                        .HasColumnName("continuous_defend");
 
-                    b.Property<short>("Guard_Step2")
-                        .HasColumnName("guard_2");
+                    b.Property<short>("ContinuousProbability")
+                        .HasColumnName("continuous_probability");
 
-                    b.Property<short>("Guard_Step3")
-                        .HasColumnName("guard_3");
+                    b.Property<short>("IntellectAttack")
+                        .HasColumnName("intellect_attack");
 
-                    b.Property<short>("Guard_Step4")
-                        .HasColumnName("guard_4");
+                    b.Property<short>("IntellectDefend")
+                        .HasColumnName("intellect_defend");
 
-                    b.Property<short>("HeavyCavalry")
-                        .HasColumnName("heavy_cavalry");
+                    b.Property<bool>("IsConscriptDisabled")
+                        .HasColumnName("is_conscript_disabled");
 
-                    b.Property<short>("HeavyInfantry")
-                        .HasColumnName("heavy_infantory");
+                    b.Property<short>("LeadershipAttack")
+                        .HasColumnName("leadership_attack");
 
-                    b.Property<short>("Intellect")
-                        .HasColumnName("intellect");
+                    b.Property<short>("LeadershipDefend")
+                        .HasColumnName("leadership_defend");
 
-                    b.Property<short>("LightCavalry")
-                        .HasColumnName("light_cavalry");
-
-                    b.Property<short>("LightInfantry")
-                        .HasColumnName("light_infantory");
-
-                    b.Property<short>("LightIntellect")
-                        .HasColumnName("light_intellect");
+                    b.Property<short>("Money")
+                        .HasColumnName("money");
 
                     b.Property<string>("Name")
                         .HasColumnName("name")
                         .HasColumnType("varchar(32)");
 
-                    b.Property<short>("RepeatingCrossbow")
-                        .HasColumnName("repeating_crossbow");
+                    b.Property<short>("PopularityAttack")
+                        .HasColumnName("popularity_attack");
+
+                    b.Property<short>("PopularityDefend")
+                        .HasColumnName("popularity_defend");
+
+                    b.Property<short>("Preset")
+                        .HasColumnName("preset");
+
+                    b.Property<short>("Recovery")
+                        .HasColumnName("recovery");
 
                     b.Property<short>("ResearchCost")
                         .HasColumnName("research_cost");
@@ -347,17 +352,41 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("RicePerTurn")
                         .HasColumnName("rice_per_turn");
 
-                    b.Property<short>("Seiran")
-                        .HasColumnName("seiran");
+                    b.Property<short>("RushAgainstAttack")
+                        .HasColumnName("rush_against_attack");
+
+                    b.Property<short>("RushAgainstDefend")
+                        .HasColumnName("rush_against_defend");
+
+                    b.Property<short>("RushAttack")
+                        .HasColumnName("rush_attack");
+
+                    b.Property<short>("RushDefend")
+                        .HasColumnName("rush_defend");
+
+                    b.Property<short>("RushProbability")
+                        .HasColumnName("rush_probability");
 
                     b.Property<short>("Status")
                         .HasColumnName("status");
 
-                    b.Property<short>("StrongCrossbow")
-                        .HasColumnName("strong_crossbow");
+                    b.Property<short>("StrongAttack")
+                        .HasColumnName("strong_attack");
 
-                    b.Property<short>("StrongGuards")
-                        .HasColumnName("strong_guards");
+                    b.Property<short>("StrongDefend")
+                        .HasColumnName("strong_defend");
+
+                    b.Property<short>("Technology")
+                        .HasColumnName("technology");
+
+                    b.Property<short>("ThroughDefendersToWallProbability")
+                        .HasColumnName("through_defenders_probability");
+
+                    b.Property<short>("WallAttack")
+                        .HasColumnName("wall_attack");
+
+                    b.Property<short>("WallDefend")
+                        .HasColumnName("wall_defend");
 
                     b.HasKey("Id");
 
@@ -427,9 +456,6 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id");
-
-                    b.Property<short>("AiType")
-                        .HasColumnName("ai_type");
 
                     b.Property<uint>("CapitalTownId")
                         .HasColumnName("capital_town_id");
@@ -911,9 +937,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<uint>("CharacterId")
                         .HasColumnName("character_id");
-
-                    b.Property<uint>("CharacterSoldierTypeId")
-                        .HasColumnName("character_soldier_type_id");
 
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");

@@ -12,6 +12,15 @@ namespace SangokuKmy.Models.Updates
 {
   public static class AiCharacterFactory
   {
+    public static AiCharacter Create(CharacterAiType type)
+    {
+      var chara = new Character
+      {
+        AiType = type,
+      };
+      return Create(chara);
+    }
+
     public static AiCharacter Create(Character chara)
     {
       AiCharacter ai = null;
@@ -42,6 +51,14 @@ namespace SangokuKmy.Models.Updates
       else if (chara.AiType == CharacterAiType.TerroristPatroller)
       {
         ai = new TerroristPatrollerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.SecretaryPatroller)
+      {
+        ai = new SecretaryPatrollerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.SecretaryUnitGather)
+      {
+        ai = new SecretaryGatherAiCharacter(chara);
       }
       else
       {

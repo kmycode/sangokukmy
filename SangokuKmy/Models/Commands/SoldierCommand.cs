@@ -22,6 +22,7 @@ namespace SangokuKmy.Models.Commands
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
       var soldierTypeOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
       var soldierNumberOptional = options.FirstOrDefault(p => p.Type == 2).ToOptional();
+      var isDefaultSoldierTypeOptional = options.FirstOrDefault(p => p.Type == 3).ToOptional();
 
       if (!townOptional.HasData)
       {
@@ -31,25 +32,49 @@ namespace SangokuKmy.Models.Commands
       {
         await game.CharacterLogAsync("徴兵のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
       }
+      else if (!isDefaultSoldierTypeOptional.HasData)
+      {
+        await game.CharacterLogAsync("徴兵のパラメータが不正です。新しく追加されたコマンドパラメータが正常に設定されていない可能性がありますので、再度徴兵コマンドを入力してください。それでもダメな場合、１<emerge>管理者にお問い合わせください</emerge>");
+      }
       else
       {
         var town = townOptional.Data;
+        var soldierTypeName = string.Empty;
         var soldierType = (SoldierType)soldierTypeOptional.Data.NumberValue;
-        var soldierTypeDataOptional = DefaultCharacterSoldierTypes.Get(soldierType);
+        var isDefaultSoldierType = isDefaultSoldierTypeOptional.Data.NumberValue == 0;
+
+        CharacterSoldierTypeData soldierTypeData = null;
+        if (isDefaultSoldierType)
+        {
+          soldierTypeName = DefaultCharacterSoldierTypeParts.Get(soldierType).Data?.Name ?? "雑兵";
+          soldierTypeData = DefaultCharacterSoldierTypeParts.GetDataByDefault(soldierType);
+        }
+        else
+        {
+          var typeOptional = await repo.CharacterSoldierType.GetByIdAsync((uint)soldierType);
+          if (typeOptional.HasData)
+          {
+            var type = typeOptional.Data;
+            soldierTypeName = type.Name;
+            soldierTypeData = type.ToParts().ToData();
+          }
+          else
+          {
+            await game.CharacterLogAsync($"ID: {soldierType} のカスタム兵種を徴兵することができませんでした。<emerge>管理者にお問い合わせください</emerge>");
+            return;
+          }
+        }
+
         var soldierNumber = soldierNumberOptional.Data.NumberValue;
         if (town.CountryId != character.CountryId)
         {
           await game.CharacterLogAsync("<town>" + town.Name + "</town>は自国の都市ではありません");
         }
-        else if (!soldierTypeDataOptional.HasData)
-        {
-          await game.CharacterLogAsync("種類 " + soldierType + " の兵種は徴兵することができません。<emerge>管理者にお問い合わせください</emerge>");
-        }
         else if (soldierNumber == null)
         {
           await game.CharacterLogAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
         }
-        else if (character.Money < soldierTypeDataOptional.Data.Money * soldierNumber)
+        else if (character.Money < soldierTypeData.Money * soldierNumber)
         {
           await game.CharacterLogAsync("所持金が足りません。");
         }
@@ -66,7 +91,7 @@ namespace SangokuKmy.Models.Commands
           var add = soldierNumber.Value;
 
           // 首都なら雑兵ではなく禁兵
-          if (soldierType == SoldierType.Common)
+          if (isDefaultSoldierType && soldierType == SoldierType.Common)
           {
             var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
             countryOptional.Some((country) =>
@@ -78,7 +103,7 @@ namespace SangokuKmy.Models.Commands
             });
           }
 
-          if (character.SoldierType == soldierType)
+          if ((isDefaultSoldierType && character.SoldierType == soldierType) || (!isDefaultSoldierType && character.CharacterSoldierTypeId == (uint)soldierType))
           {
             // 兵種は変えない
             if (character.SoldierNumber + add > character.Leadership)
@@ -103,12 +128,17 @@ namespace SangokuKmy.Models.Commands
             character.Proficiency = 0;
           }
           character.SoldierType = soldierType;
+          if (!isDefaultSoldierType)
+          {
+            character.SoldierType = SoldierType.Custom;
+            character.CharacterSoldierTypeId = (uint)soldierType;
+          }
           character.Contribution += 10;
-          character.Money -= add * soldierTypeDataOptional.Data.Money;
+          character.Money -= add * soldierTypeData.Money;
           town.People -= add * 5;
           town.Security -= (short)(add / 10);
 
-          await game.CharacterLogAsync(soldierTypeDataOptional.Data.Name + " を <num>+" + add + "</num> 徴兵しました");
+          await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");
           character.AddStrongEx(50);
         }
       }
@@ -120,27 +150,39 @@ namespace SangokuKmy.Models.Commands
       var town = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { command = "soldier", townId = chara.TownId, });
       var soldierType = (SoldierType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var soldierNumber = options.FirstOrDefault(p => p.Type == 2).Or(ErrorCode.LackOfCommandParameter);
-      var soldierTypeData = DefaultCharacterSoldierTypes.Get(soldierType).GetOrError(ErrorCode.InvalidCommandParameter);
+      var isDefaultSoldierType = options.FirstOrDefault(p => p.Type == 3).Or(ErrorCode.LackOfCommandParameter).NumberValue == 0;
+
+      var soldierTypeData = isDefaultSoldierType ?
+        DefaultCharacterSoldierTypeParts.GetDataByDefault(soldierType) :
+        (await repo.CharacterSoldierType.GetByIdAsync((uint)soldierType)
+          .GetOrErrorAsync(ErrorCode.InvalidCommandParameter))
+          .ToParts()
+          .ToData();
 
       if (soldierNumber.NumberValue <= 0)
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }
 
-      // 禁兵は、雑兵と同じタイプにする（実行時判定なので）
-      if (soldierType == SoldierType.Guard)
+      if (isDefaultSoldierType)
       {
-        soldierType = SoldierType.Common;
+        // 禁兵は、雑兵と同じタイプにする（実行時判定なので）
+        if (soldierType == SoldierType.Guard)
+        {
+          soldierType = SoldierType.Common;
+        }
+      }
+      else
+      {
+        var type = await repo.CharacterSoldierType.GetByIdAsync((uint)soldierType);
+        if (!type.HasData || type.Data.Status != CharacterSoldierStatus.Available || type.Data.CharacterId != characterId)
+        {
+          ErrorCode.InvalidCommandParameter.Throw();
+        }
       }
 
       // 都市の支配国チェック
       if (soldierTypeData.Technology > 0 && town.CountryId != chara.CountryId)
-      {
-        ErrorCode.LackOfTownTechnologyForSoldier.Throw();
-      }
-
-      // 都市の技術チェック
-      if (town.Technology < soldierTypeData.Technology)
       {
         ErrorCode.LackOfTownTechnologyForSoldier.Throw();
       }

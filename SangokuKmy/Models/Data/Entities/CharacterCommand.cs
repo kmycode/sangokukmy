@@ -204,5 +204,45 @@ namespace SangokuKmy.Models.Data.Entities
     /// 研究所
     /// </summary>
     CountryLaboratory = 33,
+
+    /// <summary>
+    /// 国庫納入
+    /// </summary>
+    SafeIn = 34,
+
+    /// <summary>
+    /// 国庫搬出
+    /// </summary>
+    SafeOut = 35,
+
+    /// <summary>
+    /// 焼討
+    /// </summary>
+    Burn = 36,
+
+    /// <summary>
+    /// 扇動
+    /// </summary>
+    Agitation = 37,
+
+    /// <summary>
+    /// 兵種研究
+    /// </summary>
+    ResearchSoldier = 38,
+
+    /// <summary>
+    /// 政務官募集
+    /// </summary>
+    AddSecretary = 39,
+
+    /// <summary>
+    /// 政務官配属
+    /// </summary>
+    Secretary = 40,
+
+    /// <summary>
+    /// 政務官削除
+    /// </summary>
+    RemoveSecretary = 41,
   }
 }
