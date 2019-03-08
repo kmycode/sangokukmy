@@ -180,10 +180,22 @@ namespace SangokuKmy.Models.Updates
               CountryId = country.Country.Id,
               AllSalary = (int)country
                 .Towns
-                .Sum(t => (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People * (t.Id == country.Country.CapitalTownId ? 1.4f : 1.0f) / 10000),
+                .Sum(t => {
+                  var val = (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People * (t.Id == country.Country.CapitalTownId ? 1.4f : 1.0f) / 10000;
+
+                  // 太守府ハンデ
+                  if (t.Id == country.Country.CapitalTownId && t.TownBuilding == TownBuilding.ViceroyHouse)
+                  {
+                    var size = (float)t.TownBuildingValue / Config.TownBuildingMax;
+                    val = (int)(val * size);
+                  }
+
+                  return val;
+                }),
               AllContributions = country.Characters.Sum(c => c.Contribution),
             };
             salary.AllSalary = Math.Max(salary.AllSalary, 0);
+
             if (system.GameDateTime.Month == 1)
             {
               country.Country.LastMoneyIncomes = salary.AllSalary;
