@@ -23,6 +23,24 @@ namespace SangokuKmy.Models.Data.Entities
     public string Name { get; set; }
 
     /// <summary>
+    /// AIの種類
+    /// </summary>
+    [Column("ai_type")]
+    [JsonIgnore]
+    public CountryAiType AiType { get; set; }
+
+    /// <summary>
+    /// AIの種類（JSON出力用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("aiType")]
+    public short ApiAiType
+    {
+      get => (short)this.AiType;
+      set => this.AiType = (CountryAiType)value;
+    }
+
+    /// <summary>
     /// 色のID
     /// </summary>
     [Column("country_color_id")]
@@ -99,5 +117,12 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("safe_money")]
     [JsonProperty("safeMoney")]
     public int SafeMoney { get; set; }
+  }
+
+  public enum CountryAiType : short
+  {
+    Human = 0,
+    Farmers = 1,
+    Terrorists = 2,
   }
 }

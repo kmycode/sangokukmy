@@ -237,6 +237,7 @@ namespace SangokuKmy.Models.Services
       }
       country.CountryColorId = countryColor;
       country.Name = name;
+      country.AiType = CountryAiType.Terrorists;
 
       await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Data.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
       await repo.SaveChangesAsync();
@@ -279,6 +280,7 @@ namespace SangokuKmy.Models.Services
       var country = await CreateCountryAsync(repo, system, town, CharacterAiType.FarmerBattler, CharacterAiType.FarmerBattler, CharacterAiType.FarmerCivilOfficial);
       country.CountryColorId = countryColor;
       country.Name = $"{town.Name}農民団";
+      country.AiType = CountryAiType.Farmers;
 
       await mapLogAsync(EventType.AppendFarmers, $"<town>{town.Name}</town> の <country>{country.Name}</country> が <country>{targetCountry.Name}</country> に対して蜂起しました", true);
       await repo.SaveChangesAsync();

@@ -47,6 +47,12 @@ namespace SangokuKmy.Models.Commands
       }
       var country = countryOptional.Data;
 
+      if (country.AiType != CountryAiType.Human)
+      {
+        await game.CharacterLogAsync($"<country>{country.Name}</country> に仕官しようとしましたが、AIの統治する特別な国のため人間は仕官できません");
+        return;
+      }
+
       await CharacterService.ChangeCountryAsync(repo, country.Id, new Character[] { character, });
       await game.CharacterLogAsync("<country>" + country.Name + "</country> に仕官しました");
       await game.MapLogAsync(EventType.CharacterJoin, "<character>" + character.Name + "</character> は <country>" + country.Name + "</country> に仕官しました", false);
