@@ -738,14 +738,28 @@ namespace SangokuKmy.Models.Updates
       repo.CharacterCommand.RemoveOlds(character.Id, character.LastUpdatedGameDate);
 
       // 兵士の兵糧
-      if (character.Rice >= character.SoldierNumber)
+      var ricePerSoldier = 1;
+      if (character.SoldierType == SoldierType.Custom)
       {
-        character.Rice -= character.SoldierNumber;
+        var soldierType = await repo.CharacterSoldierType.GetByIdAsync(character.CharacterSoldierTypeId);
+        if (soldierType.HasData)
+        {
+          ricePerSoldier = 1 + soldierType.Data.RicePerTurn;
+        }
+      }
+      var rice = character.SoldierNumber * ricePerSoldier;
+      if (character.Rice >= rice)
+      {
+        character.Rice -= rice;
       }
       else
       {
-        var dec = character.SoldierNumber - character.Rice;
-        character.SoldierNumber = character.Rice;
+        var dec = character.SoldierNumber * ricePerSoldier - character.Rice;
+        if (dec > character.SoldierNumber)
+        {
+          dec = character.SoldierNumber;
+        }
+        character.SoldierNumber -= dec;
         character.Rice = 0;
         await AddLogAsync($"米が足りず、兵士 <num>{dec}</num> を解雇しました");
       }

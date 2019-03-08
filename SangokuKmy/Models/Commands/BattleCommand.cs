@@ -132,9 +132,11 @@ namespace SangokuKmy.Models.Commands
       uint mapLogId = 0;
 
       CharacterSoldierTypeData mySoldierType;
+      int myRicePerSoldier;
       if (character.SoldierType != SoldierType.Custom)
       {
         mySoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(character.SoldierType);
+        myRicePerSoldier = 1;
       }
       else
       {
@@ -142,6 +144,7 @@ namespace SangokuKmy.Models.Commands
         if (type.HasData)
         {
           mySoldierType = type.Data.ToParts().ToData();
+          myRicePerSoldier = 1 + type.Data.RicePerTurn;
         }
         else
         {
@@ -162,6 +165,7 @@ namespace SangokuKmy.Models.Commands
       var targetDefenceSoldierTypeCorrection = 0;
       var targetExperience = 50;
       var targetContribution = 0;
+      character.Rice -= character.SoldierNumber * myRicePerSoldier;
 
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
