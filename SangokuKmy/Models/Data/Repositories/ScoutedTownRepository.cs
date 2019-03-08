@@ -143,6 +143,7 @@ namespace SangokuKmy.Models.Data.Repositories
         var characters =
           (await this.container.Context.Characters
             .Where(c => c.TownId == town.ScoutedTownId)
+            .Where(c => !c.HasRemoved)
             .ToArrayAsync())
             .Select(c => new ScoutedCharacter
             {
