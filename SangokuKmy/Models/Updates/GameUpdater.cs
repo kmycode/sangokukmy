@@ -444,32 +444,43 @@ namespace SangokuKmy.Models.Updates
         {
           foreach (var town in allTowns)
           {
+            var size = (float)town.TownBuildingValue / Config.TownBuildingMax;
+
             if (town.TownBuilding == TownBuilding.TrainStrong ||
                 town.TownBuilding == TownBuilding.TrainIntellect ||
                 town.TownBuilding == TownBuilding.TrainLeadership ||
                 town.TownBuilding == TownBuilding.TrainPopularity)
             {
               var charas = await repo.Town.GetCharactersAsync(town.Id);
-              var size = (short)(((float)town.TownBuildingValue / Config.TownBuildingMax) * 7);
+              var shortSize = (short)(size * 7);
               foreach (var chara in charas)
               {
                 if (town.TownBuilding == TownBuilding.TrainStrong)
                 {
-                  chara.AddStrongEx(size);
+                  chara.AddStrongEx(shortSize);
                 }
                 else if (town.TownBuilding == TownBuilding.TrainIntellect)
                 {
-                  chara.AddIntellectEx(size);
+                  chara.AddIntellectEx(shortSize);
                 }
                 else if (town.TownBuilding == TownBuilding.TrainLeadership)
                 {
-                  chara.AddLeadershipEx(size);
+                  chara.AddLeadershipEx(shortSize);
                 }
                 else if (town.TownBuilding == TownBuilding.TrainPopularity)
                 {
-                  chara.AddPopularityEx(size);
+                  chara.AddPopularityEx(shortSize);
                 }
               }
+            }
+            else if (town.TownBuilding == TownBuilding.RepairWall)
+            {
+              town.Wall = Math.Min((int)(town.Wall + 20 * size), town.WallMax);
+              town.WallGuard = Math.Min((int)(town.WallGuard + 20 * size), town.WallGuardMax);
+            }
+            else if (town.TownBuilding == TownBuilding.MilitaryStation)
+            {
+              town.Security = (short)Math.Min((int)(town.Security + 5 * size), 100);
             }
           }
         }

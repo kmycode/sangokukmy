@@ -319,6 +319,26 @@ namespace SangokuKmy.Models.Data.Entities
     /// 人口変動を大きく
     /// </summary>
     OpenWall = 10,
+
+    /// <summary>
+    /// 修復拠点
+    /// </summary>
+    RepairWall = 11,
+
+    /// <summary>
+    /// 屯所
+    /// </summary>
+    MilitaryStation = 12,
+
+    /// <summary>
+    /// 災害対策拠点
+    /// </summary>
+    SaveWall = 13,
+
+    /// <summary>
+    /// 太守府
+    /// </summary>
+    ViceroyHouse = 14,
   }
 
   public enum CountryBuilding : short
