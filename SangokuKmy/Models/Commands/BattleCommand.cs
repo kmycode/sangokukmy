@@ -169,14 +169,17 @@ namespace SangokuKmy.Models.Commands
         var myPost = myPostOptional.Data;
         if (myPost.Type == CountryPostType.BowmanGeneral)
         {
-          if (character.SoldierType == SoldierType.Archer)
+          if (character.SoldierType == SoldierType.Archer ||
+              character.SoldierType == SoldierType.StrongCrossbow ||
+              character.SoldierType == SoldierType.RepeatingCrossbow)
           {
             myAttackCorrection += 10;
           }
         }
         else if (myPost.Type == CountryPostType.CavalryGeneral)
         {
-          if (character.SoldierType == SoldierType.HeavyCavalry || character.SoldierType == SoldierType.LightCavalry)
+          if (character.SoldierType == SoldierType.HeavyCavalry ||
+              character.SoldierType == SoldierType.LightCavalry)
           {
             myAttackCorrection += 10;
           }
@@ -194,7 +197,9 @@ namespace SangokuKmy.Models.Commands
         }
         else if (myPost.Type == CountryPostType.General)
         {
-          if (character.SoldierType == SoldierType.Common)
+          if (character.SoldierType == SoldierType.Common ||
+              character.SoldierType == SoldierType.LightInfantry ||
+              character.SoldierType == SoldierType.HeavyInfantry)
           {
             myAttackCorrection += 10;
           }
