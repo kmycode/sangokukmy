@@ -43,6 +43,7 @@ namespace SangokuKmy.Models.Services
       system.CurrentMonthStartDateTime = new DateTime(now.Year, now.Month, now.Day, 21, 0, 0, 0);
       system.IsWaitingReset = false;
       system.IntResetGameDateTime = 0;
+      system.TerroristCount = 0;
       if (system.IsNextPeriodBeta)
       {
         system.BetaVersion++;
