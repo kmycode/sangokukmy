@@ -273,21 +273,25 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 洪水対策
     /// </summary>
+    [Obsolete]
     AntiFlood = 1,
 
     /// <summary>
     /// いなご対策
     /// </summary>
+    [Obsolete]
     AntiLocusts = 2,
 
     /// <summary>
     /// 疫病対策
     /// </summary>
+    [Obsolete]
     AntiSicks = 3,
 
     /// <summary>
     /// 地震対策
     /// </summary>
+    [Obsolete]
     AntiEarthquakes = 4,
 
     /// <summary>
@@ -319,6 +323,26 @@ namespace SangokuKmy.Models.Data.Entities
     /// 人口変動を大きく
     /// </summary>
     OpenWall = 10,
+
+    /// <summary>
+    /// 修復拠点
+    /// </summary>
+    RepairWall = 11,
+
+    /// <summary>
+    /// 屯所
+    /// </summary>
+    MilitaryStation = 12,
+
+    /// <summary>
+    /// 災害対策拠点
+    /// </summary>
+    SaveWall = 13,
+
+    /// <summary>
+    /// 太守府
+    /// </summary>
+    ViceroyHouse = 14,
   }
 
   public enum CountryBuilding : short

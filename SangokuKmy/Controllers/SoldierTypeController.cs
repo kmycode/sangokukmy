@@ -36,8 +36,12 @@ namespace SangokuKmy.Controllers
     }
 
     [HttpPost("soldiertypes")]
-    public async Task AddAsync([FromBody] CharacterSoldierType param)
+    public async Task<CharacterSoldierType> AddAsync([FromBody] CharacterSoldierType param)
     {
+      if (!string.IsNullOrEmpty(param.Name) || param.Name.Length > 10)
+      {
+        ErrorCode.StringLengthError.Throw(new ErrorCode.RangeErrorParameter("name", param.Name?.Length ?? 0, 1, 10));
+      }
       CharacterSoldierType type;
       using (var repo = MainRepository.WithReadAndWrite())
       {
@@ -54,11 +58,16 @@ namespace SangokuKmy.Controllers
         type = param;
       }
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(type), this.AuthData.CharacterId);
+      return type;
     }
 
     [HttpPut("soldiertypes")]
-    public async Task PutAsync([FromBody] CharacterSoldierType param)
+    public async Task<CharacterSoldierType> PutAsync([FromBody] CharacterSoldierType param)
     {
+      if (!string.IsNullOrEmpty(param.Name) || param.Name.Length > 10)
+      {
+        ErrorCode.StringLengthError.Throw(new ErrorCode.RangeErrorParameter("name", param.Name?.Length ?? 0, 1, 10));
+      }
       CharacterSoldierType type;
       using (var repo = MainRepository.WithReadAndWrite())
       {
@@ -96,6 +105,7 @@ namespace SangokuKmy.Controllers
         type = param;
       }
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(type), this.AuthData.CharacterId);
+      return type;
     }
 
     [HttpDelete("soldiertypes/{id}")]
@@ -117,7 +127,7 @@ namespace SangokuKmy.Controllers
 
     private async Task<bool> CheckAsync(MainRepository repo, uint countryId, CharacterSoldierType type)
     {
-      return type.IsVerify && type.Size == 10;
+      return type.IsVerify && type.Size >= 10 && type.Size <= 15 && type.ToParts().All(t => t.CanConscript);
     }
   }
 }

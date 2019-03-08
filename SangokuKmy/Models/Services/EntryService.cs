@@ -133,6 +133,12 @@ namespace SangokuKmy.Models.Services
         await repo.Country.AddAsync(country);
         await repo.SaveChangesAsync();
 
+        // 大都市建国ハンデ
+        if (town.Type == TownType.Large)
+        {
+          town.TownBuilding = TownBuilding.ViceroyHouse;
+        }
+
         chara.CountryId = country.Id;
         town.CountryId = country.Id;
         await repo.Character.AddAsync(chara);

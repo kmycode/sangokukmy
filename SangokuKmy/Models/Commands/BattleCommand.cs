@@ -132,9 +132,11 @@ namespace SangokuKmy.Models.Commands
       uint mapLogId = 0;
 
       CharacterSoldierTypeData mySoldierType;
+      int myRicePerSoldier;
       if (character.SoldierType != SoldierType.Custom)
       {
         mySoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(character.SoldierType);
+        myRicePerSoldier = 1;
       }
       else
       {
@@ -142,6 +144,7 @@ namespace SangokuKmy.Models.Commands
         if (type.HasData)
         {
           mySoldierType = type.Data.ToParts().ToData();
+          myRicePerSoldier = 1 + type.Data.RicePerTurn;
         }
         else
         {
@@ -162,6 +165,7 @@ namespace SangokuKmy.Models.Commands
       var targetDefenceSoldierTypeCorrection = 0;
       var targetExperience = 50;
       var targetContribution = 0;
+      character.Rice -= character.SoldierNumber * myRicePerSoldier;
 
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
@@ -169,14 +173,17 @@ namespace SangokuKmy.Models.Commands
         var myPost = myPostOptional.Data;
         if (myPost.Type == CountryPostType.BowmanGeneral)
         {
-          if (character.SoldierType == SoldierType.Archer)
+          if (character.SoldierType == SoldierType.Archer ||
+              character.SoldierType == SoldierType.StrongCrossbow ||
+              character.SoldierType == SoldierType.RepeatingCrossbow)
           {
             myAttackCorrection += 10;
           }
         }
         else if (myPost.Type == CountryPostType.CavalryGeneral)
         {
-          if (character.SoldierType == SoldierType.HeavyCavalry || character.SoldierType == SoldierType.LightCavalry)
+          if (character.SoldierType == SoldierType.HeavyCavalry ||
+              character.SoldierType == SoldierType.LightCavalry)
           {
             myAttackCorrection += 10;
           }
@@ -194,7 +201,9 @@ namespace SangokuKmy.Models.Commands
         }
         else if (myPost.Type == CountryPostType.General)
         {
-          if (character.SoldierType == SoldierType.Common)
+          if (character.SoldierType == SoldierType.Common ||
+              character.SoldierType == SoldierType.LightInfantry ||
+              character.SoldierType == SoldierType.HeavyInfantry)
           {
             myAttackCorrection += 10;
           }
@@ -411,6 +420,9 @@ namespace SangokuKmy.Models.Commands
             targetTown.Agriculture = (int)(targetTown.Agriculture * 0.8f);
             targetTown.Commercial = (int)(targetTown.Commercial * 0.8f);
             targetTown.Technology = (int)(targetTown.Technology * 0.8f);
+            targetTown.TownBuildingValue = (int)(targetTown.TownBuildingValue * 0.8f);
+            targetTown.CountryBuildingValue = (int)(targetTown.CountryBuildingValue * 0.8f);
+            targetTown.CountryLaboratoryValue = (int)(targetTown.CountryLaboratoryValue * 0.8f);
             targetTown.People = (int)(targetTown.People * 0.8f);
             targetTown.Security = (short)(targetTown.Security * 0.8f);
             myExperience += 50;
@@ -419,6 +431,9 @@ namespace SangokuKmy.Models.Commands
             await repo.Town.SetDefenderAsync(character.Id, targetTown.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.TakeAway, "<country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <town>" + targetTown.Name + "</town> を支配しました", true);
             await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> を支配しました");
+
+            // 支配したときのみ匿名ストリーミング
+            await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(targetTown)));
 
             if (targetCountryOptional.HasData)
             {
@@ -470,16 +485,14 @@ namespace SangokuKmy.Models.Commands
       // 貢献、経験値の設定
       myContribution += myExperience;
       character.Contribution += (int)(myContribution * 4.6f);
-      character.AddStrongEx((short)myExperience);
-      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num> 武力経験: <num>{myExperience}</num>");
+      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType));
       if (enemy.Defender.HasData)
       {
         var defender = enemy.Defender.Data;
         targetContribution += targetExperience;
         defender.Contribution += (int)(targetContribution * 4.6f);
-        defender.AddStrongEx((short)targetExperience);
         defender.SoldierNumber = enemy.SoldierNumber;
-        await game.CharacterLogByIdAsync(defender.Id, $"戦闘終了 貢献: <num>{targetContribution}</num> 武力経験: <num>{targetExperience}</num>");
+        await game.CharacterLogByIdAsync(defender.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, defender, targetSoldierType));
 
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(defender), defender.Id);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
@@ -491,6 +504,37 @@ namespace SangokuKmy.Models.Commands
 
       // 更新された都市データを通知
       await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown));
+    }
+
+    private string AddExperience(int ex, Character chara, CharacterSoldierTypeData soldierType)
+    {
+      var strong = (short)(ex / 10 * soldierType.StrongEx);
+      var intellect = (short)(ex / 10 * soldierType.IntellectEx);
+      var leadership = (short)(ex / 10 * soldierType.LeadershipEx);
+      var popularity = (short)(ex / 10 * soldierType.PopularityEx);
+      chara.AddStrongEx(strong);
+      chara.AddIntellectEx(intellect);
+      chara.AddLeadershipEx(leadership);
+      chara.AddPopularityEx(popularity);
+
+      var str = string.Empty;
+      if (strong > 0)
+      {
+        str += $" 武力ex: <num>{strong}</num>";
+      }
+      if (intellect > 0)
+      {
+        str += $" 知力ex: <num>{intellect}</num>";
+      }
+      if (leadership > 0)
+      {
+        str += $" 統率ex: <num>{leadership}</num>";
+      }
+      if (popularity > 0)
+      {
+        str += $" 人望ex: <num>{popularity}</num>";
+      }
+      return str;
     }
 
     private class EnemyData
