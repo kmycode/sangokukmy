@@ -199,7 +199,7 @@ namespace SangokuKmy.Models.Updates
               var currentLank = Math.Min(Config.LankCount - 1, character.Class / Config.NextLank);
               var add = salary.AllContributions > 0 ?
                 (int)(salary.AllSalary * (float)character.Contribution / salary.AllContributions + character.Contribution * 1.3f) : 0;
-              var addMax = 1000 + currentLank * 150;
+              var addMax = 1000 + currentLank * 200;
               add = Math.Min(Math.Max(add, 0), addMax);
 
               if (system.GameDateTime.Month == 1)
@@ -237,7 +237,7 @@ namespace SangokuKmy.Models.Updates
                     tecName = "人望";
                     break;
                 }
-                var newAddMax = 1000 + newLank * 150;
+                var newAddMax = 1000 + newLank * 200;
                 await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました");
                 if (currentLank != newLank)
                 {
