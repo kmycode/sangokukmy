@@ -109,6 +109,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       character.Contribution += 30;
+      character.AddLeadershipEx(50);
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(soldierType), character.Id);
     }
 
