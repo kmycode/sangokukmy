@@ -919,6 +919,10 @@ namespace SangokuKmy.Models.Updates
       if (system.IsWaitingReset && system.IntResetGameDateTime == system.IntGameDateTime)
       {
         await ResetService.ResetAsync(repo);
+
+        var sys = await repo.System.GetAsync();
+        nextMonthStartDateTime = sys.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
+
         return true;
       }
       return false;
