@@ -70,13 +70,21 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      if (country.SafeMoney < 2000)
+      var cost = (int)(Config.SecretaryCost / size);
+      if (character.Money < cost && country.SafeMoney < cost)
       {
-        await game.CharacterLogAsync($"政務官を雇おうとしましたが、国庫に金 <num>2000</num> がありません");
+        await game.CharacterLogAsync($"政務官を雇おうとしましたが、武将所持または国庫に金 <num>{cost}</num> がありません");
         return;
       }
 
-      country.SafeMoney -= 2000;
+      if (character.Money >= cost)
+      {
+        character.Money -= cost;
+      }
+      else
+      {
+        country.SafeMoney -= cost;
+      }
 
       var system = await repo.System.GetAsync();
       var ai = AiCharacterFactory.Create(type);
