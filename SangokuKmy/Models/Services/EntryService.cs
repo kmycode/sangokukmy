@@ -226,6 +226,10 @@ namespace SangokuKmy.Models.Services
       {
         ErrorCode.LackOfNameParameterError.Throw();
       }
+      if (chara.Name.Contains('_'))
+      {
+        ErrorCode.NotPermissionError.Throw();
+      }
       if (chara.Name.Length < 1 || chara.Name.Length > 12)
       {
         ErrorCode.StringLengthError.Throw(new ErrorCode.RangeErrorParameter("name", chara.Name.Length, 1, 12));
