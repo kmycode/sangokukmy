@@ -60,6 +60,10 @@ namespace SangokuKmy.Models.Updates
       {
         ai = new SecretaryGatherAiCharacter(chara);
       }
+      else if (chara.AiType == CharacterAiType.SecretaryPioneer)
+      {
+        ai = new SecretaryPioneerAiCharacter(chara);
+      }
       else
       {
         ai = new HumanCharacter(chara);

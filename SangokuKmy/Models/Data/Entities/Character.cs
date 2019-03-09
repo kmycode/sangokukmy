@@ -433,13 +433,14 @@ namespace SangokuKmy.Models.Data.Entities
     SecretaryPatroller = 8,
     SecretaryUnitGather = 9,
     RemovedSecretary = 10,
+    SecretaryPioneer = 11,
   }
 
   public static class CharacterAiTypeExtensions
   {
     public static bool IsSecretary(this CharacterAiType type)
     {
-      return type == CharacterAiType.SecretaryPatroller || type == CharacterAiType.SecretaryUnitGather;
+      return type == CharacterAiType.SecretaryPatroller || type == CharacterAiType.SecretaryUnitGather || type == CharacterAiType.SecretaryPioneer;
     }
   }
 }

@@ -2,10 +2,9 @@
 
 ASP.NET Core MVCとVue.jsで来年４月までに実装したける！！！！！！（フラグ）
 
-2018年中は多分そんなに進めません。2019年2～3月が主な開発時期になるかと。
-また、これはAPIサーバの開発リポジトリですが、別に[クライアントアプリ（HTML+SCSS+TypeScript+Vue.js+axios+Bootstrap）のリポジトリ](https://github.com/kmycode/sangokukmy-client)があります。あわせてご利用くださいまし。
+三国志NET KMY Versionは、[https://sangoku.kmycode.net/](https://sangoku.kmycode.net/) で稼働中です。興味のある方は参加してみてくださいなのですー。
 
-API一覧はWikiへ。
+これはAPIサーバの開発リポジトリですが、別に[クライアントアプリ（HTML+SCSS+TypeScript+Vue.js+axios+Bootstrap）のリポジトリ](https://github.com/kmycode/sangokukmy-client)があります。あわせてご利用くださいまし。
 
 # 著作権について
 

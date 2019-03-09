@@ -205,6 +205,56 @@ namespace SangokuKmy.Models.Updates
               country.Country.LastRiceIncomes = salary.AllSalary;
             }
 
+            // 収入から政務官収入をひく
+            var secretaries = country.Characters.Where(c => c.AiType.IsSecretary());
+            if (secretaries.Any())
+            {
+              var secretarySize = await CountryService.GetCountryBuildingSizeAsync(repo, country.Country.Id, CountryBuilding.Secretary);
+              if (secretarySize > 0.0f)
+              {
+                var income = (int)(Config.SecretaryCost / secretarySize);
+                foreach (var character in secretaries)
+                {
+                  var isContinue = false;
+                  if (country.Country.SafeMoney >= income)
+                  {
+                    isContinue = true;
+                    country.Country.SafeMoney -= income;
+                  }
+                  else
+                  {
+                    if (salary.AllSalary >= income - country.Country.SafeMoney)
+                    {
+                      // 国庫が足りなければ収入から絞る
+                      isContinue = true;
+                      salary.AllSalary -= income - country.Country.SafeMoney;
+                      country.Country.SafeMoney = 0;
+                    }
+                  }
+                  // 勤務を継続するか？
+                  if (isContinue)
+                  {
+                    character.Money = 100000;
+                    character.Rice = 100000;
+                  }
+                  else
+                  {
+                    character.Money = 0;
+                    character.Rice = 0;
+                  }
+                }
+              }
+            }
+            else
+            {
+              // 政務庁がなければ全員解任
+              foreach (var character in country.Characters.Where(c => c.AiType.IsSecretary()))
+              {
+                character.Money = 0;
+                character.Rice = 0;
+              }
+            }
+
             // 収入を武将に配る
             foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary()))
             {
@@ -262,36 +312,6 @@ namespace SangokuKmy.Models.Updates
               character.Contribution = 0;
 
               await StatusStreaming.Default.SendCharacterAsync(ApiData.From(character), character.Id);
-            }
-
-            // 政務官収入
-            var secretarySize = await CountryService.GetCountryBuildingSizeAsync(repo, country.Country.Id, CountryBuilding.Secretary);
-            if (secretarySize > 0.0f)
-            {
-              var income = (int)(2000 / secretarySize);
-              var secretaries = country.Characters.Where(c => c.AiType.IsSecretary());
-              foreach (var character in secretaries)
-              {
-                if (country.Country.SafeMoney < income)
-                {
-                  character.Money = 0;
-                  character.Rice = 0;
-                }
-                else
-                {
-                  character.Money = 10000;
-                  character.Rice = 10000;
-                  country.Country.SafeMoney -= income;
-                }
-              }
-            }
-            else
-            {
-              foreach (var character in country.Characters.Where(c => c.AiType.IsSecretary()))
-              {
-                character.Money = 0;
-                character.Rice = 0;
-              }
             }
 
             // 新しい収入、国庫を配信
@@ -508,7 +528,10 @@ namespace SangokuKmy.Models.Updates
             }
             else if (town.TownBuilding == TownBuilding.MilitaryStation)
             {
-              town.Security = (short)Math.Min((int)(town.Security + 5 * size), 100);
+              if (town.Security >= 10)
+              {
+                town.Security = (short)Math.Min((int)(town.Security + 5 * size), 100);
+              }
             }
           }
         }

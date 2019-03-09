@@ -92,7 +92,7 @@ namespace SangokuKmy.Models.Commands
 
       if (soldierType.Status == CharacterSoldierStatus.Researching)
       {
-        var add = (short)(character.Leadership / 12.0f + rand.Next(0, character.Leadership) / 24.0f);
+        var add = (short)(character.Leadership / 11.0f + rand.Next(0, character.Leadership) / 19.0f);
         if (add > soldierType.ResearchCost)
         {
           add = soldierType.ResearchCost;
@@ -109,6 +109,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       character.Contribution += 30;
+      character.AddLeadershipEx(50);
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(soldierType), character.Id);
     }
 

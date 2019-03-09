@@ -64,19 +64,27 @@ namespace SangokuKmy.Models.Commands
       }
 
       var charas = await repo.Country.GetCharactersAsync(country.Id);
-      if (charas.Count(c => c.Character.AiType.IsSecretary()) > 0)
+      if (charas.Count(c => c.Character.AiType.IsSecretary()) >= Config.SecretaryMax)
       {
-        await game.CharacterLogAsync($"政務官を雇おうとしましたが、すでに政務官の数が上限 <num>1</num> に達しています");
+        await game.CharacterLogAsync($"政務官を雇おうとしましたが、すでに政務官の数が上限 <num>{Config.SecretaryMax}</num> に達しています");
         return;
       }
 
-      if (country.SafeMoney < 2000)
+      var cost = (int)(Config.SecretaryCost / size);
+      if (character.Money < cost && country.SafeMoney < cost)
       {
-        await game.CharacterLogAsync($"政務官を雇おうとしましたが、国庫に金 <num>2000</num> がありません");
+        await game.CharacterLogAsync($"政務官を雇おうとしましたが、武将所持または国庫に金 <num>{cost}</num> がありません");
         return;
       }
 
-      country.SafeMoney -= 2000;
+      if (country.SafeMoney >= cost)
+      {
+        country.SafeMoney -= cost;
+      }
+      else
+      {
+        character.Money -= cost;
+      }
 
       var system = await repo.System.GetAsync();
       var ai = AiCharacterFactory.Create(type);
