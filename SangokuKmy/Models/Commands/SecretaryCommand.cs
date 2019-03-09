@@ -64,9 +64,9 @@ namespace SangokuKmy.Models.Commands
       }
 
       var charas = await repo.Country.GetCharactersAsync(country.Id);
-      if (charas.Count(c => c.Character.AiType.IsSecretary()) > 0)
+      if (charas.Count(c => c.Character.AiType.IsSecretary()) >= Config.SecretaryMax)
       {
-        await game.CharacterLogAsync($"政務官を雇おうとしましたが、すでに政務官の数が上限 <num>1</num> に達しています");
+        await game.CharacterLogAsync($"政務官を雇おうとしましたが、すでに政務官の数が上限 <num>{Config.SecretaryMax}</num> に達しています");
         return;
       }
 

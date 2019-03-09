@@ -57,5 +57,7 @@ namespace SangokuKmy.Models.Common
     public static int SafePerEndurance { get; } = 2000;
 
     public static int SecretaryCost { get; } = 2000;
+
+    public static int SecretaryMax { get; } = 3;
   }
 }
