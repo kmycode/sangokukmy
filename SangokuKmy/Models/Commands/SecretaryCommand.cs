@@ -77,13 +77,13 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      if (character.Money >= cost)
+      if (country.SafeMoney >= cost)
       {
-        character.Money -= cost;
+        country.SafeMoney -= cost;
       }
       else
       {
-        country.SafeMoney -= cost;
+        character.Money -= cost;
       }
 
       var system = await repo.System.GetAsync();

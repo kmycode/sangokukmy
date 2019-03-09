@@ -216,19 +216,19 @@ namespace SangokuKmy.Models.Updates
                 foreach (var character in secretaries)
                 {
                   var isContinue = false;
-                  if (salary.AllSalary >= income)
+                  if (country.Country.SafeMoney >= income)
                   {
                     isContinue = true;
-                    salary.AllSalary -= income;
+                    country.Country.SafeMoney -= income;
                   }
                   else
                   {
-                    if (country.Country.SafeMoney >= income - salary.AllSalary)
+                    if (salary.AllSalary >= income - country.Country.SafeMoney)
                     {
-                      // 収入が足りなければ国庫から絞る
+                      // 国庫が足りなければ収入から絞る
                       isContinue = true;
-                      country.Country.SafeMoney -= income;
-                      salary.AllSalary = 0;
+                      salary.AllSalary -= income - country.Country.SafeMoney;
+                      country.Country.SafeMoney = 0;
                     }
                   }
                   // 勤務を継続するか？
