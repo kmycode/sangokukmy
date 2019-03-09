@@ -508,7 +508,10 @@ namespace SangokuKmy.Models.Updates
             }
             else if (town.TownBuilding == TownBuilding.MilitaryStation)
             {
-              town.Security = (short)Math.Min((int)(town.Security + 5 * size), 100);
+              if (town.Security >= 10)
+              {
+                town.Security = (short)Math.Min((int)(town.Security + 5 * size), 100);
+              }
             }
           }
         }
