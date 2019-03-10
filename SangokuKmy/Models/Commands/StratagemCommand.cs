@@ -74,10 +74,10 @@ namespace SangokuKmy.Models.Commands
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = (rand.Next(0, 100) * size - defenders.Count() * 1.3f) >= 30;
+      var isSucceed = rand.Next(0, 10) >= 3;
       if (isSucceed)
       {
-        var result = (int)((character.Intellect / 14.0f + rand.Next(0, character.Intellect) / 22.0f) * size) - defenders.Count();
+        var result = (int)((character.Intellect / 6.0f + rand.Next(0, character.Intellect) / 6.0f) * size) - defenders.Count();
         if (result < 1) result = 1;
         town.Technology -= (int)(result * 0.6);
         town.Wall -= result;
@@ -101,10 +101,10 @@ namespace SangokuKmy.Models.Commands
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = (rand.Next(0, 100) * size - defenders.Count() * 1.3f) >= 30;
+      var isSucceed = rand.Next(0, 10) >= 3;
       if (isSucceed)
       {
-        var result = (int)((character.Intellect / 14.0f + rand.Next(0, character.Intellect) / 22.0f) * size) - defenders.Count();
+        var result = (int)((character.Intellect / 12.0f + rand.Next(0, character.Intellect) / 18.0f) * size) - defenders.Count();
         if (result < 1) result = 1;
         town.Security -= (short)(result * 0.4f);
         town.People -= (int)(result * 8);
