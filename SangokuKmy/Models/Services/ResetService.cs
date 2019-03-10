@@ -190,6 +190,11 @@ namespace SangokuKmy.Models.Services
       };
       town.WallGuard = town.Wall;
       town.WallGuardMax = town.WallMax;
+      town.Agriculture = Math.Min(town.Agriculture, town.AgricultureMax);
+      town.Commercial = Math.Min(town.Commercial, town.CommercialMax);
+      town.Technology = Math.Min(town.Technology, town.TechnologyMax);
+      town.Wall = Math.Min(town.Wall, town.WallMax);
+      town.People = Math.Min(town.People, town.PeopleMax);
       {
         // 都市施設
         var b = new TownBuilding[]
