@@ -19,6 +19,12 @@ using SangokuKmy.Models.Common;
 using SangokuKmy.Streamings;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.Primitives;
 
 namespace SangokuKmy.Controllers
 {
@@ -153,6 +159,183 @@ namespace SangokuKmy.Controllers
         icons = await repo.Character.GetCharacterAllIconsAsync(this.AuthData.CharacterId);
       }
       return ApiData.From(icons);
+    }
+
+    [AuthenticationFilter]
+    [HttpDelete("icons/{id}")]
+    public async Task DeleteCharacterIconAsync(
+      [FromRoute] uint id = 0)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var icon = await repo.Character.GetCharacterIconByIdAsync(id).Or(ErrorCode.CharacterIconNotFoundError);
+        if (icon.CharacterId != this.AuthData.CharacterId)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+        if (icon.IsMain)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+        icon.IsAvailable = false;
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("icons/{id}/main")]
+    public async Task SetMainIconAsync(
+      [FromRoute] uint id = 0)
+    {
+      Character chara;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var icons = await repo.Character.GetCharacterAllIconsAsync(this.AuthData.CharacterId);
+        var isHit = false;
+        foreach (var icon in icons)
+        {
+          if (icon.Id != id)
+          {
+            icon.IsMain = false;
+          }
+          else
+          {
+            icon.IsMain = true;
+            isHit = true;
+          }
+        }
+        if (!isHit)
+        {
+          ErrorCode.CharacterIconNotFoundError.Throw();
+        }
+        await repo.SaveChangesAsync();
+      }
+
+      await OnlineService.SetAsync(chara, OnlineStatus.Active);
+    }
+
+    [AuthenticationFilter]
+    [HttpPost("icons")]
+    public async Task<CharacterIcon> AddNewCharacterIconAsync(
+      [FromForm(Name = "type")] string typeIdText,
+      [FromForm] string fileName = null,
+      [FromForm] List<IFormFile> files = null)
+    {
+      if (!int.TryParse(typeIdText, out int typeId))
+      {
+        ErrorCode.InvalidParameterError.Throw();
+      }
+
+      var type = (CharacterIconType)typeId;
+      string ext = null;
+      var icon = new CharacterIcon
+      {
+        Type = type,
+        IsAvailable = true,
+        CharacterId = this.AuthData.CharacterId,
+        FileName = fileName,
+      };
+      if (type == CharacterIconType.Default || type == CharacterIconType.Gravatar)
+      {
+        if (string.IsNullOrEmpty(fileName))
+        {
+          ErrorCode.LackOfParameterError.Throw();
+        }
+      }
+      else if (type == CharacterIconType.Uploaded)
+      {
+        if (files == null || !files.Any())
+        {
+          ErrorCode.LackOfParameterError.Throw();
+        }
+        if (files.Count > 1 || files.Any(f => f.Length <= 0) || files.Any(f => f.Length > 1_000_000)
+           || string.IsNullOrWhiteSpace(files[0].FileName) || !files[0].FileName.Contains('.'))
+        {
+          ErrorCode.InvalidParameterError.Throw();
+        }
+        ext = Path.GetExtension(files[0].FileName).ToLower();
+        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".gif")
+        {
+          ErrorCode.InvalidParameterError.Throw();
+        }
+      }
+      else
+      {
+        ErrorCode.InvalidParameterError.Throw();
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        await repo.Character.AddCharacterIconAsync(icon);
+        await repo.SaveChangesAsync();
+
+        if (type == CharacterIconType.Uploaded)
+        {
+          var tmpFileName = Config.Game.UploadedIconDirectory + $"{icon.Id}_tmp{ext}";
+          var saveFileName = Config.Game.UploadedIconDirectory + $"{icon.Id}.png";
+          try
+          {
+            using (var stream = new FileStream(tmpFileName, FileMode.Create))
+            {
+              await files[0].CopyToAsync(stream);
+            }
+            using (Image<Rgba32> image = Image.Load(tmpFileName))
+            {
+              var cropX = 0;
+              var cropY = 0;
+              var cropSize = 0;
+              if (image.Width < image.Height)
+              {
+                cropY = (image.Height - image.Width) / 2;
+                cropSize = image.Width;
+              }
+              else if (image.Height < image.Width)
+              {
+                cropX = (image.Width - image.Height) / 2;
+                cropSize = image.Height;
+              }
+
+              image.Mutate(x =>
+              {
+                if (cropSize > 0)
+                {
+                  x.Crop(new Rectangle(cropX, cropY, cropSize, cropSize));
+                }
+                x.Resize(128, 128);
+              });
+
+              using (var stream = new FileStream(saveFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+              {
+                var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
+                image.Save(stream, encoder);
+              }
+            }
+
+            icon.FileName = $"{icon.Id}.png";
+            await repo.SaveChangesAsync();
+          }
+          catch
+          {
+            icon.IsAvailable = false;
+            await repo.SaveChangesAsync();
+          }
+          finally
+          {
+            try
+            {
+              System.IO.File.Delete(tmpFileName);
+            }
+            catch (Exception ex)
+            {
+              this._logger.LogError(ex, "アップロードされた一時ファイルの削除に失敗");
+            }
+          }
+        }
+      }
+
+      return icon;
     }
 
     [HttpGet("characters")]

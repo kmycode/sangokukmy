@@ -348,7 +348,7 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         return await this.container.Context.CharacterIcons
-          .Where(i => i.CharacterId == characterId)
+          .Where(i => i.CharacterId == characterId && i.IsAvailable)
           .ToArrayAsync();
       }
       catch (Exception ex)
