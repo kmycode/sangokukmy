@@ -32,6 +32,19 @@ namespace SangokuKmy.Models.Services
       await repo.Unit.ResetAsync();
       await repo.Reinforcement.ResetAsync();
 
+      // ファイル削除
+      try
+      {
+        foreach (var file in System.IO.Directory.GetFiles(Config.Game.UploadedIconDirectory).Where(f => !f.EndsWith(".txt", StringComparison.Ordinal)))
+        {
+          System.IO.File.Delete(file);
+        }
+      }
+      catch
+      {
+        // Loggerがない！
+      }
+
       await ResetTownsAsync(repo);
 
       var now = DateTime.Now;
@@ -123,6 +136,21 @@ namespace SangokuKmy.Models.Services
           return country;
         }).ToArray(),
       };
+
+      // アイコンを保存
+      var icons = history.Characters.Select(c => c.Icon);
+      foreach (var icon in icons.Where(i => i.Type == CharacterIconType.Uploaded))
+      {
+        try
+        {
+          System.IO.File.Copy(Config.Game.UploadedIconDirectory + icon.FileName, Config.Game.HistoricalUploadedIconDirectory + icon.FileName);
+        }
+        catch (Exception ex)
+        {
+          // loggerがない！
+        }
+      }
+
       await repo.History.RecordAndSaveAsync(history);
     }
 

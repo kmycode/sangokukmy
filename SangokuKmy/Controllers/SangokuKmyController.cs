@@ -246,8 +246,8 @@ namespace SangokuKmy.Controllers
         {
           ErrorCode.InvalidParameterError.Throw();
         }
-        ext = Path.GetExtension(files[0].Name).ToLower();
-        if (ext != ".jpg" || ext != ".jpeg" || ext != ".png" || ext != ".gif")
+        ext = Path.GetExtension(files[0].FileName).ToLower();
+        if (ext != ".jpg" && ext != ".jpeg" && ext != ".png" && ext != ".gif")
         {
           ErrorCode.InvalidParameterError.Throw();
         }
@@ -266,53 +266,63 @@ namespace SangokuKmy.Controllers
         {
           var tmpFileName = Config.Game.UploadedIconDirectory + $"{icon.Id}_tmp{ext}";
           var saveFileName = Config.Game.UploadedIconDirectory + $"{icon.Id}.png";
-          using (var stream = new FileStream(tmpFileName, FileMode.Create))
-          {
-            await files[0].CopyToAsync(stream);
-          }
-          using (Image<Rgba32> image = Image.Load(tmpFileName))
-          {
-            var cropX = 0;
-            var cropY = 0;
-            var cropSize = 0;
-            if (image.Width < image.Height)
-            {
-              cropY = image.Height - image.Width / 2;
-              cropSize = image.Width;
-            }
-            else if (image.Height < image.Width)
-            {
-              cropX = image.Width - image.Height / 2;
-              cropSize = image.Height;
-            }
-
-            image.Mutate(x =>
-            {
-              if (cropSize > 0)
-              {
-                x.Crop(new Rectangle(cropX, cropY, cropSize, cropSize));
-              }
-              x.Resize(128, 128);
-            });
-
-            using (var stream = new FileStream(saveFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite))
-            {
-              var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
-              image.Save(stream, encoder);
-            }
-          }
-
           try
           {
-            System.IO.File.Delete(tmpFileName);
-          }
-          catch (Exception ex)
-          {
-            this._logger.LogError(ex, "アップロードされた一時ファイルの削除に失敗");
-          }
+            using (var stream = new FileStream(tmpFileName, FileMode.Create))
+            {
+              await files[0].CopyToAsync(stream);
+            }
+            using (Image<Rgba32> image = Image.Load(tmpFileName))
+            {
+              var cropX = 0;
+              var cropY = 0;
+              var cropSize = 0;
+              if (image.Width < image.Height)
+              {
+                cropY = (image.Height - image.Width) / 2;
+                cropSize = image.Width;
+              }
+              else if (image.Height < image.Width)
+              {
+                cropX = (image.Width - image.Height) / 2;
+                cropSize = image.Height;
+              }
 
-          icon.FileName = $"{icon.Id}.png";
-          await repo.SaveChangesAsync();
+              image.Mutate(x =>
+              {
+                if (cropSize > 0)
+                {
+                  x.Crop(new Rectangle(cropX, cropY, cropSize, cropSize));
+                }
+                x.Resize(128, 128);
+              });
+
+              using (var stream = new FileStream(saveFileName, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+              {
+                var encoder = new SixLabors.ImageSharp.Formats.Png.PngEncoder();
+                image.Save(stream, encoder);
+              }
+            }
+
+            icon.FileName = $"{icon.Id}.png";
+            await repo.SaveChangesAsync();
+          }
+          catch
+          {
+            icon.IsAvailable = false;
+            await repo.SaveChangesAsync();
+          }
+          finally
+          {
+            try
+            {
+              System.IO.File.Delete(tmpFileName);
+            }
+            catch (Exception ex)
+            {
+              this._logger.LogError(ex, "アップロードされた一時ファイルの削除に失敗");
+            }
+          }
         }
       }
 

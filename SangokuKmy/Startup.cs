@@ -43,6 +43,7 @@ namespace SangokuKmy
 
       // ゲームの設定
       Config.Game.UploadedIconDirectory = this.Configuration.GetSection("GameSettings")["UploadedIconDirectory"];
+      Config.Game.HistoricalUploadedIconDirectory = this.Configuration.GetSection("GameSettings")["HistoricalUploadedIconDirectory"];
 
       services.AddDbContext<MainContext>();
     }

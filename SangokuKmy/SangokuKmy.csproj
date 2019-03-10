@@ -22,6 +22,7 @@
     <Folder Include="Models\Data\Entities\Caches\" />
     <Folder Include="Models\Updates\" />
     <Folder Include="wwwroot\images\character-uploaded-icons\" />
+    <Folder Include="wwwroot\images\character-historical-uploaded-icons\" />
   </ItemGroup>
 
   <ItemGroup>

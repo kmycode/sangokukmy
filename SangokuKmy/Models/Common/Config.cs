@@ -15,6 +15,8 @@ namespace SangokuKmy.Models.Common
     public static class Game
     {
       public static string UploadedIconDirectory { get; set; }
+
+      public static string HistoricalUploadedIconDirectory { get; set; }
     }
 
     public static int UpdateTime { get; } = 600;
