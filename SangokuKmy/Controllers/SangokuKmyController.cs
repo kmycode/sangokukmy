@@ -173,6 +173,10 @@ namespace SangokuKmy.Controllers
         {
           ErrorCode.NotPermissionError.Throw();
         }
+        if (icon.IsMain)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
         icon.IsAvailable = false;
         await repo.SaveChangesAsync();
       }
@@ -183,8 +187,11 @@ namespace SangokuKmy.Controllers
     public async Task SetMainIconAsync(
       [FromRoute] uint id = 0)
     {
+      Character chara;
+
       using (var repo = MainRepository.WithReadAndWrite())
       {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var icons = await repo.Character.GetCharacterAllIconsAsync(this.AuthData.CharacterId);
         var isHit = false;
         foreach (var icon in icons)
@@ -205,6 +212,8 @@ namespace SangokuKmy.Controllers
         }
         await repo.SaveChangesAsync();
       }
+
+      await OnlineService.SetAsync(chara, OnlineStatus.Active);
     }
 
     [AuthenticationFilter]
