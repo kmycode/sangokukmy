@@ -147,20 +147,20 @@ namespace SangokuKmy.Models.Services
     {
       if (typeId == TownType.Any)
       {
-        var r = rand.Next(0, 9);
+        var r = rand.Next(0, 10);
         if (r <= 2)
         {
           typeId = TownType.Agriculture;
         }
-        else if (r <= 5)
+        else if (r <= 6)
         {
           typeId = TownType.Commercial;
         }
-        else if (r <= 7)
+        else if (r <= 8)
         {
           typeId = TownType.Fortress;
         }
-        else if (r == 8)
+        else if (r == 9)
         {
           typeId = TownType.Large;
         }
@@ -190,6 +190,11 @@ namespace SangokuKmy.Models.Services
       };
       town.WallGuard = town.Wall;
       town.WallGuardMax = town.WallMax;
+      town.Agriculture = Math.Min(town.Agriculture, town.AgricultureMax);
+      town.Commercial = Math.Min(town.Commercial, town.CommercialMax);
+      town.Technology = Math.Min(town.Technology, town.TechnologyMax);
+      town.Wall = Math.Min(town.Wall, town.WallMax);
+      town.People = Math.Min(town.People, town.PeopleMax);
       {
         // 都市施設
         var b = new TownBuilding[]
