@@ -40,6 +40,10 @@ namespace SangokuKmy
 
       // データベースの設定
       Config.Database.MySqlConnectionString = this.Configuration.GetConnectionString("MySql");
+
+      // ゲームの設定
+      Config.Game.UploadedIconDirectory = this.Configuration.GetSection("GameSettings")["UploadedIconDirectory"];
+
       services.AddDbContext<MainContext>();
     }
 

@@ -21,6 +21,7 @@
     <Folder Include="Streamings\" />
     <Folder Include="Models\Data\Entities\Caches\" />
     <Folder Include="Models\Updates\" />
+    <Folder Include="wwwroot\images\character-uploaded-icons\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +35,7 @@
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.7.0" />
     <PackageReference Include="Nito.AsyncEx" Version="4.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
   </ItemGroup>
 
   <ItemGroup>
