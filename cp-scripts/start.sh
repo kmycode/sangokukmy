@@ -9,4 +9,5 @@ mv /home/sangokukmy/publish_settings/character-historical-uploaded-icons /home/s
 mkdir /home/sangokukmy/publish/logs
 chmod 0777 /home/sangokukmy/publish/logs
 chmod 0777 /home/sangokukmy/publish/wwwroot/images/character-uploaded-icons
+chmod 0777 /home/sangokukmy/publish/wwwroot/images/character-historical-uploaded-icons
 systemctl start sangokukmy
