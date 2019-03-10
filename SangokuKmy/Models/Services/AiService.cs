@@ -309,7 +309,13 @@ namespace SangokuKmy.Models.Services
         .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
         .Distinct();
 
-      var towns = (await repo.Town.GetAllAsync())
+      var allTowns = await repo.Town.GetAllAsync();
+      var singleTownCountries = allTowns
+        .GroupBy(t => t.CountryId)
+        .Where(c => c.Count() <= 1)
+        .Select(c => c.Key);
+      var towns = allTowns
+        .Where(t => !singleTownCountries.Contains(t.CountryId))
         .Where(t => t.CountryId > 0 && t.Security <= 0 && t.People <= 5000)
         .Where(t => !warCountries.Contains(t.CountryId) && !townWars.Select(tt => tt.TownId).Contains(t.Id))
         .ToList();

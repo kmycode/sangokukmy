@@ -643,7 +643,7 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 農民反乱
-        if (rand.Next(0, 12 * 70) == 0)
+        if (rand.Next(0, 12 * 8) == 0)
         {
           await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
         }
