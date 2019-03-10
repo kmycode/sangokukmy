@@ -26,6 +26,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("y")]
     public short Y { get; set; }
 
+    [JsonProperty("townBuilding")]
+    public short ApiTownBuilding { get; set; }
+
     [JsonProperty("countryBuilding")]
     public short ApiCountryBuilding { get; set; }
 
@@ -37,6 +40,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.Name = town.Name;
       this.X = town.X;
       this.Y = town.Y;
+      this.ApiTownBuilding = town.ApiTownBuilding;
       this.ApiCountryBuilding = town.ApiCountryBuilding;
     }
   }
