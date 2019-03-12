@@ -53,11 +53,26 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      var war = warOptional.Data;
+      if (war.Status == CountryWarStatus.InReady && war.IntStartGameDate > game.GameDateTime.ToInt() + 144)
+      {
+        await game.CharacterLogAsync($"<country>{country.Name}</country> の <town>{town.Name}</town> で謀略を実行しようとしましたが、実行は開戦の <num>144</num> ターン以内である必要があります");
+        return;
+      }
+
+      if (character.Money < 50)
+      {
+        await game.CharacterLogAsync($"金が足りません。<num>50</num> 必要です");
+        return;
+      }
+
       var size = await CountryService.GetCountryBuildingSizeAsync(repo, character.CountryId, CountryBuilding.Spy);
       var defenders = await repo.Town.GetDefendersAsync(town.Id);
       await this.StratagemAsync(repo, size, character, town, defenders.Select(d => d.Character), game);
 
+      character.Money -= 50;
       character.Contribution += 30;
+      character.AddIntellectEx(50);
     }
 
     protected abstract Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game);
@@ -77,7 +92,7 @@ namespace SangokuKmy.Models.Commands
       var isSucceed = rand.Next(0, 10) >= 3;
       if (isSucceed)
       {
-        var result = (int)((character.Intellect / 6.0f + rand.Next(0, character.Intellect) / 6.0f) * size) - defenders.Count();
+        var result = (int)((character.Intellect / 9.0f + rand.Next(0, character.Intellect) / 9.0f) * size) - defenders.Count();
         if (result < 1) result = 1;
         town.Technology -= (int)(result * 0.6);
         town.Wall -= result;
