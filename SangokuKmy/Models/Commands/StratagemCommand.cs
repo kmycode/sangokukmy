@@ -89,7 +89,7 @@ namespace SangokuKmy.Models.Commands
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = rand.Next(0, 10) >= 3;
+      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 25);
       if (isSucceed)
       {
         var result = (int)((character.Intellect / 9.0f + rand.Next(0, character.Intellect) / 9.0f) * size) - defenders.Count();
@@ -116,7 +116,7 @@ namespace SangokuKmy.Models.Commands
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = rand.Next(0, 10) >= 3;
+      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 25);
       if (isSucceed)
       {
         var result = (int)((character.Intellect / 12.0f + rand.Next(0, character.Intellect) / 18.0f) * size) - defenders.Count();
