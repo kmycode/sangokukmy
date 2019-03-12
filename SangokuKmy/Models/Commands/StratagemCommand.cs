@@ -53,11 +53,26 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      var war = warOptional.Data;
+      if (war.Status == CountryWarStatus.InReady && war.IntStartGameDate > game.GameDateTime.ToInt() + 144)
+      {
+        await game.CharacterLogAsync($"<country>{country.Name}</country> の <town>{town.Name}</town> で謀略を実行しようとしましたが、実行は開戦の <num>144</num> ターン以内である必要があります");
+        return;
+      }
+
+      if (character.Money < 50)
+      {
+        await game.CharacterLogAsync($"金が足りません。<num>50</num> 必要です");
+        return;
+      }
+
       var size = await CountryService.GetCountryBuildingSizeAsync(repo, character.CountryId, CountryBuilding.Spy);
       var defenders = await repo.Town.GetDefendersAsync(town.Id);
       await this.StratagemAsync(repo, size, character, town, defenders.Select(d => d.Character), game);
 
+      character.Money -= 50;
       character.Contribution += 30;
+      character.AddIntellectEx(50);
     }
 
     protected abstract Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game);
@@ -74,10 +89,10 @@ namespace SangokuKmy.Models.Commands
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = rand.Next(0, 10) >= 3;
+      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 25);
       if (isSucceed)
       {
-        var result = (int)((character.Intellect / 6.0f + rand.Next(0, character.Intellect) / 6.0f) * size) - defenders.Count();
+        var result = (int)((character.Intellect / 9.0f + rand.Next(0, character.Intellect) / 9.0f) * size) - defenders.Count();
         if (result < 1) result = 1;
         town.Technology -= (int)(result * 0.6);
         town.Wall -= result;
@@ -101,7 +116,7 @@ namespace SangokuKmy.Models.Commands
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = rand.Next(0, 10) >= 3;
+      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 25);
       if (isSucceed)
       {
         var result = (int)((character.Intellect / 12.0f + rand.Next(0, character.Intellect) / 18.0f) * size) - defenders.Count();
@@ -113,7 +128,7 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"<town>{town.Name}</town> の扇動を行い、民忠を <num>{(int)(result * 0.4f)}</num> 下げました");
         await game.MapLogAsync(EventType.Agitation, $"何者かが <town>{town.Name}</town> で扇動を行ったようです", false);
 
-        if (rand.Next(0, (int)(1200 - size * 7.3f)) == 0 && defenders.Count() == 0)
+        if (rand.Next(0, (int)(400 - size * 81.3f)) == 0 && defenders.Count() == 0)
         {
           // 農民反乱
           await AiService.CreateFarmerCountryAsync(repo, town, game.MapLogAsync);
