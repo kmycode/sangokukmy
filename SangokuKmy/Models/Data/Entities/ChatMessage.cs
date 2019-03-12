@@ -32,7 +32,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// 使用する武将アイコンのID
     /// </summary>
     [Column("character_icon_id")]
-    [JsonIgnore]
+    [JsonProperty("characterIconId")]
     public uint CharacterIconId { get; set; }
 
     /// <summary>
