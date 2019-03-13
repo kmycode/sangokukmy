@@ -244,5 +244,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 政務官削除
     /// </summary>
     RemoveSecretary = 41,
+
+    /// <summary>
+    /// 技術破壊
+    /// </summary>
+    BreakTechnology = 42,
+
+    /// <summary>
+    /// 城壁破壊
+    /// </summary>
+    BreakWall = 43,
   }
 }

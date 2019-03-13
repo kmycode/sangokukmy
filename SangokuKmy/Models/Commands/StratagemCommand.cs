@@ -83,29 +83,48 @@ namespace SangokuKmy.Models.Commands
     }
   }
 
-  public class BurnCommand : StratagemCommand
+  public class BreakTechnologyCommand : StratagemCommand
   {
-    public override CharacterCommandType Type => CharacterCommandType.Burn;
+    public override CharacterCommandType Type => CharacterCommandType.BreakTechnology;
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 25);
+      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 30);
       if (isSucceed)
       {
-        var result = (int)((character.Intellect / 9.0f + rand.Next(0, character.Intellect) / 9.0f) * size) - defenders.Count();
+        var result = (int)((character.Intellect / 15.0f + rand.Next(0, character.Intellect) / 15.0f) * size) - defenders.Count();
         if (result < 1) result = 1;
-        town.Technology -= (int)(result * 0.6);
-        town.Wall -= result;
-        town.WallGuard -= result;
+        town.Technology -= result;
         if (town.Technology < 0) town.Technology = 0;
-        if (town.Wall < 0) town.Wall = 0;
-        if (town.WallGuard < 0) town.WallGuard = 0;
-        await game.CharacterLogAsync($"<town>{town.Name}</town> に焼討を行い、城壁を <num>{result}</num> 破壊しました");
-        await game.MapLogAsync(EventType.Burn, $"何者かが <town>{town.Name}</town> で焼討を行ったようです", false);
+        await game.CharacterLogAsync($"<town>{town.Name}</town> に焼討を行い、技術を <num>{result}</num> 破壊しました");
+        await game.MapLogAsync(EventType.Burn, $"何者かが <town>{town.Name}</town> で技術破壊を行ったようです", false);
       }
       else
       {
-        await game.CharacterLogAsync($"<town>{town.Name}</town> で焼討をしようとして、失敗しました");
+        await game.CharacterLogAsync($"<town>{town.Name}</town> で技術破壊をしようとして、失敗しました");
+      }
+    }
+  }
+
+  public class BreakWallCommand : StratagemCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.BreakWall;
+
+    protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
+    {
+      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 30);
+      if (isSucceed)
+      {
+        var result = (int)((character.Intellect / 15.0f + rand.Next(0, character.Intellect) / 15.0f) * size) - defenders.Count();
+        if (result < 1) result = 1;
+        town.Wall -= result;
+        if (town.Wall < 0) town.Wall = 0;
+        await game.CharacterLogAsync($"<town>{town.Name}</town> に焼討を行い、城壁を <num>{result}</num> 破壊しました");
+        await game.MapLogAsync(EventType.Burn, $"何者かが <town>{town.Name}</town> で城壁破壊を行ったようです", false);
+      }
+      else
+      {
+        await game.CharacterLogAsync($"<town>{town.Name}</town> で城壁破壊をしようとして、失敗しました");
       }
     }
   }
@@ -116,19 +135,19 @@ namespace SangokuKmy.Models.Commands
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 25);
+      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 30);
       if (isSucceed)
       {
-        var result = (int)((character.Intellect / 12.0f + rand.Next(0, character.Intellect) / 18.0f) * size) - defenders.Count();
+        var result = (int)((character.Intellect / 15.0f + rand.Next(0, character.Intellect) / 22.0f) * size) - defenders.Count();
         if (result < 1) result = 1;
-        town.Security -= (short)(result * 0.4f);
+        town.Security -= (short)(result);
         town.People -= (int)(result * 8);
         if (town.Security < 0) town.Security = 0;
         if (town.People < 0) town.People = 0;
-        await game.CharacterLogAsync($"<town>{town.Name}</town> の扇動を行い、民忠を <num>{(int)(result * 0.4f)}</num> 下げました");
+        await game.CharacterLogAsync($"<town>{town.Name}</town> の扇動を行い、民忠を <num>{result}</num> 下げました");
         await game.MapLogAsync(EventType.Agitation, $"何者かが <town>{town.Name}</town> で扇動を行ったようです", false);
 
-        if (rand.Next(0, (int)(400 - size * 81.3f)) == 0 && defenders.Count() == 0)
+        if (rand.Next(0, (int)(48 - size * 12.3f)) == 0 && defenders.Count() == 0)
         {
           // 農民反乱
           await AiService.CreateFarmerCountryAsync(repo, town, game.MapLogAsync);
