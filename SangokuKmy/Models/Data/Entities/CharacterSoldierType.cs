@@ -243,7 +243,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "神鬼兵",
         Data = new CharacterSoldierTypeData
         {
-          IntellectAttack = 10,
+          IntellectAttack = 100,
           IntellectEx = 1,
         },
         Money = 10,
