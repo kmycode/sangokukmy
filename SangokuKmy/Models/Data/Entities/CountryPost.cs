@@ -96,6 +96,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 将軍
     /// </summary>
     General = 7,
+
+    /// <summary>
+    /// 君主（一時的に無効）
+    /// </summary>
+    MonarchDisabled = 8,
   }
 
   public static class CountryPostExtentions
