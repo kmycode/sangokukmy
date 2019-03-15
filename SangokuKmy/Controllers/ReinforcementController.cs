@@ -52,13 +52,8 @@ namespace SangokuKmy.Controllers
 
           var targetCharacter = await repo.Character.GetByIdAsync(param.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
           var targetCountry = await repo.Country.GetByIdAsync(targetCharacter.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-          var targetPosts = (await repo.Country.GetPostsAsync(targetCountry.Id)).Where(p => p.CharacterId == targetCharacter.Id);
           var olds = await repo.Reinforcement.GetByCharacterIdAsync(targetCharacter.Id);
 
-          if (targetPosts.Any(p => p.Type == CountryPostType.Monarch))
-          {
-            ErrorCode.NotPermissionError.Throw();
-          }
           if (country.Id == targetCountry.Id)
           {
             ErrorCode.MeaninglessOperationError.Throw();
@@ -144,8 +139,25 @@ namespace SangokuKmy.Controllers
               ErrorCode.NotPermissionError.Throw();
             }
 
+            var post = (await repo.Country.GetPostsAsync(chara.CountryId)).Where(p => p.CharacterId == chara.Id);
+            var isMonarch = post.Any(p => p.Type == CountryPostType.Monarch);
+
             await CharacterService.ChangeTownAsync(repo, requestedCountry.CapitalTownId, chara);
             await CharacterService.ChangeCountryAsync(repo, requestedCountry.Id, new Character[] { chara, });
+
+            // 君主が援軍に行く場合、君主データを残す
+            if (isMonarch)
+            {
+              var monarch = new CountryPost
+              {
+                CharacterId = chara.Id,
+                CountryId = old.CharacterCountryId,
+                Type = CountryPostType.MonarchDisabled,
+              };
+              await repo.Country.SetPostAsync(monarch);
+              await StatusStreaming.Default.SendCountryAsync(ApiData.From(monarch), old.CharacterCountryId);
+            }
+
             maplog = new MapLog
             {
               ApiGameDateTime = system.GameDateTime,
@@ -170,6 +182,21 @@ namespace SangokuKmy.Controllers
 
             await CharacterService.ChangeTownAsync(repo, originalCountry.CapitalTownId, chara);
             await CharacterService.ChangeCountryAsync(repo, originalCountry.Id, new Character[] { chara, });
+
+            // 援軍に行ったのが君主の場合、復活する
+            var post = (await repo.Country.GetPostsAsync(chara.CountryId)).Where(p => p.CharacterId == chara.Id);
+            if (post.Any(p => p.Type == CountryPostType.MonarchDisabled))
+            {
+              var monarch = new CountryPost
+              {
+                CharacterId = chara.Id,
+                CountryId = old.CharacterCountryId,
+                Type = CountryPostType.Monarch,
+              };
+              await repo.Country.SetPostAsync(monarch);
+              await StatusStreaming.Default.SendCountryAsync(ApiData.From(monarch), old.CharacterCountryId);
+            }
+
             maplog = new MapLog
             {
               ApiGameDateTime = system.GameDateTime,

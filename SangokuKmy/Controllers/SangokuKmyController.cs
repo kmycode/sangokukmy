@@ -61,6 +61,32 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPost("logout")]
+    public async Task LogoutAsync()
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        await repo.AuthenticationData.RemoveCharacterAsync(this.AuthData.CharacterId);
+        StatusStreaming.Default.Disconnect(chara);
+        await OnlineService.SetAsync(chara, OnlineStatus.Offline);
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpGet("character")]
+    public async Task<ApiData<Character>> GetMyCharacterAsync()
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var icon = (await repo.Character.GetCharacterAllIconsAsync(chara.Id)).GetMainOrFirst().Data;
+        chara.MainIcon = icon;
+        return ApiData.From(chara);
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpGet("character/{id}")]
     public async Task<ApiData<CharacterForAnonymous>> GetCharacterAsync(
       [FromRoute] uint id = default)
