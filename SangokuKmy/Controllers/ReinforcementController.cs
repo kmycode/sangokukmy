@@ -32,7 +32,7 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
-        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var countryData = await repo.Country.GetAliveByIdAsync(chara.CountryId);
         var system = await repo.System.GetAsync();
         self = chara;
 
@@ -41,6 +41,8 @@ namespace SangokuKmy.Controllers
         if (param.Status == ReinforcementStatus.Requesting || param.Status == ReinforcementStatus.RequestCanceled)
         {
           // chara: 要求するほう
+
+          var country = countryData.GetOrError(ErrorCode.CountryNotFoundError);
 
           var posts = (await repo.Country.GetPostsAsync(country.Id)).Where(p => p.CharacterId == chara.Id);
           var hasPermission = posts.Any(p => p.Type == CountryPostType.Monarch || p.Type == CountryPostType.Warrior);
@@ -107,10 +109,9 @@ namespace SangokuKmy.Controllers
           // chara: 要求されるほう
 
           var olds = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
-          var requestedCountry = await repo.Country.GetByIdAsync(param.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-          var old = olds.FirstOrDefault(r => r.RequestedCountryId == requestedCountry.Id);
+          var old = olds.FirstOrDefault(r => r.CharacterCountryId == chara.CountryId && r.RequestedCountryId == param.RequestedCountryId);
 
-          if (old == null)
+          if (old == null && param.Status != ReinforcementStatus.Returned && param.Status != ReinforcementStatus.Submited)
           {
             ErrorCode.InvalidOperationError.Throw();
           }
@@ -124,6 +125,9 @@ namespace SangokuKmy.Controllers
           }
           if (param.Status == ReinforcementStatus.Active)
           {
+            var country = countryData.GetOrError(ErrorCode.CountryNotFoundError);
+            var requestedCountry = await repo.Country.GetByIdAsync(param.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+
             if (old.Status != ReinforcementStatus.Requesting)
             {
               ErrorCode.InvalidOperationError.Throw();
@@ -169,7 +173,9 @@ namespace SangokuKmy.Controllers
           }
           if (param.Status == ReinforcementStatus.Returned)
           {
-            if (old.Status != ReinforcementStatus.Active)
+            old = olds.FirstOrDefault(o => o.Status == ReinforcementStatus.Active);
+
+            if (old == null)
             {
               ErrorCode.InvalidOperationError.Throw();
             }
@@ -197,18 +203,22 @@ namespace SangokuKmy.Controllers
               await StatusStreaming.Default.SendCountryAsync(ApiData.From(monarch), old.CharacterCountryId);
             }
 
+            var countryName = countryData.Data?.Name ?? "無所属";
             maplog = new MapLog
             {
               ApiGameDateTime = system.GameDateTime,
               Date = DateTime.Now,
               EventType = EventType.ReinforcementReturned,
               IsImportant = false,
-              Message = $"<country>{originalCountry.Name}</country> の援軍 <character>{chara.Name}</character> は、 <country>{country.Name}</country> から帰還しました",
+              Message = $"<country>{originalCountry.Name}</country> の援軍 <character>{chara.Name}</character> は、 <country>{countryName}</country> から帰還しました",
             };
           }
           if (param.Status == ReinforcementStatus.Submited)
           {
-            if (old.Status != ReinforcementStatus.Active)
+            var country = countryData.GetOrError(ErrorCode.CountryNotFoundError);
+            old = olds.FirstOrDefault(o => o.Status == ReinforcementStatus.Active);
+
+            if (old == null)
             {
               ErrorCode.InvalidOperationError.Throw();
             }
