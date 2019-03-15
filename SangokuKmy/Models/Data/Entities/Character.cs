@@ -46,6 +46,13 @@ namespace SangokuKmy.Models.Data.Entities
     public string Name { get; set; }
 
     /// <summary>
+    /// アイコン
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("mainIcon")]
+    public CharacterIcon MainIcon { get; set; }
+
+    /// <summary>
     /// AIの種類
     /// </summary>
     [Column("ai_type")]

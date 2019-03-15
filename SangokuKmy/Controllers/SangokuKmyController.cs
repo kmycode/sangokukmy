@@ -61,6 +61,19 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpGet("character")]
+    public async Task<ApiData<Character>> GetMyCharacterAsync()
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var icon = (await repo.Character.GetCharacterAllIconsAsync(chara.Id)).GetMainOrFirst().Data;
+        chara.MainIcon = icon;
+        return ApiData.From(chara);
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpGet("character/{id}")]
     public async Task<ApiData<CharacterForAnonymous>> GetCharacterAsync(
       [FromRoute] uint id = default)
