@@ -196,29 +196,67 @@ namespace SangokuKmy.Models.Updates
       }
       else
       {
-        var availableWar = wars.FirstOrDefault(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
+        var availableWar = wars.FirstOrDefault(w => w.IntStartGameDate - 2 <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
         if (availableWar != null)
         {
-          // 首都で守備ループ
-          if (this.GameDateTime.Month % 2 == 0)
+          var targetCountryId = availableWar.InsistedCountryId == this.Country.Id ? availableWar.RequestedCountryId : availableWar.InsistedCountryId;
+          var targetTowns = towns
+            .GetAroundTowns(this.Town)
+            .Where(t => t.CountryId == targetCountryId);
+
+          var currentTownDefenders = await repo.Town.GetDefendersAsync(this.Town.Id);
+          var isDefending = currentTownDefenders.Any(d => d.Character.Id == this.Character.Id);
+          if (isDefending && targetTowns.Any())
           {
+            // 攻撃
+            var targetTownsData = new List<(Town Town, IEnumerable<Character> Defenders)>();
+            foreach (var town in targetTowns)
+            {
+              var defenders = await repo.Town.GetDefendersAsync(town.Id);
+              targetTownsData.Add(((Town)town, defenders.Select(td => td.Character)));
+            }
+
+            var targetTown = targetTownsData.OrderByDescending(td => td.Defenders.Count()).First();
+
             command.Parameters.Add(new CharacterCommandParameter
             {
               Type = 1,
-              NumberValue = 1,
+              NumberValue = (int)targetTown.Town.Id,
             });
-            command.Parameters.Add(new CharacterCommandParameter
-            {
-              Type = 2,
-              NumberValue = 1,
-            });
-            command.Type = CharacterCommandType.Soldier;
+            command.Type = CharacterCommandType.Battle;
             return command;
           }
+
           else
           {
-            command.Type = CharacterCommandType.Defend;
-            return command;
+            if ((isDefending && this.Character.SoldierNumber < 30) || (!isDefending && this.Character.SoldierNumber <= 0))
+            {
+              // 兵を補充
+              command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 1,
+                NumberValue = (int)SoldierType.Intellect,
+              });
+              command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 2,
+                NumberValue = this.Character.Leadership,
+              });
+              command.Type = CharacterCommandType.Soldier;
+              return command;
+            }
+            else if (!isDefending)
+            {
+              // 守備してなければ守備
+              command.Type = CharacterCommandType.Defend;
+              return command;
+            }
+            else
+            {
+              // 壁塗り
+              command.Type = this.Town.Wall > this.Town.WallGuard ? CharacterCommandType.WallGuard : CharacterCommandType.Wall;
+              return command;
+            }
           }
         }
         else
