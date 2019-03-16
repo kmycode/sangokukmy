@@ -229,11 +229,11 @@ namespace SangokuKmy.Models.Services
       Country country;
       if (name != "倭")
       {
-        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller);
+        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller, CharacterAiType.TerroristPatroller);
       }
       else
       {
-        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller);
+        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller, CharacterAiType.TerroristPatroller);
       }
       country.CountryColorId = countryColor;
       country.Name = name;
