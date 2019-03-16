@@ -264,7 +264,7 @@ namespace SangokuKmy.Models.Updates
         var availableWar = wars.FirstOrDefault(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
         if (availableWar != null)
         {
-          command.Type = CharacterCommandType.Security;
+          command.Type = CharacterCommandType.SuperSecurity;
           return command;
         }
         else if (this.Town.Security < 100)
