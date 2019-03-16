@@ -14,8 +14,6 @@ namespace SangokuKmy.Models.Commands
 {
   public class SoldierResearchCommand : Command
   {
-    private static readonly Random rand = new Random(DateTime.Now.Millisecond);
-
     public override CharacterCommandType Type => CharacterCommandType.ResearchSoldier;
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
@@ -92,7 +90,7 @@ namespace SangokuKmy.Models.Commands
 
       if (soldierType.Status == CharacterSoldierStatus.Researching)
       {
-        var add = (short)(character.Leadership / 11.0f + rand.Next(0, character.Leadership) / 19.0f);
+        var add = (short)(character.Leadership / 11.0f + RandomService.Next(0, character.Leadership) / 19.0f);
         if (add > soldierType.ResearchCost)
         {
           add = soldierType.ResearchCost;

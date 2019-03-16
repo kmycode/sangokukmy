@@ -21,11 +21,13 @@ namespace SangokuKmy.Models.Updates
   /// </summary>
   public static class GameUpdater
   {
-    private static readonly Random rand = new Random(DateTime.Now.Millisecond);
     private static DateTime nextMonthStartDateTime = DateTime.Now;
 
     public static void BeginUpdate(ILogger logger)
     {
+      // クラスをメモリにロードさせ、static変数を初期化する目的で呼び出す
+      RandomService.Next();
+
       Task.Run(async () =>
       {
         while (true)
@@ -280,7 +282,7 @@ namespace SangokuKmy.Models.Updates
               {
                 var newLank = Math.Min(Config.LankCount - 1, (character.Class + character.Contribution) / Config.NextLank);
                 var tecName = string.Empty;
-                switch (rand.Next(1, 5))
+                switch (RandomService.Next(1, 5))
                 {
                   case 1:
                     character.Strong++;
@@ -322,14 +324,14 @@ namespace SangokuKmy.Models.Updates
         }
 
         // イベント
-        if (rand.Next(0, 100) == 0)
+        if (RandomService.Next(0, 100) == 0)
         {
-          var targetTown = allTowns[rand.Next(0, allTowns.Count)];
+          var targetTown = allTowns[RandomService.Next(0, allTowns.Count)];
           var targetTowns = allTowns.GetAroundTowns(targetTown);
 
           float val, val2;
 
-          var eventId = rand.Next(0, 6);
+          var eventId = RandomService.Next(0, 6);
           switch (eventId)
           {
             case 0:
@@ -440,9 +442,9 @@ namespace SangokuKmy.Models.Updates
             }
 
             // 相場
-            if (rand.Next(0, 2) == 0)
+            if (RandomService.Next(0, 2) == 0)
             {
-              town.IntRicePrice += (int)(rand.NextDouble() * 0.5 * ricePriceBase / 10);
+              town.IntRicePrice += (int)(RandomService.NextDouble() * 0.5 * ricePriceBase / 10);
               if (town.IntRicePrice > ricePriceMax)
               {
                 town.IntRicePrice = ricePriceMax;
@@ -450,7 +452,7 @@ namespace SangokuKmy.Models.Updates
             }
             else
             {
-              town.IntRicePrice -= (int)(rand.NextDouble() * 0.5 * ricePriceBase / 10);
+              town.IntRicePrice -= (int)(RandomService.NextDouble() * 0.5 * ricePriceBase / 10);
               if (town.IntRicePrice < ricePriceMin)
               {
                 town.IntRicePrice = ricePriceMin;
@@ -633,7 +635,7 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 異民族
-        if (system.TerroristCount <= 0 && !system.IsWaitingReset && system.GameDateTime.Year >= 194 && rand.Next(0, 200) == 0)
+        if (system.TerroristCount <= 0 && !system.IsWaitingReset && system.GameDateTime.Year >= 194 && RandomService.Next(0, 200) == 0)
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
@@ -643,7 +645,7 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 農民反乱
-        if (rand.Next(0, 12 * 24) == 0)
+        if (RandomService.Next(0, 12 * 24) == 0)
         {
           await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
         }

@@ -5,6 +5,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Common;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -13,8 +14,6 @@ namespace SangokuKmy.Models.Commands
   /// </summary>
   public abstract class DomesticAffairCommand : Command
   {
-    private static readonly Random rand = new Random(DateTime.Now.Millisecond);
-
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
       if (this.GetCharacterAssets(character) < this.UseAssetsLength())
@@ -37,7 +36,7 @@ namespace SangokuKmy.Models.Commands
         // $znouadd = int(($kint+$kprodmg)/20 + rand(($kint+$kprodmg)) / 40);
         var current = this.GetCurrentValue(town);
         var max = this.GetMaxValue(town);
-        var add = (int)(this.GetCharacterAttribute(character) / 20.0f + rand.Next(0, this.GetCharacterAttribute(character)) / 40.0f);
+        var add = (int)(this.GetCharacterAttribute(character) / 20.0f + RandomService.Next(0, this.GetCharacterAttribute(character)) / 40.0f);
         if (add < 1)
         {
           add = 1;

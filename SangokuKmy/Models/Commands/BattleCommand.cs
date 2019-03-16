@@ -15,8 +15,6 @@ namespace SangokuKmy.Models.Commands
 {
   public class BattleCommand : Command
   {
-    private static readonly Random rand = new Random(DateTime.Now.Millisecond);
-
     public override CharacterCommandType Type => CharacterCommandType.Battle;
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
@@ -338,8 +336,8 @@ namespace SangokuKmy.Models.Commands
 
         var myAttack = Math.Max((int)((character.Strong + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - enemy.Proficiency / 2.5f) / 8), 0);
         var targetAttack = Math.Max((int)((enemy.Strong + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
-        var targetDamage = Math.Min(Math.Max(rand.Next(myAttack + 1), 1), enemy.SoldierNumber);
-        var myDamage = Math.Min(Math.Max(rand.Next(targetAttack + 1), 1), character.SoldierNumber);
+        var targetDamage = Math.Min(Math.Max(RandomService.Next(myAttack + 1), 1), enemy.SoldierNumber);
+        var myDamage = Math.Min(Math.Max(RandomService.Next(targetAttack + 1), 1), character.SoldierNumber);
         if (isNoDamage)
         {
           myDamage = 1;

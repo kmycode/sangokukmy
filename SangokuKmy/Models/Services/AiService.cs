@@ -14,8 +14,6 @@ namespace SangokuKmy.Models.Services
 {
   public static class AiService
   {
-    private static Random rand = new Random(DateTime.Now.Millisecond);
-
     private static async Task<Optional<Town>> CreateTownAsync(MainRepository repo, IEnumerable<uint> avoidCountries)
     {
       var towns = await repo.Town.GetAllAsync();
@@ -28,7 +26,7 @@ namespace SangokuKmy.Models.Services
         return default;
       }
 
-      var nearTown = borderTowns[rand.Next(0, borderTowns.Length)];
+      var nearTown = borderTowns[RandomService.Next(0, borderTowns.Length)];
       var townPositions = new Tuple<int, int>[]
       {
         new Tuple<int, int>(nearTown.X - 1, nearTown.Y - 1),
@@ -43,7 +41,7 @@ namespace SangokuKmy.Models.Services
       .Where(t => t.Item1 >= 0 && t.Item1 < 10 && t.Item2 >= 0 && t.Item2 < 10)
       .Where(t => !towns.Any(tt => tt.X == t.Item1 && tt.Y == t.Item2))
       .ToArray();
-      var townPosition = townPositions[rand.Next(0, townPositions.Length)];
+      var townPosition = townPositions[RandomService.Next(0, townPositions.Length)];
 
       var town = ResetService.CreateTown(TownType.Fortress);
       town.X = (short)townPosition.Item1;
@@ -73,7 +71,7 @@ namespace SangokuKmy.Models.Services
           AiType = type,
           CountryId = country.Id,
           TownId = town.Id,
-          LastUpdated = system.CurrentMonthStartDateTime.AddSeconds(rand.Next(0, Config.UpdateTime)),
+          LastUpdated = system.CurrentMonthStartDateTime.AddSeconds(RandomService.Next(0, Config.UpdateTime)),
           LastUpdatedGameDate = system.GameDateTime,
         };
         var ai = AiCharacterFactory.Create(chara);
@@ -135,7 +133,7 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      var target = await repo.Country.GetAliveByIdAsync(aroundTowns[rand.Next(0, aroundTowns.Count())].CountryId);
+      var target = await repo.Country.GetAliveByIdAsync(aroundTowns[RandomService.Next(0, aroundTowns.Count())].CountryId);
       if (!target.HasData)
       {
         return false;
@@ -199,7 +197,7 @@ namespace SangokuKmy.Models.Services
         return 0;
       }
 
-      return notUsingCountryColors[rand.Next(0, notUsingCountryColors.Length)];
+      return notUsingCountryColors[RandomService.Next(0, notUsingCountryColors.Length)];
     }
 
     public static async Task<bool> CreateTerroristCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
@@ -212,7 +210,7 @@ namespace SangokuKmy.Models.Services
       }
 
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", "倭", };
-      var name = names[rand.Next(0, names.Length)];
+      var name = names[RandomService.Next(0, names.Length)];
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var warCountries = wars
@@ -344,7 +342,7 @@ namespace SangokuKmy.Models.Services
         return default;
       }
 
-      return await CreateFarmerCountryAsync(repo, towns[rand.Next(0, towns.Count)], mapLogAsync);
+      return await CreateFarmerCountryAsync(repo, towns[RandomService.Next(0, towns.Count)], mapLogAsync);
     }
   }
 }
