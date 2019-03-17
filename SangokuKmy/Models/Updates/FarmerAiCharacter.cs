@@ -35,7 +35,7 @@ namespace SangokuKmy.Models.Updates
         Type = CharacterCommandType.None,
       };
 
-      if (this.Town.CountryId != this.Character.CountryId || ((this.Town.People < 3000 || this.Town.Security < 20) && isNeedSoldier))
+      if (this.Town.CountryId != this.Character.CountryId || ((this.Town.People < 3000 || this.Town.Security < 20) && isNeedSoldier && !this.CanSoldierForce))
       {
         await this.MoveToMyCountryTownAsync(repo, towns, t => t.People > 3000 && t.Security >= 20 && t.Technology >= 300, t => t.Technology, command);
         return command;
@@ -45,8 +45,8 @@ namespace SangokuKmy.Models.Updates
       {
         if (this.CanSoldierForce)
         {
-          this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * 5);
-          this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10));
+          this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * 5 + 500);
+          this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10 + 1));
           await repo.SaveChangesAsync();
         }
         command.Type = CharacterCommandType.Soldier;
@@ -59,6 +59,11 @@ namespace SangokuKmy.Models.Updates
         {
           Type = 2,
           NumberValue = this.Character.Leadership,
+        });
+        command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 3,
+          NumberValue = 0,
         });
         return command;
       }
@@ -154,6 +159,8 @@ namespace SangokuKmy.Models.Updates
 
   public class FarmerCivilOfficialAiCharacter : AiCharacter
   {
+    protected virtual bool CanSoldierForce => true;
+
     public FarmerCivilOfficialAiCharacter(Character character) : base(character)
     {
     }
@@ -202,6 +209,12 @@ namespace SangokuKmy.Models.Updates
           // 首都で守備ループ
           if (this.GameDateTime.Month % 2 == 0)
           {
+            if (this.CanSoldierForce)
+            {
+              this.Town.People = Math.Max(this.Town.People, 1 * 5 + 500);
+              this.Town.Security = Math.Max(this.Town.Security, (short)(1 / 10 + 1));
+              await repo.SaveChangesAsync();
+            }
             command.Parameters.Add(new CharacterCommandParameter
             {
               Type = 1,
@@ -211,6 +224,11 @@ namespace SangokuKmy.Models.Updates
             {
               Type = 2,
               NumberValue = 1,
+            });
+            command.Parameters.Add(new CharacterCommandParameter
+            {
+              Type = 3,
+              NumberValue = 0,
             });
             command.Type = CharacterCommandType.Soldier;
             return command;
