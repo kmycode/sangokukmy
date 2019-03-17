@@ -649,6 +649,12 @@ namespace SangokuKmy.Models.Updates
         {
           await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
         }
+
+        // 戦争状態にないAI国家がどっかに布告するようにする
+        if (allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human))
+        {
+          await AiService.CreateWarIfNotWarAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+        }
       }
 
       // 月の更新を保存

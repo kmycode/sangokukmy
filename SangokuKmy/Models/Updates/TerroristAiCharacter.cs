@@ -65,6 +65,8 @@ namespace SangokuKmy.Models.Updates
   {
     protected override bool CanSoldierForce => false;
 
+    protected override SoldierType SoldierType => SoldierType.Intellect;
+
     public TerroristCivilOfficialAiCharacter(Character character) : base(character)
     {
     }
