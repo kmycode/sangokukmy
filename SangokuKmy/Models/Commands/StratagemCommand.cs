@@ -145,7 +145,7 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"<town>{town.Name}</town> の扇動を行い、民忠を <num>{result}</num> 下げました");
         await game.MapLogAsync(EventType.Agitation, $"何者かが <town>{town.Name}</town> で扇動を行ったようです", false);
 
-        if (RandomService.Next(0, (int)(48 - size * 12.3f)) == 0 && defenders.Count() == 0)
+        if (RandomService.Next(0, (int)(48 - size * 12.3f)) == 0 && town.Security == 0 && defenders.Count() == 0)
         {
           // 農民反乱
           await AiService.CreateFarmerCountryAsync(repo, town, game.MapLogAsync);
