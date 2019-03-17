@@ -32,11 +32,12 @@ namespace SangokuKmy.Models.Updates
         Id = 0,
         CharacterId = this.Character.Id,
         GameDateTime = this.GameDateTime,
+        Type = CharacterCommandType.None,
       };
 
-      if (this.Town.CountryId != this.Character.CountryId || (this.Town.People < 3000 && isNeedSoldier))
+      if (this.Town.CountryId != this.Character.CountryId || ((this.Town.People < 3000 || this.Town.Security < 20) && isNeedSoldier))
       {
-        await this.MoveToMyCountryTownAsync(repo, towns, t => t.People > 3000, command);
+        await this.MoveToMyCountryTownAsync(repo, towns, t => t.People > 3000 && t.Security >= 20 && t.Technology >= 300, t => t.Technology, command);
         return command;
       }
 
@@ -62,7 +63,7 @@ namespace SangokuKmy.Models.Updates
         return command;
       }
 
-      if (this.Town.Id == this.Country.CapitalTownId || (this.Town.People > 3000 && this.Town.Technology > 400))
+      if (this.Town.Id == this.Country.CapitalTownId || (this.Town.People > 3000 && this.Town.Security >= 40 && this.Town.Technology > 400))
       {
         var currentDefenders = await repo.Town.GetDefendersAsync(this.Town.Id);
         if (!currentDefenders.Any())
@@ -83,7 +84,7 @@ namespace SangokuKmy.Models.Updates
         if (!targetTowns.Any())
         {
           // 攻撃先と隣接していない
-          await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000, targetCountryId, command);
+          await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000 && t.Security >= 30 && t.Technology >= 300, t => t.Technology, targetCountryId, command);
           return command;
         }
         else
@@ -119,7 +120,7 @@ namespace SangokuKmy.Models.Updates
           // 戦争準備中の国に隣接してないなら移動する
           if (!towns.GetAroundTowns(this.Town).Any(t => t.CountryId != readyWar.InsistedCountryId && t.CountryId != readyWar.RequestedCountryId))
           {
-            await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000, readyWar.InsistedCountryId == this.Country.Id ? readyWar.RequestedCountryId : readyWar.InsistedCountryId, command);
+            await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000 && t.Security >= 40 && t.Technology >= 300, t => t.Technology, readyWar.InsistedCountryId == this.Country.Id ? readyWar.RequestedCountryId : readyWar.InsistedCountryId, command);
             return command;
           }
         }
@@ -263,7 +264,7 @@ namespace SangokuKmy.Models.Updates
         var availableWar = wars.FirstOrDefault(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
         if (availableWar != null)
         {
-          command.Type = CharacterCommandType.Security;
+          command.Type = CharacterCommandType.SuperSecurity;
           return command;
         }
         else if (this.Town.Security < 100)

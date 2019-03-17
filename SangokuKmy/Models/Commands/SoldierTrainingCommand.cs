@@ -4,13 +4,12 @@ using System.Threading.Tasks;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Commands
 {
   public class SoldierTrainingCommand : Command
   {
-    private static readonly Random rand = new Random(DateTime.Now.Millisecond);
-
     public override CharacterCommandType Type => CharacterCommandType.SoldierTraining;
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
@@ -28,7 +27,7 @@ namespace SangokuKmy.Models.Commands
         // 内政値に加算する
         // $kgat += int($klea/6 + rand($klea/6));
         var current = character.Proficiency;
-        var add = (int)(character.Leadership / 6.0f + rand.Next(0, character.Leadership / 6));
+        var add = (int)(character.Leadership / 6.0f + RandomService.Next(0, character.Leadership / 6));
         if (add < 1)
         {
           add = 1;

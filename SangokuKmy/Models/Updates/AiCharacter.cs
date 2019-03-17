@@ -174,13 +174,17 @@ namespace SangokuKmy.Models.Updates
       return st.ElementAt(1);
     }
 
-    protected async Task<Town> GetMatchTownAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, bool> subject)
+    protected async Task<Town> GetMatchTownAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, object> order, Func<TownBase, bool> subject)
     {
       var current = this.Town;
 
       var arounds = towns
         .GetAroundTowns(current)
         .Where(t => t.CountryId == this.Country.Id);
+      if (order != null)
+      {
+        arounds = arounds.OrderByDescending(order);
+      }
       var capital = arounds.FirstOrDefault(a => a.Id == this.Country.CapitalTownId);
 
       var aroundsRank = arounds
@@ -219,9 +223,18 @@ namespace SangokuKmy.Models.Updates
       }
     }
 
+    protected async Task MoveToMyCountryTownAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, bool> subject, Func<TownBase, object> order, CharacterCommand command)
+    {
+      var target = await this.GetMatchTownAsync(repo, towns, order, subject);
+      if (target != null)
+      {
+        this.MoveToTown(target.Id, command);
+      }
+    }
+
     protected async Task MoveToMyCountryTownAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, bool> subject, CharacterCommand command)
     {
-      var target = await this.GetMatchTownAsync(repo, towns, subject);
+      var target = await this.GetMatchTownAsync(repo, towns, null, subject);
       if (target != null)
       {
         this.MoveToTown(target.Id, command);
@@ -238,9 +251,9 @@ namespace SangokuKmy.Models.Updates
       command.Type = CharacterCommandType.Move;
     }
 
-    protected async Task MoveToMyCountryTownNextToCountryAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, bool> subject, uint countryId, CharacterCommand command)
+    protected async Task MoveToMyCountryTownNextToCountryAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, bool> subject, Func<TownBase, object> order, uint countryId, CharacterCommand command)
     {
-      await this.MoveToMyCountryTownAsync(repo, towns, t => subject(t) && towns.GetAroundTowns(this.Town).Any(tt => tt.CountryId == countryId), command);
+      await this.MoveToMyCountryTownAsync(repo, towns, t => subject(t) && towns.GetAroundTowns(this.Town).Any(tt => tt.CountryId == countryId), order, command);
     }
 
     public abstract void Initialize(GameDateTime current);

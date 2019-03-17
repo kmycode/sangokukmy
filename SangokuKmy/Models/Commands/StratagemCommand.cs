@@ -14,8 +14,6 @@ namespace SangokuKmy.Models.Commands
   /// </summary>
   public abstract class StratagemCommand : Command
   {
-    protected static readonly Random rand = new Random(DateTime.Now.Millisecond);
-
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
       if (character.CountryId == 0)
@@ -89,10 +87,10 @@ namespace SangokuKmy.Models.Commands
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 30);
+      var isSucceed = RandomService.Next(0, 100) >= 40 - (int)(size * 30);
       if (isSucceed)
       {
-        var result = (int)((character.Intellect / 15.0f + rand.Next(0, character.Intellect) / 15.0f) * size) - defenders.Count();
+        var result = (int)((character.Intellect / 15.0f + RandomService.Next(0, character.Intellect) / 15.0f) * size) - defenders.Count();
         if (result < 1) result = 1;
         town.Technology -= result;
         if (town.Technology < 0) town.Technology = 0;
@@ -112,10 +110,10 @@ namespace SangokuKmy.Models.Commands
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 30);
+      var isSucceed = RandomService.Next(0, 100) >= 40 - (int)(size * 30);
       if (isSucceed)
       {
-        var result = (int)((character.Intellect / 15.0f + rand.Next(0, character.Intellect) / 15.0f) * size) - defenders.Count();
+        var result = (int)((character.Intellect / 15.0f + RandomService.Next(0, character.Intellect) / 15.0f) * size) - defenders.Count();
         if (result < 1) result = 1;
         town.Wall -= result;
         if (town.Wall < 0) town.Wall = 0;
@@ -135,10 +133,10 @@ namespace SangokuKmy.Models.Commands
 
     protected override async Task StratagemAsync(MainRepository repo, float size, Character character, Town town, IEnumerable<Character> defenders, CommandSystemData game)
     {
-      var isSucceed = rand.Next(0, 100) >= 40 - (int)(size * 30);
+      var isSucceed = RandomService.Next(0, 100) >= 40 - (int)(size * 30);
       if (isSucceed)
       {
-        var result = (int)((character.Intellect / 15.0f + rand.Next(0, character.Intellect) / 22.0f) * size) - defenders.Count();
+        var result = (int)((character.Intellect / 15.0f + RandomService.Next(0, character.Intellect) / 22.0f) * size) - defenders.Count();
         if (result < 1) result = 1;
         town.Security -= (short)(result);
         town.People -= (int)(result * 8);
@@ -147,7 +145,7 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"<town>{town.Name}</town> の扇動を行い、民忠を <num>{result}</num> 下げました");
         await game.MapLogAsync(EventType.Agitation, $"何者かが <town>{town.Name}</town> で扇動を行ったようです", false);
 
-        if (rand.Next(0, (int)(48 - size * 12.3f)) == 0 && defenders.Count() == 0)
+        if (RandomService.Next(0, (int)(48 - size * 12.3f)) == 0 && town.Security == 0 && defenders.Count() == 0)
         {
           // 農民反乱
           await AiService.CreateFarmerCountryAsync(repo, town, game.MapLogAsync);
