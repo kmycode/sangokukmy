@@ -63,6 +63,8 @@ namespace SangokuKmy.Models.Updates
 
   public class TerroristCivilOfficialAiCharacter : FarmerCivilOfficialAiCharacter
   {
+    protected override bool CanSoldierForce => false;
+
     public TerroristCivilOfficialAiCharacter(Character character) : base(character)
     {
     }
