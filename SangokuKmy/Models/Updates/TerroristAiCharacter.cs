@@ -1,6 +1,7 @@
 ﻿using System;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using System.Collections.Generic;
 
 namespace SangokuKmy.Models.Updates
 {
@@ -108,6 +109,24 @@ namespace SangokuKmy.Models.Updates
       else
       {
         command.Type = CharacterCommandType.Technology;
+      }
+
+      if (command.Type == CharacterCommandType.Wall && this.Town.Wall >= this.Town.WallMax)
+      {
+        command.Type = CharacterCommandType.WallGuard;
+      }
+      if (command.Type == CharacterCommandType.WallGuard && this.Town.WallGuard >= this.Town.WallGuardMax)
+      {
+        command.Type = CharacterCommandType.Technology;
+      }
+      if (command.Type == CharacterCommandType.Technology && this.Town.Technology >= this.Town.TechnologyMax)
+      {
+        command.Type = CharacterCommandType.Training;
+        command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = 2,
+        });
       }
     }
   }
