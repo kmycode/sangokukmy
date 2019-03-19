@@ -231,8 +231,12 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      var names = new string[] { "南蛮", "烏丸", "羌", "山越", "倭", };
+      var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
       var name = names[RandomService.Next(0, names.Length)];
+      if (RandomService.Next(0, 12) == 0)
+      {
+        name = "倭";
+      }
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var warCountries = wars
