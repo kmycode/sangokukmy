@@ -194,7 +194,7 @@ namespace SangokuKmy.Models.Updates
 
                   return val;
                 }),
-              AllContributions = country.Characters.Sum(c => c.Contribution),
+              AllContributions = country.Characters.Where(c => !c.AiType.IsSecretary()).Sum(c => c.Contribution),
             };
             salary.AllSalary = Math.Max(salary.AllSalary, 0);
 
