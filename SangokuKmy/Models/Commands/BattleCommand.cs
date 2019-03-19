@@ -71,12 +71,17 @@ namespace SangokuKmy.Models.Commands
       var myTown = myTownOptional.Data;
       if (myTown.CountryId != character.CountryId)
       {
-        await game.CharacterLogAsync("自国以外の都市からは攻められません");
+        await game.CharacterLogAsync($"<town>{targetTown.Name}</town> へ <town>{myTown.Name}</town> から攻め込もうとしましたが、自国以外の都市からは攻められません");
         return;
       }
       if (targetTown.CountryId == character.CountryId)
       {
-        await game.CharacterLogAsync("自国へ侵攻しようとしました");
+        await game.CharacterLogAsync($"自国の <town>{targetTown.Name}</town> へ侵攻しようとしました");
+        return;
+      }
+      if (!targetTown.IsNextToTown(myTown))
+      {
+        await game.CharacterLogAsync($"<town>{targetTown.Name}</town> に侵攻しようとしましたが、<town>{myTown.Name}</town> とは隣接していません");
         return;
       }
 
