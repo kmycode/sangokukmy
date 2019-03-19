@@ -61,6 +61,22 @@ namespace SangokuKmy.Models.Updates
     }
   }
 
+  public class TerroristRyofuAiCharacter : TerroristBattlerAiCharacter
+  {
+    protected override bool CanWall => true;
+
+    public TerroristRyofuAiCharacter(Character character) : base(character)
+    {
+    }
+
+    public override void Initialize(GameDateTime current)
+    {
+      base.Initialize(current);
+      this.Character.Name = "異民族_呂布";
+      this.Character.Strong = 1;
+    }
+  }
+
   public class TerroristCivilOfficialAiCharacter : FarmerCivilOfficialAiCharacter
   {
     protected override bool CanSoldierForce => false;

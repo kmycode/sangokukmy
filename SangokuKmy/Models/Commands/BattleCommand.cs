@@ -387,6 +387,10 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync("<character>" + enemy.Name + "</character> と引き分けました");
           if (enemy.Defender.HasData)
           {
+            if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
+            {
+              targetExperience += 10_000;
+            }
             await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, $"<character>{character.Name}</character> と引き分けました。<town>{targetTown.Name}</town> の守備から外れました");
           }
         }
@@ -396,6 +400,10 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync($"<character>{enemy.Name}</character> に敗北しました");
           if (enemy.Defender.HasData)
           {
+            if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
+            {
+              targetExperience += 10_000;
+            }
             await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, "<character>" + character.Name + "</character> を撃退しました");
           }
         }
@@ -412,6 +420,10 @@ namespace SangokuKmy.Models.Commands
         {
           if (!enemy.IsWall)
           {
+            if (character.AiType == CharacterAiType.TerroristRyofu)
+            {
+              myExperience += 10_000;
+            }
             repo.Town.RemoveDefender(enemy.Defender.Data.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.BattleWin, prefix + " を倒しました", false);
             await game.CharacterLogAsync("<character>" + enemy.Name + "</character> に勝利しました");
