@@ -141,7 +141,29 @@ namespace SangokuKmy.Models.Updates
     {
       base.Initialize(current);
       this.Character.Name = "異民族_仁官";
+      this.Character.Intellect = 120;
       this.Character.Popularity = (short)(this.Character.Popularity * 1.2f);
+    }
+
+    protected override void SetCommandOnNoWars(CharacterCommand command)
+    {
+      if (this.Town.Technology < this.Town.TechnologyMax)
+      {
+        command.Type = CharacterCommandType.Technology;
+      }
+      else if (this.Town.Wall < this.Town.WallMax)
+      {
+        command.Type = CharacterCommandType.Wall;
+      }
+      else
+      {
+        command.Type = CharacterCommandType.Training;
+        command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = 4,
+        });
+      }
     }
   }
 }
