@@ -302,6 +302,16 @@ namespace SangokuKmy.Models.Updates
       this.Character.Rice = 1000000;
     }
 
+    protected virtual void SetCommandOnNoWars(CharacterCommand command)
+    {
+      command.Parameters.Add(new CharacterCommandParameter
+      {
+        Type = 1,
+        NumberValue = 4,
+      });
+      command.Type = CharacterCommandType.Training;
+    }
+
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
     {
       var towns = await repo.Town.GetAllAsync();
@@ -332,12 +342,7 @@ namespace SangokuKmy.Models.Updates
         }
         else
         {
-          command.Parameters.Add(new CharacterCommandParameter
-          {
-            Type = 1,
-            NumberValue = 4,
-          });
-          command.Type = CharacterCommandType.Training;
+          this.SetCommandOnNoWars(command);
           return command;
         }
       }

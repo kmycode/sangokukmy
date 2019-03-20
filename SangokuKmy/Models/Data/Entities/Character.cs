@@ -441,6 +441,7 @@ namespace SangokuKmy.Models.Data.Entities
     SecretaryUnitGather = 9,
     RemovedSecretary = 10,
     SecretaryPioneer = 11,
+    TerroristRyofu = 12,
   }
 
   public static class CharacterAiTypeExtensions
