@@ -324,7 +324,7 @@ namespace SangokuKmy.Models.Updates
         }
 
         // イベント
-        if (RandomService.Next(0, 100) == 0)
+        if (RandomService.Next(0, 95) == 0)
         {
           var targetTown = allTowns[RandomService.Next(0, allTowns.Count)];
           var targetTowns = allTowns.GetAroundTowns(targetTown);
@@ -635,7 +635,7 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 異民族
-        if (system.TerroristCount <= 0 && !system.IsWaitingReset && system.GameDateTime.Year >= 194 && RandomService.Next(0, 200) == 0)
+        if (system.TerroristCount <= 0 && !system.IsWaitingReset && (system.GameDateTime.Year >= 220 || (system.GameDateTime.Year >= 180 && RandomService.Next(0, 200) == 0)))
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
