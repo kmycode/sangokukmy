@@ -49,7 +49,19 @@ namespace SangokuKmy.Models.Data.Entities
     
     [JsonProperty("popularityDefend")]
     public short PopularityDefend { get; set; }
-    
+
+    [JsonProperty("typeInfantry")]
+    public short TypeInfantry { get; set; }
+
+    [JsonProperty("typeCavalry")]
+    public short TypeCavalry { get; set; }
+
+    [JsonProperty("typeCrossbow")]
+    public short TypeCrossbow { get; set; }
+
+    [JsonProperty("typeWall")]
+    public short TypeWall { get; set; }
+
     [JsonProperty("rushProbability")]
     public short RushProbability { get; set; }
     
@@ -116,7 +128,7 @@ namespace SangokuKmy.Models.Data.Entities
       }
     }
 
-    public (int AttackCorrection, int DefendCorrection) CalcCorrections(Character chara, BattlerEnemyType enemyType)
+    public (int AttackCorrection, int DefendCorrection) CalcCorrections(Character chara, CharacterSoldierTypeData enemyType)
     {
       var a = (float)this.BaseAttack;
       var d = (float)this.BaseDefend;
@@ -124,22 +136,11 @@ namespace SangokuKmy.Models.Data.Entities
       a += this.IntellectAttack / 1000.0f * chara.Intellect;
       d += this.IntellectDefend / 1000.0f * chara.Intellect;
 
-      if (enemyType == BattlerEnemyType.Wall || enemyType == BattlerEnemyType.WallGuard || enemyType == BattlerEnemyType.StrongGuards)
-      {
-        a += this.WallAttack;
-        d += this.WallDefend;
-      }
+      a += this.WallAttack * (enemyType.TypeWall / 10.0f);
+      d += this.WallDefend * (enemyType.TypeWall / 10.0f);
 
       return ((int)a, (int)d);
     }
-  }
-
-  public enum BattlerEnemyType
-  {
-    Character,
-    WallGuard,
-    Wall,
-    StrongGuards,
   }
 
   public static class CharacterSoldierTypeExtentions
@@ -160,6 +161,7 @@ namespace SangokuKmy.Models.Data.Entities
         IntellectEx = (short)parts.Sum(p => p.Data.IntellectEx),
         LeadershipEx = (short)parts.Sum(p => p.Data.LeadershipEx),
         PopularityEx = (short)parts.Sum(p => p.Data.PopularityEx),
+        TypeWall = (short)parts.Sum(p => p.Data.TypeWall),
       };
       return d;
     }

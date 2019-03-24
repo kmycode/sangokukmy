@@ -276,7 +276,6 @@ namespace SangokuKmy.Models.Commands
       for (var i = 1; i <= 50 && enemy.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
       {
         var isNoDamage = false;
-        BattlerEnemyType enemyType;
 
         if (enemy.IsWall)
         {
@@ -286,7 +285,7 @@ namespace SangokuKmy.Models.Commands
                                 targetTown.Technology > 700 ? SoldierType.Guard_Step3 :
                                 targetTown.Technology > 500 ? SoldierType.Guard_Step2 :
                                 targetTown.Technology > 300 ? SoldierType.Guard_Step1 :
-                                SoldierType.Common;
+                                SoldierType.WallCommon;
             enemy.Strong = trendStrong;
             enemy.Proficiency = 100;
 
@@ -297,8 +296,6 @@ namespace SangokuKmy.Models.Commands
               defenderCache.SoldierType = enemy.SoldierType;
               defenderCache.Proficiency = (short)enemy.Proficiency;
             }
-
-            enemyType = BattlerEnemyType.WallGuard;
           }
           else
           {
@@ -318,8 +315,6 @@ namespace SangokuKmy.Models.Commands
             {
               defenderCache.Name = "守兵/" + i + "ターン目より城壁";
             }
-
-            enemyType = BattlerEnemyType.Wall;
           }
 
           wallChara.Strong = defenderCache.Strong;
@@ -329,18 +324,14 @@ namespace SangokuKmy.Models.Commands
           wallChara.SoldierType = defenderCache.SoldierType;
           wallChara.SoldierNumber = defenderCache.SoldierNumber;
           wallChara.Proficiency = defenderCache.Proficiency;
-          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(enemy.SoldierType);
-        }
-        else
-        {
-          enemyType = enemy.SoldierType == SoldierType.StrongGuards ? BattlerEnemyType.StrongGuards : BattlerEnemyType.Character;
+          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(SoldierType.WallCommon);
         }
 
-        var (ka, kd) = mySoldierType.CalcCorrections(character, enemyType);
+        var (ka, kd) = mySoldierType.CalcCorrections(character, targetSoldierType);
         myAttackSoldierTypeCorrection = ka;
         myDefenceSoldierTypeCorrection = kd;
 
-        var (ea, ed) = targetSoldierType.CalcCorrections(enemy.Defender.Data ?? wallChara, BattlerEnemyType.Character);
+        var (ea, ed) = targetSoldierType.CalcCorrections(enemy.Defender.Data ?? wallChara, mySoldierType);
         targetAttackSoldierTypeCorrection = ea;
         targetDefenceSoldierTypeCorrection = ed;
 
@@ -354,9 +345,9 @@ namespace SangokuKmy.Models.Commands
         }
 
         character.SoldierNumber -= myDamage;
-        myExperience += (int)(targetDamage * (enemyType == BattlerEnemyType.Character ? 0.3f : 0.1f));
+        myExperience += (int)(targetDamage * 0.2f);
         enemy.SoldierNumber -= targetDamage;
-        targetExperience += (int)(myDamage * 0.3f);
+        targetExperience += (int)(myDamage * 0.2f);
 
         await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + enemy.Name + "</character> <num>" + enemy.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
         if (!enemy.IsWall)
