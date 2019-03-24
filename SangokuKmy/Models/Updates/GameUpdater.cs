@@ -669,7 +669,7 @@ namespace SangokuKmy.Models.Updates
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(system));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(updateLog));
       await AnonymousStreaming.Default.SendAllAsync(notificationMapLogs);
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(system.GameDateTime));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(system));
       await StatusStreaming.Default.SendAllAsync(notificationMapLogs);
       foreach (var country in allCountries)
       {
