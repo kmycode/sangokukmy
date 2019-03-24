@@ -21,6 +21,7 @@ namespace SangokuKmy.Models.Services
       {
         // 部隊とか役職とか
         repo.Country.RemoveCharacterPosts(chara.Id);
+        repo.Town.RemoveDefender(chara.Id);
         var unitMember = await repo.Unit.GetByMemberIdAsync(chara.Id);
         if (unitMember.Member.HasData)
         {
