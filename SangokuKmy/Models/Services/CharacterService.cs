@@ -21,6 +21,7 @@ namespace SangokuKmy.Models.Services
       {
         // 部隊とか役職とか
         repo.Country.RemoveCharacterPosts(chara.Id);
+        repo.Town.RemoveDefender(chara.Id);
         var unitMember = await repo.Unit.GetByMemberIdAsync(chara.Id);
         if (unitMember.Member.HasData)
         {
@@ -47,6 +48,10 @@ namespace SangokuKmy.Models.Services
         CountryId = newId,
       };
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), charas.Select(c => c.Id));
+
+      // 新しい国の都市データ
+      var towns = await repo.Town.GetByCountryIdAsync(newId);
+      await StatusStreaming.Default.SendCharacterAsync(towns.Select(t => ApiData.From(t)), charas.Select(c => c.Id));
     }
 
     public static async Task ChangeTownAsync(MainRepository repo, uint newId, Character chara)

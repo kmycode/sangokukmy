@@ -35,8 +35,9 @@ namespace SangokuKmy.Models.Updates
         Type = CharacterCommandType.None,
       };
 
-      if (this.Town.CountryId != this.Character.CountryId || ((this.Town.People < 3000 || this.Town.Security < 20) && isNeedSoldier))
+      if (this.Town.CountryId != this.Character.CountryId || ((this.Town.People < 3000 || this.Town.Security < 20) && isNeedSoldier && !this.CanSoldierForce))
       {
+        // 徴兵のための都市に移動する
         await this.MoveToMyCountryTownAsync(repo, towns, t => t.People > 3000 && t.Security >= 20 && t.Technology >= 300, t => t.Technology, command);
         return command;
       }
@@ -45,8 +46,8 @@ namespace SangokuKmy.Models.Updates
       {
         if (this.CanSoldierForce)
         {
-          this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * 5);
-          this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10));
+          this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * 5 + 500);
+          this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10 + 1));
           await repo.SaveChangesAsync();
         }
         command.Type = CharacterCommandType.Soldier;
@@ -59,6 +60,11 @@ namespace SangokuKmy.Models.Updates
         {
           Type = 2,
           NumberValue = this.Character.Leadership,
+        });
+        command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 3,
+          NumberValue = 0,
         });
         return command;
       }
@@ -73,18 +79,28 @@ namespace SangokuKmy.Models.Updates
         }
       }
 
-      var availableWar = wars
-        .FirstOrDefault(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
-      if (availableWar != null)
+      var availableWars = wars
+        .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
+      if (availableWars.Any())
       {
-        var targetCountryId = availableWar.InsistedCountryId == this.Country.Id ? availableWar.RequestedCountryId : availableWar.InsistedCountryId;
+        var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
         var targetTowns = towns
           .GetAroundTowns(this.Town)
-          .Where(t => t.CountryId == targetCountryId);
+          .Where(t => targetCountryIds.Contains(t.CountryId));
         if (!targetTowns.Any())
         {
           // 攻撃先と隣接していない
-          await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000 && t.Security >= 30 && t.Technology >= 300, t => t.Technology, targetCountryId, command);
+          var canAttack = await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => true, t => t.Technology, targetCountryIds, command);
+          if (!canAttack)
+          {
+            // 攻撃先と飛び地
+            command.Type = CharacterCommandType.Training;
+            command.Parameters.Add(new CharacterCommandParameter
+            {
+              Type = 1,
+              NumberValue = 1,
+            });
+          }
           return command;
         }
         else
@@ -120,7 +136,17 @@ namespace SangokuKmy.Models.Updates
           // 戦争準備中の国に隣接してないなら移動する
           if (!towns.GetAroundTowns(this.Town).Any(t => t.CountryId != readyWar.InsistedCountryId && t.CountryId != readyWar.RequestedCountryId))
           {
-            await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000 && t.Security >= 40 && t.Technology >= 300, t => t.Technology, readyWar.InsistedCountryId == this.Country.Id ? readyWar.RequestedCountryId : readyWar.InsistedCountryId, command);
+            var canAttack = await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000 && t.Security >= 40 && t.Technology >= 300, t => t.Technology, readyWar.InsistedCountryId == this.Country.Id ? readyWar.RequestedCountryId : readyWar.InsistedCountryId, command);
+            if (!canAttack)
+            {
+              // 攻撃先と飛び地
+              command.Type = CharacterCommandType.Training;
+              command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 1,
+                NumberValue = 1,
+              });
+            }
             return command;
           }
         }
@@ -154,6 +180,10 @@ namespace SangokuKmy.Models.Updates
 
   public class FarmerCivilOfficialAiCharacter : AiCharacter
   {
+    protected virtual bool CanSoldierForce => true;
+
+    protected virtual SoldierType SoldierType => SoldierType.LightIntellect;
+
     public FarmerCivilOfficialAiCharacter(Character character) : base(character)
     {
     }
@@ -206,7 +236,7 @@ namespace SangokuKmy.Models.Updates
 
           var currentTownDefenders = await repo.Town.GetDefendersAsync(this.Town.Id);
           var isDefending = currentTownDefenders.Any(d => d.Character.Id == this.Character.Id);
-          if (isDefending && targetTowns.Any())
+          if (isDefending && targetTowns.Any() && this.Character.SoldierNumber > 25)
           {
             // 攻撃
             var targetTownsData = new List<(Town Town, IEnumerable<Character> Defenders)>();
@@ -232,15 +262,26 @@ namespace SangokuKmy.Models.Updates
             if ((isDefending && this.Character.SoldierNumber < 30) || (!isDefending && this.Character.SoldierNumber <= 0))
             {
               // 兵を補充
+              if (this.CanSoldierForce)
+              {
+                this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * 5 + 500);
+                this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10 + 1));
+                await repo.SaveChangesAsync();
+              }
               command.Parameters.Add(new CharacterCommandParameter
               {
                 Type = 1,
-                NumberValue = (int)SoldierType.Intellect,
+                NumberValue = (int)this.SoldierType,
               });
               command.Parameters.Add(new CharacterCommandParameter
               {
                 Type = 2,
                 NumberValue = this.Character.Leadership,
+              });
+              command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 3,
+                NumberValue = 0,
               });
               command.Type = CharacterCommandType.Soldier;
               return command;
@@ -282,6 +323,16 @@ namespace SangokuKmy.Models.Updates
       this.Character.Rice = 1000000;
     }
 
+    protected virtual void SetCommandOnNoWars(CharacterCommand command)
+    {
+      command.Parameters.Add(new CharacterCommandParameter
+      {
+        Type = 1,
+        NumberValue = 4,
+      });
+      command.Type = CharacterCommandType.Training;
+    }
+
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
     {
       var towns = await repo.Town.GetAllAsync();
@@ -312,12 +363,7 @@ namespace SangokuKmy.Models.Updates
         }
         else
         {
-          command.Parameters.Add(new CharacterCommandParameter
-          {
-            Type = 1,
-            NumberValue = 4,
-          });
-          command.Type = CharacterCommandType.Training;
+          this.SetCommandOnNoWars(command);
           return command;
         }
       }

@@ -194,7 +194,7 @@ namespace SangokuKmy.Models.Updates
 
                   return val;
                 }),
-              AllContributions = country.Characters.Sum(c => c.Contribution),
+              AllContributions = country.Characters.Where(c => !c.AiType.IsSecretary()).Sum(c => c.Contribution),
             };
             salary.AllSalary = Math.Max(salary.AllSalary, 0);
 
@@ -324,7 +324,7 @@ namespace SangokuKmy.Models.Updates
         }
 
         // イベント
-        if (RandomService.Next(0, 100) == 0)
+        if (RandomService.Next(0, 95) == 0)
         {
           var targetTown = allTowns[RandomService.Next(0, allTowns.Count)];
           var targetTowns = allTowns.GetAroundTowns(targetTown);
@@ -636,7 +636,7 @@ namespace SangokuKmy.Models.Updates
 
         // 異民族
         if (system.TerroristCount <= 0 && !system.IsWaitingReset &&
-              ((system.GameDateTime.Year >= 180 && RandomService.Next(0, 480) == 0) ||
+              ((system.GameDateTime.Year >= 180 && RandomService.Next(0, 200) == 0) ||
                 system.GameDateTime.Year >= 220 ||
                (system.GameDateTime.Year >= 160 && allCountries.Count(c => !c.HasOverthrown) <= 2) ||
                (system.GameDateTime.Year >= 120 && allCountries.Count(c => !c.HasOverthrown) <= 3)))
@@ -653,6 +653,12 @@ namespace SangokuKmy.Models.Updates
         {
           await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
         }
+
+        // 戦争状態にないAI国家がどっかに布告するようにする
+        if (allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human))
+        {
+          await AiService.CreateWarIfNotWarAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+        }
       }
 
       // 月の更新を保存
@@ -667,7 +673,7 @@ namespace SangokuKmy.Models.Updates
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(system));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(updateLog));
       await AnonymousStreaming.Default.SendAllAsync(notificationMapLogs);
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(system.GameDateTime));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(system));
       await StatusStreaming.Default.SendAllAsync(notificationMapLogs);
       foreach (var country in allCountries)
       {

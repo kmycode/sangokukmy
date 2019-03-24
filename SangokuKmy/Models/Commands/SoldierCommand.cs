@@ -103,7 +103,7 @@ namespace SangokuKmy.Models.Commands
             });
           }
 
-          if ((isDefaultSoldierType && character.SoldierType == soldierType) || (!isDefaultSoldierType && character.CharacterSoldierTypeId == (uint)soldierType))
+          if ((isDefaultSoldierType && character.SoldierType == soldierType) || (!isDefaultSoldierType && character.SoldierType == SoldierType.Custom && character.CharacterSoldierTypeId == (uint)soldierType))
           {
             // 兵種は変えない
             if (character.SoldierNumber + add > character.Leadership)

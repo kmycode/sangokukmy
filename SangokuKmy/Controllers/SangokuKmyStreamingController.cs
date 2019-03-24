@@ -87,7 +87,7 @@ namespace SangokuKmy.Controllers
         .Concat(new object[]
         {
           ApiData.From(chara),
-          ApiData.From(system.GameDateTime),
+          ApiData.From(system),
         })
         .Concat(maplogs.Select(ml => ApiData.From(ml)))
         //.Concat(importantMaplogs.Select(ml => ApiData.From(ml)))

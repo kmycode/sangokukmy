@@ -1,6 +1,7 @@
 ﻿using System;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using System.Collections.Generic;
 
 namespace SangokuKmy.Models.Updates
 {
@@ -61,8 +62,28 @@ namespace SangokuKmy.Models.Updates
     }
   }
 
+  public class TerroristRyofuAiCharacter : TerroristBattlerAiCharacter
+  {
+    protected override bool CanWall => true;
+
+    public TerroristRyofuAiCharacter(Character character) : base(character)
+    {
+    }
+
+    public override void Initialize(GameDateTime current)
+    {
+      base.Initialize(current);
+      this.Character.Name = "異民族_呂布";
+      this.Character.Strong = 1;
+    }
+  }
+
   public class TerroristCivilOfficialAiCharacter : FarmerCivilOfficialAiCharacter
   {
+    protected override bool CanSoldierForce => false;
+
+    protected override SoldierType SoldierType => SoldierType.Intellect;
+
     public TerroristCivilOfficialAiCharacter(Character character) : base(character)
     {
     }
@@ -89,6 +110,24 @@ namespace SangokuKmy.Models.Updates
       {
         command.Type = CharacterCommandType.Technology;
       }
+
+      if (command.Type == CharacterCommandType.Wall && this.Town.Wall >= this.Town.WallMax)
+      {
+        command.Type = CharacterCommandType.WallGuard;
+      }
+      if (command.Type == CharacterCommandType.WallGuard && this.Town.WallGuard >= this.Town.WallGuardMax)
+      {
+        command.Type = CharacterCommandType.Technology;
+      }
+      if (command.Type == CharacterCommandType.Technology && this.Town.Technology >= this.Town.TechnologyMax)
+      {
+        command.Type = CharacterCommandType.Training;
+        command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = 2,
+        });
+      }
     }
   }
 
@@ -102,7 +141,29 @@ namespace SangokuKmy.Models.Updates
     {
       base.Initialize(current);
       this.Character.Name = "異民族_仁官";
+      this.Character.Intellect = 120;
       this.Character.Popularity = (short)(this.Character.Popularity * 1.2f);
+    }
+
+    protected override void SetCommandOnNoWars(CharacterCommand command)
+    {
+      if (this.Town.Technology < this.Town.TechnologyMax)
+      {
+        command.Type = CharacterCommandType.Technology;
+      }
+      else if (this.Town.Wall < this.Town.WallMax)
+      {
+        command.Type = CharacterCommandType.Wall;
+      }
+      else
+      {
+        command.Type = CharacterCommandType.Training;
+        command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = 4,
+        });
+      }
     }
   }
 }

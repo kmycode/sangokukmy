@@ -104,6 +104,28 @@ namespace SangokuKmy.Models.Services
       await repo.Character.AddCharacterIconAsync(icon);
     }
 
+    public static async Task CreateWarIfNotWarAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
+    {
+      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+      var countries = (await repo.Country.GetAllAsync())
+        .Where(c => !c.HasOverthrown)
+        .Where(c => c.AiType != CountryAiType.Human)
+        .Where(c => !wars.Any(w => w.RequestedCountryId == c.Id || w.InsistedCountryId == c.Id));
+
+      var allTowns = await repo.Town.GetAllAsync();
+      foreach (var country in countries)
+      {
+        var towns = await repo.Town.GetByCountryIdAsync(country.Id);
+        foreach (var town in towns)
+        {
+          if (await CreateWarIfNotWarAsync(repo, country, town, mapLogAsync))
+          {
+            break;
+          }
+        }
+      }
+    }
+
     public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, Country self, Town selfTown, Func<EventType, string, bool, Task> mapLogAsync)
     {
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
@@ -209,8 +231,12 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      var names = new string[] { "南蛮", "烏丸", "羌", "山越", "倭", };
+      var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
       var name = names[RandomService.Next(0, names.Length)];
+      if (RandomService.Next(0, 12) == 0)
+      {
+        name = "倭";
+      }
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var warCountries = wars
@@ -227,11 +253,11 @@ namespace SangokuKmy.Models.Services
       Country country;
       if (name != "倭")
       {
-        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller, CharacterAiType.TerroristPatroller);
+        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller, CharacterAiType.TerroristPatroller);
       }
       else
       {
-        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller, CharacterAiType.TerroristPatroller);
+        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristRyofu, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller, CharacterAiType.TerroristPatroller);
       }
       country.CountryColorId = countryColor;
       country.Name = name;

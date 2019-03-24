@@ -418,6 +418,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     Custom = 15,
 
+    /// <summary>
+    /// 城壁雑兵
+    /// </summary>
+    WallCommon = 16,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,
@@ -441,6 +446,7 @@ namespace SangokuKmy.Models.Data.Entities
     SecretaryUnitGather = 9,
     RemovedSecretary = 10,
     SecretaryPioneer = 11,
+    TerroristRyofu = 12,
   }
 
   public static class CharacterAiTypeExtensions

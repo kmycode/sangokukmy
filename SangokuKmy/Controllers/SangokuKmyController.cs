@@ -996,6 +996,23 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpGet("units/{id}")]
+    public async Task<Unit> GetUnitAsync(
+      [FromRoute] uint id = default)
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var character = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        var unit = await repo.Unit.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.UnitNotFoundError);
+        if (unit.CountryId != character.CountryId)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+        return unit;
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpPost("unit")]
     public async Task CreateUnitAsync(
       [FromBody] Unit param)
