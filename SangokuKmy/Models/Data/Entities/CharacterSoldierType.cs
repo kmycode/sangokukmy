@@ -314,6 +314,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           IntellectDefend = 10,
           IntellectEx = 1,
+          TypeWall = 1,
         },
         Money = 22,
         Technology = 999,
@@ -334,12 +335,25 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterSoldierTypePart
       {
+        Preset = SoldierType.WallCommon,
+        Name = "城壁雑兵",
+        Data = new CharacterSoldierTypeData
+        {
+          StrongEx = 1,
+          TypeWall = 1,
+        },
+        Money = 1,
+        CanConscript = true,
+      },
+      new CharacterSoldierTypePart
+      {
         Preset = SoldierType.Guard_Step1,
         Name = "守兵A",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 2,
           BaseDefend = 2,
+          TypeWall = 1,
         },
         Technology = 32767,
         CanConscript = false,
@@ -352,6 +366,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 4,
           BaseDefend = 4,
+          TypeWall = 1,
         },
         Technology = 32767,
         CanConscript = false,
@@ -364,6 +379,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 6,
           BaseDefend = 6,
+          TypeWall = 1,
         },
         Technology = 32767,
         CanConscript = false,
@@ -376,6 +392,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 9,
           BaseDefend = 9,
+          TypeWall = 1,
         },
         Technology = 32767,
         CanConscript = false,

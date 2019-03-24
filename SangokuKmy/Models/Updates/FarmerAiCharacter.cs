@@ -37,6 +37,7 @@ namespace SangokuKmy.Models.Updates
 
       if (this.Town.CountryId != this.Character.CountryId || ((this.Town.People < 3000 || this.Town.Security < 20) && isNeedSoldier && !this.CanSoldierForce))
       {
+        // 徴兵のための都市に移動する
         await this.MoveToMyCountryTownAsync(repo, towns, t => t.People > 3000 && t.Security >= 20 && t.Technology >= 300, t => t.Technology, command);
         return command;
       }
@@ -78,18 +79,28 @@ namespace SangokuKmy.Models.Updates
         }
       }
 
-      var availableWar = wars
-        .FirstOrDefault(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
-      if (availableWar != null)
+      var availableWars = wars
+        .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
+      if (availableWars.Any())
       {
-        var targetCountryId = availableWar.InsistedCountryId == this.Country.Id ? availableWar.RequestedCountryId : availableWar.InsistedCountryId;
+        var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
         var targetTowns = towns
           .GetAroundTowns(this.Town)
-          .Where(t => t.CountryId == targetCountryId);
+          .Where(t => targetCountryIds.Contains(t.CountryId));
         if (!targetTowns.Any())
         {
           // 攻撃先と隣接していない
-          await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000 && t.Security >= 30 && t.Technology >= 300, t => t.Technology, targetCountryId, command);
+          var canAttack = await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => true, t => t.Technology, targetCountryIds, command);
+          if (!canAttack)
+          {
+            // 攻撃先と飛び地
+            command.Type = CharacterCommandType.Training;
+            command.Parameters.Add(new CharacterCommandParameter
+            {
+              Type = 1,
+              NumberValue = 1,
+            });
+          }
           return command;
         }
         else
@@ -125,7 +136,17 @@ namespace SangokuKmy.Models.Updates
           // 戦争準備中の国に隣接してないなら移動する
           if (!towns.GetAroundTowns(this.Town).Any(t => t.CountryId != readyWar.InsistedCountryId && t.CountryId != readyWar.RequestedCountryId))
           {
-            await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000 && t.Security >= 40 && t.Technology >= 300, t => t.Technology, readyWar.InsistedCountryId == this.Country.Id ? readyWar.RequestedCountryId : readyWar.InsistedCountryId, command);
+            var canAttack = await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000 && t.Security >= 40 && t.Technology >= 300, t => t.Technology, readyWar.InsistedCountryId == this.Country.Id ? readyWar.RequestedCountryId : readyWar.InsistedCountryId, command);
+            if (!canAttack)
+            {
+              // 攻撃先と飛び地
+              command.Type = CharacterCommandType.Training;
+              command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 1,
+                NumberValue = 1,
+              });
+            }
             return command;
           }
         }
