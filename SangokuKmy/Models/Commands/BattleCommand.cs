@@ -19,6 +19,11 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
+      if (character.CountryId == 0)
+      {
+        await game.CharacterLogAsync("あなたの国はすでに滅亡しているか無所属です。無所属は侵攻できません");
+        return;
+      }
       var myCountryOptional = await repo.Country.GetByIdAsync(character.CountryId);
       if (!myCountryOptional.HasData)
       {
