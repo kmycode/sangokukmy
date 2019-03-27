@@ -59,6 +59,23 @@ namespace SangokuKmy.Models.Updates
   {
     protected override bool CanWall => false;
 
+    protected override SoldierType FindSoldierType()
+    {
+      if (this.Town.Technology >= 950)
+      {
+        return SoldierType.TerroristCommonC;
+      }
+      if (this.Town.Technology >= 700)
+      {
+        return SoldierType.TerroristCommonB;
+      }
+      if (this.Town.Technology >= 400)
+      {
+        return SoldierType.TerroristCommonA;
+      }
+      return SoldierType.LightInfantry;
+    }
+
     public TerroristRyofuAiCharacter(Character character) : base(character)
     {
     }
