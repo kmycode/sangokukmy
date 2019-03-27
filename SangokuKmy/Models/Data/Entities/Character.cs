@@ -423,6 +423,21 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     WallCommon = 16,
 
+    /// <summary>
+    /// 異民族雑兵
+    /// </summary>
+    TerroristCommonA = 17,
+
+    /// <summary>
+    /// 異民族雑兵B
+    /// </summary>
+    TerroristCommonB = 18,
+
+    /// <summary>
+    /// 異民族雑兵C
+    /// </summary>
+    TerroristCommonC = 19,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,

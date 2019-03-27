@@ -397,6 +397,52 @@ namespace SangokuKmy.Models.Data.Entities
         Technology = 32767,
         CanConscript = false,
       },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.TerroristCommonA,
+        Name = "異民族兵A",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 2,
+          BaseDefend = 2,
+          WallAttack = 3,
+          WallDefend = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.TerroristCommonB,
+        Name = "異民族兵B",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 4,
+          BaseDefend = 3,
+          WallAttack = 6,
+          WallDefend = 2,
+          RushProbability = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.TerroristCommonC,
+        Name = "異民族兵C",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 6,
+          BaseDefend = 4,
+          WallAttack = 9,
+          WallDefend = 3,
+          RushProbability = 1,
+          RushAttack = 1,
+          ContinuousProbability = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
     };
 
     public static Optional<CharacterSoldierTypePart> Get(SoldierType type)

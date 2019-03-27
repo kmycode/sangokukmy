@@ -161,6 +161,7 @@ namespace SangokuKmy.Models.Commands
         }
       }
       CharacterSoldierTypeData targetSoldierType = null;
+      var canContinuous = false;
       var myAttackCorrection = 0;
       var myDefenceCorrection = 0;
       var myAttackSoldierTypeCorrection = 0;
@@ -344,6 +345,18 @@ namespace SangokuKmy.Models.Commands
           myDamage = 1;
         }
 
+        // 突撃
+        if (mySoldierType.IsRush())
+        {
+          myDamage = 0;
+          targetDamage = Math.Min((int)(targetDamage * mySoldierType.CalcRushAttack()), enemy.SoldierNumber);
+        }
+        else if (targetSoldierType.IsRush())
+        {
+          targetDamage = 0;
+          myDamage = Math.Min((int)(myDamage * targetSoldierType.CalcRushAttack()), character.SoldierNumber);
+        }
+
         character.SoldierNumber -= myDamage;
         myExperience += (int)(targetDamage * 0.2f);
         enemy.SoldierNumber -= targetDamage;
@@ -416,7 +429,10 @@ namespace SangokuKmy.Models.Commands
         {
           if (!enemy.IsWall)
           {
-            if (character.AiType == CharacterAiType.TerroristRyofu)
+            // 連戦
+            canContinuous = mySoldierType.CanContinuous();
+
+            if (character.AiType == CharacterAiType.TerroristRyofu && !canContinuous)
             {
               myExperience += 10_000;
             }
@@ -515,6 +531,12 @@ namespace SangokuKmy.Models.Commands
 
       // 更新された都市データを通知
       await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown));
+
+      // 連戦
+      if (canContinuous)
+      {
+        await this.ExecuteAsync(repo, character, options, game);
+      }
     }
 
     private string AddExperience(int ex, Character chara, CharacterSoldierTypeData soldierType)

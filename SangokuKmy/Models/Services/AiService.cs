@@ -231,11 +231,27 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
+      var charas = new List<CharacterAiType>
+      {
+        CharacterAiType.TerroristBattler,
+        CharacterAiType.TerroristRyofu,
+        CharacterAiType.TerroristRyofu,
+        CharacterAiType.TerroristCivilOfficial,
+        CharacterAiType.TerroristPatroller,
+        CharacterAiType.TerroristPatroller,
+        CharacterAiType.TerroristPatroller,
+      };
+      if (RandomService.Next(0, 2) == 0)
+      {
+        charas.Add(CharacterAiType.TerroristRyofu);
+      }
+
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
       var name = names[RandomService.Next(0, names.Length)];
       if (RandomService.Next(0, 12) == 0)
       {
         name = "倭";
+        charas.Add(CharacterAiType.TerroristRyofu);
       }
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
@@ -250,15 +266,8 @@ namespace SangokuKmy.Models.Services
         return false;
       }
       town.Data.Name = name;
-      Country country;
-      if (name != "倭")
-      {
-        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller, CharacterAiType.TerroristPatroller);
-      }
-      else
-      {
-        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristRyofu, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller, CharacterAiType.TerroristPatroller);
-      }
+
+      var country = await CreateCountryAsync(repo, system, town.Data, charas.ToArray());
       country.CountryColorId = countryColor;
       country.Name = name;
       country.AiType = CountryAiType.Terrorists;
