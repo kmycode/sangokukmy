@@ -234,17 +234,13 @@ namespace SangokuKmy.Models.Services
       var charas = new List<CharacterAiType>
       {
         CharacterAiType.TerroristBattler,
+        CharacterAiType.TerroristBattler,
         CharacterAiType.TerroristRyofu,
         CharacterAiType.TerroristRyofu,
-        CharacterAiType.TerroristCivilOfficial,
         CharacterAiType.TerroristPatroller,
         CharacterAiType.TerroristPatroller,
         CharacterAiType.TerroristPatroller,
       };
-      if (RandomService.Next(0, 2) == 0)
-      {
-        charas.Add(CharacterAiType.TerroristRyofu);
-      }
 
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
       var name = names[RandomService.Next(0, names.Length)];
@@ -252,6 +248,7 @@ namespace SangokuKmy.Models.Services
       {
         name = "倭";
         charas.Add(CharacterAiType.TerroristRyofu);
+        charas.Add(CharacterAiType.TerroristBattler);
       }
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();

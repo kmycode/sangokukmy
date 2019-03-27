@@ -84,7 +84,7 @@ namespace SangokuKmy.Models.Updates
     {
       base.Initialize(current);
       this.Character.Name = "異民族_呂布";
-      this.Character.Strong = 1;
+      this.Character.Strong = 30;
     }
   }
 
@@ -155,7 +155,7 @@ namespace SangokuKmy.Models.Updates
     {
       base.Initialize(current);
       this.Character.Name = "異民族_仁官";
-      this.Character.Intellect = 120;
+      this.Character.Intellect = 200;
       this.Character.Popularity = (short)(this.Character.Popularity * 1.2f);
     }
 
@@ -165,9 +165,29 @@ namespace SangokuKmy.Models.Updates
       {
         command.Type = CharacterCommandType.Technology;
       }
+      else if (this.Town.Wall < this.Town.WallMax / 3)
+      {
+        command.Type = CharacterCommandType.Wall;
+      }
+      else if (this.Town.WallGuard < this.Town.WallGuardMax / 3)
+      {
+        command.Type = CharacterCommandType.WallGuard;
+      }
+      else if (this.Town.Wall < this.Town.WallMax / 2)
+      {
+        command.Type = CharacterCommandType.Wall;
+      }
+      else if (this.Town.WallGuard < this.Town.WallGuardMax / 2)
+      {
+        command.Type = CharacterCommandType.WallGuard;
+      }
       else if (this.Town.Wall < this.Town.WallMax)
       {
         command.Type = CharacterCommandType.Wall;
+      }
+      else if (this.Town.WallGuard < this.Town.WallGuardMax)
+      {
+        command.Type = CharacterCommandType.WallGuard;
       }
       else if (this.Town.TownBuildingValue < Config.TownBuildingMax * 2 / 3)
       {
