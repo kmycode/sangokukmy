@@ -155,7 +155,7 @@ namespace SangokuKmy.Models.Updates
     {
       base.Initialize(current);
       this.Character.Name = "異民族_仁官";
-      this.Character.Intellect = 120;
+      this.Character.Intellect = 200;
       this.Character.Popularity = (short)(this.Character.Popularity * 1.2f);
     }
 
