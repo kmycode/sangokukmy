@@ -2,6 +2,7 @@
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using System.Collections.Generic;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Updates
 {
@@ -15,34 +16,26 @@ namespace SangokuKmy.Models.Updates
 
     protected override SoldierType FindSoldierType()
     {
-      if (this.Town.Technology >= 900)
+      if (this.Town.Technology >= 800)
       {
-        return SoldierType.RepeatingCrossbow;
+        return SoldierType.TerroristCommonC;
       }
-      if (this.Town.Technology >= 700)
+      if (this.Town.Technology >= 500)
       {
-        return SoldierType.HeavyCavalry;
+        return SoldierType.TerroristCommonB;
       }
-      if (this.Town.Technology >= 600)
+      if (this.Town.Technology >= 200)
       {
-        return SoldierType.HeavyInfantry;
+        return SoldierType.TerroristCommonA;
       }
-      if (this.Town.Technology >= 300)
-      {
-        return SoldierType.LightCavalry;
-      }
-      if (this.Town.Technology >= 100)
-      {
-        return SoldierType.LightInfantry;
-      }
-      return SoldierType.Common;
+      return SoldierType.LightInfantry;
     }
 
     public override void Initialize(GameDateTime current)
     {
       base.Initialize(current);
       this.Character.Name = "異民族_武将";
-      this.Character.Strong = (short)(this.Character.Strong * 1.8f);
+      this.Character.Strong = (short)(this.Character.Strong * 1.4f);
       this.Character.Leadership = 170;
       this.Character.Money = 99999999;
     }
@@ -64,7 +57,7 @@ namespace SangokuKmy.Models.Updates
 
   public class TerroristRyofuAiCharacter : TerroristBattlerAiCharacter
   {
-    protected override bool CanWall => true;
+    protected override bool CanWall => false;
 
     public TerroristRyofuAiCharacter(Character character) : base(character)
     {
@@ -121,6 +114,10 @@ namespace SangokuKmy.Models.Updates
       }
       if (command.Type == CharacterCommandType.Technology && this.Town.Technology >= this.Town.TechnologyMax)
       {
+        command.Type = CharacterCommandType.TownBuilding;
+      }
+      if (command.Type == CharacterCommandType.TownBuilding && this.Town.TownBuildingValue >= Config.TownBuildingMax)
+      {
         command.Type = CharacterCommandType.Training;
         command.Parameters.Add(new CharacterCommandParameter
         {
@@ -154,6 +151,10 @@ namespace SangokuKmy.Models.Updates
       else if (this.Town.Wall < this.Town.WallMax)
       {
         command.Type = CharacterCommandType.Wall;
+      }
+      else if (this.Town.TownBuildingValue < Config.TownBuildingMax * 2 / 3)
+      {
+        command.Type = CharacterCommandType.TownBuilding;
       }
       else
       {

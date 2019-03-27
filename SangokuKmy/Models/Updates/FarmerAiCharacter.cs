@@ -38,7 +38,7 @@ namespace SangokuKmy.Models.Updates
       if (this.Town.CountryId != this.Character.CountryId || ((this.Town.People < 3000 || this.Town.Security < 20) && isNeedSoldier && !this.CanSoldierForce))
       {
         // 徴兵のための都市に移動する
-        await this.MoveToMyCountryTownAsync(repo, towns, t => t.People > 3000 && t.Security >= 20 && t.Technology >= 300, t => t.Technology, command);
+        await this.MoveToMyCountryTownAsync(repo, towns, t => t.People > 3000 && t.Security >= 20, t => t.People * t.Security, command);
         return command;
       }
 
@@ -69,7 +69,7 @@ namespace SangokuKmy.Models.Updates
         return command;
       }
 
-      if (this.Town.Id == this.Country.CapitalTownId || (this.Town.People > 3000 && this.Town.Security >= 40 && this.Town.Technology > 400))
+      if (this.Town.Id == this.Country.CapitalTownId || (this.Town.People > 3000 && this.Town.Security >= 40))
       {
         var currentDefenders = await repo.Town.GetDefendersAsync(this.Town.Id);
         if (!currentDefenders.Any())
@@ -90,7 +90,7 @@ namespace SangokuKmy.Models.Updates
         if (!targetTowns.Any())
         {
           // 攻撃先と隣接していない
-          var canAttack = await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => true, t => t.Technology, targetCountryIds, command);
+          var canAttack = await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => true, t => t.People * t.Security, targetCountryIds, command);
           if (!canAttack)
           {
             // 攻撃先と飛び地
@@ -136,7 +136,7 @@ namespace SangokuKmy.Models.Updates
           // 戦争準備中の国に隣接してないなら移動する
           if (!towns.GetAroundTowns(this.Town).Any(t => t.CountryId != readyWar.InsistedCountryId && t.CountryId != readyWar.RequestedCountryId))
           {
-            var canAttack = await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000 && t.Security >= 40 && t.Technology >= 300, t => t.Technology, readyWar.InsistedCountryId == this.Country.Id ? readyWar.RequestedCountryId : readyWar.InsistedCountryId, command);
+            var canAttack = await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => t.People > 3000 && t.Security >= 40, t => t.People * t.Security, readyWar.InsistedCountryId == this.Country.Id ? readyWar.RequestedCountryId : readyWar.InsistedCountryId, command);
             if (!canAttack)
             {
               // 攻撃先と飛び地

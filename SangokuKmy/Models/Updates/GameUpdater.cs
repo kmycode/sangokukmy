@@ -23,10 +23,14 @@ namespace SangokuKmy.Models.Updates
   {
     private static DateTime nextMonthStartDateTime = DateTime.Now;
 
+    private static ILogger _logger;
+
     public static void BeginUpdate(ILogger logger)
     {
       // クラスをメモリにロードさせ、static変数を初期化する目的で呼び出す
       RandomService.Next();
+
+      _logger = logger;
 
       Task.Run(async () =>
       {
@@ -635,12 +639,16 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 異民族
-        if (system.TerroristCount <= 0 && !system.IsWaitingReset && (system.GameDateTime.Year >= 220 || (system.GameDateTime.Year >= 180 && RandomService.Next(0, 200) == 0)))
+        if (system.TerroristCount <= 0 && !system.IsWaitingReset && (system.GameDateTime.Year >= 220 || (system.GameDateTime.Year >= 180 && RandomService.Next(0, 140) == 0)))
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
           {
             system.TerroristCount++;
+          }
+          else
+          {
+            _logger.LogInformation("異民族出現の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
           }
         }
 
