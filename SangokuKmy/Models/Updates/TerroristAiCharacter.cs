@@ -190,10 +190,6 @@ namespace SangokuKmy.Models.Updates
       {
         return SoldierType.StrongGuards;
       }
-      if (this.Town.Technology >= 800)
-      {
-        return SoldierType.Intellect;
-      }
       if (this.Town.Technology >= 500)
       {
         return SoldierType.LightIntellect;
@@ -204,7 +200,7 @@ namespace SangokuKmy.Models.Updates
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "異民族_仁官";
-      this.Character.Intellect = 200;
+      this.Character.Intellect = 170;
       this.Character.Popularity = 300;
       this.Character.Leadership = 100;
       this.Character.Money = 99999999;
