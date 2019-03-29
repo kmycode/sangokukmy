@@ -116,7 +116,7 @@ namespace SangokuKmy.Models.Services
       foreach (var country in countries)
       {
         var towns = await repo.Town.GetByCountryIdAsync(country.Id);
-        foreach (var town in towns)
+        foreach (var town in towns.OrderByDescending(t => t.WallMax))
         {
           if (await CreateWarIfNotWarAsync(repo, country, town, mapLogAsync))
           {
@@ -141,6 +141,7 @@ namespace SangokuKmy.Models.Services
         .ToArray();
       var notWarCountries = (await repo.Country.GetAllAsync())
         .Select(c => c.Id)
+        .Where(c => c != self.Id)
         .Except(warCountries)
         .ToArray();
       if (!notWarCountries.Any())
@@ -174,6 +175,7 @@ namespace SangokuKmy.Models.Services
         StartGameDate =  startMonth,
         Status = CountryWarStatus.InReady,
       };
+      repo.AiCountry.ResetByCountryId(self.Id);
       await repo.CountryDiplomacies.SetWarAsync(war);
       await repo.SaveChangesAsync();
 
@@ -239,7 +241,7 @@ namespace SangokuKmy.Models.Services
         CharacterAiType.TerroristRyofu,
         CharacterAiType.TerroristPatroller,
         CharacterAiType.TerroristPatroller,
-        CharacterAiType.TerroristPatroller,
+        CharacterAiType.TerroristMainPatroller,
       };
 
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
@@ -263,6 +265,7 @@ namespace SangokuKmy.Models.Services
         return false;
       }
       town.Data.Name = name;
+      town.Data.TownBuilding = TownBuilding.TerroristHouse;
 
       var country = await CreateCountryAsync(repo, system, town.Data, charas.ToArray());
       country.CountryColorId = countryColor;

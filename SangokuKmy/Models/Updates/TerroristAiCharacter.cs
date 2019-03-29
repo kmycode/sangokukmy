@@ -3,14 +3,297 @@ using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using System.Collections.Generic;
 using SangokuKmy.Models.Common;
+using SangokuKmy.Models.Data;
+using System.Threading.Tasks;
 
 namespace SangokuKmy.Models.Updates
 {
-  public class TerroristBattlerAiCharacter : FarmerBattlerAiCharacter
+  public class TerroristBattlerAiCharacter : WorkerAiCharacter
+  {
+    public TerroristBattlerAiCharacter(Character character) : base(character)
+    {
+    }
+
+    protected override SoldierType FindSoldierType()
+    {
+      if (this.Town.Technology >= 800)
+      {
+        return SoldierType.TerroristCommonC;
+      }
+      if (this.Town.Technology >= 500)
+      {
+        return SoldierType.TerroristCommonB;
+      }
+      if (this.Town.Technology >= 200)
+      {
+        return SoldierType.TerroristCommonA;
+      }
+      return SoldierType.LightInfantry;
+    }
+
+    protected override DefendLevel NeedDefendLevel
+    {
+      get
+      {
+        if (this.Town.People > 20000 && this.Town.Security > 50 && this.Town.Wall < 700)
+        {
+          return DefendLevel.NeedMyDefend;
+        }
+        if (this.Town.People > 10000 && this.Town.Security > 50 && this.Town.Wall < 700)
+        {
+          return DefendLevel.NeedThreeDefend;
+        }
+        if ((this.BorderTown != null && this.Town.Id == this.BorderTown.Id) || (this.Town.People > 5000 && this.Town.Security > 30))
+        {
+          return DefendLevel.NeedTwoDefend;
+        }
+        return DefendLevel.NeedMyDefend;
+      }
+    }
+
+    public override void Initialize(GameDateTime current)
+    {
+      this.Character.Name = "異民族_武将";
+      this.Character.Strong = (short)((10 + current.Year / 2.4f) * 1.4f + 10);
+      this.Character.Leadership = 170;
+      this.Character.Money = 99999999;
+      this.Character.Rice = 99999999;
+    }
+
+    protected override async Task ActionAsync(MainRepository repo)
+    {
+      if (await this.InputDefendAsync(repo))
+      {
+        return;
+      }
+
+      if (await this.InputBattleAsync(repo))
+      {
+        return;
+      }
+
+      if (await this.InputMoveToBorderTownAsync(repo))
+      {
+        return;
+      }
+
+      if (this.InputSoldierTraining())
+      {
+        return;
+      }
+
+      this.InputTraining(TrainingType.Strong);
+    }
+  }
+
+  public class TerroristRyofuAiCharacter : TerroristBattlerAiCharacter
+  {
+    public TerroristRyofuAiCharacter(Character character) : base(character)
+    {
+    }
+
+    protected override SoldierType FindSoldierType()
+    {
+      if (this.Town.Technology >= 950)
+      {
+        return SoldierType.TerroristCommonC;
+      }
+      if (this.Town.Technology >= 700)
+      {
+        return SoldierType.TerroristCommonB;
+      }
+      if (this.Town.Technology >= 400)
+      {
+        return SoldierType.TerroristCommonA;
+      }
+      return SoldierType.LightInfantry;
+    }
+
+    public override void Initialize(GameDateTime current)
+    {
+      base.Initialize(current);
+      this.Character.Name = "異民族_呂布";
+      this.Character.Strong = 40;
+      this.Character.Leadership = 60;
+    }
+  }
+
+  public class TerroristCivilOfficialAiCharacter : WorkerAiCharacter
+  {
+    public TerroristCivilOfficialAiCharacter(Character character) : base(character)
+    {
+    }
+
+    protected override SoldierType FindSoldierType()
+    {
+      if (this.Town.Technology >= 800)
+      {
+        return SoldierType.Intellect;
+      }
+      if (this.Town.Technology >= 500)
+      {
+        return SoldierType.LightIntellect;
+      }
+      return SoldierType.TerroristCommonA;
+    }
+
+    public override void Initialize(GameDateTime current)
+    {
+      this.Character.Name = "異民族_文官";
+      this.Character.Strong = 10;
+      this.Character.Intellect = (short)((10 + current.Year / 2.4f) * 1.4f + 10);
+      this.Character.Leadership = 170;
+      this.Character.Money = 99999999;
+      this.Character.Rice = 99999999;
+    }
+
+    protected override async Task ActionAsync(MainRepository repo)
+    {
+      if (await this.InputDefendAsync(repo, DefendLevel.NeedAnyDefends))
+      {
+        return;
+      }
+
+      if (await this.InputBattleAsync(repo))
+      {
+        return;
+      }
+
+      if (await this.InputMoveToBorderTownAsync(repo))
+      {
+        return;
+      }
+
+      if (this.InputSoldierTraining())
+      {
+        return;
+      }
+
+      if (this.InputDevelop())
+      {
+        return;
+      }
+
+      this.InputTraining(TrainingType.Intellect);
+    }
+  }
+
+  public class TerroristPatrollerAiCharacter : WorkerAiCharacter
+  {
+    public TerroristPatrollerAiCharacter(Character character) : base(character)
+    {
+    }
+
+    protected override SoldierType FindSoldierType()
+    {
+      if (this.Town.Technology >= 999)
+      {
+        return SoldierType.StrongGuards;
+      }
+      if (this.Town.Technology >= 800)
+      {
+        return SoldierType.Intellect;
+      }
+      if (this.Town.Technology >= 500)
+      {
+        return SoldierType.LightIntellect;
+      }
+      return SoldierType.TerroristCommonA;
+    }
+
+    public override void Initialize(GameDateTime current)
+    {
+      this.Character.Name = "異民族_仁官";
+      this.Character.Intellect = 200;
+      this.Character.Popularity = 300;
+      this.Character.Leadership = 100;
+      this.Character.Money = 99999999;
+      this.Character.Rice = 99999999;
+    }
+
+    protected override async Task ActionAsync(MainRepository repo)
+    {
+      if (await this.InputMoveToBorderTownAsync(repo))
+      {
+        return;
+      }
+
+      if (this.InputSecurity())
+      {
+        return;
+      }
+
+      if (await this.InputDefendAsync(repo, DefendLevel.NeedMyDefend))
+      {
+        return;
+      }
+
+      if (this.InputSoldierTraining())
+      {
+        return;
+      }
+
+      if (this.InputDevelopOnBorderOrMain())
+      {
+        return;
+      }
+
+      if (this.InputWallDevelop())
+      {
+        return;
+      }
+
+      if (await this.InputMoveToMainTownAsync(repo))
+      {
+        return;
+      }
+
+      this.InputTraining(TrainingType.Popularity);
+    }
+  }
+
+  public class TerroristMainPatrollerAiCharacter : TerroristPatrollerAiCharacter
+  {
+    public TerroristMainPatrollerAiCharacter(Character character) : base(character)
+    {
+    }
+
+    protected override async Task ActionAsync(MainRepository repo)
+    {
+      if (await this.InputMoveToMainTownAsync(repo))
+      {
+        return;
+      }
+
+      if (this.InputSecurity())
+      {
+        return;
+      }
+
+      if (await this.InputDefendAsync(repo, DefendLevel.NeedMyDefend))
+      {
+        return;
+      }
+
+      if (this.InputSoldierTraining())
+      {
+        return;
+      }
+
+      if (this.InputDevelopOnBorderOrMain())
+      {
+        return;
+      }
+
+      this.InputTraining(TrainingType.Popularity);
+    }
+  }
+
+  public class OldTerroristBattlerAiCharacter : FarmerBattlerAiCharacter
   {
     protected override bool CanSoldierForce => false;
 
-    public TerroristBattlerAiCharacter(Character character) : base(character)
+    public OldTerroristBattlerAiCharacter(Character character) : base(character)
     {
     }
 
@@ -41,11 +324,11 @@ namespace SangokuKmy.Models.Updates
     }
   }
 
-  public class TerroristWallBattlerAiCharacter : TerroristBattlerAiCharacter
+  public class OldTerroristWallBattlerAiCharacter : OldTerroristBattlerAiCharacter
   {
     protected override bool CanWall => true;
 
-    public TerroristWallBattlerAiCharacter(Character character) : base(character)
+    public OldTerroristWallBattlerAiCharacter(Character character) : base(character)
     {
     }
 
@@ -55,7 +338,7 @@ namespace SangokuKmy.Models.Updates
     }
   }
 
-  public class TerroristRyofuAiCharacter : TerroristBattlerAiCharacter
+  public class OldTerroristRyofuAiCharacter : OldTerroristBattlerAiCharacter
   {
     protected override bool CanWall => false;
 
@@ -76,7 +359,7 @@ namespace SangokuKmy.Models.Updates
       return SoldierType.LightInfantry;
     }
 
-    public TerroristRyofuAiCharacter(Character character) : base(character)
+    public OldTerroristRyofuAiCharacter(Character character) : base(character)
     {
     }
 
@@ -88,13 +371,13 @@ namespace SangokuKmy.Models.Updates
     }
   }
 
-  public class TerroristCivilOfficialAiCharacter : FarmerCivilOfficialAiCharacter
+  public class OldTerroristCivilOfficialAiCharacter : FarmerCivilOfficialAiCharacter
   {
     protected override bool CanSoldierForce => false;
 
     protected override SoldierType SoldierType => SoldierType.Intellect;
 
-    public TerroristCivilOfficialAiCharacter(Character character) : base(character)
+    public OldTerroristCivilOfficialAiCharacter(Character character) : base(character)
     {
     }
 
@@ -145,9 +428,9 @@ namespace SangokuKmy.Models.Updates
     }
   }
 
-  public class TerroristPatrollerAiCharacter : FarmerPatrollerAiCharacter
+  public class OldTerroristPatrollerAiCharacter : FarmerPatrollerAiCharacter
   {
-    public TerroristPatrollerAiCharacter(Character character) : base(character)
+    public OldTerroristPatrollerAiCharacter(Character character) : base(character)
     {
     }
 
