@@ -177,7 +177,7 @@ namespace SangokuKmy.Models.Data.Entities
 
     public float CalcRushAttack()
     {
-      return this.RushAttack / 6.7f + 1.0f;
+      return this.RushAttack / 8.4f + 2.1f;
     }
   }
 

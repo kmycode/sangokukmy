@@ -221,7 +221,7 @@ namespace SangokuKmy.Models.Updates
 
       if (this.Town.Id != this.Country.CapitalTownId)
       {
-        this.MoveToTown(this.Country.CapitalTownId, command);
+        this.InputMoveToTown(this.Country.CapitalTownId, command);
         return command;
       }
       else
@@ -345,7 +345,7 @@ namespace SangokuKmy.Models.Updates
 
       if (this.Town.Id != this.Country.CapitalTownId)
       {
-        this.MoveToTown(this.Country.CapitalTownId, command);
+        this.InputMoveToTown(this.Country.CapitalTownId, command);
         return command;
       }
       else

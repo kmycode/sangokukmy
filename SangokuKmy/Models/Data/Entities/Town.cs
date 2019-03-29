@@ -343,6 +343,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 太守府
     /// </summary>
     ViceroyHouse = 14,
+
+    /// <summary>
+    /// 蛮族の家
+    /// </summary>
+    TerroristHouse = 15,
   }
 
   public enum CountryBuilding : short

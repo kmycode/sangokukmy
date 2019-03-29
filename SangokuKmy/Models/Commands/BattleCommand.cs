@@ -432,7 +432,7 @@ namespace SangokuKmy.Models.Commands
             // 連戦
             canContinuous = mySoldierType.CanContinuous();
 
-            if (character.AiType == CharacterAiType.TerroristRyofu && !canContinuous)
+            if (character.AiType == CharacterAiType.TerroristRyofu)
             {
               myExperience += 10_000;
             }
