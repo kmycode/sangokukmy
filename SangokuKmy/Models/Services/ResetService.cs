@@ -100,6 +100,8 @@ namespace SangokuKmy.Models.Services
       system.ResetGameDateTime = GameDateTime.FromInt(system.GameDateTime.ToInt() + resetTurn);
 
       await RecordHistoryAsync(repo, system);
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(system));
     }
 
     private static async Task RecordHistoryAsync(MainRepository repo, SystemData system)
