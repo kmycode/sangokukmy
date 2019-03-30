@@ -41,6 +41,7 @@ namespace SangokuKmy.Controllers
     }
 
     [HttpPost("authenticate")]
+    [SecretKeyRequestedFilter]
     public async Task<ApiData<AuthenticationData>> AuthenticateAsync
       ([FromBody] AuthenticateParameter param)
     {

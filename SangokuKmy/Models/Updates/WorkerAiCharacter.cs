@@ -175,7 +175,7 @@ namespace SangokuKmy.Models.Updates
         {
           var match = this.towns
             .Where(t => t.CountryId != this.Country.Id)
-            .Where(t => mainWars.Contains(t.CountryId) && this.GetStreet(this.towns, this.data.MainTown, (Town)t, tt => mainWars.Contains(tt.CountryId)) != null)
+            .Where(t => mainWars.Contains(t.CountryId) && this.GetStreet(this.towns, this.data.MainTown, (Town)t, tt => tt.CountryId == this.Country.Id || mainWars.Contains(tt.CountryId)) != null)
             .OrderByDescending(t => t.People * (t.Security * t.Technology))
             .FirstOrDefault();
           if (match != null)

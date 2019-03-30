@@ -343,7 +343,7 @@ namespace SangokuKmy.Models.Services
         .Distinct();
       var aiCountries = (await repo.Country.GetAllAsync())
         .Where(c => !c.HasOverthrown)
-        .Where(c => c.AiType != CountryAiType.Human)
+        .Where(c => c.AiType != CountryAiType.Farmers)
         .Select(c => c.Id);
 
       var allTowns = await repo.Town.GetAllAsync();
@@ -354,7 +354,7 @@ namespace SangokuKmy.Models.Services
       var towns = allTowns
         .Where(t => !singleTownCountries.Contains(t.CountryId))
         .Where(t => !aiCountries.Contains(t.CountryId))
-        .Where(t => t.CountryId > 0 && t.Security <= 0 && t.People <= 5000)
+        .Where(t => t.Security <= 0 && t.People <= 8000)
         .Where(t => !warCountries.Contains(t.CountryId) && !townWars.Select(tt => tt.TownId).Contains(t.Id))
         .ToList();
 

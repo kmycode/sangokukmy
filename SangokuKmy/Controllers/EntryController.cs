@@ -22,6 +22,7 @@ namespace SangokuKmy.Controllers
   public class EntryController : Controller
   {
     [HttpPost("entry")]
+    [SecretKeyRequestedFilter]
     public async Task<ApiData<AuthenticationData>> Entry(
       [FromBody] EntryData param)
     {

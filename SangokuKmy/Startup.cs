@@ -42,6 +42,7 @@ namespace SangokuKmy
       Config.Database.MySqlConnectionString = this.Configuration.GetConnectionString("MySql");
 
       // ゲームの設定
+      Config.Game.SecretKey = this.Configuration.GetSection("GameSettings")["SecretKey"];
       Config.Game.UploadedIconDirectory = this.Configuration.GetSection("GameSettings")["UploadedIconDirectory"];
       Config.Game.HistoricalUploadedIconDirectory = this.Configuration.GetSection("GameSettings")["HistoricalUploadedIconDirectory"];
 
