@@ -88,6 +88,12 @@ namespace SangokuKmy.Models.Data
     private CountryRepository _country;
 
     /// <summary>
+    /// AI国
+    /// </summary>
+    public AiCountryRepository AiCountry => this._aiCountry = this._aiCountry ?? new AiCountryRepository(this.container);
+    private AiCountryRepository _aiCountry;
+
+    /// <summary>
     /// 外交
     /// </summary>
     public CountryDiplomaciesRepository CountryDiplomacies => this._countryDiplomacies = this._countryDiplomacies ?? new CountryDiplomaciesRepository(this.container);

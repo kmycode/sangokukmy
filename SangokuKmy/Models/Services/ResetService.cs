@@ -22,6 +22,7 @@ namespace SangokuKmy.Models.Services
       await repo.EntryHost.ResetAsync();
       await repo.ChatMessage.ResetAsync();
       await repo.CountryDiplomacies.ResetAsync();
+      await repo.AiCountry.ResetAsync();
       await repo.Country.ResetAsync();
       await repo.MapLog.ResetAsync();
       await repo.ScoutedTown.ResetAsync();

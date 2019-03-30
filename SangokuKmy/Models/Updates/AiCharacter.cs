@@ -42,7 +42,7 @@ namespace SangokuKmy.Models.Updates
       }
       else if (chara.AiType == CharacterAiType.TerroristWallBattler)
       {
-        ai = new TerroristWallBattlerAiCharacter(chara);
+        ai = new OldTerroristWallBattlerAiCharacter(chara);
       }
       else if (chara.AiType == CharacterAiType.TerroristRyofu)
       {
@@ -55,6 +55,10 @@ namespace SangokuKmy.Models.Updates
       else if (chara.AiType == CharacterAiType.TerroristPatroller)
       {
         ai = new TerroristPatrollerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.TerroristMainPatroller)
+      {
+        ai = new TerroristMainPatrollerAiCharacter(chara);
       }
       else if (chara.AiType == CharacterAiType.SecretaryPatroller)
       {
@@ -118,20 +122,19 @@ namespace SangokuKmy.Models.Updates
 
     protected abstract Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars);
 
-    protected async Task<Town> GetNextTownForMoveToTownAsync(MainRepository repo, Town from, Town target)
+    protected IEnumerable<Town> GetStreet(IEnumerable<Town> towns, Town from, Town target, Func<TownBase, bool> predicate = null)
     {
-      if (from.IsNextToTown(target))
-      {
-        return target;
-      }
-
-      var towns = await repo.Town.GetAllAsync();
-
       // 経路探索
       bool checkStreet(IList<Town> street)
       {
         var current = street.Last();
-        var arounds = towns.GetAroundTowns(current).Where(a => !street.Contains(a) && !street.Reverse().Skip(1).Any(s => s.IsNextToTown(a)));
+        var arounds = towns
+          .GetAroundTowns(current)
+          .Where(a => !street.Contains(a) && !street.Reverse().Skip(1).Any(s => s.IsNextToTown(a)));
+        if (predicate != null)
+        {
+          arounds = arounds.Where(predicate);
+        }
         if (arounds.Any(a => a.Id == target.Id))
         {
           // 周りにあれば返す
@@ -175,16 +178,31 @@ namespace SangokuKmy.Models.Updates
         from,
       };
       var nextTo = checkStreet(st);
-      return st.ElementAt(1);
+      return nextTo ? st : null;
     }
 
-    protected async Task<Town> GetMatchTownAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, object> order, Func<TownBase, bool> subject)
+    protected async Task<Town> GetNextTownForMoveToTownAsync(MainRepository repo, Town from, Town target)
+    {
+      if (from.IsNextToTown(target))
+      {
+        return target;
+      }
+
+      if (from.Id == target.Id)
+      {
+        return target;
+      }
+
+      return (this.GetStreet(await repo.Town.GetAllAsync(), from, target)).ElementAt(1);
+    }
+
+    protected Town GetMatchTown(IEnumerable<Town> towns, Func<TownBase, object> order, Func<TownBase, bool> subject)
     {
       var current = this.Town;
 
       var arounds = towns
         .GetAroundTowns(current)
-        .Where(t => t.CountryId == this.Country.Id);
+        .Append(current);
       if (order != null)
       {
         arounds = arounds.OrderByDescending(order);
@@ -193,7 +211,7 @@ namespace SangokuKmy.Models.Updates
 
       var aroundsRank = arounds
         .Where(subject)
-        .OrderByDescending(t => t.People + t.Wall + t.WallGuard);
+        .OrderByDescending(order);
       if (aroundsRank.Any())
       {
         // 条件に合う都市が隣にある
@@ -216,9 +234,9 @@ namespace SangokuKmy.Models.Updates
           target = allRank.FirstOrDefault();
         }
 
-        if (target != null)
+        if (target != null && current.Id != target.Id)
         {
-          return await this.GetNextTownForMoveToTownAsync(repo, current, target);
+          return target;
         }
         else
         {
@@ -227,12 +245,25 @@ namespace SangokuKmy.Models.Updates
       }
     }
 
-    protected async Task<bool> MoveToMyCountryTownAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, bool> subject, Func<TownBase, object> order, CharacterCommand command)
+    protected async Task<Town> Old_GetMatchTownAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, object> order, Func<TownBase, bool> subject)
     {
-      var target = await this.GetMatchTownAsync(repo, towns, order, subject);
+      var target = this.GetMatchTown(towns, order, t => subject(t) && t.CountryId == this.Country.Id);
       if (target != null)
       {
-        this.MoveToTown(target.Id, command);
+        return await this.GetNextTownForMoveToTownAsync(repo, this.Town, target);
+      }
+      else
+      {
+        return null;
+      }
+    }
+
+    protected async Task<bool> MoveToMyCountryTownAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, bool> subject, Func<TownBase, object> order, CharacterCommand command)
+    {
+      var target = await this.Old_GetMatchTownAsync(repo, towns, order, subject);
+      if (target != null && target.Id != this.Town.Id)
+      {
+        this.InputMoveToTown(target.Id, command);
         return true;
       }
       return false;
@@ -240,14 +271,28 @@ namespace SangokuKmy.Models.Updates
 
     protected async Task MoveToMyCountryTownAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, bool> subject, CharacterCommand command)
     {
-      var target = await this.GetMatchTownAsync(repo, towns, null, subject);
-      if (target != null)
+      var target = await this.Old_GetMatchTownAsync(repo, towns, null, subject);
+      if (target != null && target.Id != this.Town.Id)
       {
-        this.MoveToTown(target.Id, command);
+        this.InputMoveToTown(target.Id, command);
       }
     }
 
-    protected void MoveToTown(uint townId, CharacterCommand command)
+    protected async Task<bool> MoveToTownOrNextToTownAsync(MainRepository repo, Town from, Town target, CharacterCommand command)
+    {
+      if (from.Id == target.Id)
+      {
+        return false;
+      }
+      else
+      {
+        var town = await this.GetNextTownForMoveToTownAsync(repo, from, target);
+        this.InputMoveToTown(town.Id, command);
+        return true;
+      }
+    }
+
+    protected void InputMoveToTown(uint townId, CharacterCommand command)
     {
       command.Parameters.Add(new CharacterCommandParameter
       {

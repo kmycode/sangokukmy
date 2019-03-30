@@ -161,6 +161,7 @@ namespace SangokuKmy.Models.Commands
         }
       }
       CharacterSoldierTypeData targetSoldierType = null;
+      var canContinuous = false;
       var myAttackCorrection = 0;
       var myDefenceCorrection = 0;
       var myAttackSoldierTypeCorrection = 0;
@@ -344,6 +345,18 @@ namespace SangokuKmy.Models.Commands
           myDamage = 1;
         }
 
+        // 突撃
+        if (mySoldierType.IsRush())
+        {
+          myDamage = 0;
+          targetDamage = Math.Min((int)(targetDamage * mySoldierType.CalcRushAttack()), enemy.SoldierNumber);
+        }
+        else if (targetSoldierType.IsRush())
+        {
+          targetDamage = 0;
+          myDamage = Math.Min((int)(myDamage * targetSoldierType.CalcRushAttack()), character.SoldierNumber);
+        }
+
         character.SoldierNumber -= myDamage;
         myExperience += (int)(targetDamage * 0.2f);
         enemy.SoldierNumber -= targetDamage;
@@ -383,6 +396,10 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync("<character>" + enemy.Name + "</character> と引き分けました");
           if (enemy.Defender.HasData)
           {
+            if (character.AiType == CharacterAiType.TerroristRyofu)
+            {
+              myExperience += 500;
+            }
             if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
             {
               targetExperience += 10_000;
@@ -396,6 +413,10 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync($"<character>{enemy.Name}</character> に敗北しました");
           if (enemy.Defender.HasData)
           {
+            if (character.AiType == CharacterAiType.TerroristRyofu)
+            {
+              myExperience += 500;
+            }
             if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
             {
               targetExperience += 10_000;
@@ -409,6 +430,14 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync("<character>" + enemy.Name + "</character> と引き分けました");
           if (enemy.Defender.HasData)
           {
+            if (character.AiType == CharacterAiType.TerroristRyofu)
+            {
+              myExperience += 500;
+            }
+            if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
+            {
+              targetExperience += 500;
+            }
             await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, "<character>" + character.Name + "</character> と引き分けました");
           }
         }
@@ -416,9 +445,16 @@ namespace SangokuKmy.Models.Commands
         {
           if (!enemy.IsWall)
           {
+            // 連戦
+            canContinuous = mySoldierType.CanContinuous();
+
             if (character.AiType == CharacterAiType.TerroristRyofu)
             {
               myExperience += 10_000;
+            }
+            if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
+            {
+              targetExperience += 500;
             }
             repo.Town.RemoveDefender(enemy.Defender.Data.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.BattleWin, prefix + " を倒しました", false);
@@ -515,6 +551,12 @@ namespace SangokuKmy.Models.Commands
 
       // 更新された都市データを通知
       await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown));
+
+      // 連戦
+      if (canContinuous)
+      {
+        await this.ExecuteAsync(repo, character, options, game);
+      }
     }
 
     private string AddExperience(int ex, Character chara, CharacterSoldierTypeData soldierType)

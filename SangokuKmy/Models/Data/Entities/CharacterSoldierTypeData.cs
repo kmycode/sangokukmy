@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Data.Entities
 {
@@ -141,6 +142,43 @@ namespace SangokuKmy.Models.Data.Entities
 
       return ((int)a, (int)d);
     }
+
+    public bool CanContinuous()
+    {
+      if (this.ContinuousProbability == 0)
+      {
+        return false;
+      }
+      else if (this.ContinuousProbability < 14 - 1)
+      {
+        return RandomService.Next(0, 14 - this.ContinuousProbability) == 0;
+      }
+      else
+      {
+        return RandomService.Next(0, 2) == 0;
+      }
+    }
+
+    public bool IsRush()
+    {
+      if (this.RushProbability == 0)
+      {
+        return false;
+      }
+      else if (this.RushProbability < 18 - 1)
+      {
+        return RandomService.Next(0, 18 - this.RushProbability) == 0;
+      }
+      else
+      {
+        return RandomService.Next(0, 2) == 0;
+      }
+    }
+
+    public float CalcRushAttack()
+    {
+      return this.RushAttack / 8.4f + 2.1f;
+    }
   }
 
   public static class CharacterSoldierTypeExtentions
@@ -157,6 +195,10 @@ namespace SangokuKmy.Models.Data.Entities
         IntellectAttack = (short)parts.Sum(p => p.Data.IntellectAttack),
         IntellectDefend = (short)parts.Sum(p => p.Data.IntellectDefend),
         WallAttack = (short)parts.Sum(p => p.Data.WallAttack),
+        WallDefend = (short)parts.Sum(p => p.Data.WallDefend),
+        ContinuousProbability = (short)parts.Sum(p => p.Data.ContinuousProbability),
+        RushProbability = (short)parts.Sum(p => p.Data.RushProbability),
+        RushAttack = (short)parts.Sum(p => p.Data.RushAttack),
         StrongEx = (short)parts.Sum(p => p.Data.StrongEx),
         IntellectEx = (short)parts.Sum(p => p.Data.IntellectEx),
         LeadershipEx = (short)parts.Sum(p => p.Data.LeadershipEx),

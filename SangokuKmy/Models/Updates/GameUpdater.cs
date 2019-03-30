@@ -23,10 +23,14 @@ namespace SangokuKmy.Models.Updates
   {
     private static DateTime nextMonthStartDateTime = DateTime.Now;
 
+    private static ILogger _logger;
+
     public static void BeginUpdate(ILogger logger)
     {
       // クラスをメモリにロードさせ、static変数を初期化する目的で呼び出す
       RandomService.Next();
+
+      _logger = logger;
 
       Task.Run(async () =>
       {
@@ -499,7 +503,8 @@ namespace SangokuKmy.Models.Updates
             if (town.TownBuilding == TownBuilding.TrainStrong ||
                 town.TownBuilding == TownBuilding.TrainIntellect ||
                 town.TownBuilding == TownBuilding.TrainLeadership ||
-                town.TownBuilding == TownBuilding.TrainPopularity)
+                town.TownBuilding == TownBuilding.TrainPopularity ||
+                town.TownBuilding == TownBuilding.TerroristHouse)
             {
               var charas = await repo.Town.GetCharactersAsync(town.Id);
               var shortSize = (short)(size * 7);
@@ -520,6 +525,13 @@ namespace SangokuKmy.Models.Updates
                 else if (town.TownBuilding == TownBuilding.TrainPopularity)
                 {
                   chara.AddPopularityEx(shortSize);
+                }
+                else if (town.TownBuilding == TownBuilding.TerroristHouse)
+                {
+                  if (chara.CountryId == town.CountryId)
+                  {
+                    chara.Proficiency = Math.Max(chara.Proficiency, (short)(60 * size));
+                  }
                 }
               }
             }
@@ -636,15 +648,19 @@ namespace SangokuKmy.Models.Updates
 
         // 異民族
         if (system.TerroristCount <= 0 && !system.IsWaitingReset &&
-              ((system.GameDateTime.Year >= 180 && RandomService.Next(0, 200) == 0) ||
+              ((system.GameDateTime.Year >= 180 && RandomService.Next(0, 130) == 0) ||
                 system.GameDateTime.Year >= 220 ||
-               (system.GameDateTime.Year >= 160 && allCountries.Count(c => !c.HasOverthrown) <= 2) ||
-               (system.GameDateTime.Year >= 120 && allCountries.Count(c => !c.HasOverthrown) <= 3)))
+               (system.GameDateTime.Year >= 150 && allCountries.Count(c => !c.HasOverthrown) <= 2 && RandomService.Next(0, 22) == 0) ||
+               (system.GameDateTime.Year >= 120 && allCountries.Count(c => !c.HasOverthrown) <= 3 && RandomService.Next(0, 48) == 0)))
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
           {
             system.TerroristCount++;
+          }
+          else
+          {
+            _logger.LogInformation("異民族出現の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
           }
         }
 
@@ -752,109 +768,117 @@ namespace SangokuKmy.Models.Updates
         GameDateTime = currentMonth,
       };
 
-      // コマンドの実行
-      var ai = AiCharacterFactory.Create(character);
-      var commandOptional = await ai.GetCommandAsync(repo, currentMonth);
-      if (currentMonth.Year >= Config.UpdateStartYear)
+      try
       {
-        var isCommandExecuted = false;
-        if (commandOptional.HasData)
+        // コマンドの実行
+        var ai = AiCharacterFactory.Create(character);
+        var commandOptional = await ai.GetCommandAsync(repo, currentMonth);
+        if (currentMonth.Year >= Config.UpdateStartYear)
         {
-          var command = commandOptional.Data;
-          var commandRunnerOptional = Commands.Commands.Get(command.Type);
-          if (commandRunnerOptional.HasData)
+          var isCommandExecuted = false;
+          if (commandOptional.HasData)
           {
-            var commandRunner = commandRunnerOptional.Data;
-            await commandRunner.ExecuteAsync(repo, character, command.Parameters, gameObj);
-            isCommandExecuted = true;
-
-            if (commandRunner.Type != CharacterCommandType.None)
+            var command = commandOptional.Data;
+            var commandRunnerOptional = Commands.Commands.Get(command.Type);
+            if (commandRunnerOptional.HasData)
             {
-              character.DeleteTurn = 0;
+              var commandRunner = commandRunnerOptional.Data;
+              await commandRunner.ExecuteAsync(repo, character, command.Parameters, gameObj);
+              isCommandExecuted = true;
+
+              if (commandRunner.Type != CharacterCommandType.None)
+              {
+                character.DeleteTurn = 0;
+              }
             }
           }
-        }
-        if (!isCommandExecuted)
-        {
-          await Commands.Commands.EmptyCommand.ExecuteAsync(repo, character, new CharacterCommandParameter[] { }, gameObj);
-        }
-      }
-
-      // 政務官の削除
-      if (character.AiType.IsSecretary() && (character.Money <= 0 || character.Rice <= 0))
-      {
-        var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
-        character.DeleteTurn = (short)Config.DeleteTurns;
-        await AddMapLogAsync(EventType.SecretaryRemovedWithNoSalary, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、給与不足により解任されました", false);
-      }
-      if (character.AiType == CharacterAiType.RemovedSecretary)
-      {
-        var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
-        character.DeleteTurn = (short)Config.DeleteTurns;
-        await AddMapLogAsync(EventType.SecretaryRemovedWithNoSalary, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、解雇されました", false);
-      }
-
-      // 放置削除の確認
-      if (character.DeleteTurn >= Config.DeleteTurns)
-      {
-        var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
-        await CharacterService.RemoveAsync(repo, character);
-        if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary)
-        {
-          await AddMapLogAsync(EventType.CharacterRemoved, "<country>" + (countryOptional.Data?.Name ?? "無所属") + "</country> の <character>" + character.Name + "</character> は放置削除されました", false);
-        }
-        StatusStreaming.Default.Disconnect(character);
-      }
-
-      // 古いコマンドの削除
-      character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime);
-      character.LastUpdatedGameDate = currentMonth;
-      repo.CharacterCommand.RemoveOlds(character.Id, character.LastUpdatedGameDate);
-
-      // 兵士の兵糧
-      var ricePerSoldier = 1;
-      if (character.SoldierType == SoldierType.Custom)
-      {
-        var soldierType = await repo.CharacterSoldierType.GetByIdAsync(character.CharacterSoldierTypeId);
-        if (soldierType.HasData)
-        {
-          ricePerSoldier = 1 + soldierType.Data.RicePerTurn;
-        }
-      }
-      var rice = character.SoldierNumber * ricePerSoldier;
-      if (character.Rice >= rice)
-      {
-        character.Rice -= rice;
-      }
-      else
-      {
-        var dec = character.SoldierNumber * ricePerSoldier - character.Rice;
-        if (dec > character.SoldierNumber)
-        {
-          dec = character.SoldierNumber;
-        }
-        character.SoldierNumber -= dec;
-        character.Rice = 0;
-        await AddLogAsync($"米が足りず、兵士 <num>{dec}</num> を解雇しました");
-      }
-
-      // 能力上昇
-      async Task CheckAttributeAsync(string name, int old, int current, int type)
-      {
-        if (current > old)
-        {
-          await AddLogAsync(name + " が <num>+" + (current - old) + "</num>上昇しました");
-          notifies.Add(ApiData.From(new ApiSignal
+          if (!isCommandExecuted)
           {
-            Type = SignalType.AttributeUp,
-            Data = new { type, value = (current - old), }
-          }));
+            await Commands.Commands.EmptyCommand.ExecuteAsync(repo, character, new CharacterCommandParameter[] { }, gameObj);
+          }
         }
+
+        // 政務官の削除
+        if (character.AiType.IsSecretary() && (character.Money <= 0 || character.Rice <= 0))
+        {
+          var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
+          character.DeleteTurn = (short)Config.DeleteTurns;
+          await AddMapLogAsync(EventType.SecretaryRemovedWithNoSalary, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、給与不足により解任されました", false);
+        }
+        if (character.AiType == CharacterAiType.RemovedSecretary)
+        {
+          var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
+          character.DeleteTurn = (short)Config.DeleteTurns;
+          await AddMapLogAsync(EventType.SecretaryRemovedWithNoSalary, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、解雇されました", false);
+        }
+
+        // 放置削除の確認
+        if (character.DeleteTurn >= Config.DeleteTurns)
+        {
+          var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
+          await CharacterService.RemoveAsync(repo, character);
+          if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary)
+          {
+            await AddMapLogAsync(EventType.CharacterRemoved, "<country>" + (countryOptional.Data?.Name ?? "無所属") + "</country> の <character>" + character.Name + "</character> は放置削除されました", false);
+          }
+          StatusStreaming.Default.Disconnect(character);
+        }
+
+        // 古いコマンドの削除
+        character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime);
+        character.LastUpdatedGameDate = currentMonth;
+        repo.CharacterCommand.RemoveOlds(character.Id, character.LastUpdatedGameDate);
+
+        // 兵士の兵糧
+        var ricePerSoldier = 1;
+        if (character.SoldierType == SoldierType.Custom)
+        {
+          var soldierType = await repo.CharacterSoldierType.GetByIdAsync(character.CharacterSoldierTypeId);
+          if (soldierType.HasData)
+          {
+            ricePerSoldier = 1 + soldierType.Data.RicePerTurn;
+          }
+        }
+        var rice = character.SoldierNumber * ricePerSoldier;
+        if (character.Rice >= rice)
+        {
+          character.Rice -= rice;
+        }
+        else
+        {
+          var dec = character.SoldierNumber * ricePerSoldier - character.Rice;
+          if (dec > character.SoldierNumber)
+          {
+            dec = character.SoldierNumber;
+          }
+          character.SoldierNumber -= dec;
+          character.Rice = 0;
+          await AddLogAsync($"米が足りず、兵士 <num>{dec}</num> を解雇しました");
+        }
+
+        // 能力上昇
+        async Task CheckAttributeAsync(string name, int old, int current, int type)
+        {
+          if (current > old)
+          {
+            await AddLogAsync(name + " が <num>+" + (current - old) + "</num>上昇しました");
+            notifies.Add(ApiData.From(new ApiSignal
+            {
+              Type = SignalType.AttributeUp,
+              Data = new { type, value = (current - old), }
+            }));
+          }
+        }
+        await CheckAttributeAsync("武力", oldStrong, character.Strong, 1);
+        await CheckAttributeAsync("知力", oldIntellect, character.Intellect, 2);
+        await CheckAttributeAsync("統率", oldLeadership, character.Leadership, 3);
+        await CheckAttributeAsync("人望", oldPopularity, character.Popularity, 4);
       }
-      await CheckAttributeAsync("武力", oldStrong, character.Strong, 1);
-      await CheckAttributeAsync("知力", oldIntellect, character.Intellect, 2);
-      await CheckAttributeAsync("統率", oldLeadership, character.Leadership, 3);
-      await CheckAttributeAsync("人望", oldPopularity, character.Popularity, 4);
+      catch (Exception ex)
+      {
+         await AddLogAsync($"ID {character.Id} DATE {gameObj.GameDateTime.ToInt()} のコマンド実行中にエラーが発生したため、コマンド実行はスキップされました。<emerge>IDとDATEを添えて、管理者に連絡してください</emerge>");
+        _logger.LogError(ex, $"ID {character.Id} DATE {gameObj.GameDateTime.ToInt()} 武将更新処理中にエラーが発生しました");
+      }
 
       // 更新の記録
       var updateLog = new CharacterUpdateLog

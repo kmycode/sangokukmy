@@ -91,6 +91,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<CountryPost> CountryPosts { get; set; }
 
     /// <summary>
+    /// AI国家の戦略
+    /// </summary>
+    public DbSet<AiCountryStorategy> AiCountryStorategies { get; set; }
+
+    /// <summary>
     /// 同盟
     /// </summary>
     public DbSet<CountryAlliance> CountryAlliances { get; set; }

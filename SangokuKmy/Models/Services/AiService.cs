@@ -116,7 +116,7 @@ namespace SangokuKmy.Models.Services
       foreach (var country in countries)
       {
         var towns = await repo.Town.GetByCountryIdAsync(country.Id);
-        foreach (var town in towns)
+        foreach (var town in towns.OrderByDescending(t => t.WallMax))
         {
           if (await CreateWarIfNotWarAsync(repo, country, town, mapLogAsync))
           {
@@ -141,6 +141,7 @@ namespace SangokuKmy.Models.Services
         .ToArray();
       var notWarCountries = (await repo.Country.GetAllAsync())
         .Select(c => c.Id)
+        .Where(c => c != self.Id)
         .Except(warCountries)
         .ToArray();
       if (!notWarCountries.Any())
@@ -174,6 +175,7 @@ namespace SangokuKmy.Models.Services
         StartGameDate =  startMonth,
         Status = CountryWarStatus.InReady,
       };
+      repo.AiCountry.ResetByCountryId(self.Id);
       await repo.CountryDiplomacies.SetWarAsync(war);
       await repo.SaveChangesAsync();
 
@@ -231,11 +233,24 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
+      var charas = new List<CharacterAiType>
+      {
+        CharacterAiType.TerroristBattler,
+        CharacterAiType.TerroristBattler,
+        CharacterAiType.TerroristRyofu,
+        CharacterAiType.TerroristRyofu,
+        CharacterAiType.TerroristPatroller,
+        CharacterAiType.TerroristPatroller,
+        CharacterAiType.TerroristMainPatroller,
+      };
+
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
       var name = names[RandomService.Next(0, names.Length)];
       if (RandomService.Next(0, 12) == 0)
       {
         name = "倭";
+        charas.Add(CharacterAiType.TerroristRyofu);
+        charas.Add(CharacterAiType.TerroristBattler);
       }
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
@@ -250,15 +265,9 @@ namespace SangokuKmy.Models.Services
         return false;
       }
       town.Data.Name = name;
-      Country country;
-      if (name != "倭")
-      {
-        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller, CharacterAiType.TerroristPatroller);
-      }
-      else
-      {
-        country = await CreateCountryAsync(repo, system, town.Data, CharacterAiType.TerroristBattler, CharacterAiType.TerroristRyofu, CharacterAiType.TerroristWallBattler, CharacterAiType.TerroristCivilOfficial, CharacterAiType.TerroristPatroller, CharacterAiType.TerroristPatroller);
-      }
+      town.Data.TownBuilding = TownBuilding.TerroristHouse;
+
+      var country = await CreateCountryAsync(repo, system, town.Data, charas.ToArray());
       country.CountryColorId = countryColor;
       country.Name = name;
       country.AiType = CountryAiType.Terrorists;
