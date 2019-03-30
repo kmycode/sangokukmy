@@ -35,19 +35,19 @@ namespace SangokuKmy.Models.Updates
     {
       get
       {
-        if (this.Town.People > 20000 && this.Town.Security > 50 && this.Town.Wall < 700)
+        if ((this.Town.People > 20000 && this.Town.Security > 50) || this.Town.Wall < 600)
         {
           return DefendLevel.NeedMyDefend;
         }
-        if (this.Town.People > 10000 && this.Town.Security > 50 && this.Town.Wall < 700)
+        if ((this.Town.People > 10000 && this.Town.Security > 50) || this.Town.Wall < 1000)
         {
           return DefendLevel.NeedThreeDefend;
         }
-        if ((this.BorderTown != null && this.Town.Id == this.BorderTown.Id) || (this.Town.People > 5000 && this.Town.Security > 30))
+        if ((this.BorderTown != null && this.Town.Id == this.BorderTown.Id) || (this.Town.People > 5000 && this.Town.Security > 30) || this.Town.Wall < 1400)
         {
           return DefendLevel.NeedTwoDefend;
         }
-        return DefendLevel.NeedMyDefend;
+        return DefendLevel.NeedAnyDefends;
       }
     }
 

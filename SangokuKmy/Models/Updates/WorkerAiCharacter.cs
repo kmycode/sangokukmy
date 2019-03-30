@@ -7,6 +7,7 @@ using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.Entities;
 using SoldierType = SangokuKmy.Models.Data.Entities.SoldierType;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Updates
 {
@@ -19,7 +20,7 @@ namespace SangokuKmy.Models.Updates
 
     protected Town BorderTown => this.data.BorderTown;
 
-    protected virtual bool CanSoldierForce => true;
+    protected virtual bool CanSoldierForce => false;
 
     protected virtual DefendLevel NeedDefendLevel => DefendLevel.NeedMyDefend;
 
@@ -54,6 +55,27 @@ namespace SangokuKmy.Models.Updates
       var old = await repo.AiCountry.GetByCountryIdAsync(this.Character.CountryId);
       if (old.HasData)
       {
+        // 作戦見直し
+        if (old.Data.IntNextResetGameDate <= this.GameDateTime.ToInt())
+        {
+          if (!availableWars.Any())
+          {
+            old.Data.MainTownId = 0;
+            old.Data.TargetTownId = 0;
+            old.Data.BorderTownId = 0;
+            old.Data.NextTargetTownId = 0;
+          }
+          else
+          {
+            if (RandomService.Next(0, 3) == 0)
+            {
+              old.Data.TargetTownId = 0;
+              old.Data.NextTargetTownId = 0;
+            }
+          }
+          old.Data.IntNextResetGameDate += RandomService.Next(20, 40);
+        }
+
         targetOrder = old.Data.TargetOrder;
 
         var main = this.towns.FirstOrDefault(t => t.Id == old.Data.MainTownId);
@@ -310,7 +332,7 @@ namespace SangokuKmy.Models.Updates
     private IEnumerable<uint> GetNearReadyForWarCountries()
     {
       var availableWars = wars
-        .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() + 6 && w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting));
+        .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() + 12 && w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting));
       if (availableWars.Any())
       {
         var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
