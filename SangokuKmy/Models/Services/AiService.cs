@@ -343,7 +343,7 @@ namespace SangokuKmy.Models.Services
         .Distinct();
       var aiCountries = (await repo.Country.GetAllAsync())
         .Where(c => !c.HasOverthrown)
-        .Where(c => c.AiType != CountryAiType.Human)
+        .Where(c => c.AiType != CountryAiType.Farmers)
         .Select(c => c.Id);
 
       var allTowns = await repo.Town.GetAllAsync();
