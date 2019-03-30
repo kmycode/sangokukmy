@@ -817,9 +817,13 @@ namespace SangokuKmy.Models.Updates
         {
           var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
           await CharacterService.RemoveAsync(repo, character);
-          if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary)
+          if (character.AiType == CharacterAiType.Human)
           {
             await AddMapLogAsync(EventType.CharacterRemoved, "<country>" + (countryOptional.Data?.Name ?? "無所属") + "</country> の <character>" + character.Name + "</character> は放置削除されました", false);
+          }
+          else if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary)
+          {
+            await AddMapLogAsync(EventType.AiCharacterRemoved, "<character>" + character.Name + "</character> は削除されました", false);
           }
           StatusStreaming.Default.Disconnect(character);
         }

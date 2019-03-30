@@ -20,7 +20,7 @@ namespace SangokuKmy.Models.Updates
 
     protected Town BorderTown => this.data.BorderTown;
 
-    protected virtual bool CanSoldierForce => true;
+    protected virtual bool CanSoldierForce => false;
 
     protected virtual DefendLevel NeedDefendLevel => DefendLevel.NeedMyDefend;
 

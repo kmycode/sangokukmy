@@ -67,10 +67,10 @@ namespace SangokuKmy.Models.Data.Entities
     public short RushProbability { get; set; }
     
     [JsonProperty("rushAttack")]
-    public short RushAttack { get; set; }
+    public ushort RushAttack { get; set; }
     
     [JsonProperty("rushDefend")]
-    public short RushDefend { get; set; }
+    public ushort RushDefend { get; set; }
     
     [JsonProperty("rushAgainstAttack")]
     public short RushAgainstAttack { get; set; }
@@ -149,13 +149,13 @@ namespace SangokuKmy.Models.Data.Entities
       {
         return false;
       }
-      else if (this.ContinuousProbability < 14 - 1)
+      else if (this.ContinuousProbability < 10000 - 1)
       {
-        return RandomService.Next(0, 14 - this.ContinuousProbability) == 0;
+        return RandomService.Next(0, 10000) < this.ContinuousProbability;
       }
       else
       {
-        return RandomService.Next(0, 2) == 0;
+        return true;
       }
     }
 
@@ -165,19 +165,19 @@ namespace SangokuKmy.Models.Data.Entities
       {
         return false;
       }
-      else if (this.RushProbability < 19 - 1)
+      else if (this.RushProbability < 10000 - 1)
       {
-        return RandomService.Next(0, 19 - this.RushProbability) == 0;
+        return RandomService.Next(0, 10000) < this.RushProbability;
       }
       else
       {
-        return RandomService.Next(0, 2) == 0;
+        return true;
       }
     }
 
     public float CalcRushAttack()
     {
-      return this.RushAttack / 8.4f + 2.1f;
+      return this.RushAttack / 10000.0f;
     }
   }
 
@@ -198,7 +198,7 @@ namespace SangokuKmy.Models.Data.Entities
         WallDefend = (short)parts.Sum(p => p.Data.WallDefend),
         ContinuousProbability = (short)parts.Sum(p => p.Data.ContinuousProbability),
         RushProbability = (short)parts.Sum(p => p.Data.RushProbability),
-        RushAttack = (short)parts.Sum(p => p.Data.RushAttack),
+        RushAttack = (ushort)parts.Sum(p => p.Data.RushAttack),
         StrongEx = (short)parts.Sum(p => p.Data.StrongEx),
         IntellectEx = (short)parts.Sum(p => p.Data.IntellectEx),
         LeadershipEx = (short)parts.Sum(p => p.Data.LeadershipEx),

@@ -352,12 +352,14 @@ namespace SangokuKmy.Models.Commands
         if (mySoldierType.IsRush())
         {
           myDamage = 0;
-          targetDamage = Math.Min((int)(targetDamage * mySoldierType.CalcRushAttack()), enemy.SoldierNumber);
+          var damage = Math.Max(targetDamage, Math.Max(myAttack / 2, 14));
+          targetDamage = Math.Min((int)(damage * mySoldierType.CalcRushAttack()), enemy.SoldierNumber);
         }
         else if (targetSoldierType.IsRush())
         {
           targetDamage = 0;
-          myDamage = Math.Min((int)(myDamage * targetSoldierType.CalcRushAttack()), character.SoldierNumber);
+          var damage = Math.Max(myDamage, Math.Max(targetAttack / 2, 10));
+          myDamage = Math.Min((int)(damage * targetSoldierType.CalcRushAttack()), character.SoldierNumber);
         }
 
         character.SoldierNumber -= myDamage;
@@ -446,15 +448,16 @@ namespace SangokuKmy.Models.Commands
         }
         else
         {
+          if (character.AiType == CharacterAiType.TerroristRyofu)
+          {
+            myExperience += 10_000;
+          }
+
           if (!enemy.IsWall)
           {
             // 連戦
             canContinuous = mySoldierType.CanContinuous();
 
-            if (character.AiType == CharacterAiType.TerroristRyofu)
-            {
-              myExperience += 10_000;
-            }
             if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
             {
               targetExperience += 500;
@@ -558,6 +561,7 @@ namespace SangokuKmy.Models.Commands
       // 連戦
       if (canContinuous)
       {
+        await repo.SaveChangesAsync();
         continuousCount++;
         await this.ExecuteAsync(repo, character, options.Where(p => p.Type != 32).Append(new CharacterCommandParameter
         {

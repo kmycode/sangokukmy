@@ -246,7 +246,7 @@ namespace SangokuKmy.Models.Services
 
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
       var name = names[RandomService.Next(0, names.Length)];
-      if (RandomService.Next(0, 12) == 0)
+      if (RandomService.Next(0, 4) == 0)
       {
         name = "倭";
         charas.Add(CharacterAiType.TerroristRyofu);
@@ -290,11 +290,7 @@ namespace SangokuKmy.Models.Services
       var system = await repo.System.GetAsync();
       var targetCountryOptional = await repo.Country.GetAliveByIdAsync(town.CountryId);
 
-      if (!targetCountryOptional.HasData)
-      {
-        return false;
-      }
-      if (await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1)
+      if (targetCountryOptional.HasData && await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1)
       {
         return false;
       }
@@ -303,7 +299,6 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      var targetCountry = targetCountryOptional.Data;
       var countryColor = GetNotUsingCountryColor(await repo.Country.GetAllAsync());
       if (countryColor == 0)
       {
@@ -315,7 +310,14 @@ namespace SangokuKmy.Models.Services
       country.Name = $"{town.Name}農民団";
       country.AiType = CountryAiType.Farmers;
 
-      await mapLogAsync(EventType.AppendFarmers, $"<town>{town.Name}</town> の <country>{country.Name}</country> が <country>{targetCountry.Name}</country> に対して蜂起しました", true);
+      if (targetCountryOptional.HasData)
+      {
+        await mapLogAsync(EventType.AppendFarmers, $"<town>{town.Name}</town> の <country>{country.Name}</country> が <country>{targetCountryOptional.Data.Name}</country> に対して蜂起しました", true);
+      }
+      else
+      {
+        await mapLogAsync(EventType.AppendFarmers, $"<town>{town.Name}</town> の <country>{country.Name}</country> が蜂起し、独自勢力を築きました", true);
+      }
       await repo.SaveChangesAsync();
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
@@ -324,7 +326,10 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
 
-      await CreateWarQuicklyAsync(repo, country, targetCountry);
+      if (targetCountryOptional.HasData)
+      {
+        await CreateWarQuicklyAsync(repo, country, targetCountryOptional.Data);
+      }
 
       return true;
     }
@@ -343,14 +348,15 @@ namespace SangokuKmy.Models.Services
         .Distinct();
       var aiCountries = (await repo.Country.GetAllAsync())
         .Where(c => !c.HasOverthrown)
-        .Where(c => c.AiType != CountryAiType.Farmers)
+        .Where(c => c.AiType == CountryAiType.Farmers)
         .Select(c => c.Id);
 
       var allTowns = await repo.Town.GetAllAsync();
       var singleTownCountries = allTowns
         .GroupBy(t => t.CountryId)
         .Where(c => c.Count() <= 1)
-        .Select(c => c.Key);
+        .Select(c => c.Key)
+        .Where(c => c > 0);
       var towns = allTowns
         .Where(t => !singleTownCountries.Contains(t.CountryId))
         .Where(t => !aiCountries.Contains(t.CountryId))
@@ -363,7 +369,7 @@ namespace SangokuKmy.Models.Services
       foreach (var town in towns)
       {
         if ((await repo.Town.GetDefendersAsync(town.Id)).Count > 0 ||
-            (await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1))
+            (town.CountryId > 0 && await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1))
         {
           removeTowns.Add(town);
         }
