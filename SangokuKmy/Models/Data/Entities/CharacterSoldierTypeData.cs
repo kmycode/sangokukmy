@@ -165,9 +165,9 @@ namespace SangokuKmy.Models.Data.Entities
       {
         return false;
       }
-      else if (this.RushProbability < 18 - 1)
+      else if (this.RushProbability < 19 - 1)
       {
-        return RandomService.Next(0, 18 - this.RushProbability) == 0;
+        return RandomService.Next(0, 19 - this.RushProbability) == 0;
       }
       else
       {
