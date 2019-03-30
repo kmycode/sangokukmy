@@ -73,7 +73,7 @@ namespace SangokuKmy.Models.Updates
               old.Data.NextTargetTownId = 0;
             }
           }
-          old.Data.IntNextResetGameDate += RandomService.Next(20, 40);
+          old.Data.IntNextResetGameDate = this.GameDateTime.ToInt() + RandomService.Next(20, 40);
         }
 
         targetOrder = old.Data.TargetOrder;
@@ -198,7 +198,7 @@ namespace SangokuKmy.Models.Updates
           var match = this.towns
             .Where(t => t.CountryId != this.Country.Id)
             .Where(t => mainWars.Contains(t.CountryId) && this.GetStreet(this.towns, this.data.MainTown, (Town)t, tt => tt.CountryId == this.Country.Id || mainWars.Contains(tt.CountryId)) != null)
-            .OrderByDescending(t => t.People * (t.Security * t.Technology))
+            .OrderByDescending(t => t.People * (t.Security + t.Technology))
             .FirstOrDefault();
           if (match != null)
           {
