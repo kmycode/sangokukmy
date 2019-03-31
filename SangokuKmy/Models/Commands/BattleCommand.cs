@@ -355,7 +355,7 @@ namespace SangokuKmy.Models.Commands
         }
         else if (targetSoldierType.IsRush())
         {
-          targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 8), enemy.SoldierNumber);
+          myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack()), 8), character.SoldierNumber);
         }
 
         character.SoldierNumber -= myDamage;
