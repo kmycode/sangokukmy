@@ -405,8 +405,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 3,
           BaseDefend = 2,
-          WallAttack = 1,
-          WallDefend = 1,
+          WallAttack = 0,
+          WallDefend = 0,
           RushProbability = 30,
           RushAttack = 1800,
           ContinuousProbability = 80,
@@ -423,7 +423,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 4,
           BaseDefend = 3,
-          WallAttack = 3,
+          WallAttack = 1,
           WallDefend = 1,
           RushProbability = 48,
           RushAttack = 2400,
@@ -441,8 +441,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 6,
           BaseDefend = 4,
-          WallAttack = 6,
-          WallDefend = 2,
+          WallAttack = 2,
+          WallDefend = 1,
           RushProbability = 60,
           RushAttack = 3400,
           ContinuousProbability = 860,
