@@ -62,6 +62,11 @@ namespace SangokuKmy.Models.Updates
 
     protected override async Task ActionAsync(MainRepository repo)
     {
+      if (await this.InputDefendLoopAsync(repo, 5000))
+      {
+        return;
+      }
+
       if (await this.InputDefendAsync(repo))
       {
         return;
@@ -219,6 +224,11 @@ namespace SangokuKmy.Models.Updates
         return;
       }
 
+      if (await this.InputDefendLoopAsync(repo, 20000))
+      {
+        return;
+      }
+
       if (await this.InputDefendAsync(repo, DefendLevel.NeedMyDefend))
       {
         return;
@@ -262,6 +272,11 @@ namespace SangokuKmy.Models.Updates
       }
 
       if (this.InputSecurity())
+      {
+        return;
+      }
+
+      if (await this.InputDefendLoopAsync(repo, 20000))
       {
         return;
       }
