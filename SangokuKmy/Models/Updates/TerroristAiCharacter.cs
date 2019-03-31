@@ -186,9 +186,9 @@ namespace SangokuKmy.Models.Updates
 
     protected override SoldierType FindSoldierType()
     {
-      if (this.Town.Technology >= 999)
+      if (this.Town.Technology >= 800)
       {
-        return SoldierType.StrongGuards;
+        return SoldierType.Intellect;
       }
       if (this.Town.Technology >= 500)
       {
