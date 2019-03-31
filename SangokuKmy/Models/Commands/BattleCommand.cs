@@ -303,7 +303,7 @@ namespace SangokuKmy.Models.Commands
           }
           else
           {
-            enemy.SoldierType = SoldierType.Common;
+            enemy.SoldierType = SoldierType.WallCommon;
             enemy.Strong = trendStrong / 2;
             enemy.Proficiency = 0;
             isNoDamage = true;
@@ -328,7 +328,7 @@ namespace SangokuKmy.Models.Commands
           wallChara.SoldierType = defenderCache.SoldierType;
           wallChara.SoldierNumber = defenderCache.SoldierNumber;
           wallChara.Proficiency = defenderCache.Proficiency;
-          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(SoldierType.WallCommon);
+          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(enemy.SoldierType);
         }
 
         var (ka, kd) = mySoldierType.CalcCorrections(character, targetSoldierType);
