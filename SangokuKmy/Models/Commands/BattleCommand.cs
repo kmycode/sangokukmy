@@ -351,15 +351,11 @@ namespace SangokuKmy.Models.Commands
         // 突撃
         if (mySoldierType.IsRush())
         {
-          myDamage = 0;
-          var damage = Math.Max(targetDamage, Math.Max(myAttack / 2, 14));
-          targetDamage = Math.Min((int)(damage * mySoldierType.CalcRushAttack()), enemy.SoldierNumber);
+          targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 14), enemy.SoldierNumber);
         }
         else if (targetSoldierType.IsRush())
         {
-          targetDamage = 0;
-          var damage = Math.Max(myDamage, Math.Max(targetAttack / 2, 10));
-          myDamage = Math.Min((int)(damage * targetSoldierType.CalcRushAttack()), character.SoldierNumber);
+          targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 8), enemy.SoldierNumber);
         }
 
         character.SoldierNumber -= myDamage;
