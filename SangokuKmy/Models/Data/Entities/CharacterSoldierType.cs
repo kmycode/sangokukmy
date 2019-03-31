@@ -405,7 +405,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 3,
           BaseDefend = 2,
-          RushProbability = 8,
+          RushProbability = 45,
           RushAttack = 12,
           ContinuousProbability = 60,
           StrongEx = 1,
@@ -421,7 +421,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 4,
           BaseDefend = 3,
-          RushProbability = 18,
+          RushProbability = 60,
           RushAttack = 15,
           ContinuousProbability = 160,
           StrongEx = 1,
@@ -437,7 +437,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 6,
           BaseDefend = 4,
-          RushProbability = 28,
+          RushProbability = 70,
           RushAttack = 22,
           ContinuousProbability = 320,
           StrongEx = 1,
