@@ -213,10 +213,10 @@ namespace SangokuKmy.Models.Updates
 
             // 収入から政務官収入をひく
             var secretaries = country.Characters.Where(c => c.AiType.IsSecretary());
-            if (secretaries.Any())
+            var scouters = await repo.Country.GetScoutersAsync(country.Country.Id);
+            if (secretaries.Any() || scouters.Any())
             {
-              var income = Config.SecretaryCost;
-              foreach (var character in secretaries)
+              bool PayAndCanContinue(int income)
               {
                 var isContinue = false;
                 if (country.Country.SafeMoney >= income)
@@ -234,6 +234,15 @@ namespace SangokuKmy.Models.Updates
                     country.Country.SafeMoney = 0;
                   }
                 }
+                return isContinue;
+              }
+
+              var secretaryIncome = Config.SecretaryCost;
+              var scoutersIncome = Config.ScouterCost;
+              foreach (var character in secretaries)
+              {
+                var isContinue = PayAndCanContinue(secretaryIncome);
+
                 // 勤務を継続するか？
                 if (isContinue)
                 {
@@ -244,6 +253,18 @@ namespace SangokuKmy.Models.Updates
                 {
                   character.Money = 0;
                   character.Rice = 0;
+                }
+              }
+              foreach (var scouter in scouters)
+              {
+                var isContinue = PayAndCanContinue(scoutersIncome);
+
+                if (!isContinue)
+                {
+                  repo.Country.RemoveScouter(scouter);
+
+                  scouter.IsRemoved = true;
+                  await StatusStreaming.Default.SendCountryAsync(ApiData.From(scouter), country.Country.Id);
                 }
               }
             }
@@ -644,6 +665,7 @@ namespace SangokuKmy.Models.Updates
           if (isCreated)
           {
             system.TerroristCount++;
+            await repo.SaveChangesAsync();
           }
           else
           {
@@ -654,13 +676,49 @@ namespace SangokuKmy.Models.Updates
         // 農民反乱
         if (RandomService.Next(0, 12 * 24) == 0)
         {
-          await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          var isCreated = await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          if (isCreated)
+          {
+            await repo.SaveChangesAsync();
+          }
         }
 
         // 戦争状態にないAI国家がどっかに布告するようにする
         if (allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human))
         {
-          await AiService.CreateWarIfNotWarAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          var isCreated = await AiService.CreateWarIfNotWarAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          if (isCreated)
+          {
+            await repo.SaveChangesAsync();
+          }
+        }
+      }
+
+      // 斥候
+      {
+        var scouters = await repo.Country.GetScoutersAsync();
+        foreach (var scouter in scouters)
+        {
+          var countryOptional = await repo.Country.GetByIdAsync(scouter.CountryId);
+          var townOptional = await repo.Town.GetByIdAsync(scouter.TownId);
+          if (!countryOptional.HasData || !townOptional.HasData)
+          {
+            repo.Country.RemoveScouter(scouter);
+          }
+
+          var scoutedTown = ScoutedTown.From(townOptional.Data);
+          scoutedTown.ScoutedDateTime = system.GameDateTime;
+          scoutedTown.ScoutedCountryId = scouter.CountryId;
+          scoutedTown.ScoutMethod = ScoutMethod.Scouter;
+
+          await repo.ScoutedTown.AddScoutAsync(scoutedTown);
+          await repo.SaveChangesAsync();
+
+          var savedScoutedTown = (await repo.ScoutedTown.GetByTownIdAsync(townOptional.Data.Id, scouter.CountryId)).Data;
+          if (savedScoutedTown != null)
+          {
+            await StatusStreaming.Default.SendCountryAsync(ApiData.From(savedScoutedTown), scouter.CountryId);
+          }
         }
       }
 

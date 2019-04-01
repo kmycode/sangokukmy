@@ -104,7 +104,7 @@ namespace SangokuKmy.Models.Services
       await repo.Character.AddCharacterIconAsync(icon);
     }
 
-    public static async Task CreateWarIfNotWarAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
+    public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
     {
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var countries = (await repo.Country.GetAllAsync())
@@ -120,10 +120,12 @@ namespace SangokuKmy.Models.Services
         {
           if (await CreateWarIfNotWarAsync(repo, country, town, mapLogAsync))
           {
-            break;
+            return true;
           }
         }
       }
+
+      return false;
     }
 
     public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, Country self, Town selfTown, Func<EventType, string, bool, Task> mapLogAsync)

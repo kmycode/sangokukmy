@@ -265,5 +265,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 政策開発
     /// </summary>
     Policy = 44,
+
+    /// <summary>
+    /// 斥候追加
+    /// </summary>
+    AddScouter = 45,
+
+    /// <summary>
+    /// 斥候削除
+    /// </summary>
+    RemoveScouter = 46,
   }
 }

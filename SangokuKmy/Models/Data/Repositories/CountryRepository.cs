@@ -416,6 +416,71 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 斥候を追加する
+    /// </summary>
+    /// <param name="scouter">斥候</param>
+    public async Task AddScouterAsync(CountryScouter scouter)
+    {
+      try
+      {
+        await this.container.Context.CountryScouters.AddAsync(scouter);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 斥候を削除する
+    /// </summary>
+    /// <param name="scouter">斥候</param>
+    public void RemoveScouter(CountryScouter scouter)
+    {
+      try
+      {
+        this.container.Context.CountryScouters.Remove(scouter);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 斥候を取得する
+    /// </summary>
+    public async Task<IReadOnlyList<CountryScouter>> GetScoutersAsync()
+    {
+      try
+      {
+        return await this.container.Context.CountryScouters.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 斥候を取得する
+    /// </summary>
+    /// <param name="countryId">国ID</param>
+    public async Task<IReadOnlyList<CountryScouter>> GetScoutersAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.CountryScouters.Where(s => s.CountryId == countryId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 国のデータを削除する
     /// </summary>
     public void RemoveDataByCountryId(uint countryId)
