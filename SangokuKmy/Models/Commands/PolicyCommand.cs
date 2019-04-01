@@ -5,6 +5,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Services;
+using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -55,6 +56,8 @@ namespace SangokuKmy.Models.Commands
         }
 
         await game.CharacterLogAsync($"<country>{country.Name}</country> の政策ポイントを <num>+{add}</num> 上げました");
+
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
       }
       else
       {
