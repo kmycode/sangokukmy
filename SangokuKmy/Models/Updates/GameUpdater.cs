@@ -349,7 +349,7 @@ namespace SangokuKmy.Models.Updates
             func(targetTown, val2);
           }
 
-          var eventId = RandomService.Next(0, 6);
+          var eventId = RandomService.Next(0, 7);
           switch (eventId)
           {
             case 0:
@@ -397,6 +397,16 @@ namespace SangokuKmy.Models.Updates
               SetEvents(1.24f, 1.12f, 1.46f, 1.27f, CountryPolicyType.Economy, (town, val) =>
               {
                 town.Agriculture = Math.Min((int)(town.Agriculture * val), town.AgricultureMax);
+              });
+              break;
+            case 6:
+              await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で賊が出現しました");
+              SetEvents(0.76f, 0.86f, 1.0f, 1.0f, CountryPolicyType.SaveWall, (town, val) =>
+              {
+                town.Agriculture = (int)(town.Agriculture * val);
+                town.Commercial = (int)(town.Commercial * val);
+                town.People = (int)(town.People * val);
+                town.Security = (short)(town.Security * val);
               });
               break;
           }
