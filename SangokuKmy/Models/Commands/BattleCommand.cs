@@ -132,6 +132,7 @@ namespace SangokuKmy.Models.Commands
 
       // 連戦カウント
       var continuousCount = options.FirstOrDefault(o => o.Type == 32)?.NumberValue ?? 1;
+      var continuousTurns = options.FirstOrDefault(o => o.Type == 33)?.NumberValue ?? 1;
 
       var log = new BattleLog
       {
@@ -277,9 +278,10 @@ namespace SangokuKmy.Models.Commands
 
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");
       
-      for (var i = 1; i <= 50 && enemy.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
+      for (var i = continuousTurns; i <= 50 && enemy.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
       {
         var isNoDamage = false;
+        continuousTurns = i;
 
         if (enemy.IsWall)
         {
@@ -557,10 +559,15 @@ namespace SangokuKmy.Models.Commands
       {
         await repo.SaveChangesAsync();
         continuousCount++;
-        await this.ExecuteAsync(repo, character, options.Where(p => p.Type != 32).Append(new CharacterCommandParameter
+        await this.ExecuteAsync(repo, character, options.Where(p => p.Type != 32 && p.Type != 33).Append(new CharacterCommandParameter
         {
           Type = 32,
           NumberValue = continuousCount,
+        })
+        .Append(new CharacterCommandParameter
+        {
+          Type = 33,
+          NumberValue = continuousTurns,
         }), game);
       }
     }
@@ -621,7 +628,7 @@ namespace SangokuKmy.Models.Commands
       var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { command = "move", townId, });
 
       // 連戦カウンター
-      if (options.Any(p => p.Type == 32))
+      if (options.Any(p => p.Type == 32 || p.Type == 33))
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }
