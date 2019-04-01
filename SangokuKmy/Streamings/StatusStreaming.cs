@@ -79,10 +79,11 @@ namespace SangokuKmy.Streamings
     /// 全員に都市データを送信する。その国以外の武将には簡易データのみが送られる
     /// </summary>
     /// <param name="data">都市データ</param>
-    public async Task SendTownToAllAsync(ApiData<Town> data)
+    public async Task SendTownToAllAsync(ApiData<Town> data, MainRepository repo)
     {
-      await this.SendAsync(data, c => c.ExtraData.CountryId == data.Data.CountryId);
-      await this.SendAsync(ApiData.From(new TownForAnonymous(data.Data)), c => c.ExtraData.CountryId != data.Data.CountryId);
+      var townCharacters = (await repo.Town.GetCharactersAsync(data.Data.Id)).Where(c => c.CountryId != data.Data.CountryId);
+      await this.SendAsync(data, c => c.ExtraData.CountryId == data.Data.CountryId || townCharacters.Any(tc => tc.Id == c.ExtraData.Id));
+      await this.SendAsync(ApiData.From(new TownForAnonymous(data.Data)), c => c.ExtraData.CountryId != data.Data.CountryId && !townCharacters.Any(tc => tc.Id == c.ExtraData.Id));
     }
 
     /// <summary>
