@@ -401,7 +401,7 @@ namespace SangokuKmy.Models.Updates
               break;
             case 6:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で賊が出現しました");
-              SetEvents(0.76f, 0.86f, 1.0f, 1.0f, CountryPolicyType.SaveWall, (town, val) =>
+              SetEvents(0.76f, 0.86f, 1.0f, 1.0f, CountryPolicyType.AntiGang, (town, val) =>
               {
                 town.Agriculture = (int)(town.Agriculture * val);
                 town.Commercial = (int)(town.Commercial * val);

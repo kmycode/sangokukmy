@@ -66,6 +66,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 災害対策
     /// </summary>
     SaveWall = 6,
+
+    /// <summary>
+    /// 賊の監視
+    /// </summary>
+    AntiGang = 7,
   }
 
   public class CountryPolicyTypeInfo
@@ -115,6 +120,12 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.SaveWall,
         Name = "災害対策",
+        RequestedPoint = 4000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.AntiGang,
+        Name = "賊の監視",
         RequestedPoint = 4000,
       },
     };
