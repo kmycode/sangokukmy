@@ -504,7 +504,7 @@ namespace SangokuKmy.Models.Updates
                 town.TownBuilding == TownBuilding.TerroristHouse)
             {
               var charas = await repo.Town.GetCharactersAsync(town.Id);
-              var shortSize = (short)(size * 7);
+              var shortSize = (short)(size * 11);
               foreach (var chara in charas)
               {
                 if (town.TownBuilding == TownBuilding.TrainStrong)
