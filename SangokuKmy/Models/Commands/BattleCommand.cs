@@ -552,7 +552,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       // 更新された都市データを通知
-      await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown));
+      await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown), repo);
 
       // 連戦
       if (canContinuous)
