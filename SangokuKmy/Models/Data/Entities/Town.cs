@@ -302,6 +302,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 太守府
     /// </summary>
+    [Obsolete]
     ViceroyHouse = 14,
 
     /// <summary>

@@ -191,13 +191,6 @@ namespace SangokuKmy.Models.Updates
                 .Sum(t => {
                   var val = (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People * (t.Id == country.Country.CapitalTownId ? 1.4f : 1.0f) / 10000;
 
-                  // 太守府ハンデ
-                  if (t.Id == country.Country.CapitalTownId && t.TownBuilding == TownBuilding.ViceroyHouse)
-                  {
-                    var size = (float)t.TownBuildingValue / Config.TownBuildingMax;
-                    val = (int)(val * size);
-                  }
-
                   return val;
                 }),
               AllContributions = country.Characters.Where(c => !c.AiType.IsSecretary()).Sum(c => c.Contribution),
@@ -426,22 +419,6 @@ namespace SangokuKmy.Models.Updates
           var ricePriceMin = (int)(ricePriceBase * 0.8f);
           foreach (var town in allTowns)
           {
-            // 太守府
-            if (town.TownBuilding == TownBuilding.ViceroyHouse)
-            {
-              var size = (float)town.TownBuildingValue / Config.TownBuildingMax;
-              town.Security = (short)Math.Max(0, town.Security - 12 * (1.0f - size));
-              town.People = (int)Math.Max(0, town.People - 800 * (1.0f - size));
-              town.Agriculture = (short)Math.Max(0, town.Agriculture - 30 * (1.0f - size));
-              town.Commercial = (short)Math.Max(0, town.Commercial - 30 * (1.0f - size));
-              town.Technology = (short)Math.Max(0, town.Technology - 30 * (1.0f - size));
-              if (town.CountryId > 0)
-              {
-                town.Wall = (short)Math.Max(0, town.Wall - 30 * (1.0f - size));
-                town.WallGuard = (short)Math.Max(0, town.WallGuard - 30 * (1.0f - size));
-              }
-            }
-
             // 相場
             if (RandomService.Next(0, 2) == 0)
             {
