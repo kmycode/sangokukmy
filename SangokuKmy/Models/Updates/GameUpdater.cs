@@ -169,9 +169,11 @@ namespace SangokuKmy.Models.Updates
       var allCharacters = await repo.Character.GetAllAliveAsync();
       var allTowns = await repo.Town.GetAllAsync();
       var allCountries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown).ToArray();
+      var allPolicies = await repo.Country.GetPoliciesAsync();
       var countryData = allCountries
         .GroupJoin(allTowns, c => c.Id, t => t.CountryId, (c, ts) => new { Country = c, Towns = ts, })
-        .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, });
+        .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, })
+        .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, });
 
       if (system.GameDateTime.Year >= Config.UpdateStartYear)
       {
@@ -341,81 +343,68 @@ namespace SangokuKmy.Models.Updates
           var targetTown = allTowns[RandomService.Next(0, allTowns.Count)];
           var targetTowns = allTowns.GetAroundTowns(targetTown);
 
-          float val, val2;
+          void SetEvents(float size, float aroundSize, float sizeIfPolicy, float aroundSizeIfPolicy, CountryPolicyType policy, Action<TownBase, float> func)
+          {
+            foreach (var town in targetTowns)
+            {
+              var cd = countryData.FirstOrDefault(c => c.Country.Id == town.CountryId);
+              var val = cd?.Policies.Any(p => p.Type == policy) == true ? aroundSizeIfPolicy : aroundSize;
+              func(town, val);
+            }
+            var cd2 = countryData.FirstOrDefault(c => c.Country.Id == targetTown.Id);
+            var val2 = cd2?.Policies.Any(p => p.Type == policy) == true ? sizeIfPolicy : size;
+            func(targetTown, val2);
+          }
 
           var eventId = RandomService.Next(0, 6);
           switch (eventId)
           {
             case 0:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺でいなごの大群が畑を襲いました");
-              foreach (var town in targetTowns)
+              SetEvents(0.75f, 0.85f, 1.0f, 1.0f, CountryPolicyType.Economy, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.Economy ? 0.85f : 0.85f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
                 town.Agriculture = (int)(town.Agriculture * val);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 0.75f : 0.75f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
-              targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
+              });
               break;
             case 1:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で洪水がおこりました");
-              foreach (var town in targetTowns)
+              SetEvents(0.85f, 0.94f, 1.0f, 1.0f, CountryPolicyType.SaveWall, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.SaveWall ? 0.94f : 0.94f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.06f;
                 town.Agriculture = (int)(town.Agriculture * val);
                 town.Commercial = (int)(town.Commercial * val);
                 town.Wall = (int)(town.Wall * val);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.SaveWall ? 0.85f : 0.85f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
-              targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
-              targetTown.Commercial = (int)(targetTown.Commercial * val2);
-              targetTown.Wall = (int)(targetTown.Wall * val2);
+              });
               break;
             case 2:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> を中心に疫病が広がっています。町の人も苦しんでいます");
-              foreach (var town in targetTowns)
+              SetEvents(0.85f, 0.94f, 1.0f, 1.0f, CountryPolicyType.Economy, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.Economy ? 0.85f : 0.85f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
                 town.People = (int)(town.People * val);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 0.75f : 0.75f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
-              targetTown.People = (int)(targetTown.People * val2);
+              });
               break;
             case 3:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺は、今年は豊作になりそうです");
-              foreach (var town in targetTowns)
+              SetEvents(1.24f, 1.12f, 1.46f, 1.27f, CountryPolicyType.Economy, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.Economy ? 1.12f : 1.12f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
                 town.Agriculture = Math.Min((int)(town.Agriculture * val), town.AgricultureMax);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 1.24f : 1.24f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.22f;
-              targetTown.Agriculture = Math.Min((int)(targetTown.Agriculture * val2), targetTown.AgricultureMax);
+              });
               break;
             case 4:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で地震が起こりました");
-              foreach (var town in targetTowns)
+              SetEvents(0.76f, 0.86f, 1.0f, 1.0f, CountryPolicyType.SaveWall, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.SaveWall ? 0.86f : 0.86f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.14f;
                 town.Agriculture = (int)(town.Agriculture * val);
                 town.Commercial = (int)(town.Commercial * val);
                 town.Wall = (int)(town.Wall * val);
-                val = town.TownBuilding != TownBuilding.SaveWall ? 0.94f : 0.94f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.06f;
                 town.People = (int)(town.People * val);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.SaveWall ? 0.76f : 0.76f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.19f;
-              targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
-              targetTown.Commercial = (int)(targetTown.Commercial * val2);
-              targetTown.Wall = (int)(targetTown.Wall * val2);
-              targetTown.People = (int)(targetTown.People * val2);
+              });
               break;
             case 5:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺の市場が賑わっています");
-              foreach (var town in targetTowns)
+              SetEvents(1.24f, 1.12f, 1.46f, 1.27f, CountryPolicyType.Economy, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.Economy ? 1.12f : 1.12f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
-                town.Commercial = Math.Min((int)(town.Commercial * val), town.CommercialMax);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 1.24f : 1.24f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.22f;
-              targetTown.Commercial = Math.Min((int)(targetTown.Commercial * val2), targetTown.CommercialMax);
+                town.Agriculture = Math.Min((int)(town.Agriculture * val), town.AgricultureMax);
+              });
               break;
           }
 

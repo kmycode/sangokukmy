@@ -56,6 +56,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// 人材開発
     /// </summary>
     HumanDevelopment = 4,
+
+    /// <summary>
+    /// 経済評論
+    /// </summary>
+    Economy = 5,
+
+    /// <summary>
+    /// 災害対策
+    /// </summary>
+    SaveWall = 6,
   }
 
   public class CountryPolicyTypeInfo
@@ -75,26 +85,38 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.Storage,
         Name = "貯蔵",
-        RequestedPoint = 2000,
+        RequestedPoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Scouter,
         Name = "密偵",
-        RequestedPoint = 2000,
+        RequestedPoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.SoldierDevelopment,
         Name = "兵種開発",
-        RequestedPoint = 2000,
+        RequestedPoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.HumanDevelopment,
         Name = "人材開発",
+        RequestedPoint = 4000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Economy,
+        Name = "経済評論",
         RequestedPoint = 2000,
-      }
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.SaveWall,
+        Name = "災害対策",
+        RequestedPoint = 4000,
+      },
     };
 
     public static Optional<CountryPolicyTypeInfo> Get(CountryPolicyType type)

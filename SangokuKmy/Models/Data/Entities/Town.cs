@@ -255,6 +255,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 経済評論
     /// </summary>
+    [Obsolete]
     Economy = 5,
 
     /// <summary>
@@ -295,6 +296,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 災害対策拠点
     /// </summary>
+    [Obsolete]
     SaveWall = 13,
 
     /// <summary>
