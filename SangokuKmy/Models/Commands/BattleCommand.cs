@@ -454,7 +454,10 @@ namespace SangokuKmy.Models.Commands
           if (!enemy.IsWall)
           {
             // 連戦
-            canContinuous = mySoldierType.CanContinuous();
+            if (continuousTurns < 50)
+            {
+              canContinuous = mySoldierType.CanContinuous();
+            }
 
             if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
             {
