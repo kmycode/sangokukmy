@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Updates
 {
@@ -46,7 +47,7 @@ namespace SangokuKmy.Models.Updates
       {
         if (this.CanSoldierForce)
         {
-          this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * 5 + 500);
+          this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * Config.SoldierPeopleCost + 500);
           this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10 + 1));
           await repo.SaveChangesAsync();
         }
@@ -264,7 +265,7 @@ namespace SangokuKmy.Models.Updates
               // 兵を補充
               if (this.CanSoldierForce)
               {
-                this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * 5 + 500);
+                this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * Config.SoldierPeopleCost + 500);
                 this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10 + 1));
                 await repo.SaveChangesAsync();
               }

@@ -68,5 +68,7 @@ namespace SangokuKmy.Models.Common
     public static int ScouterMax { get; } = 2;
 
     public static int ScouterCost { get; } = 2000;
+
+    public static int SoldierPeopleCost { get; } = 6;
   }
 }

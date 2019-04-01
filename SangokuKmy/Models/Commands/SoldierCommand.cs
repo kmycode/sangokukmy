@@ -7,6 +7,7 @@ using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -78,7 +79,7 @@ namespace SangokuKmy.Models.Commands
         {
           await game.CharacterLogAsync("所持金が足りません。");
         }
-        else if (town.People < soldierNumber * 5)
+        else if (town.People < soldierNumber * Config.SoldierPeopleCost)
         {
           await game.CharacterLogAsync("農民が足りません。");
         }
@@ -135,7 +136,7 @@ namespace SangokuKmy.Models.Commands
           }
           character.Contribution += 10;
           character.Money -= add * soldierTypeData.Money;
-          town.People -= add * 5;
+          town.People -= add * Config.SoldierPeopleCost;
           town.Security -= (short)(add / 10);
 
           await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");
