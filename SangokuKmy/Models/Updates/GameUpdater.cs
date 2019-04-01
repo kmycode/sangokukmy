@@ -521,14 +521,14 @@ namespace SangokuKmy.Models.Updates
             }
             else if (town.TownBuilding == TownBuilding.RepairWall)
             {
-              town.Wall = Math.Min((int)(town.Wall + 20 * size), town.WallMax);
-              town.WallGuard = Math.Min((int)(town.WallGuard + 20 * size), town.WallGuardMax);
+              town.Wall = Math.Min((int)(town.Wall + 15 * size), town.WallMax);
+              town.WallGuard = Math.Min((int)(town.WallGuard + 15 * size), town.WallGuardMax);
             }
             else if (town.TownBuilding == TownBuilding.MilitaryStation)
             {
               if (town.Security >= 10)
               {
-                town.Security = (short)Math.Min((int)(town.Security + 5 * size), 100);
+                town.Security = (short)Math.Min((int)(town.Security + 8 * size), 100);
               }
             }
           }
