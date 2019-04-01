@@ -37,7 +37,7 @@ namespace SangokuKmy.Models.Common
     /// <summary>
     /// 次の階級までに必要な階級値
     /// </summary>
-    public static int NextLank { get; } = 800;
+    public static int NextLank { get; } = 1200;
 
     /// <summary>
     /// 建国後の戦闘禁止期間
