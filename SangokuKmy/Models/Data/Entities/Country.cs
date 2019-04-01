@@ -117,6 +117,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("safe_money")]
     [JsonProperty("safeMoney")]
     public int SafeMoney { get; set; }
+
+    /// <summary>
+    /// 政策ポイント
+    /// </summary>
+    [Column("policy_point")]
+    [JsonProperty("policyPoint")]
+    public int PolicyPoint { get; set; }
   }
 
   public enum CountryAiType : short

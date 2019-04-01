@@ -243,5 +243,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 給与不足による政務官削除
     /// </summary>
     SecretaryRemovedWithNoSalary = 30,
+
+    /// <summary>
+    /// 新しい政策
+    /// </summary>
+    Policy = 32,
   }
 }

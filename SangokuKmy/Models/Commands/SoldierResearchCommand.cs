@@ -54,17 +54,17 @@ namespace SangokuKmy.Models.Commands
       }
       var soldierTypeData = soldierType.ToParts().ToData();
 
-      var buildingSize = await CountryService.GetCountryBuildingSizeAsync(repo, character.CountryId, CountryBuilding.SoldierLaboratory);
-      if (buildingSize <= 0.0f)
+      var policies = await repo.Country.GetPoliciesAsync(character.CountryId);
+      if (!policies.Any(p => p.Type == CountryPolicyType.SoldierDevelopment))
       {
-        await game.CharacterLogAsync($"兵種研究をしようとしましたが、対応する国家施設がないか、必要な耐久がありません");
+        await game.CharacterLogAsync($"兵種研究をしようとしましたが、対応する政策が導入されていません");
         return;
       }
 
       if (soldierType.Status == CharacterSoldierStatus.InDraft)
       {
-        var researchMoney = (int)(soldierTypeData.ResearchMoneyBase / buildingSize);
-        var researchCost = (int)(soldierTypeData.ResearchCostBase / buildingSize);
+        var researchMoney = soldierTypeData.ResearchMoney;
+        var researchCost = soldierTypeData.ResearchCost;
 
         if (character.Money < researchMoney)
         {
@@ -72,7 +72,7 @@ namespace SangokuKmy.Models.Commands
           return;
         }
 
-        character.Money -= researchMoney;
+        character.Money = character.Money - researchMoney;
         soldierType.ResearchCost = (short)researchCost;
         soldierType.Status = CharacterSoldierStatus.Researching;
         await game.CharacterLogAsync($"兵種 {soldierType.Name} の研究の初期費用として <num>{researchMoney}</num> を消費しました");
@@ -117,7 +117,7 @@ namespace SangokuKmy.Models.Commands
       var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
       var type = options.FirstOrDefault(o => o.Type == 1).Or(ErrorCode.LackOfParameterError).NumberValue;
 
-      if (!(await repo.Town.GetByCountryIdAsync(country.Id)).Any(t => t.CountryBuilding == CountryBuilding.SoldierLaboratory))
+      if (!(await repo.Country.GetPoliciesAsync(country.Id)).Any(p => p.Type == CountryPolicyType.SoldierDevelopment))
       {
         ErrorCode.InvalidOperationError.Throw();
       }

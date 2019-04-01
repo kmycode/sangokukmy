@@ -189,48 +189,6 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("town_building_value")]
     [JsonProperty("townBuildingValue")]
     public int TownBuildingValue { get; set; }
-
-    /// <summary>
-    /// 国家施設
-    /// </summary>
-    [Column("country_building")]
-    [JsonIgnore]
-    public CountryBuilding CountryBuilding { get; set; }
-
-    /// <summary>
-    /// 国家施設（JSON用）
-    /// </summary>
-    [NotMapped]
-    [JsonProperty("countryBuilding")]
-    public short ApiCountryBuilding { get => (short)this.CountryBuilding; set => this.CountryBuilding = (CountryBuilding)value; }
-
-    /// <summary>
-    /// 国家施設の耐久
-    /// </summary>
-    [Column("country_building_value")]
-    [JsonProperty("countryBuildingValue")]
-    public int CountryBuildingValue { get; set; }
-
-    /// <summary>
-    /// 研究施設
-    /// </summary>
-    [Column("country_laboratory")]
-    [JsonIgnore]
-    public CountryLaboratory CountryLaboratory { get; set; }
-
-    /// <summary>
-    /// 研究施設（JSON用）
-    /// </summary>
-    [NotMapped]
-    [JsonProperty("countryLaboratory")]
-    public short ApiCountryLaboratory { get => (short)this.CountryLaboratory; set => this.CountryLaboratory = (CountryLaboratory)value; }
-
-    /// <summary>
-    /// 研究施設の耐久
-    /// </summary>
-    [Column("country_laboratory_value")]
-    [JsonProperty("countryLaboratoryValue")]
-    public int CountryLaboratoryValue { get; set; }
   }
 
   [Table("town")]
@@ -348,41 +306,6 @@ namespace SangokuKmy.Models.Data.Entities
     /// 蛮族の家
     /// </summary>
     TerroristHouse = 15,
-  }
-
-  public enum CountryBuilding : short
-  {
-    None = 0,
-
-    /// <summary>
-    /// 国庫
-    /// </summary>
-    CountrySafe = 1,
-
-    /// <summary>
-    /// 諜報府
-    /// </summary>
-    Spy = 2,
-
-    /// <summary>
-    /// 職業斡旋所
-    /// </summary>
-    Work = 3,
-
-    /// <summary>
-    /// 兵種研究所
-    /// </summary>
-    SoldierLaboratory = 4,
-
-    /// <summary>
-    /// 政務官
-    /// </summary>
-    Secretary = 5,
-  }
-
-  public enum CountryLaboratory : short
-  {
-    None = 0,
   }
 
   public static class TownExtensions

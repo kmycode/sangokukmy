@@ -239,18 +239,6 @@ namespace SangokuKmy.Models.Services
         var r = RandomService.Next(0, b.Length);
         town.TownBuilding = b[r];
       }
-      {
-        // 国家施設
-        var b = new CountryBuilding[]
-        {
-          CountryBuilding.CountrySafe,
-          CountryBuilding.Secretary,
-          CountryBuilding.SoldierLaboratory,
-          CountryBuilding.Spy,
-        };
-        var r = RandomService.Next(0, b.Length);
-        town.CountryBuilding = b[r];
-      }
       return town;
     }
 

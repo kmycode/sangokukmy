@@ -39,7 +39,7 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      var max = await CountryService.GetSafeMaxAsync(repo, country.Id);
+      var max = Config.CountrySafeMax;
       var money = options.FirstOrDefault(o => o.Type == 1)?.NumberValue ?? 0;
       if (money > character.Money)
       {
@@ -75,7 +75,7 @@ namespace SangokuKmy.Models.Commands
       {
         ErrorCode.InvalidParameterError.Throw();
       }
-      if (!(await repo.Town.GetByCountryIdAsync(country.Id)).Any(t => t.CountryBuilding == CountryBuilding.CountrySafe))
+      if (!(await repo.Country.GetPoliciesAsync(country.Id)).Any(p => p.Type == CountryPolicyType.Storage))
       {
         ErrorCode.InvalidOperationError.Throw();
       }

@@ -215,49 +215,36 @@ namespace SangokuKmy.Models.Updates
             var secretaries = country.Characters.Where(c => c.AiType.IsSecretary());
             if (secretaries.Any())
             {
-              var secretarySize = await CountryService.GetCountryBuildingSizeAsync(repo, country.Country.Id, CountryBuilding.Secretary);
-              if (secretarySize > 0.0f)
+              var income = Config.SecretaryCost;
+              foreach (var character in secretaries)
               {
-                var income = (int)(Config.SecretaryCost / secretarySize);
-                foreach (var character in secretaries)
+                var isContinue = false;
+                if (country.Country.SafeMoney >= income)
                 {
-                  var isContinue = false;
-                  if (country.Country.SafeMoney >= income)
+                  isContinue = true;
+                  country.Country.SafeMoney -= income;
+                }
+                else
+                {
+                  if (salary.AllSalary >= income - country.Country.SafeMoney)
                   {
+                    // 国庫が足りなければ収入から絞る
                     isContinue = true;
-                    country.Country.SafeMoney -= income;
-                  }
-                  else
-                  {
-                    if (salary.AllSalary >= income - country.Country.SafeMoney)
-                    {
-                      // 国庫が足りなければ収入から絞る
-                      isContinue = true;
-                      salary.AllSalary -= income - country.Country.SafeMoney;
-                      country.Country.SafeMoney = 0;
-                    }
-                  }
-                  // 勤務を継続するか？
-                  if (isContinue)
-                  {
-                    character.Money = 100000;
-                    character.Rice = 100000;
-                  }
-                  else
-                  {
-                    character.Money = 0;
-                    character.Rice = 0;
+                    salary.AllSalary -= income - country.Country.SafeMoney;
+                    country.Country.SafeMoney = 0;
                   }
                 }
-              }
-            }
-            else
-            {
-              // 政務庁がなければ全員解任
-              foreach (var character in country.Characters.Where(c => c.AiType.IsSecretary()))
-              {
-                character.Money = 0;
-                character.Rice = 0;
+                // 勤務を継続するか？
+                if (isContinue)
+                {
+                  character.Money = 100000;
+                  character.Rice = 100000;
+                }
+                else
+                {
+                  character.Money = 0;
+                  character.Rice = 0;
+                }
               }
             }
 

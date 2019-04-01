@@ -112,7 +112,7 @@ namespace SangokuKmy.Models.Data.Entities
     public short PopularityEx { get; set; }
 
     [JsonIgnore]
-    public float ResearchMoneyBase
+    public int ResearchMoney
     {
       get
       {
@@ -121,11 +121,11 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     [JsonIgnore]
-    public float ResearchCostBase
+    public int ResearchCost
     {
       get
       {
-        return this.Money * (this.Technology / 230.0f);
+        return (int)(this.Money * (this.Technology / 230.0f));
       }
     }
 

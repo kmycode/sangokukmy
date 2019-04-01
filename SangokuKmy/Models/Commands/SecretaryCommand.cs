@@ -29,6 +29,12 @@ namespace SangokuKmy.Models.Commands
         ErrorCode.NotPermissionError.Throw();
       }
 
+      var policies = await repo.Country.GetPoliciesAsync(country.Id);
+      if (!policies.Any(p => p.Type == CountryPolicyType.HumanDevelopment))
+      {
+        ErrorCode.InvalidOperationError.Throw();
+      }
+
       this.Character = chara;
       this.Country = country;
     }
@@ -56,13 +62,6 @@ namespace SangokuKmy.Models.Commands
       }
       var country = countryOptional.Data;
 
-      var size = await CountryService.GetCountryBuildingSizeAsync(repo, country.Id, CountryBuilding.Secretary);
-      if (size <= 0.0f)
-      {
-        await game.CharacterLogAsync($"政務官を雇おうとしましたが、対応する国家施設がないか、十分な耐久がありません");
-        return;
-      }
-
       var charas = await repo.Country.GetCharactersAsync(country.Id);
       if (charas.Count(c => c.Character.AiType.IsSecretary()) >= Config.SecretaryMax)
       {
@@ -70,7 +69,7 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      var cost = (int)(Config.SecretaryCost / size);
+      var cost = Config.SecretaryCost;
       if (character.Money < cost && country.SafeMoney < cost)
       {
         await game.CharacterLogAsync($"政務官を雇おうとしましたが、武将所持または国庫に金 <num>{cost}</num> がありません");
@@ -122,12 +121,6 @@ namespace SangokuKmy.Models.Commands
       }
 
       await this.CheckCanInputAsync(repo, characterId);
-
-      var has = await CountryService.HasCountryBuildingAsync(repo, this.Country.Id, CountryBuilding.Secretary);
-      if (!has)
-      {
-        ErrorCode.InvalidOperationError.Throw();
-      }
 
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates, options);
     }

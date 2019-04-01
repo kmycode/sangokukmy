@@ -23,8 +23,6 @@ namespace SangokuKmy.Models.Commands
       // new CommercialMaxCommand(),
       // new WallMaxCommand(),
       new TownBuildingCommand(),
-      new CountryBuildingCommand(),
-      new CountryLaboratoryCommand(),
       new SoldierCommand(),
       new SoldierTrainingCommand(),
       new DefendCommand(),
@@ -37,13 +35,11 @@ namespace SangokuKmy.Models.Commands
       new JoinCommand(),
       new SafeInCommand(),
       new SafeOutCommand(),
-      new BreakTechnologyCommand(),
-      new BreakWallCommand(),
-      new AgitationCommand(),
       new AddSecretaryCommand(),
       new EditSecretaryCommand(),
       new RemoveSecretaryCommand(),
       new SoldierResearchCommand(),
+      new PolicyCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

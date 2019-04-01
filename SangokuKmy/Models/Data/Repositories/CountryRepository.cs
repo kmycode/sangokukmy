@@ -367,6 +367,55 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 政策を追加する
+    /// </summary>
+    /// <param name="policy">政策</param>
+    public async Task AddPolicyAsync(CountryPolicy policy)
+    {
+      try
+      {
+        await this.container.Context.CountryPolicies.AddAsync(policy);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 政策を取得する
+    /// </summary>
+    public async Task<IReadOnlyList<CountryPolicy>> GetPoliciesAsync()
+    {
+      try
+      {
+        return await this.container.Context.CountryPolicies.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 政策を取得する
+    /// </summary>
+    /// <param name="countryId">国ID</param>
+    public async Task<IReadOnlyList<CountryPolicy>> GetPoliciesAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.CountryPolicies.Where(p => p.CountryId == countryId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 国のデータを削除する
     /// </summary>
     public void RemoveDataByCountryId(uint countryId)

@@ -254,28 +254,4 @@ namespace SangokuKmy.Models.Commands
     protected override int GetMaxValue(Town town) => Config.TownBuildingMax;
     protected override void SetValue(Town town, int value) => town.TownBuildingValue = value;
   }
-
-  /// <summary>
-  /// 国家施設
-  /// </summary>
-  public class CountryBuildingCommand : BuildingCommand
-  {
-    public override CharacterCommandType Type => CharacterCommandType.CountryBuilding;
-    protected override string GetValueName() => "国家施設";
-    protected override int GetCurrentValue(Town town) => town.CountryBuildingValue;
-    protected override int GetMaxValue(Town town) => Config.CountryBuildingMax;
-    protected override void SetValue(Town town, int value) => town.CountryBuildingValue = value;
-  }
-
-  /// <summary>
-  /// 研究所
-  /// </summary>
-  public class CountryLaboratoryCommand : BuildingCommand
-  {
-    public override CharacterCommandType Type => CharacterCommandType.CountryLaboratory;
-    protected override string GetValueName() => "研究所";
-    protected override int GetCurrentValue(Town town) => town.CountryLaboratoryValue;
-    protected override int GetMaxValue(Town town) => Config.CountryLaboratoryMax;
-    protected override void SetValue(Town town, int value) => town.CountryLaboratoryValue = value;
-  }
 }

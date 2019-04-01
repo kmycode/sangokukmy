@@ -36,10 +36,6 @@ namespace SangokuKmy.Models.Data.Entities
         IntRicePrice = town.IntRicePrice,
         TownBuilding = town.TownBuilding,
         TownBuildingValue = town.TownBuildingValue,
-        CountryBuilding = town.CountryBuilding,
-        CountryBuildingValue = town.CountryBuildingValue,
-        CountryLaboratory = town.CountryLaboratory,
-        CountryLaboratoryValue = town.CountryLaboratoryValue,
       };
       return t;
     }
