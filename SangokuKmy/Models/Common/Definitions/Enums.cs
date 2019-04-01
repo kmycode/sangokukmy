@@ -236,6 +236,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode SoldierTypeNotFoundError { get; } = new ErrorCode(404, 42);
 
+    /// <summary>
+    /// シークレットキーが間違っているエラー
+    /// </summary>
+    public static ErrorCode InvalidSecretKeyError { get; } = new ErrorCode(401, 43);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

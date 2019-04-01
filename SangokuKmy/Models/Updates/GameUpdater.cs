@@ -640,12 +640,16 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 農民反乱
-        if (RandomService.Next(0, 12 * 24) == 0)
+        if (RandomService.Next(0, 40) == 0)
         {
           var isCreated = await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
           {
             await repo.SaveChangesAsync();
+          }
+          else
+          {
+            _logger.LogInformation("農民反乱出現の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
           }
         }
 
@@ -828,9 +832,13 @@ namespace SangokuKmy.Models.Updates
         {
           var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
           await CharacterService.RemoveAsync(repo, character);
-          if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary)
+          if (character.AiType == CharacterAiType.Human)
           {
             await AddMapLogAsync(EventType.CharacterRemoved, "<country>" + (countryOptional.Data?.Name ?? "無所属") + "</country> の <character>" + character.Name + "</character> は放置削除されました", false);
+          }
+          else if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary)
+          {
+            await AddMapLogAsync(EventType.AiCharacterRemoved, "<character>" + character.Name + "</character> は削除されました", false);
           }
           StatusStreaming.Default.Disconnect(character);
         }

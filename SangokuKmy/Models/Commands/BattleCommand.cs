@@ -130,6 +130,9 @@ namespace SangokuKmy.Models.Commands
         }
       }
 
+      // 連戦カウント
+      var continuousCount = options.FirstOrDefault(o => o.Type == 32)?.NumberValue ?? 1;
+
       var log = new BattleLog
       {
         TownId = targetTown.Id,
@@ -300,7 +303,7 @@ namespace SangokuKmy.Models.Commands
           }
           else
           {
-            enemy.SoldierType = SoldierType.Common;
+            enemy.SoldierType = SoldierType.WallCommon;
             enemy.Strong = trendStrong / 2;
             enemy.Proficiency = 0;
             isNoDamage = true;
@@ -325,7 +328,7 @@ namespace SangokuKmy.Models.Commands
           wallChara.SoldierType = defenderCache.SoldierType;
           wallChara.SoldierNumber = defenderCache.SoldierNumber;
           wallChara.Proficiency = defenderCache.Proficiency;
-          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(SoldierType.WallCommon);
+          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(enemy.SoldierType);
         }
 
         var (ka, kd) = mySoldierType.CalcCorrections(character, targetSoldierType);
@@ -348,13 +351,11 @@ namespace SangokuKmy.Models.Commands
         // 突撃
         if (mySoldierType.IsRush())
         {
-          myDamage = 0;
-          targetDamage = Math.Min((int)(targetDamage * mySoldierType.CalcRushAttack()), enemy.SoldierNumber);
+          targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 14), enemy.SoldierNumber);
         }
         else if (targetSoldierType.IsRush())
         {
-          targetDamage = 0;
-          myDamage = Math.Min((int)(myDamage * targetSoldierType.CalcRushAttack()), character.SoldierNumber);
+          myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack()), 8), character.SoldierNumber);
         }
 
         character.SoldierNumber -= myDamage;
@@ -388,7 +389,7 @@ namespace SangokuKmy.Models.Commands
         {
           Name = "無所属",
         };
-        var prefix = "[<town>" + targetTown.Name + "</town>] <country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <character>" + enemy.Name + "</character>";
+        var prefix = $"[<town>{targetTown.Name}</town>]{(continuousCount > 1 ? "(連戦)" : "")} <country>{myCountry.Name}</country> の <character>{character.Name}</character> は <country>{targetCountry.Name}</country> の <character>{enemy.Name}</character>";
         if (character.SoldierNumber <= 0 && enemy.SoldierNumber <= 0)
         {
           repo.Town.RemoveDefender(enemy.Defender.Data.Id);
@@ -443,15 +444,16 @@ namespace SangokuKmy.Models.Commands
         }
         else
         {
+          if (character.AiType == CharacterAiType.TerroristRyofu)
+          {
+            myExperience += 10_000;
+          }
+
           if (!enemy.IsWall)
           {
             // 連戦
             canContinuous = mySoldierType.CanContinuous();
 
-            if (character.AiType == CharacterAiType.TerroristRyofu)
-            {
-              myExperience += 10_000;
-            }
             if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
             {
               targetExperience += 500;
@@ -553,7 +555,13 @@ namespace SangokuKmy.Models.Commands
       // 連戦
       if (canContinuous)
       {
-        await this.ExecuteAsync(repo, character, options, game);
+        await repo.SaveChangesAsync();
+        continuousCount++;
+        await this.ExecuteAsync(repo, character, options.Where(p => p.Type != 32).Append(new CharacterCommandParameter
+        {
+          Type = 32,
+          NumberValue = continuousCount,
+        }), game);
       }
     }
 
@@ -611,6 +619,13 @@ namespace SangokuKmy.Models.Commands
     {
       var townId = (uint)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { command = "move", townId, });
+
+      // 連戦カウンター
+      if (options.Any(p => p.Type == 32))
+      {
+        ErrorCode.InvalidCommandParameter.Throw();
+      }
+
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates, options);
     }
   }

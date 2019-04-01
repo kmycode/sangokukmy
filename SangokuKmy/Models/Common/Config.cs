@@ -14,6 +14,8 @@ namespace SangokuKmy.Models.Common
 
     public static class Game
     {
+      public static string SecretKey { get; set; }
+
       public static string UploadedIconDirectory { get; set; }
 
       public static string HistoricalUploadedIconDirectory { get; set; }

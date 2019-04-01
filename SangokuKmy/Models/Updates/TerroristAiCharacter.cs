@@ -35,19 +35,19 @@ namespace SangokuKmy.Models.Updates
     {
       get
       {
-        if (this.Town.People > 20000 && this.Town.Security > 50 && this.Town.Wall < 700)
+        if ((this.Town.People > 20000 && this.Town.Security > 50) || this.Town.Wall < 600)
         {
           return DefendLevel.NeedMyDefend;
         }
-        if (this.Town.People > 10000 && this.Town.Security > 50 && this.Town.Wall < 700)
+        if ((this.Town.People > 10000 && this.Town.Security > 50) || this.Town.Wall < 1000)
         {
           return DefendLevel.NeedThreeDefend;
         }
-        if ((this.BorderTown != null && this.Town.Id == this.BorderTown.Id) || (this.Town.People > 5000 && this.Town.Security > 30))
+        if ((this.BorderTown != null && this.Town.Id == this.BorderTown.Id) || (this.Town.People > 5000 && this.Town.Security > 30) || this.Town.Wall < 1400)
         {
           return DefendLevel.NeedTwoDefend;
         }
-        return DefendLevel.NeedMyDefend;
+        return DefendLevel.NeedAnyDefends;
       }
     }
 
@@ -62,6 +62,11 @@ namespace SangokuKmy.Models.Updates
 
     protected override async Task ActionAsync(MainRepository repo)
     {
+      if (await this.InputDefendLoopAsync(repo, 5000))
+      {
+        return;
+      }
+
       if (await this.InputDefendAsync(repo))
       {
         return;
@@ -186,9 +191,9 @@ namespace SangokuKmy.Models.Updates
 
     protected override SoldierType FindSoldierType()
     {
-      if (this.Town.Technology >= 999)
+      if (this.Town.Technology >= 800)
       {
-        return SoldierType.StrongGuards;
+        return SoldierType.Intellect;
       }
       if (this.Town.Technology >= 500)
       {
@@ -215,6 +220,11 @@ namespace SangokuKmy.Models.Updates
       }
 
       if (this.InputSecurity())
+      {
+        return;
+      }
+
+      if (await this.InputDefendLoopAsync(repo, 20000))
       {
         return;
       }
@@ -262,6 +272,11 @@ namespace SangokuKmy.Models.Updates
       }
 
       if (this.InputSecurity())
+      {
+        return;
+      }
+
+      if (await this.InputDefendLoopAsync(repo, 20000))
       {
         return;
       }

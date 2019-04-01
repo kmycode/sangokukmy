@@ -7,6 +7,7 @@ using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.Entities;
 using SoldierType = SangokuKmy.Models.Data.Entities.SoldierType;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Updates
 {
@@ -19,7 +20,7 @@ namespace SangokuKmy.Models.Updates
 
     protected Town BorderTown => this.data.BorderTown;
 
-    protected virtual bool CanSoldierForce => true;
+    protected virtual bool CanSoldierForce => false;
 
     protected virtual DefendLevel NeedDefendLevel => DefendLevel.NeedMyDefend;
 
@@ -54,6 +55,27 @@ namespace SangokuKmy.Models.Updates
       var old = await repo.AiCountry.GetByCountryIdAsync(this.Character.CountryId);
       if (old.HasData)
       {
+        // 作戦見直し
+        if (old.Data.IntNextResetGameDate <= this.GameDateTime.ToInt())
+        {
+          if (!availableWars.Any())
+          {
+            old.Data.MainTownId = 0;
+            old.Data.TargetTownId = 0;
+            old.Data.BorderTownId = 0;
+            old.Data.NextTargetTownId = 0;
+          }
+          else
+          {
+            if (RandomService.Next(0, 3) == 0)
+            {
+              old.Data.TargetTownId = 0;
+              old.Data.NextTargetTownId = 0;
+            }
+          }
+          old.Data.IntNextResetGameDate = this.GameDateTime.ToInt() + RandomService.Next(20, 40);
+        }
+
         targetOrder = old.Data.TargetOrder;
 
         var main = this.towns.FirstOrDefault(t => t.Id == old.Data.MainTownId);
@@ -176,7 +198,7 @@ namespace SangokuKmy.Models.Updates
           var match = this.towns
             .Where(t => t.CountryId != this.Country.Id)
             .Where(t => mainWars.Contains(t.CountryId) && this.GetStreet(this.towns, this.data.MainTown, (Town)t, tt => tt.CountryId == this.Country.Id || mainWars.Contains(tt.CountryId)) != null)
-            .OrderByDescending(t => t.People * (t.Security * t.Technology))
+            .OrderByDescending(t => t.People * (t.Security + t.Technology))
             .FirstOrDefault();
           if (match != null)
           {
@@ -310,7 +332,7 @@ namespace SangokuKmy.Models.Updates
     private IEnumerable<uint> GetNearReadyForWarCountries()
     {
       var availableWars = wars
-        .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() + 6 && w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting));
+        .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() + 12 && w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting));
       if (availableWars.Any())
       {
         var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
@@ -384,7 +406,7 @@ namespace SangokuKmy.Models.Updates
       }
     }
 
-    private async Task<bool> GetSoldiersAsync(MainRepository repo)
+    private async Task<bool> GetSoldiersAsync(MainRepository repo, int num = -1)
     {
       if (this.IsNeedSoldiers())
       {
@@ -404,7 +426,7 @@ namespace SangokuKmy.Models.Updates
         this.command.Parameters.Add(new CharacterCommandParameter
         {
           Type = 2,
-          NumberValue = this.Character.Leadership,
+          NumberValue = num <= 0 ? this.Character.Leadership : num,
         });
         this.command.Parameters.Add(new CharacterCommandParameter
         {
@@ -547,6 +569,32 @@ namespace SangokuKmy.Models.Updates
       }
 
       return await RunAsync(this.Town);
+    }
+
+    protected async Task<bool> InputDefendLoopAsync(MainRepository repo, int minPeople)
+    {
+      if (this.Town.Id != this.data.MainTown.Id)
+      {
+        return false;
+      }
+
+      if (this.Town.People > minPeople)
+      {
+        return false;
+      }
+
+      if (await this.InputDefendAsync(repo, DefendLevel.NeedMyDefend))
+      {
+        return true;
+      }
+
+      var num = this.Town.People < 2000 ? 1 : this.Town.People < 5000 ? 5 : this.Town.People < 7000 ? 10 : this.Town.People / 700;
+      if (await this.GetSoldiersAsync(repo, num))
+      {
+        return true;
+      }
+
+      return true;
     }
 
     protected async Task<bool> InputDefendAsync(MainRepository repo) => await this.InputDefendAsync(repo, this.NeedDefendLevel);

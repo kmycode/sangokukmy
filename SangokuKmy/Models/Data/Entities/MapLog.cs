@@ -245,6 +245,11 @@ namespace SangokuKmy.Models.Data.Entities
     SecretaryRemovedWithNoSalary = 30,
 
     /// <summary>
+    /// AIキャラ放置削除
+    /// </summary>
+    AiCharacterRemoved = 31,
+
+    /// <summary>
     /// 新しい政策
     /// </summary>
     Policy = 32,
