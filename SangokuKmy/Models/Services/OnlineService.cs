@@ -140,6 +140,19 @@ namespace SangokuKmy.Models.Services
           }
 
           onlineCaches = onlines.ToArray();
+
+          // 既存のデータを更新
+          if (updates.Any())
+          {
+            foreach (var update in updates)
+            {
+              var old = onlines.FirstOrDefault(o => o.Character.Id == update.Character.Id);
+              if (old != null)
+              {
+                old.Status = update.Status;
+              }
+            }
+          }
         }
 
         // アイコンを取得
