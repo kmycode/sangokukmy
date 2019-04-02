@@ -17,35 +17,15 @@ namespace SangokuKmy.Models.Services
     private static async Task<Optional<Town>> CreateTownAsync(MainRepository repo, IEnumerable<uint> avoidCountries)
     {
       var towns = await repo.Town.GetAllAsync();
-      var borderTowns = towns
-        .Where(t => !avoidCountries.Contains(t.CountryId))
-        .Where(t => towns.GetAroundTowns(t).Count() < 8)
-        .ToArray();
-      if (!borderTowns.Any())
+      var townPosition = MapService.GetNewTownPosition(towns, t => !avoidCountries.Contains(t.CountryId));
+      if (townPosition.X < 0)
       {
         return default;
       }
 
-      var nearTown = borderTowns[RandomService.Next(0, borderTowns.Length)];
-      var townPositions = new Tuple<int, int>[]
-      {
-        new Tuple<int, int>(nearTown.X - 1, nearTown.Y - 1),
-        new Tuple<int, int>(nearTown.X + 0, nearTown.Y - 1),
-        new Tuple<int, int>(nearTown.X + 1, nearTown.Y - 1),
-        new Tuple<int, int>(nearTown.X - 1, nearTown.Y + 0),
-        new Tuple<int, int>(nearTown.X + 1, nearTown.Y + 0),
-        new Tuple<int, int>(nearTown.X - 1, nearTown.Y + 1),
-        new Tuple<int, int>(nearTown.X + 0, nearTown.Y + 1),
-        new Tuple<int, int>(nearTown.X + 1, nearTown.Y + 1),
-      }
-      .Where(t => t.Item1 >= 0 && t.Item1 < 10 && t.Item2 >= 0 && t.Item2 < 10)
-      .Where(t => !towns.Any(tt => tt.X == t.Item1 && tt.Y == t.Item2))
-      .ToArray();
-      var townPosition = townPositions[RandomService.Next(0, townPositions.Length)];
-
-      var town = ResetService.CreateTown(TownType.Fortress);
-      town.X = (short)townPosition.Item1;
-      town.Y = (short)townPosition.Item2;
+      var town = MapService.CreateTown(TownType.Fortress);
+      town.X = townPosition.X;
+      town.Y = townPosition.Y;
       await repo.Town.AddTownsAsync(new Town[] { town, });
       await repo.SaveChangesAsync();
       return town.ToOptional();

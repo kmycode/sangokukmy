@@ -45,6 +45,19 @@ namespace SangokuKmy.Models.Data.Repositories
           country.HistoryId = history.Id;
         }
         await this.container.Context.HistoricalCountries.AddRangeAsync(history.Countries);
+
+        foreach (var maplog in history.MapLogs)
+        {
+          maplog.HistoryId = history.Id;
+        }
+        await this.container.Context.HistoricalMapLogs.AddRangeAsync(history.MapLogs);
+
+        foreach (var town in history.Towns)
+        {
+          town.HistoryId = history.Id;
+        }
+        await this.container.Context.HistoricalTowns.AddRangeAsync(history.Towns);
+
         await this.container.Context.SaveChangesAsync();
       }
       catch (Exception ex)
@@ -64,6 +77,8 @@ namespace SangokuKmy.Models.Data.Repositories
           this.container.Context.HistoricalCharacterIcons.RemoveRange(history.Characters.Select(c => c.Icon));
           this.container.Context.HistoricalCharacters.RemoveRange(history.Characters);
           this.container.Context.HistoricalCountries.RemoveRange(history.Countries);
+          this.container.Context.HistoricalMapLogs.RemoveRange(history.MapLogs);
+          this.container.Context.HistoricalTowns.RemoveRange(history.Towns);
           this.container.Context.Histories.Remove(history);
         }
       }
@@ -90,6 +105,12 @@ namespace SangokuKmy.Models.Data.Repositories
             return d.Character;
           }).ToArray();
           history.Countries = await this.container.Context.HistoricalCountries
+            .Where(c => c.HistoryId == history.Id)
+            .ToArrayAsync();
+          history.MapLogs = await this.container.Context.HistoricalMapLogs
+            .Where(c => c.HistoryId == history.Id)
+            .ToArrayAsync();
+          history.Towns = await this.container.Context.HistoricalTowns
             .Where(c => c.HistoryId == history.Id)
             .ToArrayAsync();
         }
