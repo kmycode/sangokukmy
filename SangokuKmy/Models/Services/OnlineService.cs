@@ -165,6 +165,12 @@ namespace SangokuKmy.Models.Services
             {
               var icon = (await repo.Character.GetCharacterAllIconsAsync(data.Character.Id)).GetMainOrFirst();
               data.Character.Icon = icon.Data;
+
+              var old = onlines.FirstOrDefault(o => o.Character.Id == data.Character.Id);
+              if (old != null)
+              {
+                old.Character.Icon = data.Character.Icon;
+              }
             }
           }
         }
