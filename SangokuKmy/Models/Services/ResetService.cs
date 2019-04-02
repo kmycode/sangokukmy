@@ -110,6 +110,8 @@ namespace SangokuKmy.Models.Services
       
       var countries = await repo.Country.GetAllAsync();
       var characters = await repo.Character.GetAllAliveWithIconAsync();
+      var maplogs = await repo.MapLog.GetAllImportantsAsync();
+      var towns = await repo.Town.GetAllAsync();
 
       var unifiedCountry = countries.FirstOrDefault(c => !c.HasOverthrown);
       CountryMessage unifiedCountryMessage = null;
@@ -136,6 +138,16 @@ namespace SangokuKmy.Models.Services
           var country = HistoricalCountry.FromCountry(c);
           return country;
         }).ToArray(),
+        MapLogs = maplogs.Select(m =>
+        {
+          var maplog = HistoricalMapLog.FromMapLog(m);
+          return maplog;
+        }).ToArray(),
+        Towns = towns.Select(t =>
+        {
+          var town = HistoricalTown.FromTown(t);
+          return town;
+        }).ToArray(),
       };
 
       // アイコンを保存
@@ -157,12 +169,12 @@ namespace SangokuKmy.Models.Services
 
     private static async Task ResetTownsAsync(MainRepository repo)
     {
-      var initialTowns = await repo.Town.GetAllInitialTownsAsync();
+      var initialTowns = await repo.Town.GetAllInitialTownsAsync(); //MapService.CreateMap(7);
       var towns = new List<Town>();
       foreach (var itown in initialTowns)
       {
         var typeId = itown.Type;
-        var town = CreateTown(typeId);
+        var town = MapService.CreateTown(typeId);
         town.Name = itown.Name;
         town.X = itown.X;
         town.Y = itown.Y;
@@ -170,220 +182,6 @@ namespace SangokuKmy.Models.Services
       }
 
       await repo.Town.AddTownsAsync(towns);
-    }
-
-    public static Town CreateTown(TownType typeId)
-    {
-      if (typeId == TownType.Any)
-      {
-        var r = RandomService.Next(0, 10);
-        if (r <= 2)
-        {
-          typeId = TownType.Agriculture;
-        }
-        else if (r <= 6)
-        {
-          typeId = TownType.Commercial;
-        }
-        else if (r <= 8)
-        {
-          typeId = TownType.Fortress;
-        }
-        else if (r == 9)
-        {
-          typeId = TownType.Large;
-        }
-        else
-        {
-          typeId = TownType.Agriculture;
-        }
-      }
-      var type = typeId == TownType.Agriculture ? TownTypeDefinition.AgricultureType :
-                 typeId == TownType.Commercial ? TownTypeDefinition.CommercialType :
-                 typeId == TownType.Fortress ? TownTypeDefinition.FortressType :
-                 TownTypeDefinition.LargeType;
-      var town = new Town
-      {
-        Type = typeId,
-        Agriculture = type.Agriculture,
-        AgricultureMax = type.AgricultureMax,
-        Commercial = type.Commercial,
-        CommercialMax = type.CommercialMax,
-        Technology = type.Technology,
-        TechnologyMax = type.TechnologyMax,
-        Wall = type.Wall,
-        WallMax = type.WallMax,
-        PeopleMax = type.PeopleMax,
-        People = type.People,
-        Security = (short)type.Security,
-      };
-      town.WallGuard = town.Wall;
-      town.WallGuardMax = town.WallMax;
-      town.Agriculture = Math.Min(town.Agriculture, town.AgricultureMax);
-      town.Commercial = Math.Min(town.Commercial, town.CommercialMax);
-      town.Technology = Math.Min(town.Technology, town.TechnologyMax);
-      town.Wall = Math.Min(town.Wall, town.WallMax);
-      town.People = Math.Min(town.People, town.PeopleMax);
-      {
-        // 都市施設
-        var b = new TownBuilding[]
-        {
-          TownBuilding.Economy,
-          TownBuilding.MilitaryStation,
-          TownBuilding.OpenWall,
-          TownBuilding.RepairWall,
-          TownBuilding.SaveWall,
-          TownBuilding.TrainIntellect,
-          TownBuilding.TrainLeadership,
-          TownBuilding.TrainPopularity,
-          TownBuilding.TrainStrong,
-        };
-        var r = RandomService.Next(0, b.Length);
-        town.TownBuilding = b[r];
-      }
-      {
-        // 国家施設
-        var b = new CountryBuilding[]
-        {
-          CountryBuilding.CountrySafe,
-          CountryBuilding.Secretary,
-          CountryBuilding.SoldierLaboratory,
-          CountryBuilding.Spy,
-        };
-        var r = RandomService.Next(0, b.Length);
-        town.CountryBuilding = b[r];
-      }
-      return town;
-    }
-
-    private abstract class TownTypeDefinition
-    {
-      public static TownTypeDefinition AgricultureType { get; } = new AgricultureTownType();
-      public static TownTypeDefinition CommercialType { get; } = new CommercialTownType();
-      public static TownTypeDefinition FortressType { get; } = new FortressTownType();
-      public static TownTypeDefinition LargeType { get; } = new LargeTownType();
-
-      public abstract int Agriculture { get; }
-
-      public abstract int AgricultureMax { get; }
-
-      public abstract int Commercial { get; }
-
-      public abstract int CommercialMax { get; }
-
-      public abstract int Technology { get; }
-
-      public abstract int TechnologyMax { get; }
-
-      public abstract int Wall { get; }
-
-      public abstract int WallMax { get; }
-
-      public abstract int PeopleMax { get; }
-
-      public abstract int People { get; }
-
-      public abstract int Security { get; }
-
-      private class AgricultureTownType : TownTypeDefinition
-      {
-        public override int Agriculture => RandomService.Next(4, 9) * 100;
-
-        public override int AgricultureMax => RandomService.Next(12, 19) * 100;
-
-        public override int Commercial => RandomService.Next(1, 3) * 100;
-
-        public override int CommercialMax => RandomService.Next(3, 7) * 100;
-
-        public override int Technology => RandomService.Next(0, 4) * 100;
-
-        public override int TechnologyMax => 900;
-
-        public override int Wall => RandomService.Next(1, 6) * 100;
-
-        public override int WallMax => RandomService.Next(18, 25) * 100;
-
-        public override int PeopleMax => 40000;
-
-        public override int People => 8000;
-
-        public override int Security => 80;
-      }
-
-      private class CommercialTownType : TownTypeDefinition
-      {
-        public override int Agriculture => RandomService.Next(1, 3) * 100;
-
-        public override int AgricultureMax => RandomService.Next(3, 7) * 100;
-
-        public override int Commercial => RandomService.Next(4, 9) * 100;
-
-        public override int CommercialMax => RandomService.Next(12, 19) * 100;
-
-        public override int Technology => RandomService.Next(0, 4) * 100;
-
-        public override int TechnologyMax => 900;
-
-        public override int Wall => RandomService.Next(1, 6) * 100;
-
-        public override int WallMax => RandomService.Next(18, 25) * 100;
-
-        public override int PeopleMax => 40000;
-
-        public override int People => 14000;
-
-        public override int Security => 50;
-      }
-
-      private class FortressTownType : TownTypeDefinition
-      {
-        public override int Agriculture => RandomService.Next(0, 3) * 100;
-
-        public override int AgricultureMax => RandomService.Next(0, 5) * 100;
-
-        public override int Commercial => RandomService.Next(0, 3) * 100;
-
-        public override int CommercialMax => RandomService.Next(0, 5) * 100;
-
-        public override int Technology => RandomService.Next(1, 5) * 100;
-
-        public override int TechnologyMax => 999;
-
-        public override int Wall => RandomService.Next(4, 13) * 100;
-
-        public override int WallMax => RandomService.Next(26, 49) * 100;
-
-        public override int PeopleMax => 30000;
-
-        public override int People => 4000;
-
-        public override int Security => 70;
-      }
-
-      private class LargeTownType : TownTypeDefinition
-      {
-        public override int Agriculture => RandomService.Next(1, 3) * 100;
-
-        public override int AgricultureMax => RandomService.Next(4, 11) * 100;
-
-        public override int Commercial => RandomService.Next(1, 3) * 100;
-
-        public override int CommercialMax => RandomService.Next(4, 11) * 100;
-
-        public override int Technology => RandomService.Next(1, 7) * 100;
-
-        public override int TechnologyMax => 900;
-
-        public override int Wall => RandomService.Next(8, 15) * 100;
-
-        public override int WallMax => RandomService.Next(12, 21) * 100;
-
-        public override int PeopleMax => 50000;
-
-        public override int People => 20000;
-
-        public override int Security => 35;
-      }
     }
   }
 }

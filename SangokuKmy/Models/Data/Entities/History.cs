@@ -68,5 +68,13 @@ namespace SangokuKmy.Models.Data.Entities
     [NotMapped]
     [JsonProperty("countries")]
     public IEnumerable<HistoricalCountry> Countries { get; set; }
+
+    [NotMapped]
+    [JsonProperty("maplogs")]
+    public IEnumerable<HistoricalMapLog> MapLogs { get; set; }
+
+    [NotMapped]
+    [JsonProperty("towns")]
+    public IEnumerable<HistoricalTown> Towns { get; set; }
   }
 }

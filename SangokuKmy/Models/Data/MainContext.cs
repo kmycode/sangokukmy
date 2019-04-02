@@ -211,6 +211,16 @@ namespace SangokuKmy.Models.Data
     public DbSet<HistoricalCharacterIcon> HistoricalCharacterIcons { get; set; }
 
     /// <summary>
+    /// 統一記録の国一覧
+    /// </summary>
+    public DbSet<HistoricalMapLog> HistoricalMapLogs { get; set; }
+
+    /// <summary>
+    /// 統一記録の国一覧
+    /// </summary>
+    public DbSet<HistoricalTown> HistoricalTowns { get; set; }
+
+    /// <summary>
     /// 援軍
     /// </summary>
     public DbSet<Reinforcement> Reinforcements { get; set; }

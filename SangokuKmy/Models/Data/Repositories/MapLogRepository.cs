@@ -19,6 +19,21 @@ namespace SangokuKmy.Models.Data.Repositories
       this.container = container;
     }
 
+    public async Task<IReadOnlyList<MapLog>> GetAllImportantsAsync()
+    {
+      try
+      {
+        return await this.container.Context.MapLogs
+          .Where(ml => ml.IsImportant)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return null;
+      }
+    }
+
     /// <summary>
     /// 最新のログを取得
     /// </summary>

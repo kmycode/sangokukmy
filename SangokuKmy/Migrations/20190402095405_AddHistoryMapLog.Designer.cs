@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20190402095405_AddHistoryMapLog")]
+    partial class AddHistoryMapLog
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -488,6 +490,9 @@ namespace SangokuKmy.Migrations
                         .HasColumnName("name")
                         .HasColumnType("varchar(64)");
 
+                    b.Property<int>("PolicyPoint")
+                        .HasColumnName("policy_point");
+
                     b.Property<int>("SafeMoney")
                         .HasColumnName("safe_money");
 
@@ -554,6 +559,23 @@ namespace SangokuKmy.Migrations
                     b.ToTable("country_messages");
                 });
 
+            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CountryPolicy", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id");
+
+                    b.Property<uint>("CountryId")
+                        .HasColumnName("country_id");
+
+                    b.Property<short>("Type")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("country_policies");
+                });
+
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CountryPost", b =>
                 {
                     b.Property<uint>("Id")
@@ -601,6 +623,23 @@ namespace SangokuKmy.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("country_researches");
+                });
+
+            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CountryScouter", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id");
+
+                    b.Property<uint>("CountryId")
+                        .HasColumnName("country_id");
+
+                    b.Property<uint>("TownId")
+                        .HasColumnName("town_id");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("country_scouters");
                 });
 
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CountryWar", b =>
@@ -1149,20 +1188,8 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("CommercialMax")
                         .HasColumnName("commercial_max");
 
-                    b.Property<short>("CountryBuilding")
-                        .HasColumnName("country_building");
-
-                    b.Property<int>("CountryBuildingValue")
-                        .HasColumnName("country_building_value");
-
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
-
-                    b.Property<short>("CountryLaboratory")
-                        .HasColumnName("country_laboratory");
-
-                    b.Property<int>("CountryLaboratoryValue")
-                        .HasColumnName("country_laboratory_value");
 
                     b.Property<int>("IntRicePrice")
                         .HasColumnName("rice_price");
@@ -1351,20 +1378,8 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("CommercialMax")
                         .HasColumnName("commercial_max");
 
-                    b.Property<short>("CountryBuilding")
-                        .HasColumnName("country_building");
-
-                    b.Property<int>("CountryBuildingValue")
-                        .HasColumnName("country_building_value");
-
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
-
-                    b.Property<short>("CountryLaboratory")
-                        .HasColumnName("country_laboratory");
-
-                    b.Property<int>("CountryLaboratoryValue")
-                        .HasColumnName("country_laboratory_value");
 
                     b.Property<int>("IntRicePrice")
                         .HasColumnName("rice_price");
