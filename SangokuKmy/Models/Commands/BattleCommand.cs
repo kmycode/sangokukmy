@@ -520,7 +520,8 @@ namespace SangokuKmy.Models.Commands
             if (await repo.Town.IsUnifiedAsync(character.CountryId))
             {
               await game.MapLogAsync(EventType.Unified, "<country>" + myCountry.Name + "</country> によって統一されました", true);
-              await ResetService.RequestResetAsync(repo);
+              await repo.SaveChangesAsync();
+              await ResetService.Period0_2_SpecialAsync(repo);
             }
           }
         }
