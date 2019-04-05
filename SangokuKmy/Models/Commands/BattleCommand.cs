@@ -180,6 +180,13 @@ namespace SangokuKmy.Models.Commands
       var targetContribution = 0;
       character.Rice -= character.SoldierNumber * myRicePerSoldier;
 
+      // 戦術
+      var policies = await repo.Country.GetPoliciesAsync();
+      var isMyCountryRush = policies.Any(p => p.CountryId == myCountry.Id && p.Type == CountryPolicyType.BattleRush);
+      var isMyCountryContinuous = policies.Any(p => p.CountryId == myCountry.Id && p.Type == CountryPolicyType.BattleContinuous);
+      var isTargetCountryRush = policies.Any(p => p.CountryId == targetTown.CountryId && p.Type == CountryPolicyType.BattleRush);
+      var isTargetCountryContinuous = policies.Any(p => p.CountryId == targetTown.CountryId && p.Type == CountryPolicyType.BattleContinuous);
+
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
       {
@@ -351,11 +358,11 @@ namespace SangokuKmy.Models.Commands
         }
 
         // 突撃
-        if (mySoldierType.IsRush())
+        if (isMyCountryRush && mySoldierType.IsRush())
         {
           targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 14), enemy.SoldierNumber);
         }
-        else if (targetSoldierType.IsRush())
+        else if (isTargetCountryRush && targetSoldierType.IsRush())
         {
           myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack()), 8), character.SoldierNumber);
         }
@@ -454,7 +461,7 @@ namespace SangokuKmy.Models.Commands
           if (!enemy.IsWall)
           {
             // 連戦
-            if (continuousTurns < 50)
+            if (isMyCountryContinuous && continuousTurns < 50)
             {
               canContinuous = mySoldierType.CanContinuous();
             }

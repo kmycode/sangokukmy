@@ -71,6 +71,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// 賊の監視
     /// </summary>
     AntiGang = 7,
+
+    /// <summary>
+    /// 連戦
+    /// </summary>
+    BattleContinuous = 8,
+
+    /// <summary>
+    /// 突撃
+    /// </summary>
+    BattleRush = 9,
   }
 
   public class CountryPolicyTypeInfo
@@ -127,6 +137,18 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CountryPolicyType.AntiGang,
         Name = "賊の監視",
         RequestedPoint = 4000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.BattleContinuous,
+        Name = "連戦戦術",
+        RequestedPoint = 50_0000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.BattleRush,
+        Name = "突撃戦術",
+        RequestedPoint = 50_0000,
       },
     };
 
