@@ -170,6 +170,34 @@ namespace SangokuKmy.Models.Services
 
     public static Town CreateTown(TownType typeId)
     {
+      var town = new Town
+      {
+        Type = typeId,
+      };
+      UpdateTownType(town, typeId);
+
+      {
+        // 都市施設
+        var b = new TownBuilding[]
+        {
+          TownBuilding.MilitaryStation,
+          TownBuilding.OpenWall,
+          TownBuilding.RepairWall,
+          TownBuilding.TrainIntellect,
+          TownBuilding.TrainLeadership,
+          TownBuilding.TrainPopularity,
+          TownBuilding.TrainStrong,
+        };
+        var r = RandomService.Next(0, b.Length);
+        town.TownBuilding = b[r];
+      }
+      return town;
+    }
+
+    public static void UpdateTownType(Town town, TownType typeId)
+    {
+      town.Type = typeId;
+
       if (typeId == TownType.Any)
       {
         var r = RandomService.Next(0, 10);
@@ -198,21 +226,18 @@ namespace SangokuKmy.Models.Services
                  typeId == TownType.Commercial ? TownTypeDefinition.CommercialType :
                  typeId == TownType.Fortress ? TownTypeDefinition.FortressType :
                  TownTypeDefinition.LargeType;
-      var town = new Town
-      {
-        Type = typeId,
-        Agriculture = type.Agriculture,
-        AgricultureMax = type.AgricultureMax,
-        Commercial = type.Commercial,
-        CommercialMax = type.CommercialMax,
-        Technology = type.Technology,
-        TechnologyMax = type.TechnologyMax,
-        Wall = type.Wall,
-        WallMax = type.WallMax,
-        PeopleMax = type.PeopleMax,
-        People = type.People,
-        Security = (short)type.Security,
-      };
+
+      town.Agriculture = type.Agriculture;
+      town.AgricultureMax = type.AgricultureMax;
+      town.Commercial = type.Commercial;
+      town.CommercialMax = type.CommercialMax;
+      town.Technology = type.Technology;
+      town.TechnologyMax = type.TechnologyMax;
+      town.Wall = type.Wall;
+      town.WallMax = type.WallMax;
+      town.PeopleMax = type.PeopleMax;
+      town.People = type.People;
+      town.Security = (short)type.Security;
       town.WallGuard = town.Wall;
       town.WallGuardMax = town.WallMax;
       town.Agriculture = Math.Min(town.Agriculture, town.AgricultureMax);
@@ -220,22 +245,6 @@ namespace SangokuKmy.Models.Services
       town.Technology = Math.Min(town.Technology, town.TechnologyMax);
       town.Wall = Math.Min(town.Wall, town.WallMax);
       town.People = Math.Min(town.People, town.PeopleMax);
-      {
-        // 都市施設
-        var b = new TownBuilding[]
-        {
-          TownBuilding.MilitaryStation,
-          TownBuilding.OpenWall,
-          TownBuilding.RepairWall,
-          TownBuilding.TrainIntellect,
-          TownBuilding.TrainLeadership,
-          TownBuilding.TrainPopularity,
-          TownBuilding.TrainStrong,
-        };
-        var r = RandomService.Next(0, b.Length);
-        town.TownBuilding = b[r];
-      }
-      return town;
     }
 
     private abstract class TownTypeDefinition

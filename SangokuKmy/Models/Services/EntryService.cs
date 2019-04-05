@@ -131,6 +131,10 @@ namespace SangokuKmy.Models.Services
         };
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
+
+        // 大都市に変更
+        MapService.UpdateTownType(town, TownType.Large);
+
         await repo.SaveChangesAsync();
 
         chara.CountryId = country.Id;
