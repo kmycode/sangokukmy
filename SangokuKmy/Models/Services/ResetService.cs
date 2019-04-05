@@ -14,6 +14,8 @@ namespace SangokuKmy.Models.Services
   {
     public static async Task ResetAsync(MainRepository repo)
     {
+      await OnlineService.ResetAsync();
+
       await repo.AuthenticationData.ResetAsync();
       await repo.BattleLog.ResetAsync();
       await repo.CharacterCommand.ResetAsync();

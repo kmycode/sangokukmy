@@ -15,7 +15,7 @@ namespace SangokuKmy.Models.Services
   public static class OnlineService
   {
     private readonly static List<CharacterOnline> onlines = new List<CharacterOnline>();
-    private static CharacterOnline[] onlineCaches = new CharacterOnline[] { };
+    private static CharacterOnline[] onlineCaches = { };
     private readonly static List<CharacterOnline> updates = new List<CharacterOnline>();
     private readonly static AsyncReaderWriterLock locker = new AsyncReaderWriterLock();
 
@@ -182,6 +182,22 @@ namespace SangokuKmy.Models.Services
             StatusStreaming.Default.SendAllAsync(apiData),
             AnonymousStreaming.Default.SendAllAsync(apiData));
           updates.Clear();
+        }
+      }
+      catch (Exception ex)
+      {
+        ErrorCode.LockFailedError.Throw(ex);
+      }
+    }
+
+    public static async Task ResetAsync()
+    {
+      try
+      {
+        using (await locker.WriterLockAsync())
+        {
+          updates.Clear();
+          onlineCaches = new CharacterOnline[] { };
         }
       }
       catch (Exception ex)
