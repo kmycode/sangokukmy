@@ -86,7 +86,7 @@ namespace SangokuKmy.Models.Services
         var country = await repo.Country.GetByIdAsync(town.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
         if (country.IntEstablished + Config.CountryBattleStopDuring > system.GameDateTime.ToInt())
         {
-          var countryCharaCount = await repo.Country.CountCharactersAsync(country.Id);
+          var countryCharaCount = await repo.Country.CountCharactersAsync(country.Id, true);
           if (countryCharaCount >= Config.CountryJoinMaxOnLimited)
           {
             ErrorCode.CantJoinAtSuchCountryhError.Throw();
