@@ -1206,8 +1206,6 @@ namespace SangokuKmy.Controllers
     public async Task RemoveUnitAsync(
       [FromRoute] uint id)
     {
-      IEnumerable<UnitMember> members = null;
-
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var member = await repo.Unit.GetByMemberIdAsync(this.AuthData.CharacterId);

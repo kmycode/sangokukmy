@@ -264,7 +264,9 @@ namespace SangokuKmy.Models.Data
 
           // TRUNCATEはAUTO_INCREMENTがリセットされるのであんま使いたくない
           // FormattableStringにしたらなぜかエラーになるので、通常の文字列連結で使う
+#pragma warning disable EF1000 // #warning ディレクティブ
           await this.Context.Database.ExecuteSqlCommandAsync("DELETE FROM `" + tableName + "`");
+#pragma warning restore EF1000 // #warning ディレクティブ
         }
         else
         {

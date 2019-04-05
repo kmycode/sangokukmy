@@ -138,7 +138,7 @@ namespace SangokuKmy.Models.Updates
           CharacterId = characterId,
           Message = message,
         };
-        await repo.Character.AddCharacterLogAsync(characterId, log);
+        await repo.Character.AddCharacterLogAsync(log);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(log), characterId);
       }
       async Task<MapLog> AddMapLogInnerAsync(bool isImportant, EventType type, string message)
@@ -158,12 +158,6 @@ namespace SangokuKmy.Models.Updates
       async Task AddMapLogAsync(bool isImportant, EventType type, string message)
       {
         await AddMapLogInnerAsync(isImportant, type, message);
-      }
-      async Task<uint> AddMapLogAndSaveAsync(bool isImportant, EventType type, string message)
-      {
-        var log = await AddMapLogInnerAsync(isImportant, type, message);
-        await repo.SaveChangesAsync();
-        return log.Id;
       }
 
       var allCharacters = await repo.Character.GetAllAliveAsync();

@@ -200,14 +200,7 @@ namespace SangokuKmy.Models.Updates
 
     protected virtual void SetCommandOnNoWars(CharacterCommand command)
     {
-      if (this.GameDateTime.Month % 2 == 0)
-      {
-        command.Type = CharacterCommandType.Wall;
-      }
-      else
-      {
-        command.Type = CharacterCommandType.WallGuard;
-      }
+      command.Type = CharacterCommandType.Wall;
     }
 
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)

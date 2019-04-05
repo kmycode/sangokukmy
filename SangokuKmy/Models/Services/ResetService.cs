@@ -175,7 +175,7 @@ namespace SangokuKmy.Models.Services
         {
           System.IO.File.Copy(Config.Game.UploadedIconDirectory + icon.FileName, Config.Game.HistoricalUploadedIconDirectory + icon.FileName);
         }
-        catch (Exception ex)
+        catch
         {
           // loggerがない！
         }
