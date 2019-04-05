@@ -204,7 +204,7 @@ namespace SangokuKmy.Models.Services
       return notUsingCountryColors[RandomService.Next(0, notUsingCountryColors.Length)];
     }
 
-    public static async Task<bool> CreateTerroristCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
+    public static async Task<bool> CreateTerroristCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync, bool isSpecialRule = false)
     {
       var system = await repo.System.GetAsync();
       var countryColor = GetNotUsingCountryColor(await repo.Country.GetAllAsync());
@@ -251,6 +251,25 @@ namespace SangokuKmy.Models.Services
       country.CountryColorId = countryColor;
       country.Name = name;
       country.AiType = CountryAiType.Terrorists;
+
+      if (isSpecialRule)
+      {
+        var towns = await repo.Town.GetAllAsync();
+        var arounds = towns.GetAroundTowns(town.Data);
+        foreach (var a in arounds)
+        {
+          a.CountryId = country.Id;
+
+          var defenders = await repo.Town.GetDefendersAsync(a.Id);
+          foreach (var d in defenders)
+          {
+            repo.Town.RemoveDefender(d.Character.Id);
+          }
+
+          await StatusStreaming.Default.SendTownToAllAsync(ApiData.From((Town)a), repo);
+          await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous((Town)a)));
+        }
+      }
 
       await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Data.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
       await repo.SaveChangesAsync();

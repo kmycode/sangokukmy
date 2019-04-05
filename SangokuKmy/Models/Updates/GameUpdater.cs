@@ -412,11 +412,11 @@ namespace SangokuKmy.Models.Updates
           }
 
           await StatusStreaming.Default.SendCountryAsync(ApiData.From(targetTown), targetTown.CountryId);
-          await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown));
+          await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown), repo);
           foreach (var town in targetTowns)
           {
             await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), town.CountryId);
-            await StatusStreaming.Default.SendTownToAllAsync(ApiData.From((Town)town));
+            await StatusStreaming.Default.SendTownToAllAsync(ApiData.From((Town)town), repo);
           }
           await repo.SaveChangesAsync();
         }
@@ -488,7 +488,7 @@ namespace SangokuKmy.Models.Updates
             }
 
             await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), town.CountryId);
-            await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town));
+            await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
           }
 
           await repo.SaveChangesAsync();
@@ -946,7 +946,7 @@ namespace SangokuKmy.Models.Updates
           (await repo.Town.GetByIdAsync(oldTownId)).Some(async oldTown =>
           {
             // 支配したときとか、元の都市にいた人に武将数や守備人数の更新を指示する
-            await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(oldTown));
+            await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(oldTown), repo);
           });
         }
       });
