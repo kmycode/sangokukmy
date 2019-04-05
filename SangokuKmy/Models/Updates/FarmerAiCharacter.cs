@@ -296,7 +296,7 @@ namespace SangokuKmy.Models.Updates
             else
             {
               // 壁塗り
-              command.Type = this.Town.Wall > this.Town.WallGuard ? CharacterCommandType.WallGuard : CharacterCommandType.Wall;
+              command.Type = CharacterCommandType.Wall;
               return command;
             }
           }

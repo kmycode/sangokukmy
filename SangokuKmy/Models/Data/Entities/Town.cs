@@ -131,20 +131,6 @@ namespace SangokuKmy.Models.Data.Entities
     public int WallMax { get; set; }
 
     /// <summary>
-    /// 守兵
-    /// </summary>
-    [Column("wallguard")]
-    [JsonProperty("wallguard")]
-    public int WallGuard { get; set; }
-
-    /// <summary>
-    /// 守兵最大値
-    /// </summary>
-    [Column("wallguard_max")]
-    [JsonProperty("wallguardMax")]
-    public int WallGuardMax { get; set; }
-
-    /// <summary>
     /// 民忠
     /// </summary>
     [Column("security")]

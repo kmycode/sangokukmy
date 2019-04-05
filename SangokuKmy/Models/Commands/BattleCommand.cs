@@ -292,42 +292,20 @@ namespace SangokuKmy.Models.Commands
 
         if (enemy.IsWall)
         {
-          if (targetTown.WallGuard > 0)
-          {
-            enemy.SoldierType = targetTown.Technology > 900 ? SoldierType.Guard_Step4 :
-                                targetTown.Technology > 700 ? SoldierType.Guard_Step3 :
-                                targetTown.Technology > 500 ? SoldierType.Guard_Step2 :
-                                targetTown.Technology > 300 ? SoldierType.Guard_Step1 :
-                                SoldierType.WallCommon;
-            enemy.Strong = trendStrong;
-            enemy.Proficiency = 100;
+          enemy.SoldierType = targetTown.Technology > 900 ? SoldierType.Guard_Step4 :
+                              targetTown.Technology > 700 ? SoldierType.Guard_Step3 :
+                              targetTown.Technology > 500 ? SoldierType.Guard_Step2 :
+                              targetTown.Technology > 300 ? SoldierType.Guard_Step1 :
+                              SoldierType.WallCommon;
+          enemy.Strong = trendStrong;
+          enemy.Proficiency = 100;
 
-            if (i == 1)
-            {
-              defenderCache.Name = "守兵";
-              defenderCache.Strong = (short)enemy.Strong;
-              defenderCache.SoldierType = enemy.SoldierType;
-              defenderCache.Proficiency = (short)enemy.Proficiency;
-            }
-          }
-          else
+          if (i == 1)
           {
-            enemy.SoldierType = SoldierType.WallCommon;
-            enemy.Strong = trendStrong / 2;
-            enemy.Proficiency = 0;
-            isNoDamage = true;
-
-            if (i == 1)
-            {
-              defenderCache.Name = "城壁";
-              defenderCache.Strong = (short)enemy.Strong;
-              defenderCache.SoldierType = enemy.SoldierType;
-              defenderCache.Proficiency = (short)enemy.Proficiency;
-            }
-            else if (defenderCache.Name == "守兵")
-            {
-              defenderCache.Name = "守兵/" + i + "ターン目より城壁";
-            }
+            defenderCache.Name = targetTown.Name + "城壁";
+            defenderCache.Strong = (short)enemy.Strong;
+            defenderCache.SoldierType = enemy.SoldierType;
+            defenderCache.Proficiency = (short)enemy.Proficiency;
           }
 
           wallChara.Strong = defenderCache.Strong;
@@ -379,7 +357,6 @@ namespace SangokuKmy.Models.Commands
         }
         else
         {
-          targetTown.WallGuard = Math.Max(targetTown.WallGuard - targetDamage, 0);
           targetTown.Wall = enemy.SoldierNumber;
         }
 

@@ -652,9 +652,9 @@ namespace SangokuKmy.Models.Updates
         return false;
       }
 
-      if (this.Town.Wall >= this.Town.WallMax && this.Town.WallGuard >= this.Town.WallGuardMax && this.Town.Technology >= this.Town.TechnologyMax)
+      if (this.Town.Wall >= this.Town.WallMax && this.Town.Technology >= this.Town.TechnologyMax)
       {
-        var match = this.GetMatchTown(this.towns, t => t.Wall * -1, t => t.CountryId == this.Country.Id && (t.Wall < t.WallMax || t.WallGuard < t.WallGuardMax || t.Technology < t.TechnologyMax));
+        var match = this.GetMatchTown(this.towns, t => t.Wall * -1, t => t.CountryId == this.Country.Id && (t.Wall < t.WallMax || t.Technology < t.TechnologyMax));
         if (match != null)
         {
           var street = this.GetStreet(this.towns, this.Town, match);
@@ -673,16 +673,13 @@ namespace SangokuKmy.Models.Updates
         command.Type = CharacterCommandType.Technology;
         return true;
       }
-      if (this.Town.Wall < this.Town.WallGuard && this.Town.Wall < this.Town.WallMax)
+      if (this.Town.Wall < this.Town.WallMax)
       {
         command.Type = CharacterCommandType.Wall;
         return true;
       }
-      else
-      {
-        command.Type = CharacterCommandType.WallGuard;
-        return true;
-      }
+
+      return false;
     }
 
     protected bool InputDevelopOnBorderOrMain()
@@ -702,14 +699,10 @@ namespace SangokuKmy.Models.Updates
 
     protected bool InputDevelop()
     {
-      var v = this.GameDateTime.Month % 3;
+      var v = this.GameDateTime.Month % 2;
       if (v == 0)
       {
         command.Type = CharacterCommandType.Wall;
-      }
-      else if (v == 1)
-      {
-        command.Type = CharacterCommandType.WallGuard;
       }
       else
       {
@@ -721,17 +714,9 @@ namespace SangokuKmy.Models.Updates
       {
         command.Type = CharacterCommandType.Technology;
       }
-      else if (this.Town.Wall < this.Town.WallGuard - 100)
-      {
-        command.Type = CharacterCommandType.Wall;
-      }
 
       // 最大値を監視
       if (command.Type == CharacterCommandType.Wall && this.Town.Wall >= this.Town.WallMax)
-      {
-        command.Type = CharacterCommandType.WallGuard;
-      }
-      if (command.Type == CharacterCommandType.WallGuard && this.Town.WallGuard >= this.Town.WallGuardMax)
       {
         command.Type = CharacterCommandType.Technology;
       }

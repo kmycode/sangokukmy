@@ -113,6 +113,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 守兵増強
     /// </summary>
+    [Obsolete]
     WallGuard = 5,
 
     /// <summary>

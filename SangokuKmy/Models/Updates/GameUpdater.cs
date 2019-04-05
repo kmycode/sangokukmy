@@ -522,7 +522,6 @@ namespace SangokuKmy.Models.Updates
             else if (town.TownBuilding == TownBuilding.RepairWall)
             {
               town.Wall = Math.Min((int)(town.Wall + 15 * size), town.WallMax);
-              town.WallGuard = Math.Min((int)(town.WallGuard + 15 * size), town.WallGuardMax);
             }
             else if (town.TownBuilding == TownBuilding.MilitaryStation)
             {

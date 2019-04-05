@@ -401,14 +401,10 @@ namespace SangokuKmy.Models.Updates
 
     protected override void SetCommandOnNoWars(CharacterCommand command)
     {
-      var v = this.GameDateTime.Month % 3;
+      var v = this.GameDateTime.Month % 2;
       if (v == 0)
       {
         command.Type = CharacterCommandType.Wall;
-      }
-      else if (v == 1)
-      {
-        command.Type = CharacterCommandType.WallGuard;
       }
       else
       {
@@ -416,10 +412,6 @@ namespace SangokuKmy.Models.Updates
       }
 
       if (command.Type == CharacterCommandType.Wall && this.Town.Wall >= this.Town.WallMax)
-      {
-        command.Type = CharacterCommandType.WallGuard;
-      }
-      if (command.Type == CharacterCommandType.WallGuard && this.Town.WallGuard >= this.Town.WallGuardMax)
       {
         command.Type = CharacterCommandType.Technology;
       }
@@ -467,25 +459,13 @@ namespace SangokuKmy.Models.Updates
       {
         command.Type = CharacterCommandType.Wall;
       }
-      else if (this.Town.WallGuard < this.Town.WallGuardMax / 3)
-      {
-        command.Type = CharacterCommandType.WallGuard;
-      }
       else if (this.Town.Wall < this.Town.WallMax / 2)
       {
         command.Type = CharacterCommandType.Wall;
       }
-      else if (this.Town.WallGuard < this.Town.WallGuardMax / 2)
-      {
-        command.Type = CharacterCommandType.WallGuard;
-      }
       else if (this.Town.Wall < this.Town.WallMax)
       {
         command.Type = CharacterCommandType.Wall;
-      }
-      else if (this.Town.WallGuard < this.Town.WallGuardMax)
-      {
-        command.Type = CharacterCommandType.WallGuard;
       }
       else if (this.Town.TownBuildingValue < Config.TownBuildingMax * 2 / 3)
       {

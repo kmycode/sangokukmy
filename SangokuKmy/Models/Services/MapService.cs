@@ -234,8 +234,6 @@ namespace SangokuKmy.Models.Services
       town.PeopleMax = type.PeopleMax;
       town.People = type.People;
       town.Security = (short)type.Security;
-      town.WallGuard = town.Wall;
-      town.WallGuardMax = town.WallMax;
       town.Agriculture = Math.Min(town.Agriculture, town.AgricultureMax);
       town.Commercial = Math.Min(town.Commercial, town.CommercialMax);
       town.Technology = Math.Min(town.Technology, town.TechnologyMax);

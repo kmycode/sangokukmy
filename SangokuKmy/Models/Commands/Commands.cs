@@ -16,7 +16,6 @@ namespace SangokuKmy.Models.Commands
       new CommercialCommand(),
       new TechnologyCommand(),
       new WallCommand(),
-      new WallGuardCommand(),
       new SecurityCommand(),
       new SuperSecurityCommand(),
       // new AgricultureMaxCommand(),

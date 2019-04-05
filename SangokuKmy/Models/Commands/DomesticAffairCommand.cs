@@ -132,19 +132,6 @@ namespace SangokuKmy.Models.Commands
   }
 
   /// <summary>
-  /// 守兵増強
-  /// </summary>
-  public class WallGuardCommand : DomesticAffairCommand
-  {
-    public override CharacterCommandType Type => CharacterCommandType.WallGuard;
-    protected override string GetValueName() => "守兵";
-    protected override int GetCurrentValue(Town town) => town.WallGuard;
-    protected override int GetMaxValue(Town town) => town.WallGuardMax;
-    protected override void SetValue(Town town, int value) => town.WallGuard = value;
-    protected override string GetValueAddingText() => "増強";
-  }
-
-  /// <summary>
   /// 米施し
   /// </summary>
   public class SecurityCommand : DomesticAffairCommand
