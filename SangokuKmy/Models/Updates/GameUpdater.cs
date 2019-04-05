@@ -834,7 +834,7 @@ namespace SangokuKmy.Models.Updates
         {
           var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
           character.DeleteTurn = (short)Config.DeleteTurns;
-          await AddMapLogAsync(EventType.SecretaryRemovedWithNoSalary, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、解雇されました", false);
+          await AddMapLogAsync(EventType.SecretaryRemoved, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、解雇されました", false);
         }
 
         // 放置削除の確認
