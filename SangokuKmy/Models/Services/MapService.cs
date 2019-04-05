@@ -285,7 +285,7 @@ namespace SangokuKmy.Models.Services
 
         public override int WallMax => RandomService.Next(18, 25) * 100;
 
-        public override int PeopleMax => 40000;
+        public override int PeopleMax => 50000;
 
         public override int People => 8000;
 
@@ -310,7 +310,7 @@ namespace SangokuKmy.Models.Services
 
         public override int WallMax => RandomService.Next(18, 25) * 100;
 
-        public override int PeopleMax => 40000;
+        public override int PeopleMax => 50000;
 
         public override int People => 14000;
 
@@ -335,7 +335,7 @@ namespace SangokuKmy.Models.Services
 
         public override int WallMax => RandomService.Next(26, 49) * 100;
 
-        public override int PeopleMax => 30000;
+        public override int PeopleMax => 40000;
 
         public override int People => 4000;
 
@@ -360,7 +360,7 @@ namespace SangokuKmy.Models.Services
 
         public override int WallMax => RandomService.Next(12, 21) * 100;
 
-        public override int PeopleMax => 50000;
+        public override int PeopleMax => 60000;
 
         public override int People => 20000;
 
