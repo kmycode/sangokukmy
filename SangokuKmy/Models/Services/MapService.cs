@@ -175,6 +175,7 @@ namespace SangokuKmy.Models.Services
         Type = typeId,
       };
       UpdateTownType(town, typeId);
+      town.RicePrice = 1.0f;
 
       {
         // 都市施設
