@@ -47,6 +47,11 @@ namespace SangokuKmy.Controllers
       ChatMessage message;
       Character chara;
 
+      if (string.IsNullOrEmpty(param.Message) || param.Message?.Length > 400)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("message", param.Message.Length, 1, 400));
+      }
+
       using (var repo = MainRepository.WithReadAndWrite())
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
@@ -78,6 +83,11 @@ namespace SangokuKmy.Controllers
     {
       ChatMessage message;
       Character chara;
+
+      if (string.IsNullOrEmpty(param.Message) || param.Message?.Length > 400)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("message", param.Message.Length, 1, 400));
+      }
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
@@ -112,6 +122,11 @@ namespace SangokuKmy.Controllers
       ChatMessage message;
       Character chara;
 
+      if (string.IsNullOrEmpty(param.Message) || param.Message?.Length > 400)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("message", param.Message.Length, 1, 400));
+      }
+
       using (var repo = MainRepository.WithReadAndWrite())
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
@@ -137,6 +152,11 @@ namespace SangokuKmy.Controllers
     {
       ChatMessage message;
       Character chara;
+
+      if (string.IsNullOrEmpty(param.Message) || param.Message?.Length > 400)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("message", param.Message.Length, 1, 400));
+      }
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
