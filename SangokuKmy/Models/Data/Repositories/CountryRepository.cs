@@ -510,6 +510,7 @@ namespace SangokuKmy.Models.Data.Repositories
         await this.container.RemoveAllRowsAsync(typeof(Country));
         await this.container.RemoveAllRowsAsync(typeof(CountryPost));
         await this.container.RemoveAllRowsAsync(typeof(CountryMessage));
+        await this.container.RemoveAllRowsAsync(typeof(CountryScouter));
       }
       catch (Exception ex)
       {
