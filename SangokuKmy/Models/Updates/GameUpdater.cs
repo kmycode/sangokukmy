@@ -684,6 +684,7 @@ namespace SangokuKmy.Models.Updates
           if (!countryOptional.HasData || !townOptional.HasData)
           {
             repo.Country.RemoveScouter(scouter);
+            continue;
           }
 
           var scoutedTown = ScoutedTown.From(townOptional.Data);
