@@ -54,8 +54,8 @@ namespace SangokuKmy.Models.Updates
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "異民族_武将";
-      this.Character.Strong = (short)((10 + current.Year / 2.4f) * 1.4f + 10);
-      this.Character.Leadership = 170;
+      this.Character.Strong = (short)(current.ToInt() * 1.08f / 12);
+      this.Character.Leadership = 200;
       this.Character.Money = 99999999;
       this.Character.Rice = 99999999;
     }
@@ -118,8 +118,8 @@ namespace SangokuKmy.Models.Updates
     {
       base.Initialize(current);
       this.Character.Name = "異民族_呂布";
-      this.Character.Strong = 40;
-      this.Character.Leadership = 60;
+      this.Character.Strong = (short)(current.ToInt() * 0.9f / 12);
+      this.Character.Leadership = 90;
     }
   }
 
@@ -146,8 +146,8 @@ namespace SangokuKmy.Models.Updates
     {
       this.Character.Name = "異民族_文官";
       this.Character.Strong = 10;
-      this.Character.Intellect = (short)((10 + current.Year / 2.4f) * 1.4f + 10);
-      this.Character.Leadership = 170;
+      this.Character.Intellect = (short)(current.ToInt() * 0.81f / 12);
+      this.Character.Leadership = 100;
       this.Character.Money = 99999999;
       this.Character.Rice = 99999999;
     }
@@ -205,7 +205,7 @@ namespace SangokuKmy.Models.Updates
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "異民族_仁官";
-      this.Character.Intellect = 170;
+      this.Character.Intellect = (short)(current.ToInt() * 0.8f / 12);
       this.Character.Popularity = 300;
       this.Character.Leadership = 100;
       this.Character.Money = 99999999;
