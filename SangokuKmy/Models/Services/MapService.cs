@@ -200,7 +200,7 @@ namespace SangokuKmy.Models.Services
 
       if (typeId == TownType.Any)
       {
-        var r = RandomService.Next(0, 10);
+        var r = RandomService.Next(0, 9);
         if (r <= 2)
         {
           typeId = TownType.Agriculture;
@@ -212,10 +212,6 @@ namespace SangokuKmy.Models.Services
         else if (r <= 8)
         {
           typeId = TownType.Fortress;
-        }
-        else if (r == 9)
-        {
-          typeId = TownType.Large;
         }
         else
         {
