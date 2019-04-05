@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using SangokuKmy.Models.Services;
 using SangokuKmy.Models.Updates;
 using SangokuKmy.Models.Common;
+using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -200,6 +201,77 @@ namespace SangokuKmy.Models.Commands
 
       await repo.Character.GetByIdAsync((uint)id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
       await repo.Unit.GetByIdAsync((uint)unitId).GetOrErrorAsync(ErrorCode.UnitNotFoundError);
+
+      await this.CheckCanInputAsync(repo, characterId);
+
+      await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates, options);
+    }
+  }
+
+  public class EditSecretaryToTownCommand : SecretaryCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.SecretaryToTown;
+
+    public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
+    {
+      var idParam = options.FirstOrDefault(p => p.Type == 1);
+      var townIdParam = options.FirstOrDefault(p => p.Type == 2);
+      if (idParam == null || townIdParam == null)
+      {
+        await game.CharacterLogAsync($"政務官を配属または転属しようとしましたが、コマンドパラメータが足りません。<emerge>管理者に連絡してください</emerge>");
+        return;
+      }
+      var id = (uint)idParam.NumberValue;
+      var townId = (uint)townIdParam.NumberValue;
+
+      var secretaryOptional = await repo.Character.GetByIdAsync(id);
+      if (!secretaryOptional.HasData || secretaryOptional.Data.HasRemoved)
+      {
+        await game.CharacterLogAsync($"政務官を配属または転属しようとしましたが、指定した政務官は存在しないか、すでに削除されています");
+        return;
+      }
+      if (secretaryOptional.Data.CountryId != character.CountryId)
+      {
+        await game.CharacterLogAsync($"政務官を配属または転属しようとしましたが、指定された政務官はあなたの国のものではありません");
+        return;
+      }
+      if (!secretaryOptional.Data.AiType.IsSecretary())
+      {
+        await game.CharacterLogAsync($"政務官を配属または転属しようとしましたが、指定された武将は政務官ではありません");
+        return;
+      }
+
+      var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
+      if (!countryOptional.HasData)
+      {
+        await game.CharacterLogAsync($"政務官を配属または転属しようとしましたが、あなたの国はすでに滅亡しているか無所属です");
+        return;
+      }
+      var country = countryOptional.Data;
+
+      var townOptional = await repo.Town.GetByIdAsync(townId);
+      if (!townOptional.HasData)
+      {
+        await game.CharacterLogAsync($"政務官を配属または転属しようとしましたが、指定された都市は存在しません");
+        return;
+      }
+
+      secretaryOptional.Data.TownId = townOptional.Data.Id;
+
+      character.Contribution += 30;
+      character.AddLeadershipEx(50);
+      await game.CharacterLogAsync($"政務官 <character>{secretaryOptional.Data.Name}</character> を都市 <town>{townOptional.Data.Name}</town> に配属しました");
+
+      await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(townOptional.Data), repo);
+    }
+
+    public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
+    {
+      var id = (CharacterAiType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
+      var townId = (CharacterAiType)options.FirstOrDefault(p => p.Type == 2).Or(ErrorCode.LackOfCommandParameter).NumberValue;
+
+      await repo.Character.GetByIdAsync((uint)id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+      await repo.Town.GetByIdAsync((uint)townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
 
       await this.CheckCanInputAsync(repo, characterId);
 

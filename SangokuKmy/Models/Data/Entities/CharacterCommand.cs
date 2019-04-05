@@ -275,5 +275,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 斥候削除
     /// </summary>
     RemoveScouter = 46,
+
+    /// <summary>
+    /// 政務官配属（都市）
+    /// </summary>
+    SecretaryToTown = 47,
   }
 }
