@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using SangokuKmy.Models.Data.ApiEntities;
 using System.Linq;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -162,13 +163,14 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         var system = await this.container.Context.SystemData.FirstAsync();
+        var intStartMonth = system.GameDateTime.Year >= Config.UpdateStartYear ? system.IntGameDateTime : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, }.ToInt();
         return (await this.container.Context.Characters
           .Where(c => c.TownId == townId && !c.HasRemoved)
           .GroupJoin(this.container.Context.CharacterIcons,
             c => c.Id,
             i => i.CharacterId,
             (c, i) => new { Character = c, Icons = i, })
-          .GroupJoin(this.container.Context.CharacterCommands.Where(c => c.IntGameDateTime <= system.IntGameDateTime + 8)
+          .GroupJoin(this.container.Context.CharacterCommands.Where(c => c.IntGameDateTime <= intStartMonth + 8)
               .GroupJoin(this.container.Context.CharacterCommandParameters,
                 c => c.Id,
                 p => p.CharacterCommandId,

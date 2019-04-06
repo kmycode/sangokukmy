@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Data.ApiEntities
 {
@@ -110,7 +111,8 @@ namespace SangokuKmy.Models.Data.ApiEntities
         if (commands != null)
         {
           var cmds = new List<CharacterCommand>();
-          for (var i = character.IntLastUpdatedGameDate + 1; i <= character.IntLastUpdatedGameDate + 4; i++)
+          var intStartMonth = character.LastUpdatedGameDate.Year >= Config.UpdateStartYear ? character.IntLastUpdatedGameDate + 1 : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, }.ToInt();
+          for (var i = intStartMonth; i < intStartMonth + 4; i++)
           {
             cmds.Add(commands.FirstOrDefault(c => c.IntGameDateTime == i) ?? new CharacterCommand
             {
