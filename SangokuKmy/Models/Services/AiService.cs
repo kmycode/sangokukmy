@@ -18,7 +18,7 @@ namespace SangokuKmy.Models.Services
     {
       var towns = await repo.Town.GetAllAsync();
       var townPosition = MapService.GetNewTownPosition(towns, t => !avoidCountries.Contains(t.CountryId));
-      if (townPosition.X < 0)
+      if (townPosition.X < 0 || townPosition.Y < 0)
       {
         return default;
       }

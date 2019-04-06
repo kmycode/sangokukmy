@@ -304,6 +304,11 @@ namespace SangokuKmy.Models.Data.Entities
       return towns.Where(t => t.IsNextToTown(town));
     }
 
+    public static IEnumerable<TownBase> GetAroundTowns(this IEnumerable<TownBase> towns, short x, short y)
+    {
+      return towns.Where(t => t.IsNextToTown(x, y));
+    }
+
     public static bool IsNextToTown(this IEnumerable<TownBase> towns, TownBase a, TownBase b)
     {
       return towns.GetAroundTowns(a).Contains(b);
@@ -311,7 +316,12 @@ namespace SangokuKmy.Models.Data.Entities
 
     public static bool IsNextToTown<T>(this T a, TownBase b) where T : TownBase
     {
-      return Math.Abs(a.X - b.X) <= 1 && Math.Abs(a.Y - b.Y) <= 1 && a.Id != b.Id;
+      return Math.Abs(a.X - b.X) <= 1 && Math.Abs(a.Y - b.Y) <= 1 && !(a.X == b.X && a.Y == b.Y);
+    }
+
+    public static bool IsNextToTown<T>(this T a, short x, short y) where T : TownBase
+    {
+      return Math.Abs(a.X - x) <= 1 && Math.Abs(a.Y - y) <= 1 && !(a.X == x && a.Y == y);
     }
   }
 }
