@@ -80,6 +80,12 @@ namespace SangokuKmy.Models.Services
       };
       chara.SetPassword(password);
 
+      // 来月の更新がまだ終わってないタイミングで登録したときの、武将更新時刻の調整
+      if (chara.LastUpdated - system.CurrentMonthStartDateTime > TimeSpan.FromSeconds(Config.UpdateTime))
+      {
+        chara.IntLastUpdatedGameDate++;
+      }
+
       if (town.CountryId > 0)
       {
         // 武将総数チェック
