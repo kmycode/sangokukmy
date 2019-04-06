@@ -52,6 +52,20 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"{soldierType.Name} はあなたの兵種ではありません");
         return;
       }
+
+      if (!soldierType.IsVerify)
+      {
+        if (soldierType.Status == CharacterSoldierStatus.Researching)
+        {
+          await game.CharacterLogAsync($"{soldierType.Name} の兵種構成が不正です。<emerge>管理者にお問い合わせください</emerge>");
+        }
+        else
+        {
+          await game.CharacterLogAsync($"{soldierType.Name} の兵種構成が不正です。兵種の仕様が変わった可能性があります。編集画面で、新しい仕様に合わせてください");
+        }
+        return;
+      }
+
       var soldierTypeData = soldierType.ToParts().ToData();
 
       var policies = await repo.Country.GetPoliciesAsync(character.CountryId);

@@ -113,10 +113,23 @@ namespace SangokuKmy.Models.Data.Entities
     {
       get
       {
-        return this.Common >= 0 && this.LightInfantry >= 0 && this.Archer >= 0 &&
-              this.LightCavalry >= 0 && this.StrongCrossbow >= 0 && this.LightIntellect >= 0 &&
-              this.HeavyInfantry >= 0 && this.HeavyCavalry >= 0 && this.Intellect >= 0 &&
-              this.RepeatingCrossbow >= 0 && this.StrongGuards >= 0 && this.Seiran >= 0;
+        return this.Common >= 0 &&
+          this.LightInfantry >= 0 &&
+          this.Archer >= 0 &&
+          this.LightCavalry >= 0 &&
+          this.StrongCrossbow >= 0 &&
+          this.LightIntellect >= 0 &&
+          this.HeavyInfantry >= 0 &&
+          this.HeavyCavalry >= 0 &&
+          this.Intellect >= 0 &&
+          this.RepeatingCrossbow >= 0 &&
+          this.StrongGuards >= 0 &&
+          this.Seiran >= 0 &&
+          this.Guard_Step1 == 0 &&
+          this.Guard_Step2 == 0 &&
+          this.Guard_Step3 == 0 &&
+          this.Guard_Step4 == 0 &&
+          this.Size <= 12;
       }
     }
 
