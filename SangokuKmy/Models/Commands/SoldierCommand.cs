@@ -55,6 +55,11 @@ namespace SangokuKmy.Models.Commands
           var typeOptional = await repo.CharacterSoldierType.GetByIdAsync((uint)soldierType);
           if (typeOptional.HasData)
           {
+            if (typeOptional.Data.Status != CharacterSoldierStatus.Available)
+            {
+              await game.CharacterLogAsync($"カスタム兵種 {typeOptional.Data.Name} を徴兵しようとしましたが、その兵種は研究中または削除済です");
+              return;
+            }
             var type = typeOptional.Data;
             soldierTypeName = type.Name;
             soldierTypeData = type.ToParts().ToData();
