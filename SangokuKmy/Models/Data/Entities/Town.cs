@@ -309,6 +309,26 @@ namespace SangokuKmy.Models.Data.Entities
       return towns.Where(t => t.IsNextToTown(x, y));
     }
 
+    public static IEnumerable<TownBase> GetOrderedAroundTowns(this IEnumerable<TownBase> towns, TownBase town)
+    {
+      return GetOrderedAroundTowns(towns, town.X, town.Y);
+    }
+
+    public static IEnumerable<TownBase> GetOrderedAroundTowns(this IEnumerable<TownBase> towns, short x, short y)
+    {
+      var pos = new int[] { x - 1, y - 1, x, y - 1, x + 1, y - 1, x + 1, y, x + 1, y + 1, x, y + 1, x - 1, y + 1, x - 1, y };
+      for (var i = 0; i < 8; i++)
+      {
+        var tx = pos[i * 2];
+        var ty = pos[i * 2 + 1];
+        var town = towns.FirstOrDefault(t => t.X == tx && t.Y == ty);
+        if (town != null)
+        {
+          yield return town;
+        }
+      }
+    }
+
     public static bool IsNextToTown(this IEnumerable<TownBase> towns, TownBase a, TownBase b)
     {
       return towns.GetAroundTowns(a).Contains(b);

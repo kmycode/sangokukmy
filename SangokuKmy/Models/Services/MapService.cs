@@ -69,7 +69,7 @@ namespace SangokuKmy.Models.Services
           var errors = 0;
           foreach (var t in towns)
           {
-            var arounds = towns.GetAroundTowns(t);
+            var arounds = towns.GetOrderedAroundTowns(t).ToArray();
             var c = arounds.Count(at => arounds.Any(att => att.IsNextToTown(at)));
             if (c == 1)
             {
@@ -81,16 +81,52 @@ namespace SangokuKmy.Models.Services
             }
             else
             {
-              var aroundsBlockCount = arounds
-                .GetAroundTowns(arounds.First())
-                .Append(arounds.First())
-                .SelectMany(a => arounds.GetAroundTowns(a))
-                .SelectMany(a => arounds.GetAroundTowns(a))
-                .Distinct()
-                .Count();
-              if (aroundsBlockCount != arounds.Count())
+              // 隣接都市がお互い隣接してるか確認する
+              var blocks = new List<List<TownBase>>
               {
-                aroundsSeparated++;
+                new List<TownBase>
+                {
+                  arounds[0],
+                },
+              };
+              for (var i = 0; i < arounds.Length - 1; i++)
+              {
+                var aa = arounds[i];
+                var bb = arounds[i + 1];
+                if (aa.IsNextToTown(bb))
+                {
+                  blocks.Last().Add(bb);
+                }
+                else
+                {
+                  blocks.Add(new List<TownBase>
+                  {
+                    bb,
+                  });
+                }
+              }
+              if (blocks.Count >= 2 && blocks.First().First().IsNextToTown(blocks.Last().Last()))
+              {
+                blocks.First().AddRange(blocks.Last());
+                blocks.RemoveAt(blocks.Count - 1);
+              }
+
+              if (blocks.Count != 1)
+              {
+                if (blocks.Count == 2)
+                {
+                  // 隣接していなくても、隣接都市が共通の隣接都市を持っていればセーフ
+                  var others = towns.Where(tt => t.Id != tt.Id);
+                  var aroundsGroup = blocks.Select(b => b.SelectMany(a => others.GetAroundTowns(a)).Distinct()).ToArray();
+                  if (!aroundsGroup[0].Intersect(aroundsGroup[1]).Any())
+                  {
+                    aroundsSeparated++;
+                  }
+                }
+                else
+                {
+                  aroundsSeparated++;
+                }
               }
             }
           }
