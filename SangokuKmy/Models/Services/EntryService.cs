@@ -14,8 +14,8 @@ namespace SangokuKmy.Models.Services
 {
   public static class EntryService
   {
-    public static int GetAttributeMax(GameDateTime current) => 100 + (Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) / 16;
-    public static int GetAttributeSumMax(GameDateTime current) => 200 + (Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) / 4;
+    public static int GetAttributeMax(GameDateTime current) => 100 + (Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) / 6;
+    public static int GetAttributeSumMax(GameDateTime current) => 200 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) / 1.8f);
 
     public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode)
     {
