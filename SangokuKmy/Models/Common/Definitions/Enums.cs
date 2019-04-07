@@ -241,6 +241,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode InvalidSecretKeyError { get; } = new ErrorCode(401, 43);
 
+    /// <summary>
+    /// 未実装エラー
+    /// </summary>
+    public static ErrorCode NotImplementedError { get; } = new ErrorCode(501, 44);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

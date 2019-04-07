@@ -16,6 +16,7 @@ namespace SangokuKmy.Controllers
 {
   [Route("api/v1")]
   [ServiceFilter(typeof(SangokuKmyErrorFilterAttribute))]
+  [NotImplementedFilter]
   [AuthenticationFilter]
   public class SoldierTypeController : Controller, IAuthenticationDataReceiver
   {
