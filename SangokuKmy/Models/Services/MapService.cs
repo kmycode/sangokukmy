@@ -263,8 +263,6 @@ namespace SangokuKmy.Models.Services
 
     public static void UpdateTownType(Town town, TownType typeId)
     {
-      town.Type = typeId;
-
       if (typeId == TownType.Any)
       {
         var r = RandomService.Next(0, 9);
@@ -285,6 +283,8 @@ namespace SangokuKmy.Models.Services
           typeId = TownType.Agriculture;
         }
       }
+      town.Type = typeId;
+
       var type = typeId == TownType.Agriculture ? TownTypeDefinition.AgricultureType :
                  typeId == TownType.Commercial ? TownTypeDefinition.CommercialType :
                  typeId == TownType.Fortress ? TownTypeDefinition.FortressType :
