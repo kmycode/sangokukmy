@@ -58,6 +58,12 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      if (country.AiType != CountryAiType.Human)
+      {
+        await game.CharacterLogAsync($"<country>{country.Name}</country> の <town>{town.Name}</town> で謀略を実行しようとしましたが、人間以外の国には実行できません（第0.2期統一後を想定した特別対応です）");
+        return;
+      }
+
       if (character.Money < 50)
       {
         await game.CharacterLogAsync($"金が足りません。<num>50</num> 必要です");
