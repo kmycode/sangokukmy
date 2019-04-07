@@ -16,6 +16,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("id")]
     public uint Id { get; set; }
 
+    [JsonProperty("aliasId")]
+    public string AliasId { get; set; }
+
     [JsonProperty("name")]
     public string Name { get; set; }
 
@@ -81,6 +84,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public CharacterForAnonymous(Character character, CharacterIcon mainIcon, Reinforcement reinforcement, IReadOnlyList<CharacterCommand> commands, CharacterShareLevel level)
     {
       this.Id = character.Id;
+      if (character.AiType == CharacterAiType.SecretaryDefender)
+      {
+        this.AliasId = character.AliasId;
+      }
       this.Name = character.Name;
       this.MainIcon = mainIcon;
       this.ApiAiType = character.ApiAiType;
