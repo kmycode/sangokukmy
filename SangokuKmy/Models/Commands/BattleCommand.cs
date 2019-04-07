@@ -236,7 +236,7 @@ namespace SangokuKmy.Models.Commands
 
       var enemy = new EnemyData();
       var wallChara = new Character();
-      var trendStrong = game.GameDateTime.ToInt() / 27;
+      var trendStrong = Math.Max((int)((game.GameDateTime.ToInt() - Config.StartYear * 12 - Config.CountryBattleStopDuring) * 0.91f / 12), 100);
       var defenders = await repo.Town.GetDefendersAsync(targetTown.Id);
       LogCharacterCache defenderCache = null;
       if (defenders.Any())
@@ -275,12 +275,35 @@ namespace SangokuKmy.Models.Commands
       {
         enemy.SoldierNumber = targetTown.Wall;
         log.DefenderType = DefenderType.Wall;
+
+        enemy.SoldierType = targetTown.Technology > 900 ? SoldierType.Guard_Step4 :
+                            targetTown.Technology > 700 ? SoldierType.Guard_Step3 :
+                            targetTown.Technology > 500 ? SoldierType.Guard_Step2 :
+                            targetTown.Technology > 300 ? SoldierType.Guard_Step1 :
+                            SoldierType.WallCommon;
+        enemy.Strong = trendStrong;
+        enemy.Proficiency = 100;
+
         defenderCache = new LogCharacterCache
         {
           CountryId = targetTown.CountryId,
           IconId = 0,
           SoldierNumber = enemy.SoldierNumber,
+          Name = targetTown.Name + "城壁",
+          Strong = (short)enemy.Strong,
+          SoldierType = enemy.SoldierType,
+          Proficiency = (short)enemy.Proficiency,
         };
+
+        wallChara.Strong = defenderCache.Strong;
+        wallChara.Intellect = defenderCache.Intellect;
+        wallChara.Leadership = defenderCache.Leadership;
+        wallChara.Popularity = defenderCache.Popularity;
+        wallChara.SoldierType = defenderCache.SoldierType;
+        wallChara.SoldierNumber = defenderCache.SoldierNumber;
+        wallChara.Proficiency = defenderCache.Proficiency;
+
+        targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(enemy.SoldierType);
       }
 
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");
@@ -289,34 +312,6 @@ namespace SangokuKmy.Models.Commands
       {
         var isNoDamage = false;
         continuousTurns = i;
-
-        if (enemy.IsWall)
-        {
-          enemy.SoldierType = targetTown.Technology > 900 ? SoldierType.Guard_Step4 :
-                              targetTown.Technology > 700 ? SoldierType.Guard_Step3 :
-                              targetTown.Technology > 500 ? SoldierType.Guard_Step2 :
-                              targetTown.Technology > 300 ? SoldierType.Guard_Step1 :
-                              SoldierType.WallCommon;
-          enemy.Strong = trendStrong;
-          enemy.Proficiency = 100;
-
-          if (i == 1)
-          {
-            defenderCache.Name = targetTown.Name + "城壁";
-            defenderCache.Strong = (short)enemy.Strong;
-            defenderCache.SoldierType = enemy.SoldierType;
-            defenderCache.Proficiency = (short)enemy.Proficiency;
-          }
-
-          wallChara.Strong = defenderCache.Strong;
-          wallChara.Intellect = defenderCache.Intellect;
-          wallChara.Leadership = defenderCache.Leadership;
-          wallChara.Popularity = defenderCache.Popularity;
-          wallChara.SoldierType = defenderCache.SoldierType;
-          wallChara.SoldierNumber = defenderCache.SoldierNumber;
-          wallChara.Proficiency = defenderCache.Proficiency;
-          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(enemy.SoldierType);
-        }
 
         var (ka, kd) = mySoldierType.CalcCorrections(character, targetSoldierType);
         myAttackSoldierTypeCorrection = ka;
