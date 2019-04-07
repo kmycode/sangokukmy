@@ -291,16 +291,37 @@ namespace SangokuKmy.Models.Services
 
       if (targetCountryOptional.HasData && await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1)
       {
+        await repo.Character.AddCharacterLogAsync(new CharacterLog
+        {
+          CharacterId = 24,
+          DateTime = DateTime.Now,
+          GameDateTime = system.GameDateTime,
+          Message = $"地点１",
+        });
         return false;
       }
       if ((await repo.Town.GetDefendersAsync(town.Id)).Count > 0)
       {
+        await repo.Character.AddCharacterLogAsync(new CharacterLog
+        {
+          CharacterId = 24,
+          DateTime = DateTime.Now,
+          GameDateTime = system.GameDateTime,
+          Message = $"地点２",
+        });
         return false;
       }
 
       var countryColor = GetNotUsingCountryColor(await repo.Country.GetAllAsync());
       if (countryColor == 0)
       {
+        await repo.Character.AddCharacterLogAsync(new CharacterLog
+        {
+          CharacterId = 24,
+          DateTime = DateTime.Now,
+          GameDateTime = system.GameDateTime,
+          Message = $"地点３",
+        });
         return false;
       }
       
