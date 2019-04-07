@@ -197,6 +197,27 @@ namespace SangokuKmy.Models.Updates
           return command;
         }
 
+        if (this.Character.SoldierNumber < this.Character.Leadership)
+        {
+          command.Type = CharacterCommandType.Soldier;
+          command.Parameters.Add(new CharacterCommandParameter
+          {
+            Type = 1,
+            NumberValue = (int)this.FindSoldierType(),
+          });
+          command.Parameters.Add(new CharacterCommandParameter
+          {
+            Type = 2,
+            NumberValue = this.GetSoldierNumber(),
+          });
+          command.Parameters.Add(new CharacterCommandParameter
+          {
+            Type = 3,
+            NumberValue = 0,
+          });
+          return command;
+        }
+
         if (this.Character.Proficiency < 100)
         {
           command.Type = CharacterCommandType.SoldierTraining;
