@@ -69,6 +69,8 @@ namespace SangokuKmy.Controllers
     [HttpGet("reset/map/{num}")]
     public string CreateNewMap([FromRoute] int num = 7)
     {
+      num = Math.Min(30, Math.Max(1, num));
+
       var towns = MapService.CreateMap(num);
       var str = "";
       for (var y = 0; y < 10; y++)
