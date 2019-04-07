@@ -463,6 +463,8 @@ namespace SangokuKmy.Models.Data.Entities
     SecretaryPioneer = 11,
     TerroristRyofu = 12,
     TerroristMainPatroller = 13,
+    ThiefBattler = 14,
+    ThiefPatroller = 15,
   }
 
   public static class CharacterAiTypeExtensions

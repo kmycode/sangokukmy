@@ -145,9 +145,10 @@ namespace SangokuKmy.Models.Services
       }
 
       var startMonth = (await repo.System.GetAsync()).GameDateTime;
+      var startYear = Math.Max(startMonth.Year, Config.UpdateStartYear + Config.CountryBattleStopDuring / 12);
       startMonth = new GameDateTime
       {
-        Year = (short)(startMonth.Year + 24 - startMonth.Year % 12),  // 翌日または翌々日の２１時
+        Year = (short)(startYear + 24 - startYear % 12),  // 翌日または翌々日の２１時
         Month = 1,
       };
       var war = new CountryWar
@@ -220,8 +221,6 @@ namespace SangokuKmy.Models.Services
         CharacterAiType.TerroristBattler,
         CharacterAiType.TerroristBattler,
         CharacterAiType.TerroristRyofu,
-        CharacterAiType.TerroristRyofu,
-        CharacterAiType.TerroristPatroller,
         CharacterAiType.TerroristPatroller,
         CharacterAiType.TerroristMainPatroller,
       };
@@ -274,6 +273,69 @@ namespace SangokuKmy.Models.Services
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
 
       await CreateWarIfNotWarAsync(repo, country, town.Data, mapLogAsync);
+
+      return true;
+    }
+
+    public static async Task<bool> CreateThiefCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync)
+    {
+      if (town.CountryId != 0)
+      {
+        return false;
+      }
+
+      var system = await repo.System.GetAsync();
+      var countryColor = GetNotUsingCountryColor(await repo.Country.GetAllAsync());
+      if (countryColor == 0)
+      {
+        return false;
+      }
+
+      var countries = await repo.Country.GetAllAsync();
+      var charas = new List<CharacterAiType>
+      {
+        CharacterAiType.ThiefBattler,
+        CharacterAiType.ThiefPatroller,
+      };
+      if (system.GameDateTime.Year + 6 >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
+      {
+        charas.Add(CharacterAiType.ThiefBattler);
+      }
+
+      var names = new string[] { "赤眉", "緑林", "黄巣", "侯景", }.Where(n => !countries.Where(c => !c.HasOverthrown && c.AiType == CountryAiType.Thiefs).Any(c => c.Name == n)).ToArray();
+      if (!names.Any())
+      {
+        return false;
+      }
+
+      var name = names[RandomService.Next(0, names.Length)];
+      if (RandomService.Next(0, 4) == 0 && !countries.Any(c => c.Name == "黄巾" && c.AiType == CountryAiType.Thiefs))
+      {
+        name = "黄巾";
+        charas.Add(CharacterAiType.ThiefBattler);
+        charas.Add(CharacterAiType.ThiefBattler);
+        charas.Add(CharacterAiType.ThiefPatroller);
+      }
+
+      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+      var warCountries = wars
+        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
+        .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
+        .Distinct();
+
+      var country = await CreateCountryAsync(repo, system, town, charas.ToArray());
+      country.CountryColorId = countryColor;
+      country.Name = name;
+      country.AiType = CountryAiType.Thiefs;
+
+      await mapLogAsync(EventType.AppendThiefs, $"<town>{town.Name}</town> の <country>{country.Name}</country> が蜂起し、独自勢力を築きました", true);
+      await repo.SaveChangesAsync();
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(town.Id)).Select(c => c.Id));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
 
       return true;
     }

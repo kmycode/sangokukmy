@@ -253,5 +253,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 新しい政策
     /// </summary>
     Policy = 32,
+
+    /// <summary>
+    /// 蛮族
+    /// </summary>
+    AppendThiefs = 33,
   }
 }

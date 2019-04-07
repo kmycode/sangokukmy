@@ -656,6 +656,24 @@ namespace SangokuKmy.Models.Updates
           }
         }
 
+        // 蛮族
+        if (allTowns.Any(t => t.CountryId == 0) && RandomService.Next(0, 192) == 0)
+        {
+          var towns = allTowns.Where(t => t.CountryId == 0 && allTowns.GetAroundTowns(t).Any(tt => tt.CountryId != 0)).ToArray();
+          if (towns.Any())
+          {
+            var isCreated = await AiService.CreateThiefCountryAsync(repo, towns[RandomService.Next(0, towns.Length)], (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+            if (isCreated)
+            {
+              await repo.SaveChangesAsync();
+            }
+            else
+            {
+              _logger.LogInformation("蛮族出現の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
+            }
+          }
+        }
+
         // 戦争状態にないAI国家がどっかに布告するようにする
         if (allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human))
         {

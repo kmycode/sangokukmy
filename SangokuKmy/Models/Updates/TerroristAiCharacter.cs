@@ -54,8 +54,8 @@ namespace SangokuKmy.Models.Updates
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "異民族_武将";
-      this.Character.Strong = (short)(current.ToInt() * 1.08f / 12);
-      this.Character.Leadership = 200;
+      this.Character.Strong = (short)Math.Max((current.ToInt() * 1.08f / 12), 100);
+      this.Character.Leadership = (short)Math.Min(current.Year * 0.77f + 100, 200.0f);
       this.Character.Money = 99999999;
       this.Character.Rice = 99999999;
     }
