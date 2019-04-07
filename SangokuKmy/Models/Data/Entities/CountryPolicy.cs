@@ -81,6 +81,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 突撃
     /// </summary>
     BattleRush = 9,
+
+    /// <summary>
+    /// 国庫拡張
+    /// </summary>
+    UndergroundStorage = 10,
   }
 
   public class CountryPolicyTypeInfo
@@ -90,6 +95,8 @@ namespace SangokuKmy.Models.Data.Entities
     public string Name { get; set; }
 
     public int RequestedPoint { get; set; }
+
+    public Func<IEnumerable<CountryPolicyType>, bool> SubjectAppear { get; set; }
   }
 
   public static class CountryPolicyTypeInfoes
@@ -142,13 +149,20 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.BattleContinuous,
         Name = "連戦戦術",
-        RequestedPoint = 50_0000,
+        RequestedPoint = 500_0000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.BattleRush,
         Name = "突撃戦術",
-        RequestedPoint = 50_0000,
+        RequestedPoint = 500_0000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.UndergroundStorage,
+        Name = "地下貯蔵",
+        RequestedPoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Storage),
       },
     };
 

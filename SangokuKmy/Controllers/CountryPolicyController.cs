@@ -76,6 +76,11 @@ namespace SangokuKmy.Controllers
           ErrorCode.InvalidOperationError.Throw();
         }
 
+        if (info.Data.SubjectAppear != null && !info.Data.SubjectAppear(policies.Select(p => p.Type)))
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
         param.CountryId = chara.CountryId;
         country.PolicyPoint -= info.Data.RequestedPoint;
         await repo.Country.AddPolicyAsync(param);

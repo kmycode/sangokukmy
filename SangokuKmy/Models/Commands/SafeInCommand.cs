@@ -39,7 +39,14 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      var policies = await repo.Country.GetPoliciesAsync(country.Id);
+
       var max = Config.CountrySafeMax;
+      if (policies.Any(p => p.Type == CountryPolicyType.UndergroundStorage))
+      {
+        max *= 2;
+      }
+
       var money = options.FirstOrDefault(o => o.Type == 1)?.NumberValue ?? 0;
       if (money > character.Money)
       {
