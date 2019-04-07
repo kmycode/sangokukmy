@@ -697,6 +697,21 @@ namespace SangokuKmy.Models.Updates
       return false;
     }
 
+    protected bool InputDevelopOnBorderOrMainLow()
+    {
+      if (this.data.BorderTown != null && this.data.BorderTown.Id == this.Town.Id)
+      {
+        return this.InputDevelopLow();
+      }
+
+      if (this.data.MainTown.Id == this.Town.Id)
+      {
+        return this.InputDevelopLow();
+      }
+
+      return false;
+    }
+
     protected bool InputDevelop()
     {
       var v = this.GameDateTime.Month % 2;
@@ -727,6 +742,37 @@ namespace SangokuKmy.Models.Updates
       if (command.Type == CharacterCommandType.TownBuilding && this.Town.TownBuildingValue >= Config.TownBuildingMax)
       {
         return false;
+      }
+
+      return true;
+    }
+
+    protected bool InputDevelopLow()
+    {
+      var v = this.GameDateTime.Month % 2;
+      if (v == 0)
+      {
+        command.Type = CharacterCommandType.Wall;
+      }
+      else
+      {
+        command.Type = CharacterCommandType.Technology;
+      }
+
+      // 内政の優先順位（謀略も考慮）
+      if (this.Town.Technology < 401)
+      {
+        command.Type = CharacterCommandType.Technology;
+      }
+
+      // 最大値を監視
+      if (command.Type == CharacterCommandType.Wall && this.Town.Wall >= this.Town.WallMax / 2)
+      {
+        command.Type = CharacterCommandType.Technology;
+      }
+      if (command.Type == CharacterCommandType.Technology && this.Town.Technology >= this.Town.TechnologyMax / 2)
+      {
+        return this.InputDevelop();
       }
 
       return true;

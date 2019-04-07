@@ -438,6 +438,21 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     TerroristCommonC = 19,
 
+    /// <summary>
+    /// 賊A
+    /// </summary>
+    ThiefCommonA = 20,
+
+    /// <summary>
+    /// 賊B
+    /// </summary>
+    ThiefCommonB = 21,
+
+    /// <summary>
+    /// 賊C
+    /// </summary>
+    ThiefCommonC = 22,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,

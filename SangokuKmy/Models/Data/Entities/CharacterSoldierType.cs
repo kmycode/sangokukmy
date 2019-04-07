@@ -419,9 +419,9 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 3,
           BaseDefend = 2,
-          RushProbability = 45,
+          RushProbability = 12,
           RushAttack = 12,
-          ContinuousProbability = 30,
+          ContinuousProbability = 11,
           StrongEx = 1,
         },
         Technology = 32767,
@@ -435,9 +435,9 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 4,
           BaseDefend = 3,
-          RushProbability = 60,
+          RushProbability = 18,
           RushAttack = 15,
-          ContinuousProbability = 70,
+          ContinuousProbability = 27,
           StrongEx = 1,
         },
         Technology = 32767,
@@ -451,9 +451,48 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 6,
           BaseDefend = 4,
-          RushProbability = 70,
+          RushProbability = 24,
           RushAttack = 22,
-          ContinuousProbability = 100,
+          ContinuousProbability = 70,
+          StrongEx = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.ThiefCommonA,
+        Name = "賊兵A",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 3,
+          BaseDefend = 2,
+          StrongEx = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.ThiefCommonB,
+        Name = "賊兵B",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 4,
+          BaseDefend = 3,
+          StrongEx = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.ThiefCommonC,
+        Name = "賊兵C",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 6,
+          BaseDefend = 4,
           StrongEx = 1,
         },
         Technology = 32767,
