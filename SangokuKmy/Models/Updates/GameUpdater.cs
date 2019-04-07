@@ -216,10 +216,11 @@ namespace SangokuKmy.Models.Updates
             if (secretaries.Any())
             {
               var secretarySize = await CountryService.GetCountryBuildingSizeAsync(repo, country.Country.Id, CountryBuilding.Secretary);
-              if (secretarySize > 0.0f)
+              if (secretarySize > 0.0f || secretaries.Any(s => s.AiType == CharacterAiType.SecretaryDefender))
               {
-                var income = (int)(Config.SecretaryCost / secretarySize);
-                foreach (var character in secretaries)
+                var target = secretarySize > 0.0f ? secretaries : secretaries.Where(s => s.AiType == CharacterAiType.SecretaryDefender);
+                var income = secretarySize > 0.0f ? (int)(Config.SecretaryCost / secretarySize) : Config.SecretaryCost;
+                foreach (var character in target)
                 {
                   var isContinue = false;
                   if (country.Country.SafeMoney >= income)
@@ -250,14 +251,14 @@ namespace SangokuKmy.Models.Updates
                   }
                 }
               }
-            }
-            else
-            {
-              // 政務庁がなければ全員解任
-              foreach (var character in country.Characters.Where(c => c.AiType.IsSecretary()))
+              if (secretarySize <= 0.0f)
               {
-                character.Money = 0;
-                character.Rice = 0;
+                // 政務庁がなければ全員解任
+                foreach (var character in country.Characters.Where(c => c.AiType.IsSecretary() && c.AiType != CharacterAiType.SecretaryDefender))
+                {
+                  character.Money = 0;
+                  character.Rice = 0;
+                }
               }
             }
 
