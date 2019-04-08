@@ -298,8 +298,11 @@ namespace SangokuKmy.Models.Commands
       targetAttackSoldierTypeCorrection = ea;
       targetDefenceSoldierTypeCorrection = ed;
 
-      var myAttack = Math.Max((int)((character.Strong + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetCharacter.Proficiency / 2.5f) / 8), 0);
-      var targetAttack = Math.Max((int)((targetCharacter.Strong + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
+      var myPower = mySoldierType.CalcPower(character);
+      var targetPower = targetSoldierType.CalcPower(targetCharacter);
+
+      var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetCharacter.Proficiency / 2.5f) / 8), 0);
+      var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
 
       for (var i = continuousTurns; i <= 50 && targetCharacter.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
       {

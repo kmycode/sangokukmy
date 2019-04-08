@@ -453,6 +453,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     ThiefCommonC = 22,
 
+    /// <summary>
+    /// 文官雑兵
+    /// </summary>
+    IntellectCommon = 23,
+
+    /// <summary>
+    /// 文官重騎兵
+    /// </summary>
+    IntellectHeavyCavalry = 24,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,

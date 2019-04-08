@@ -47,7 +47,18 @@ namespace SangokuKmy.Models.Commands
         CharacterSoldierTypeData soldierTypeData = null;
         if (isDefaultSoldierType)
         {
-          soldierTypeName = DefaultCharacterSoldierTypeParts.Get(soldierType).Data?.Name ?? "雑兵";
+          var type = DefaultCharacterSoldierTypeParts.Get(soldierType).Data;
+          if (type == null)
+          {
+            await game.CharacterLogAsync("ID: <num>" + (int)soldierType + "</num> の兵種は存在しません。<emerge>管理者にお問い合わせください</emerge>");
+            return;
+          }
+          if (!type.CanConscript)
+          {
+            await game.CharacterLogAsync($"{type.Name} を徴兵しようとしましたが、現在徴兵することはできません");
+            return;
+          }
+          soldierTypeName = type.Name;
           soldierTypeData = DefaultCharacterSoldierTypeParts.GetDataByDefault(soldierType);
         }
         else
