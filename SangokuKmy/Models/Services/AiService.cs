@@ -221,8 +221,9 @@ namespace SangokuKmy.Models.Services
         CharacterAiType.TerroristBattler,
         CharacterAiType.TerroristBattler,
         CharacterAiType.TerroristRyofu,
+        CharacterAiType.TerroristCivilOfficial,
         CharacterAiType.TerroristPatroller,
-        CharacterAiType.TerroristMainPatroller,
+        CharacterAiType.TerroristPatroller,
       };
 
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", };

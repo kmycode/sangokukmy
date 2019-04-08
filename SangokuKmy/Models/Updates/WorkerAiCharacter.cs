@@ -22,6 +22,8 @@ namespace SangokuKmy.Models.Updates
 
     protected virtual bool CanSoldierForce => false;
 
+    protected virtual bool IsGoWall => false;
+
     protected virtual DefendLevel NeedDefendLevel => DefendLevel.NeedMyDefend;
 
     protected virtual SoldierType FindSoldierType()
@@ -471,26 +473,63 @@ namespace SangokuKmy.Models.Updates
         }
       }
 
-      if (this.BorderTown != null)
+      if (!this.IsGoWall)
       {
-        if (this.data.BorderTown.Id != this.Town.Id)
+        // 普通
+        if (this.BorderTown != null)
         {
-          var arounds = this.towns.GetAroundTowns(this.Town);
-          if (this.data.NextBattleTown != null && arounds.Any(t => t.Id == this.data.NextBattleTown.Id))
+          if (this.data.BorderTown.Id != this.Town.Id)
           {
-            targetTown = this.data.NextBattleTown;
+            var arounds = this.towns.GetAroundTowns(this.Town);
+            if (this.data.NextBattleTown != null && arounds.Any(t => t.Id == this.data.NextBattleTown.Id))
+            {
+              targetTown = this.data.NextBattleTown;
+            }
+            else
+            {
+              if (await this.InputMoveToBorderTownAsync(repo))
+              {
+                return true;
+              }
+            }
           }
           else
           {
-            if (await this.InputMoveToBorderTownAsync(repo))
+            targetTown = this.data.NextBattleTown;
+          }
+        }
+      }
+      else
+      {
+        // 城壁優先
+        var activeWars = this.GetWaringCountries();
+        var arounds = this.towns.GetAroundTowns(this.Town);
+        var order = arounds.Where(t => activeWars.Any(w => w == t.CountryId));
+        if (order.Any())
+        {
+          var min = 32767;
+          foreach (var t in order.OrderBy(t => t.Wall))
+          {
+            var d = await repo.Town.GetDefendersAsync(t.Id);
+            if (!d.Any())
             {
-              return true;
+              targetTown = (Town)t;
+              break;
+            }
+
+            if (d.Count < min)
+            {
+              min = d.Count;
+              targetTown = (Town)t;
             }
           }
         }
         else
         {
-          targetTown = this.data.NextBattleTown;
+          if (await this.InputMoveToBorderTownAsync(repo))
+          {
+            return true;
+          }
         }
       }
 
