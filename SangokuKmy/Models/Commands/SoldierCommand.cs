@@ -152,7 +152,7 @@ namespace SangokuKmy.Models.Commands
           }
           character.Contribution += 10;
           character.Money -= add * soldierTypeData.Money;
-          town.People -= add * Config.SoldierPeopleCost;
+          town.People -= (int)(add * Config.SoldierPeopleCost);
           town.Security -= (short)(add / 10);
 
           await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");

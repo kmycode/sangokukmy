@@ -69,6 +69,6 @@ namespace SangokuKmy.Models.Common
 
     public static int ScouterCost { get; } = 2000;
 
-    public static int SoldierPeopleCost { get; } = 6;
+    public static float SoldierPeopleCost { get; } = 5.45f;
   }
 }

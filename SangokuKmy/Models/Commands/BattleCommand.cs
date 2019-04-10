@@ -236,7 +236,7 @@ namespace SangokuKmy.Models.Commands
 
       Character targetCharacter;
       bool isWall;
-      var trendStrong = (short)Math.Max((int)((game.GameDateTime.ToInt() - Config.StartYear * 12 - Config.CountryBattleStopDuring) * 0.91f / 12), 100);
+      var trendStrong = (short)Math.Max((int)((game.GameDateTime.ToInt() - Config.StartYear * 12 - Config.CountryBattleStopDuring) * 0.79f / 12), 100);
       var defenders = await repo.Town.GetDefendersAsync(targetTown.Id);
       LogCharacterCache defenderCache = null;
       if (defenders.Any())
