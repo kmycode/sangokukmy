@@ -168,6 +168,7 @@ namespace SangokuKmy.Models.Services
       var characters = await repo.Character.GetAllAliveWithIconAsync();
       var maplogs = await repo.MapLog.GetAllImportantsAsync();
       var towns = await repo.Town.GetAllAsync();
+      var posts = Enumerable.Empty<CountryPost>();
 
       var unifiedCountry = countries.FirstOrDefault(c => !c.HasOverthrown);
       CountryMessage unifiedCountryMessage = null;
@@ -175,6 +176,8 @@ namespace SangokuKmy.Models.Services
       {
         var messageOptional = await repo.Country.GetMessageAsync(unifiedCountry.Id, CountryMessageType.Unified);
         messageOptional.Some((message) => unifiedCountryMessage = message);
+
+        posts = await repo.Country.GetPostsAsync(unifiedCountry.Id);
       }
 
       var history = new History
@@ -187,6 +190,11 @@ namespace SangokuKmy.Models.Services
         {
           var chara = HistoricalCharacter.FromCharacter(c.Character);
           chara.Icon = HistoricalCharacterIcon.FromCharacterIcon(c.Icon);
+          var post = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
+          if (post != null)
+          {
+            chara.Type = post.Type;
+          }
           return chara;
         }).ToArray(),
         Countries = countries.Select(c =>
