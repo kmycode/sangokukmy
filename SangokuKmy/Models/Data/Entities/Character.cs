@@ -463,22 +463,13 @@ namespace SangokuKmy.Models.Data.Entities
     SecretaryPioneer = 11,
     TerroristRyofu = 12,
     TerroristMainPatroller = 13,
-    SecretaryDefender = 14,
-  }
-
-  public static class DefenderSecretaryType
-  {
-    public const string SoldierAll = "1";
-    public const string SoldierLast9 = "2";
-    public const string Soldier9 = "3";
-    public const string Soldier1 = "4";
   }
 
   public static class CharacterAiTypeExtensions
   {
     public static bool IsSecretary(this CharacterAiType type)
     {
-      return type == CharacterAiType.SecretaryPatroller || type == CharacterAiType.SecretaryUnitGather || type == CharacterAiType.SecretaryPioneer || type == CharacterAiType.SecretaryDefender;
+      return type == CharacterAiType.SecretaryPatroller || type == CharacterAiType.SecretaryUnitGather || type == CharacterAiType.SecretaryPioneer;
     }
   }
 }
