@@ -148,11 +148,7 @@ namespace SangokuKmy.Models.Commands
         if (RandomService.Next(0, (int)(48 - size * 12.3f)) == 0 && town.Security == 0 && defenders.Count() == 0)
         {
           // 農民反乱
-          var isCreated = await AiService.CreateFarmerCountryAsync(repo, town, game.MapLogAsync);
-          if (!isCreated)
-          {
-            await game.CharacterLogByIdAsync(24, $"<emerge>LOG</emerge> <town>{town.Name}</town> は扇動の乱数条件を満たしましたが、反乱は起きませんでした");
-          }
+          await AiService.CreateFarmerCountryAsync(repo, town, game.MapLogAsync);
         }
       }
       else
