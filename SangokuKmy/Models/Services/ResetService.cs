@@ -186,7 +186,7 @@ namespace SangokuKmy.Models.Services
 
     private static async Task ResetTownsAsync(MainRepository repo)
     {
-      var initialTowns = MapService.CreateMap(RandomService.Next(7, 9));
+      var initialTowns = MapService.CreateMap(7);
       var towns = new List<Town>();
       foreach (var itown in initialTowns)
       {
