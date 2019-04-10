@@ -160,6 +160,15 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
+    /// 政策権限があるか確認する
+    /// </summary>
+    /// <returns>政策権限があるか</returns>
+    public static bool CanPolicy(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+    }
+
+    /// <summary>
     /// 国の設定をする権限があるか確認する
     /// </summary>
     /// <returns>設定権限があるか</returns>

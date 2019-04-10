@@ -113,10 +113,23 @@ namespace SangokuKmy.Models.Data.Entities
     {
       get
       {
-        return this.Common >= 0 && this.LightInfantry >= 0 && this.Archer >= 0 &&
-              this.LightCavalry >= 0 && this.StrongCrossbow >= 0 && this.LightIntellect >= 0 &&
-              this.HeavyInfantry >= 0 && this.HeavyCavalry >= 0 && this.Intellect >= 0 &&
-              this.RepeatingCrossbow >= 0 && this.StrongGuards >= 0 && this.Seiran >= 0;
+        return this.Common >= 0 &&
+          this.LightInfantry >= 0 &&
+          this.Archer >= 0 &&
+          this.LightCavalry >= 0 &&
+          this.StrongCrossbow >= 0 &&
+          this.LightIntellect >= 0 &&
+          this.HeavyInfantry >= 0 &&
+          this.HeavyCavalry >= 0 &&
+          this.Intellect >= 0 &&
+          this.RepeatingCrossbow >= 0 &&
+          this.StrongGuards >= 0 &&
+          this.Seiran >= 0 &&
+          this.Guard_Step1 == 0 &&
+          this.Guard_Step2 == 0 &&
+          this.Guard_Step3 == 0 &&
+          this.Guard_Step4 == 0 &&
+          this.Size <= 12;
       }
     }
 
@@ -166,6 +179,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Money = 1,
         CanConscript = true,
@@ -179,6 +193,7 @@ namespace SangokuKmy.Models.Data.Entities
           BaseAttack = 1,
           BaseDefend = 1,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Money = 1,
         CanConscript = true,
@@ -191,6 +206,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 1,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Money = 2,
         Technology = 100,
@@ -204,6 +220,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseDefend = 1,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Money = 3,
         Technology = 200,
@@ -218,6 +235,7 @@ namespace SangokuKmy.Models.Data.Entities
           BaseAttack = 3,
           BaseDefend = 1,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Money = 5,
         Technology = 300,
@@ -232,6 +250,7 @@ namespace SangokuKmy.Models.Data.Entities
           BaseAttack = 1,
           BaseDefend = 3,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Money = 7,
         Technology = 400,
@@ -243,8 +262,9 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "神鬼兵",
         Data = new CharacterSoldierTypeData
         {
-          IntellectAttack = 100,
+          StrongAttack = 100,
           IntellectEx = 1,
+          PowerIntellect = 1,
         },
         Money = 10,
         Technology = 500,
@@ -258,7 +278,11 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 5,
           BaseDefend = 3,
+          RushProbability = 12,
+          RushAttack = 18,
+          ContinuousProbability = 40,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Money = 12,
         Technology = 600,
@@ -272,7 +296,11 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 6,
           BaseDefend = 4,
+          RushProbability = 16,
+          RushAttack = 20,
+          ContinuousProbability = 60,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Money = 15,
         Technology = 700,
@@ -286,11 +314,15 @@ namespace SangokuKmy.Models.Data.Entities
         {
           IntellectAttack = 80,
           IntellectDefend = 40,
+          RushProbability = 9,
+          RushAttack = 16,
+          ContinuousProbability = 26,
           IntellectEx = 1,
+          PowerStrong = 1,
         },
         Money = 17,
         Technology = 800,
-        CanConscript = true,
+        CanConscript = false,
       },
       new CharacterSoldierTypePart
       {
@@ -301,9 +333,10 @@ namespace SangokuKmy.Models.Data.Entities
           BaseAttack = 9,
           BaseDefend = 3,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Money = 20,
-        Technology = 900,
+        Technology = 800,
         CanConscript = true,
       },
       new CharacterSoldierTypePart
@@ -315,6 +348,7 @@ namespace SangokuKmy.Models.Data.Entities
           IntellectDefend = 10,
           IntellectEx = 1,
           TypeWall = 1,
+          PowerStrong = 1,
         },
         Money = 22,
         Technology = 999,
@@ -327,7 +361,9 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           WallAttack = 20,
+          WallDefend = 4,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Money = 30,
         Technology = 500,
@@ -341,6 +377,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           StrongEx = 1,
           TypeWall = 1,
+          PowerStrong = 1,
         },
         Money = 1,
         CanConscript = true,
@@ -354,6 +391,7 @@ namespace SangokuKmy.Models.Data.Entities
           BaseAttack = 2,
           BaseDefend = 2,
           TypeWall = 1,
+          PowerStrong = 1,
         },
         Technology = 32767,
         CanConscript = false,
@@ -367,6 +405,7 @@ namespace SangokuKmy.Models.Data.Entities
           BaseAttack = 4,
           BaseDefend = 4,
           TypeWall = 1,
+          PowerStrong = 1,
         },
         Technology = 32767,
         CanConscript = false,
@@ -380,6 +419,7 @@ namespace SangokuKmy.Models.Data.Entities
           BaseAttack = 6,
           BaseDefend = 6,
           TypeWall = 1,
+          PowerStrong = 1,
         },
         Technology = 32767,
         CanConscript = false,
@@ -393,6 +433,7 @@ namespace SangokuKmy.Models.Data.Entities
           BaseAttack = 9,
           BaseDefend = 9,
           TypeWall = 1,
+          PowerStrong = 1,
         },
         Technology = 32767,
         CanConscript = false,
@@ -405,10 +446,11 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 3,
           BaseDefend = 2,
-          RushProbability = 45,
+          RushProbability = 12,
           RushAttack = 12,
-          ContinuousProbability = 60,
+          ContinuousProbability = 11,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Technology = 32767,
         CanConscript = false,
@@ -421,10 +463,11 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 4,
           BaseDefend = 3,
-          RushProbability = 60,
+          RushProbability = 18,
           RushAttack = 15,
-          ContinuousProbability = 160,
+          ContinuousProbability = 27,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Technology = 32767,
         CanConscript = false,
@@ -437,13 +480,84 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 6,
           BaseDefend = 4,
-          RushProbability = 70,
+          RushProbability = 24,
           RushAttack = 22,
-          ContinuousProbability = 320,
+          ContinuousProbability = 70,
           StrongEx = 1,
+          PowerStrong = 1,
         },
         Technology = 32767,
         CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.ThiefCommonA,
+        Name = "賊兵A",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 3,
+          BaseDefend = 2,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.ThiefCommonB,
+        Name = "賊兵B",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 4,
+          BaseDefend = 3,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.ThiefCommonC,
+        Name = "賊兵C",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 6,
+          BaseDefend = 4,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.IntellectCommon,
+        Name = "文官雑兵",
+        Data = new CharacterSoldierTypeData
+        {
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 2,
+        Technology = 200,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.IntellectHeavyCavalry,
+        Name = "文官重騎兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 6,
+          BaseDefend = 4,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 18,
+        Technology = 900,
+        CanConscript = true,
       },
     };
 

@@ -419,7 +419,7 @@ namespace SangokuKmy.Controllers
         }
 
         charas = (await repo.Town.GetCharactersWithIconAsync(townId))
-          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, c.Commands, c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown));
+          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, null, c.Commands, c.CustomSoldierType.Data, c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
     }
@@ -549,6 +549,11 @@ namespace SangokuKmy.Controllers
       [FromBody] CountryMessage param)
     {
       CountryMessage message;
+
+      if (param.Type == CountryMessageType.Solicitation && param.Message?.Length > 200)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("message", param.Message.Length, 1, 200));
+      }
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
@@ -1022,6 +1027,17 @@ namespace SangokuKmy.Controllers
       {
         ErrorCode.LackOfParameterError.Throw();
       }
+
+      if (string.IsNullOrEmpty(param.Name) || param.Name.Length > 24)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("name", param.Name.Length, 1, 24));
+      }
+
+      if (param.Message?.Length > 240)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("message", param.Message.Length, 1, 240));
+      }
+
       var unit = new Unit
       {
         Name = param.Name,
@@ -1142,6 +1158,21 @@ namespace SangokuKmy.Controllers
       [FromRoute] uint id,
       [FromBody] Unit unit)
     {
+      if (unit == null)
+      {
+        ErrorCode.LackOfParameterError.Throw();
+      }
+
+      if (string.IsNullOrEmpty(unit.Name) || unit.Name.Length > 24)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("name", unit.Name.Length, 1, 24));
+      }
+
+      if (unit.Message?.Length > 240)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("message", unit.Message.Length, 1, 240));
+      }
+
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var member = await repo.Unit.GetByMemberIdAsync(this.AuthData.CharacterId);
@@ -1175,8 +1206,6 @@ namespace SangokuKmy.Controllers
     public async Task RemoveUnitAsync(
       [FromRoute] uint id)
     {
-      IEnumerable<UnitMember> members = null;
-
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var member = await repo.Unit.GetByMemberIdAsync(this.AuthData.CharacterId);

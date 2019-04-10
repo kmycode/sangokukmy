@@ -37,7 +37,7 @@ namespace SangokuKmy.Models.Common
     /// <summary>
     /// 次の階級までに必要な階級値
     /// </summary>
-    public static int NextLank { get; } = 800;
+    public static int NextLank { get; } = 1200;
 
     /// <summary>
     /// 建国後の戦闘禁止期間
@@ -53,20 +53,22 @@ namespace SangokuKmy.Models.Common
 
     public static int DeleteTurns { get; } = 500;
 
-    public static int RiceBuyMax { get; } = 10000;
+    public static int RiceBuyMax { get; } = 20000;
 
     public static int TownBuildingMax { get; } = 2000;
 
-    public static int CountryBuildingMax { get; } = 2000;
-
-    public static int CountryLaboratoryMax { get; } = 2000;
-
     public static int PaySafeMax { get; } = 10_0000;
 
-    public static int SafePerEndurance { get; } = 2000;
+    public static int CountrySafeMax { get; } = 100_0000;
 
     public static int SecretaryCost { get; } = 2000;
 
-    public static int SecretaryMax { get; } = 3;
+    public static int SecretaryMax { get; } = 1;
+
+    public static int ScouterMax { get; } = 2;
+
+    public static int ScouterCost { get; } = 2000;
+
+    public static int SoldierPeopleCost { get; } = 6;
   }
 }

@@ -16,6 +16,7 @@ namespace SangokuKmy.Controllers
 {
   [Route("api/v1")]
   [ServiceFilter(typeof(SangokuKmyErrorFilterAttribute))]
+  [NotImplementedFilter]
   [AuthenticationFilter]
   public class SoldierTypeController : Controller, IAuthenticationDataReceiver
   {
@@ -127,7 +128,7 @@ namespace SangokuKmy.Controllers
 
     private async Task<bool> CheckAsync(MainRepository repo, uint countryId, CharacterSoldierType type)
     {
-      return type.IsVerify && type.Size >= 10 && type.Size <= 15 && type.ToParts().All(t => t.CanConscript);
+      return type.IsVerify && type.Size >= 10 && type.Size <= 12 && type.ToParts().All(t => t.CanConscript);
     }
   }
 }

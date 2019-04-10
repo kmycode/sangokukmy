@@ -80,6 +80,11 @@ namespace SangokuKmy.Models.Commands
         ErrorCode.LackOfCommandParameter.Throw();
       }
 
+      if (message.Length > 400)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("message", message.Length, 1, 400));
+      }
+
       var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
       var targetCharacter = await repo.Character.GetByIdAsync((uint)targetCharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
       if (targetCharacter.HasRemoved)

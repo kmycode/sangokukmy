@@ -56,7 +56,7 @@ namespace SangokuKmy.Controllers
 
           if (country.IntEstablished + Config.CountryBattleStopDuring > system.IntGameDateTime)
           {
-            var characterCount = await repo.Country.CountCharactersAsync(country.Id);
+            var characterCount = await repo.Country.CountCharactersAsync(country.Id, true);
             extra.IsJoinLimited = characterCount >= Config.CountryJoinMaxOnLimited;
           }
 

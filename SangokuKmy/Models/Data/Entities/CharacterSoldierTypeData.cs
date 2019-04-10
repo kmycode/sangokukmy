@@ -21,6 +21,12 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("technology")]
     public short Technology { get; set; }
 
+    [JsonProperty("powerStrong")]
+    public short PowerStrong { get; set; }
+
+    [JsonProperty("powerIntellect")]
+    public short PowerIntellect { get; set; }
+
     [JsonProperty("baseAttack")]
     public short BaseAttack { get; set; }
     
@@ -112,7 +118,7 @@ namespace SangokuKmy.Models.Data.Entities
     public short PopularityEx { get; set; }
 
     [JsonIgnore]
-    public float ResearchMoneyBase
+    public int ResearchMoney
     {
       get
       {
@@ -121,18 +127,29 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     [JsonIgnore]
-    public float ResearchCostBase
+    public int ResearchCost
     {
       get
       {
-        return this.Money * (this.Technology / 230.0f);
+        return (int)(this.Money * (this.Technology / 230.0f));
       }
+    }
+
+    public int CalcPower(Character chara)
+    {
+      var p = 0;
+      p += (int)(chara.Strong * (this.PowerStrong / 10.0f));
+      p += (int)(chara.Intellect * (this.PowerIntellect / 10.0f));
+      return p;
     }
 
     public (int AttackCorrection, int DefendCorrection) CalcCorrections(Character chara, CharacterSoldierTypeData enemyType)
     {
       var a = (float)this.BaseAttack;
       var d = (float)this.BaseDefend;
+
+      a += this.StrongAttack / 1000.0f * chara.Strong;
+      d += this.StrongDefend / 1000.0f * chara.Strong;
 
       a += this.IntellectAttack / 1000.0f * chara.Intellect;
       d += this.IntellectDefend / 1000.0f * chara.Intellect;
@@ -190,8 +207,12 @@ namespace SangokuKmy.Models.Data.Entities
         Description = string.Join(',', parts.GroupBy(p => p.Name).Select(p => $"{p.Key}{p.Count()}")),
         Money = (short)parts.Sum(p => p.Money),
         Technology = (short)parts.Max(p => p.Technology),
+        PowerStrong = (short)parts.Sum(p => p.Data.PowerStrong),
+        PowerIntellect = (short)parts.Sum(p => p.Data.PowerIntellect),
         BaseAttack = (short)parts.Sum(p => p.Data.BaseAttack),
         BaseDefend = (short)parts.Sum(p => p.Data.BaseDefend),
+        StrongAttack = (short)parts.Sum(p => p.Data.StrongAttack),
+        StrongDefend = (short)parts.Sum(p => p.Data.StrongDefend),
         IntellectAttack = (short)parts.Sum(p => p.Data.IntellectAttack),
         IntellectDefend = (short)parts.Sum(p => p.Data.IntellectDefend),
         WallAttack = (short)parts.Sum(p => p.Data.WallAttack),

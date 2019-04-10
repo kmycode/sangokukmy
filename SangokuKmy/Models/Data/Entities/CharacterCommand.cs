@@ -113,6 +113,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 守兵増強
     /// </summary>
+    [Obsolete]
     WallGuard = 5,
 
     /// <summary>
@@ -198,11 +199,13 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 国家施設
     /// </summary>
+    [Obsolete]
     CountryBuilding = 32,
 
     /// <summary>
     /// 研究所
     /// </summary>
+    [Obsolete]
     CountryLaboratory = 33,
 
     /// <summary>
@@ -218,11 +221,13 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 焼討
     /// </summary>
+    [Obsolete]
     Burn = 36,
 
     /// <summary>
     /// 扇動
     /// </summary>
+    [Obsolete]
     Agitation = 37,
 
     /// <summary>
@@ -248,11 +253,33 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 技術破壊
     /// </summary>
+    [Obsolete]
     BreakTechnology = 42,
 
     /// <summary>
     /// 城壁破壊
     /// </summary>
+    [Obsolete]
     BreakWall = 43,
+
+    /// <summary>
+    /// 政策開発
+    /// </summary>
+    Policy = 44,
+
+    /// <summary>
+    /// 斥候追加
+    /// </summary>
+    AddScouter = 45,
+
+    /// <summary>
+    /// 斥候削除
+    /// </summary>
+    RemoveScouter = 46,
+
+    /// <summary>
+    /// 政務官配属（都市）
+    /// </summary>
+    SecretaryToTown = 47,
   }
 }

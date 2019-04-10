@@ -22,6 +22,8 @@ namespace SangokuKmy.Models.Updates
 
     protected virtual bool CanSoldierForce => false;
 
+    protected virtual bool IsGoWall => false;
+
     protected virtual DefendLevel NeedDefendLevel => DefendLevel.NeedMyDefend;
 
     protected virtual SoldierType FindSoldierType()
@@ -471,26 +473,63 @@ namespace SangokuKmy.Models.Updates
         }
       }
 
-      if (this.BorderTown != null)
+      if (!this.IsGoWall)
       {
-        if (this.data.BorderTown.Id != this.Town.Id)
+        // 普通
+        if (this.BorderTown != null)
         {
-          var arounds = this.towns.GetAroundTowns(this.Town);
-          if (this.data.NextBattleTown != null && arounds.Any(t => t.Id == this.data.NextBattleTown.Id))
+          if (this.data.BorderTown.Id != this.Town.Id)
           {
-            targetTown = this.data.NextBattleTown;
+            var arounds = this.towns.GetAroundTowns(this.Town);
+            if (this.data.NextBattleTown != null && arounds.Any(t => t.Id == this.data.NextBattleTown.Id))
+            {
+              targetTown = this.data.NextBattleTown;
+            }
+            else
+            {
+              if (await this.InputMoveToBorderTownAsync(repo))
+              {
+                return true;
+              }
+            }
           }
           else
           {
-            if (await this.InputMoveToBorderTownAsync(repo))
+            targetTown = this.data.NextBattleTown;
+          }
+        }
+      }
+      else
+      {
+        // 城壁優先
+        var activeWars = this.GetWaringCountries();
+        var arounds = this.towns.GetAroundTowns(this.Town);
+        var order = arounds.Where(t => activeWars.Any(w => w == t.CountryId));
+        if (order.Any())
+        {
+          var min = 32767;
+          foreach (var t in order.OrderBy(t => t.Wall))
+          {
+            var d = await repo.Town.GetDefendersAsync(t.Id);
+            if (!d.Any())
             {
-              return true;
+              targetTown = (Town)t;
+              break;
+            }
+
+            if (d.Count < min)
+            {
+              min = d.Count;
+              targetTown = (Town)t;
             }
           }
         }
         else
         {
-          targetTown = this.data.NextBattleTown;
+          if (await this.InputMoveToBorderTownAsync(repo))
+          {
+            return true;
+          }
         }
       }
 
@@ -652,9 +691,9 @@ namespace SangokuKmy.Models.Updates
         return false;
       }
 
-      if (this.Town.Wall >= this.Town.WallMax && this.Town.WallGuard >= this.Town.WallGuardMax && this.Town.Technology >= this.Town.TechnologyMax)
+      if (this.Town.Wall >= this.Town.WallMax && this.Town.Technology >= this.Town.TechnologyMax)
       {
-        var match = this.GetMatchTown(this.towns, t => t.Wall * -1, t => t.CountryId == this.Country.Id && (t.Wall < t.WallMax || t.WallGuard < t.WallGuardMax || t.Technology < t.TechnologyMax));
+        var match = this.GetMatchTown(this.towns, t => t.Wall * -1, t => t.CountryId == this.Country.Id && (t.Wall < t.WallMax || t.Technology < t.TechnologyMax));
         if (match != null)
         {
           var street = this.GetStreet(this.towns, this.Town, match);
@@ -673,16 +712,13 @@ namespace SangokuKmy.Models.Updates
         command.Type = CharacterCommandType.Technology;
         return true;
       }
-      if (this.Town.Wall < this.Town.WallGuard && this.Town.Wall < this.Town.WallMax)
+      if (this.Town.Wall < this.Town.WallMax)
       {
         command.Type = CharacterCommandType.Wall;
         return true;
       }
-      else
-      {
-        command.Type = CharacterCommandType.WallGuard;
-        return true;
-      }
+
+      return false;
     }
 
     protected bool InputDevelopOnBorderOrMain()
@@ -700,16 +736,27 @@ namespace SangokuKmy.Models.Updates
       return false;
     }
 
+    protected bool InputDevelopOnBorderOrMainLow()
+    {
+      if (this.data.BorderTown != null && this.data.BorderTown.Id == this.Town.Id)
+      {
+        return this.InputDevelopLow();
+      }
+
+      if (this.data.MainTown.Id == this.Town.Id)
+      {
+        return this.InputDevelopLow();
+      }
+
+      return false;
+    }
+
     protected bool InputDevelop()
     {
-      var v = this.GameDateTime.Month % 3;
+      var v = this.GameDateTime.Month % 2;
       if (v == 0)
       {
         command.Type = CharacterCommandType.Wall;
-      }
-      else if (v == 1)
-      {
-        command.Type = CharacterCommandType.WallGuard;
       }
       else
       {
@@ -721,17 +768,9 @@ namespace SangokuKmy.Models.Updates
       {
         command.Type = CharacterCommandType.Technology;
       }
-      else if (this.Town.Wall < this.Town.WallGuard - 100)
-      {
-        command.Type = CharacterCommandType.Wall;
-      }
 
       // 最大値を監視
       if (command.Type == CharacterCommandType.Wall && this.Town.Wall >= this.Town.WallMax)
-      {
-        command.Type = CharacterCommandType.WallGuard;
-      }
-      if (command.Type == CharacterCommandType.WallGuard && this.Town.WallGuard >= this.Town.WallGuardMax)
       {
         command.Type = CharacterCommandType.Technology;
       }
@@ -742,6 +781,37 @@ namespace SangokuKmy.Models.Updates
       if (command.Type == CharacterCommandType.TownBuilding && this.Town.TownBuildingValue >= Config.TownBuildingMax)
       {
         return false;
+      }
+
+      return true;
+    }
+
+    protected bool InputDevelopLow()
+    {
+      var v = this.GameDateTime.Month % 2;
+      if (v == 0)
+      {
+        command.Type = CharacterCommandType.Wall;
+      }
+      else
+      {
+        command.Type = CharacterCommandType.Technology;
+      }
+
+      // 内政の優先順位（謀略も考慮）
+      if (this.Town.Technology < 401)
+      {
+        command.Type = CharacterCommandType.Technology;
+      }
+
+      // 最大値を監視
+      if (command.Type == CharacterCommandType.Wall && this.Town.Wall >= this.Town.WallMax / 2)
+      {
+        command.Type = CharacterCommandType.Technology;
+      }
+      if (command.Type == CharacterCommandType.Technology && this.Town.Technology >= this.Town.TechnologyMax / 2)
+      {
+        return this.InputDevelop();
       }
 
       return true;

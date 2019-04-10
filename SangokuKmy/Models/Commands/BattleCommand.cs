@@ -132,6 +132,7 @@ namespace SangokuKmy.Models.Commands
 
       // 連戦カウント
       var continuousCount = options.FirstOrDefault(o => o.Type == 32)?.NumberValue ?? 1;
+      var continuousTurns = options.FirstOrDefault(o => o.Type == 33)?.NumberValue ?? 1;
 
       var log = new BattleLog
       {
@@ -178,6 +179,13 @@ namespace SangokuKmy.Models.Commands
       var targetExperience = 50;
       var targetContribution = 0;
       character.Rice -= character.SoldierNumber * myRicePerSoldier;
+
+      // 戦術
+      var policies = await repo.Country.GetPoliciesAsync();
+      var isMyCountryRush = policies.Any(p => p.CountryId == myCountry.Id && p.Type == CountryPolicyType.BattleRush);
+      var isMyCountryContinuous = policies.Any(p => p.CountryId == myCountry.Id && p.Type == CountryPolicyType.BattleContinuous);
+      var isTargetCountryRush = policies.Any(p => p.CountryId == targetTown.CountryId && p.Type == CountryPolicyType.BattleRush);
+      var isTargetCountryContinuous = policies.Any(p => p.CountryId == targetTown.CountryId && p.Type == CountryPolicyType.BattleContinuous);
 
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
@@ -226,31 +234,25 @@ namespace SangokuKmy.Models.Commands
         }
       }
 
-      var enemy = new EnemyData();
-      var wallChara = new Character();
-      var trendStrong = game.GameDateTime.ToInt() / 27;
+      Character targetCharacter;
+      bool isWall;
+      var trendStrong = (short)Math.Max((int)((game.GameDateTime.ToInt() - Config.StartYear * 12 - Config.CountryBattleStopDuring) * 0.91f / 12), 100);
       var defenders = await repo.Town.GetDefendersAsync(targetTown.Id);
       LogCharacterCache defenderCache = null;
       if (defenders.Any())
       {
-        var defender = defenders.First().Character;
-        enemy.Defender = defender.ToOptional();
-        enemy.SoldierNumber = defender.SoldierNumber;
-        enemy.SoldierType = defender.SoldierType;
-        enemy.SoldierTypeId = defender.CharacterSoldierTypeId;
-        enemy.Strong = defender.Strong;
-        enemy.Proficiency = defender.Proficiency;
-        log.DefenderCharacterId = defender.Id;
+        targetCharacter = defenders.First().Character;
+        log.DefenderCharacterId = targetCharacter.Id;
         log.DefenderType = DefenderType.Character;
-        defenderCache = defender.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(defender.Id)).GetMainOrFirst().Data ?? new CharacterIcon());
+        defenderCache = targetCharacter.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(targetCharacter.Id)).GetMainOrFirst().Data ?? new CharacterIcon());
 
-        if (defender.SoldierType != SoldierType.Custom)
+        if (targetCharacter.SoldierType != SoldierType.Custom)
         {
-          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(defender.SoldierType);
+          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(targetCharacter.SoldierType);
         }
         else
         {
-          var type = await repo.CharacterSoldierType.GetByIdAsync(defender.CharacterSoldierTypeId);
+          var type = await repo.CharacterSoldierType.GetByIdAsync(targetCharacter.CharacterSoldierTypeId);
           if (type.HasData)
           {
             targetSoldierType = type.Data.ToParts().ToData();
@@ -261,117 +263,73 @@ namespace SangokuKmy.Models.Commands
           }
         }
 
-        await game.CharacterLogByIdAsync(defender.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
+        isWall = false;
+        await game.CharacterLogByIdAsync(targetCharacter.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
       }
       else
       {
-        enemy.SoldierNumber = targetTown.Wall;
+        targetCharacter = new Character();
+        targetCharacter.CountryId = targetTown.CountryId;
+        targetCharacter.Name = targetTown.Name + "城壁";
+        targetCharacter.SoldierNumber = targetTown.Wall;
         log.DefenderType = DefenderType.Wall;
-        defenderCache = new LogCharacterCache
-        {
-          CountryId = targetTown.CountryId,
-          IconId = 0,
-          SoldierNumber = enemy.SoldierNumber,
-        };
+
+        targetCharacter.SoldierType = targetTown.Technology > 900 ? SoldierType.Guard_Step4 :
+                            targetTown.Technology > 700 ? SoldierType.Guard_Step3 :
+                            targetTown.Technology > 500 ? SoldierType.Guard_Step2 :
+                            targetTown.Technology > 300 ? SoldierType.Guard_Step1 :
+                            SoldierType.WallCommon;
+        targetCharacter.Strong = trendStrong;
+        targetCharacter.Proficiency = 100;
+
+        defenderCache = targetCharacter.ToLogCache(new CharacterIcon());
+
+        targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(targetCharacter.SoldierType);
+        isWall = true;
       }
 
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");
-      
-      for (var i = 1; i <= 50 && enemy.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
+
+      var (ka, kd) = mySoldierType.CalcCorrections(character, targetSoldierType);
+      myAttackSoldierTypeCorrection = ka;
+      myDefenceSoldierTypeCorrection = kd;
+
+      var (ea, ed) = targetSoldierType.CalcCorrections(targetCharacter, mySoldierType);
+      targetAttackSoldierTypeCorrection = ea;
+      targetDefenceSoldierTypeCorrection = ed;
+
+      var myPower = mySoldierType.CalcPower(character);
+      var targetPower = targetSoldierType.CalcPower(targetCharacter);
+
+      var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetCharacter.Proficiency / 2.5f) / 8), 0);
+      var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
+
+      for (var i = continuousTurns; i <= 50 && targetCharacter.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
       {
-        var isNoDamage = false;
+        continuousTurns = i;
 
-        if (enemy.IsWall)
-        {
-          if (targetTown.WallGuard > 0)
-          {
-            enemy.SoldierType = targetTown.Technology > 900 ? SoldierType.Guard_Step4 :
-                                targetTown.Technology > 700 ? SoldierType.Guard_Step3 :
-                                targetTown.Technology > 500 ? SoldierType.Guard_Step2 :
-                                targetTown.Technology > 300 ? SoldierType.Guard_Step1 :
-                                SoldierType.WallCommon;
-            enemy.Strong = trendStrong;
-            enemy.Proficiency = 100;
-
-            if (i == 1)
-            {
-              defenderCache.Name = "守兵";
-              defenderCache.Strong = (short)enemy.Strong;
-              defenderCache.SoldierType = enemy.SoldierType;
-              defenderCache.Proficiency = (short)enemy.Proficiency;
-            }
-          }
-          else
-          {
-            enemy.SoldierType = SoldierType.WallCommon;
-            enemy.Strong = trendStrong / 2;
-            enemy.Proficiency = 0;
-            isNoDamage = true;
-
-            if (i == 1)
-            {
-              defenderCache.Name = "城壁";
-              defenderCache.Strong = (short)enemy.Strong;
-              defenderCache.SoldierType = enemy.SoldierType;
-              defenderCache.Proficiency = (short)enemy.Proficiency;
-            }
-            else if (defenderCache.Name == "守兵")
-            {
-              defenderCache.Name = "守兵/" + i + "ターン目より城壁";
-            }
-          }
-
-          wallChara.Strong = defenderCache.Strong;
-          wallChara.Intellect = defenderCache.Intellect;
-          wallChara.Leadership = defenderCache.Leadership;
-          wallChara.Popularity = defenderCache.Popularity;
-          wallChara.SoldierType = defenderCache.SoldierType;
-          wallChara.SoldierNumber = defenderCache.SoldierNumber;
-          wallChara.Proficiency = defenderCache.Proficiency;
-          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(enemy.SoldierType);
-        }
-
-        var (ka, kd) = mySoldierType.CalcCorrections(character, targetSoldierType);
-        myAttackSoldierTypeCorrection = ka;
-        myDefenceSoldierTypeCorrection = kd;
-
-        var (ea, ed) = targetSoldierType.CalcCorrections(enemy.Defender.Data ?? wallChara, mySoldierType);
-        targetAttackSoldierTypeCorrection = ea;
-        targetDefenceSoldierTypeCorrection = ed;
-
-        var myAttack = Math.Max((int)((character.Strong + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - enemy.Proficiency / 2.5f) / 8), 0);
-        var targetAttack = Math.Max((int)((enemy.Strong + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
-        var targetDamage = Math.Min(Math.Max(RandomService.Next(myAttack + 1), 1), enemy.SoldierNumber);
+        var targetDamage = Math.Min(Math.Max(RandomService.Next(myAttack + 1), 1), targetCharacter.SoldierNumber);
         var myDamage = Math.Min(Math.Max(RandomService.Next(targetAttack + 1), 1), character.SoldierNumber);
-        if (isNoDamage)
-        {
-          myDamage = 1;
-        }
 
         // 突撃
-        if (mySoldierType.IsRush())
+        if (isMyCountryRush && mySoldierType.IsRush())
         {
-          targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 14), enemy.SoldierNumber);
+          targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 14), targetCharacter.SoldierNumber);
         }
-        else if (targetSoldierType.IsRush())
+        else if (isTargetCountryRush && targetSoldierType.IsRush())
         {
           myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack()), 8), character.SoldierNumber);
         }
 
         character.SoldierNumber -= myDamage;
         myExperience += (int)(targetDamage * 0.2f);
-        enemy.SoldierNumber -= targetDamage;
+        targetCharacter.SoldierNumber -= targetDamage;
         targetExperience += (int)(myDamage * 0.2f);
 
-        await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + enemy.Name + "</character> <num>" + enemy.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
-        if (!enemy.IsWall)
+        await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
+        if (!isWall)
         {
-          await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, "  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + enemy.Name + "</character> <num>" + enemy.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
-        }
-        else
-        {
-          targetTown.WallGuard = Math.Max(targetTown.WallGuard - targetDamage, 0);
-          targetTown.Wall = enemy.SoldierNumber;
+          await game.CharacterLogByIdAsync(targetCharacter.Id, "  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
         }
 
         logLines.Add(new BattleLogLine
@@ -379,9 +337,15 @@ namespace SangokuKmy.Models.Commands
           Turn = (short)i,
           AttackerNumber = (short)character.SoldierNumber,
           AttackerDamage = (short)myDamage,
-          DefenderNumber = (short)enemy.SoldierNumber,
+          DefenderNumber = (short)targetCharacter.SoldierNumber,
           DefenderDamage = (short)targetDamage,
         });
+      }
+
+      if (isWall)
+      {
+        // 支配後の配信に影響するので、後の武将の更新処理とはまとめずここで
+        targetTown.Wall = targetCharacter.SoldierNumber;
       }
 
       {
@@ -389,57 +353,57 @@ namespace SangokuKmy.Models.Commands
         {
           Name = "無所属",
         };
-        var prefix = $"[<town>{targetTown.Name}</town>]{(continuousCount > 1 ? "(連戦)" : "")} <country>{myCountry.Name}</country> の <character>{character.Name}</character> は <country>{targetCountry.Name}</country> の <character>{enemy.Name}</character>";
-        if (character.SoldierNumber <= 0 && enemy.SoldierNumber <= 0)
+        var prefix = $"[<town>{targetTown.Name}</town>]{(continuousCount > 1 ? "(連戦)" : "")} <country>{myCountry.Name}</country> の <character>{character.Name}</character> は <country>{targetCountry.Name}</country> の <character>{targetCharacter.Name}</character>";
+        if (character.SoldierNumber <= 0 && targetCharacter.SoldierNumber <= 0)
         {
-          repo.Town.RemoveDefender(enemy.Defender.Data.Id);
+          repo.Town.RemoveDefender(targetCharacter.Id);
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleDrawLose, prefix + " と引き分けました", false);
-          await game.CharacterLogAsync("<character>" + enemy.Name + "</character> と引き分けました");
-          if (enemy.Defender.HasData)
+          await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> と引き分けました");
+          if (!isWall)
           {
             if (character.AiType == CharacterAiType.TerroristRyofu)
             {
               myExperience += 500;
             }
-            if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
+            if (targetCharacter.AiType == CharacterAiType.TerroristRyofu)
             {
               targetExperience += 10_000;
             }
-            await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, $"<character>{character.Name}</character> と引き分けました。<town>{targetTown.Name}</town> の守備から外れました");
+            await game.CharacterLogByIdAsync(targetCharacter.Id, $"<character>{character.Name}</character> と引き分けました。<town>{targetTown.Name}</town> の守備から外れました");
           }
         }
-        else if (character.SoldierNumber <= 0 && enemy.SoldierNumber > 0)
+        else if (character.SoldierNumber <= 0 && targetCharacter.SoldierNumber > 0)
         {
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleLose, prefix + " に敗北しました", false);
-          await game.CharacterLogAsync($"<character>{enemy.Name}</character> に敗北しました");
-          if (enemy.Defender.HasData)
+          await game.CharacterLogAsync($"<character>{targetCharacter.Name}</character> に敗北しました");
+          if (!isWall)
           {
             if (character.AiType == CharacterAiType.TerroristRyofu)
             {
               myExperience += 500;
             }
-            if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
+            if (targetCharacter.AiType == CharacterAiType.TerroristRyofu)
             {
               targetExperience += 10_000;
             }
-            await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, "<character>" + character.Name + "</character> を撃退しました");
+            await game.CharacterLogByIdAsync(targetCharacter.Id, "<character>" + character.Name + "</character> を撃退しました");
           }
         }
-        else if (character.SoldierNumber > 0 && enemy.SoldierNumber > 0)
+        else if (character.SoldierNumber > 0 && targetCharacter.SoldierNumber > 0)
         {
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleDraw, prefix + " と引き分けました", false);
-          await game.CharacterLogAsync("<character>" + enemy.Name + "</character> と引き分けました");
-          if (enemy.Defender.HasData)
+          await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> と引き分けました");
+          if (!isWall)
           {
             if (character.AiType == CharacterAiType.TerroristRyofu)
             {
               myExperience += 500;
             }
-            if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
+            if (targetCharacter.AiType == CharacterAiType.TerroristRyofu)
             {
               targetExperience += 500;
             }
-            await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, "<character>" + character.Name + "</character> と引き分けました");
+            await game.CharacterLogByIdAsync(targetCharacter.Id, "<character>" + character.Name + "</character> と引き分けました");
           }
         }
         else
@@ -449,19 +413,22 @@ namespace SangokuKmy.Models.Commands
             myExperience += 10_000;
           }
 
-          if (!enemy.IsWall)
+          if (!isWall)
           {
             // 連戦
-            canContinuous = mySoldierType.CanContinuous();
+            if (isMyCountryContinuous && continuousTurns < 50)
+            {
+              canContinuous = mySoldierType.CanContinuous();
+            }
 
-            if (enemy.Defender.Data.AiType == CharacterAiType.TerroristRyofu)
+            if (targetCharacter.AiType == CharacterAiType.TerroristRyofu)
             {
               targetExperience += 500;
             }
-            repo.Town.RemoveDefender(enemy.Defender.Data.Id);
+            repo.Town.RemoveDefender(targetCharacter.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.BattleWin, prefix + " を倒しました", false);
-            await game.CharacterLogAsync("<character>" + enemy.Name + "</character> に勝利しました");
-            await game.CharacterLogByIdAsync(enemy.Defender.Data.Id, $"<character>{character.Name}</character> に敗北しました。<town>{targetTown.Name}</town> の守備から外れました");
+            await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> に勝利しました");
+            await game.CharacterLogByIdAsync(targetCharacter.Id, $"<character>{character.Name}</character> に敗北しました。<town>{targetTown.Name}</town> の守備から外れました");
           }
           else
           {
@@ -470,8 +437,6 @@ namespace SangokuKmy.Models.Commands
             targetTown.Commercial = (int)(targetTown.Commercial * 0.8f);
             targetTown.Technology = (int)(targetTown.Technology * 0.8f);
             targetTown.TownBuildingValue = (int)(targetTown.TownBuildingValue * 0.8f);
-            targetTown.CountryBuildingValue = (int)(targetTown.CountryBuildingValue * 0.8f);
-            targetTown.CountryLaboratoryValue = (int)(targetTown.CountryLaboratoryValue * 0.8f);
             targetTown.People = (int)(targetTown.People * 0.8f);
             targetTown.Security = (short)(targetTown.Security * 0.8f);
             myExperience += 50;
@@ -519,8 +484,17 @@ namespace SangokuKmy.Models.Commands
 
             if (await repo.Town.IsUnifiedAsync(character.CountryId))
             {
-              await game.MapLogAsync(EventType.Unified, "<country>" + myCountry.Name + "</country> によって統一されました", true);
-              await ResetService.RequestResetAsync(repo);
+              var system = await repo.System.GetAsync();
+              if (system.Period == 0 && system.BetaVersion == 2)
+              {
+                // 第0.2期の特別ルール
+                await ResetService.Period0_2_SpecialEndAsync(repo);
+              }
+              else
+              {
+                await game.MapLogAsync(EventType.Unified, "<country>" + myCountry.Name + "</country> によって統一されました", true);
+                await ResetService.RequestResetAsync(repo);
+              }
             }
           }
         }
@@ -535,20 +509,18 @@ namespace SangokuKmy.Models.Commands
       myContribution += myExperience;
       character.Contribution += (int)(myContribution);
       await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType));
-      if (enemy.Defender.HasData)
+      if (!isWall)
       {
-        var defender = enemy.Defender.Data;
         targetContribution += targetExperience;
-        defender.Contribution += (int)(targetContribution);
-        defender.SoldierNumber = enemy.SoldierNumber;
-        await game.CharacterLogByIdAsync(defender.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, defender, targetSoldierType));
+        targetCharacter.Contribution += (int)(targetContribution);
+        await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType));
 
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(defender), defender.Id);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCharacter), targetCharacter.Id);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
         {
           Type = SignalType.DefenderBattled,
-          Data = new { townName = targetTown.Name, targetName = character.Name, isWin = defender.SoldierNumber > 0, },
-        }), defender.Id);
+          Data = new { townName = targetTown.Name, targetName = character.Name, isWin = targetCharacter.SoldierNumber > 0, },
+        }), targetCharacter.Id);
       }
 
       // 更新された都市データを通知
@@ -559,10 +531,15 @@ namespace SangokuKmy.Models.Commands
       {
         await repo.SaveChangesAsync();
         continuousCount++;
-        await this.ExecuteAsync(repo, character, options.Where(p => p.Type != 32).Append(new CharacterCommandParameter
+        await this.ExecuteAsync(repo, character, options.Where(p => p.Type != 32 && p.Type != 33).Append(new CharacterCommandParameter
         {
           Type = 32,
           NumberValue = continuousCount,
+        })
+        .Append(new CharacterCommandParameter
+        {
+          Type = 33,
+          NumberValue = continuousTurns,
         }), game);
       }
     }
@@ -598,32 +575,13 @@ namespace SangokuKmy.Models.Commands
       return str;
     }
 
-    private class EnemyData
-    {
-      public Optional<Character> Defender { get; set; }
-
-      public string Name => this.IsWall ? "城壁" : this.Defender.Data.Name;
-
-      public bool IsWall => !this.Defender.HasData;
-
-      public int SoldierNumber { get; set; }
-
-      public SoldierType SoldierType { get; set; }
-
-      public uint SoldierTypeId { get; set; }
-
-      public int Strong { get; set; }
-
-      public int Proficiency { get; set; }
-    }
-
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
       var townId = (uint)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { command = "move", townId, });
 
       // 連戦カウンター
-      if (options.Any(p => p.Type == 32))
+      if (options.Any(p => p.Type == 32 || p.Type == 33))
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }

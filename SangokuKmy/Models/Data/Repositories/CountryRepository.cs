@@ -8,6 +8,7 @@ using SangokuKmy.Common;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Data.ApiEntities;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -159,13 +160,14 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         var system = await this.container.Context.SystemData.FirstAsync();
+        var intStartMonth = system.GameDateTime.Year >= Config.UpdateStartYear ? system.IntGameDateTime : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, }.ToInt();
         return (await this.container.Context.Characters
           .Where(c => c.CountryId == countryId && !c.HasRemoved)
           .GroupJoin(this.container.Context.CharacterIcons,
             c => c.Id,
             i => i.CharacterId,
             (c, i) => new { Character = c, Icons = i, })
-          .GroupJoin(this.container.Context.CharacterCommands.Where(c => c.IntGameDateTime <= system.IntGameDateTime + 8)
+          .GroupJoin(this.container.Context.CharacterCommands.Where(c => c.IntGameDateTime <= intStartMonth + 8)
               .GroupJoin(this.container.Context.CharacterCommandParameters,
                 c => c.Id,
                 p => p.CharacterCommandId,
@@ -197,12 +199,12 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="townId">都市ID</param>
     /// <returns>その都市に滞在する武将の数</returns>
-    public async Task<int> CountCharactersAsync(uint countryId)
+    public async Task<int> CountCharactersAsync(uint countryId, bool isHumanOnly = false)
     {
       try
       {
         return await this.container.Context.Characters
-          .CountAsync(c => c.CountryId == countryId);
+          .CountAsync(c => c.CountryId == countryId && !c.HasRemoved && (!isHumanOnly || c.AiType == CharacterAiType.Human));
       }
       catch (Exception ex)
       {
@@ -367,6 +369,120 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 政策を追加する
+    /// </summary>
+    /// <param name="policy">政策</param>
+    public async Task AddPolicyAsync(CountryPolicy policy)
+    {
+      try
+      {
+        await this.container.Context.CountryPolicies.AddAsync(policy);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 政策を取得する
+    /// </summary>
+    public async Task<IReadOnlyList<CountryPolicy>> GetPoliciesAsync()
+    {
+      try
+      {
+        return await this.container.Context.CountryPolicies.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 政策を取得する
+    /// </summary>
+    /// <param name="countryId">国ID</param>
+    public async Task<IReadOnlyList<CountryPolicy>> GetPoliciesAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.CountryPolicies.Where(p => p.CountryId == countryId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 斥候を追加する
+    /// </summary>
+    /// <param name="scouter">斥候</param>
+    public async Task AddScouterAsync(CountryScouter scouter)
+    {
+      try
+      {
+        await this.container.Context.CountryScouters.AddAsync(scouter);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 斥候を削除する
+    /// </summary>
+    /// <param name="scouter">斥候</param>
+    public void RemoveScouter(CountryScouter scouter)
+    {
+      try
+      {
+        this.container.Context.CountryScouters.Remove(scouter);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 斥候を取得する
+    /// </summary>
+    public async Task<IReadOnlyList<CountryScouter>> GetScoutersAsync()
+    {
+      try
+      {
+        return await this.container.Context.CountryScouters.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 斥候を取得する
+    /// </summary>
+    /// <param name="countryId">国ID</param>
+    public async Task<IReadOnlyList<CountryScouter>> GetScoutersAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.CountryScouters.Where(s => s.CountryId == countryId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 国のデータを削除する
     /// </summary>
     public void RemoveDataByCountryId(uint countryId)
@@ -396,6 +512,7 @@ namespace SangokuKmy.Models.Data.Repositories
         await this.container.RemoveAllRowsAsync(typeof(Country));
         await this.container.RemoveAllRowsAsync(typeof(CountryPost));
         await this.container.RemoveAllRowsAsync(typeof(CountryMessage));
+        await this.container.RemoveAllRowsAsync(typeof(CountryScouter));
       }
       catch (Exception ex)
       {

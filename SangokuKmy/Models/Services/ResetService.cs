@@ -14,6 +14,8 @@ namespace SangokuKmy.Models.Services
   {
     public static async Task ResetAsync(MainRepository repo)
     {
+      await OnlineService.ResetAsync();
+
       await repo.AuthenticationData.ResetAsync();
       await repo.BattleLog.ResetAsync();
       await repo.CharacterCommand.ResetAsync();
@@ -104,6 +106,21 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(system));
     }
 
+    public static async Task Period0_2_SpecialEndAsync(MainRepository repo)
+    {
+      var system = await repo.System.GetAsync();
+      system.IsWaitingReset = true;
+
+      var currentMonth = system.CurrentMonthStartDateTime;
+      var todayResetHour = new DateTime(currentMonth.Year, currentMonth.Month, currentMonth.Day, 21, 0, 0, 0);
+      var resetHour = todayResetHour.AddDays(currentMonth.Hour < 21 ? 2 : 3);
+      var sinceResetTime = resetHour - currentMonth;
+      var resetTurn = (int)Math.Round(sinceResetTime.TotalMinutes / 10.0f);
+      system.ResetGameDateTime = GameDateTime.FromInt(system.GameDateTime.ToInt() + resetTurn);
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(system));
+    }
+
     private static async Task RecordHistoryAsync(MainRepository repo, SystemData system)
     {
       await repo.SaveChangesAsync();
@@ -158,7 +175,7 @@ namespace SangokuKmy.Models.Services
         {
           System.IO.File.Copy(Config.Game.UploadedIconDirectory + icon.FileName, Config.Game.HistoricalUploadedIconDirectory + icon.FileName);
         }
-        catch (Exception ex)
+        catch
         {
           // loggerがない！
         }
@@ -169,7 +186,7 @@ namespace SangokuKmy.Models.Services
 
     private static async Task ResetTownsAsync(MainRepository repo)
     {
-      var initialTowns = await repo.Town.GetAllInitialTownsAsync(); //MapService.CreateMap(7);
+      var initialTowns = MapService.CreateMap(RandomService.Next(7, 9));
       var towns = new List<Town>();
       foreach (var itown in initialTowns)
       {
