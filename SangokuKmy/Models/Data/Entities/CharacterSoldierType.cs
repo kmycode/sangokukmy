@@ -262,9 +262,9 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "神鬼兵",
         Data = new CharacterSoldierTypeData
         {
-          IntellectAttack = 100,
+          StrongAttack = 100,
           IntellectEx = 1,
-          PowerStrong = 1,
+          PowerIntellect = 1,
         },
         Money = 10,
         Technology = 500,
@@ -542,7 +542,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 2,
         Technology = 200,
-        CanConscript = true,
+        CanConscript = false,
       },
       new CharacterSoldierTypePart
       {

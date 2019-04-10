@@ -148,6 +148,9 @@ namespace SangokuKmy.Models.Data.Entities
       var a = (float)this.BaseAttack;
       var d = (float)this.BaseDefend;
 
+      a += this.StrongAttack / 1000.0f * chara.Strong;
+      d += this.StrongDefend / 1000.0f * chara.Strong;
+
       a += this.IntellectAttack / 1000.0f * chara.Intellect;
       d += this.IntellectDefend / 1000.0f * chara.Intellect;
 
@@ -208,6 +211,8 @@ namespace SangokuKmy.Models.Data.Entities
         PowerIntellect = (short)parts.Sum(p => p.Data.PowerIntellect),
         BaseAttack = (short)parts.Sum(p => p.Data.BaseAttack),
         BaseDefend = (short)parts.Sum(p => p.Data.BaseDefend),
+        StrongAttack = (short)parts.Sum(p => p.Data.StrongAttack),
+        StrongDefend = (short)parts.Sum(p => p.Data.StrongDefend),
         IntellectAttack = (short)parts.Sum(p => p.Data.IntellectAttack),
         IntellectDefend = (short)parts.Sum(p => p.Data.IntellectDefend),
         WallAttack = (short)parts.Sum(p => p.Data.WallAttack),
