@@ -109,38 +109,19 @@ namespace SangokuKmy.Models.Services
       var system = await repo.System.GetAsync();
       await RecordHistoryAsync(repo, system);
 
-      var towns = (await repo.Town.GetAllAsync()).ToList();
-      var targetTowns = new List<Town>();
-      for (var i = 0; i < 2; i++)
+      system.TerroristCount++;
+      await AiService.CreateTerroristCountryAsync(repo, async (type, message, isImportant) =>
       {
-        var t = towns[RandomService.Next(0, towns.Count)];
-        targetTowns.Add(t);
-        towns.Remove(t);
-      }
-
-      for (var i = 0; i < 2; i++)
-      {
-        system.TerroristCount++;
-        var defenders = await repo.Town.GetDefendersAsync(targetTowns[i].Id);
-        foreach (var d in defenders)
+        var log = new MapLog
         {
-          repo.Town.RemoveDefender(d.Character.Id);
-        }
-        await AiService.CreateTerroristCountryAsync(repo, async (type, message, isImportant) =>
-        {
-          var log = new MapLog
-          {
-            ApiGameDateTime = system.GameDateTime,
-            Date = DateTime.Now,
-            EventType = type,
-            IsImportant = isImportant,
-            Message = message,
-          };
-          await repo.MapLog.AddAsync(log);
-          await StatusStreaming.Default.SendAllAsync(ApiData.From(log));
-          await AnonymousStreaming.Default.SendAllAsync(ApiData.From(log));
-        }, targetTowns[i], true);
-      }
+          ApiGameDateTime = system.GameDateTime,
+          Date = DateTime.Now,
+          EventType = type,
+          IsImportant = isImportant,
+          Message = message,
+        };
+        await repo.MapLog.AddAsync(log);
+      }, true);
 
       await repo.SaveChangesAsync();
     }

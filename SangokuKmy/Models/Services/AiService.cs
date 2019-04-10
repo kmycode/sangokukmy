@@ -167,32 +167,6 @@ namespace SangokuKmy.Models.Services
       return true;
     }
 
-    public static async Task<bool> CreateWarForceAsync(MainRepository repo, Country self, Country target, Func<EventType, string, bool, Task> mapLogAsync)
-    {
-      var startMonth = (await repo.System.GetAsync()).GameDateTime;
-      startMonth = new GameDateTime
-      {
-        Year = (short)(startMonth.Year + 24 - startMonth.Year % 12),  // 翌日または翌々日の２１時
-        Month = 1,
-      };
-      var war = new CountryWar
-      {
-        RequestedCountryId = self.Id,
-        InsistedCountryId = target.Id,
-        StartGameDate = startMonth,
-        Status = CountryWarStatus.InReady,
-      };
-      await repo.CountryDiplomacies.SetWarAsync(war);
-      await repo.SaveChangesAsync();
-
-      await mapLogAsync(EventType.WarInReady, $"<country>{self.Name}</country> は、<date>{war.StartGameDate.ToString()}</date> より <country>{target.Name}</country> へ侵攻します", true);
-
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(war));
-
-      return true;
-    }
-
     public static async Task<bool> CreateWarQuicklyAsync(MainRepository repo, Country self, Country target)
     {
       var startMonth = (await repo.System.GetAsync()).GameDateTime;
@@ -230,11 +204,10 @@ namespace SangokuKmy.Models.Services
       return notUsingCountryColors[RandomService.Next(0, notUsingCountryColors.Length)];
     }
 
-    public static async Task<bool> CreateTerroristCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync, Town town = null, bool isSpecialRule = false)
+    public static async Task<bool> CreateTerroristCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync, bool isSpecialRule = false)
     {
       var system = await repo.System.GetAsync();
-      var countries = await repo.Country.GetAllAsync();
-      var countryColor = GetNotUsingCountryColor(countries);
+      var countryColor = GetNotUsingCountryColor(await repo.Country.GetAllAsync());
       if (countryColor == 0)
       {
         return false;
@@ -243,25 +216,21 @@ namespace SangokuKmy.Models.Services
       var charas = new List<CharacterAiType>
       {
         CharacterAiType.TerroristBattler,
-        CharacterAiType.TerroristWallBattler,
+        CharacterAiType.TerroristBattler,
         CharacterAiType.TerroristRyofu,
-        CharacterAiType.TerroristCivilOfficial,
+        CharacterAiType.TerroristRyofu,
         CharacterAiType.TerroristPatroller,
         CharacterAiType.TerroristPatroller,
+        CharacterAiType.TerroristMainPatroller,
       };
 
-      var names = new string[] { "南蛮", "烏丸", "山越", }.Where(n => !countries.Any(c => c.Name == n)).ToArray();
-      if (!names.Any())
-      {
-        return false;
-      }
-
+      var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
       var name = names[RandomService.Next(0, names.Length)];
-      if (RandomService.Next(0, 4) == 0 && !countries.Any(c => c.Name == "倭"))
+      if (RandomService.Next(0, 4) == 0)
       {
         name = "倭";
         charas.Add(CharacterAiType.TerroristRyofu);
-        charas.Add(CharacterAiType.TerroristCivilOfficial);
+        charas.Add(CharacterAiType.TerroristBattler);
       }
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
@@ -270,39 +239,47 @@ namespace SangokuKmy.Models.Services
         .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
         .Distinct();
 
-      if (town == null)
+      var town = await CreateTownAsync(repo, warCountries);
+      if (!town.HasData)
       {
-        var newTown = await CreateTownAsync(repo, warCountries);
-        if (!newTown.HasData)
-        {
-          return false;
-        }
-        newTown.Data.Name = name;
-        newTown.Data.TownBuilding = TownBuilding.TerroristHouse;
-        town = newTown.Data;
+        return false;
       }
+      town.Data.Name = name;
+      town.Data.TownBuilding = TownBuilding.TerroristHouse;
 
-      var country = await CreateCountryAsync(repo, system, town, charas.ToArray());
+      var country = await CreateCountryAsync(repo, system, town.Data, charas.ToArray());
       country.CountryColorId = countryColor;
       country.Name = name;
       country.AiType = CountryAiType.Terrorists;
 
-      await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
+      if (isSpecialRule)
+      {
+        var towns = await repo.Town.GetAllAsync();
+        var arounds = towns.GetAroundTowns(town.Data);
+        foreach (var a in arounds)
+        {
+          a.CountryId = country.Id;
+
+          var defenders = await repo.Town.GetDefendersAsync(a.Id);
+          foreach (var d in defenders)
+          {
+            repo.Town.RemoveDefender(d.Character.Id);
+          }
+
+          await StatusStreaming.Default.SendTownToAllAsync(ApiData.From((Town)a), repo);
+          await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous((Town)a)));
+        }
+      }
+
+      await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Data.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
       await repo.SaveChangesAsync();
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
 
-      if (isSpecialRule)
-      {
-        await CreateWarForceAsync(repo, country, countries.FirstOrDefault(c => c.AiType == CountryAiType.Human && !c.HasOverthrown), mapLogAsync);
-      }
-      else
-      {
-        await CreateWarIfNotWarAsync(repo, country, town, mapLogAsync);
-      }
+      await CreateWarIfNotWarAsync(repo, country, town.Data, mapLogAsync);
 
       return true;
     }

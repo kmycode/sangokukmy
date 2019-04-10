@@ -123,32 +123,6 @@ namespace SangokuKmy.Models.Updates
     }
   }
 
-  public class TerroristWallBattlerAiCharacter : TerroristBattlerAiCharacter
-  {
-    protected override bool IsGoWall => true;
-
-    protected override SoldierType FindSoldierType()
-    {
-      if (this.Town.Technology >= 500)
-      {
-        return SoldierType.Seiran;
-      }
-      if (this.Town.Technology >= 300)
-      {
-        return SoldierType.TerroristCommonB;
-      }
-      if (this.Town.Technology >= 100)
-      {
-        return SoldierType.TerroristCommonA;
-      }
-      return SoldierType.LightInfantry;
-    }
-
-    public TerroristWallBattlerAiCharacter(Character character) : base(character)
-    {
-    }
-  }
-
   public class TerroristCivilOfficialAiCharacter : WorkerAiCharacter
   {
     public TerroristCivilOfficialAiCharacter(Character character) : base(character)
@@ -172,7 +146,7 @@ namespace SangokuKmy.Models.Updates
     {
       this.Character.Name = "異民族_文官";
       this.Character.Strong = 10;
-      this.Character.Intellect = (short)(current.ToInt() * 1.2f / 12);
+      this.Character.Intellect = (short)(current.ToInt() * 0.81f / 12);
       this.Character.Leadership = 100;
       this.Character.Money = 99999999;
       this.Character.Rice = 99999999;
@@ -180,12 +154,7 @@ namespace SangokuKmy.Models.Updates
 
     protected override async Task ActionAsync(MainRepository repo)
     {
-      if (await this.InputDefendLoopAsync(repo, 8000))
-      {
-        return;
-      }
-
-      if (await this.InputDefendAsync(repo))
+      if (await this.InputDefendAsync(repo, DefendLevel.NeedAnyDefends))
       {
         return;
       }

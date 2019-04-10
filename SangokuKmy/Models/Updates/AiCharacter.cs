@@ -42,7 +42,7 @@ namespace SangokuKmy.Models.Updates
       }
       else if (chara.AiType == CharacterAiType.TerroristWallBattler)
       {
-        ai = new TerroristWallBattlerAiCharacter(chara);
+        ai = new OldTerroristWallBattlerAiCharacter(chara);
       }
       else if (chara.AiType == CharacterAiType.TerroristRyofu)
       {
