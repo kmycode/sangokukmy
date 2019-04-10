@@ -944,7 +944,7 @@ namespace SangokuKmy.Models.Updates
 
         if (oldTownId != town.Id)
         {
-          await (await repo.Town.GetByIdAsync(oldTownId)).SomeAsync(async oldTown =>
+          (await repo.Town.GetByIdAsync(oldTownId)).Some(async oldTown =>
           {
             // 支配したときとか、元の都市にいた人に武将数や守備人数の更新を指示する
             await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(oldTown), repo);
