@@ -617,6 +617,11 @@ namespace SangokuKmy.Models.Updates
         return false;
       }
 
+      if (!this.GetWaringCountries().Any())
+      {
+        return false;
+      }
+
       if (this.Town.People > minPeople)
       {
         return false;
@@ -633,7 +638,28 @@ namespace SangokuKmy.Models.Updates
         return true;
       }
 
-      return false;
+      if (this.Character.Intellect > this.Character.Strong)
+      {
+        if (this.Town.Technology < this.Town.TechnologyMax)
+        {
+          this.command.Type = CharacterCommandType.Technology;
+          return true;
+        }
+
+        if (this.Town.Wall < this.Town.WallMax)
+        {
+          this.command.Type = CharacterCommandType.Wall;
+          return true;
+        }
+
+        this.InputTraining(TrainingType.Intellect);
+        return true;
+      }
+      else
+      {
+        this.InputTraining(TrainingType.Strong);
+        return true;
+      }
     }
 
     protected async Task<bool> InputDefendAsync(MainRepository repo) => await this.InputDefendAsync(repo, this.NeedDefendLevel);
