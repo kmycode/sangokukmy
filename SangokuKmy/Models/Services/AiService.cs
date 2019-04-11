@@ -254,6 +254,7 @@ namespace SangokuKmy.Models.Services
       country.Name = name;
       country.AiType = CountryAiType.Terrorists;
 
+      /*
       await repo.Country.AddPolicyAsync(new CountryPolicy
       {
         CountryId = country.Id,
@@ -264,6 +265,7 @@ namespace SangokuKmy.Models.Services
         CountryId = country.Id,
         Type = CountryPolicyType.BattleRush,
       });
+      */
 
       await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Data.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
       await repo.SaveChangesAsync();
