@@ -118,7 +118,7 @@ namespace SangokuKmy.Models.Updates
     {
       base.Initialize(current);
       this.Character.Name = "異民族_呂布";
-      this.Character.Strong = (short)Math.Max(70, this.Character.Strong - 30);
+      this.Character.Strong = (short)Math.Max(70, this.Character.Strong - 100);
       this.Character.Leadership = 90;
     }
   }
