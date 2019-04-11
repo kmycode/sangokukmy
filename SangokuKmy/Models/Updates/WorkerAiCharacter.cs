@@ -633,7 +633,7 @@ namespace SangokuKmy.Models.Updates
         return true;
       }
 
-      return true;
+      return false;
     }
 
     protected async Task<bool> InputDefendAsync(MainRepository repo) => await this.InputDefendAsync(repo, this.NeedDefendLevel);
