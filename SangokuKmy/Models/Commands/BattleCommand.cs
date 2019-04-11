@@ -485,15 +485,18 @@ namespace SangokuKmy.Models.Commands
             if (await repo.Town.IsUnifiedAsync(character.CountryId))
             {
               var system = await repo.System.GetAsync();
-              if (system.Period == 0 && system.BetaVersion == 2)
+              if (!system.IsWaitingReset)
               {
-                // 第0.2期の特別ルール
-                await ResetService.Period0_2_SpecialEndAsync(repo);
-              }
-              else
-              {
-                await game.MapLogAsync(EventType.Unified, "<country>" + myCountry.Name + "</country> によって統一されました", true);
-                await ResetService.RequestResetAsync(repo);
+                if (system.Period == 0 && system.BetaVersion == 2)
+                {
+                  // 第0.2期の特別ルール
+                  await ResetService.Period0_2_SpecialEndAsync(repo);
+                }
+                else
+                {
+                  await game.MapLogAsync(EventType.Unified, "<country>" + myCountry.Name + "</country> によって統一されました", true);
+                  await ResetService.RequestResetAsync(repo);
+                }
               }
             }
           }
