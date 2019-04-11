@@ -234,13 +234,13 @@ namespace SangokuKmy.Models.Updates
 
     protected override SoldierType FindSoldierType()
     {
-      if (this.Town.Technology >= 800)
+      if (this.Town.Technology >= 900)
       {
-        return SoldierType.Intellect;
+        return SoldierType.LightIntellect;
       }
       if (this.Town.Technology >= 500)
       {
-        return SoldierType.LightIntellect;
+        return SoldierType.IntellectCommon;
       }
       return SoldierType.TerroristCommonA;
     }
@@ -248,7 +248,7 @@ namespace SangokuKmy.Models.Updates
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "異民族_仁官";
-      this.Character.Intellect = (short)Math.Max(current.ToInt() * 1.4f / 12, 120);
+      this.Character.Intellect = (short)Math.Min(Math.Max(current.ToInt() * 1.4f / 12, 120), 300);
       this.Character.Popularity = 300;
       this.Character.Leadership = 100;
       this.Character.Money = 99999999;
