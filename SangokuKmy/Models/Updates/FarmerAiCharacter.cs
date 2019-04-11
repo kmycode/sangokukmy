@@ -47,7 +47,7 @@ namespace SangokuKmy.Models.Updates
       {
         if (this.CanSoldierForce)
         {
-          this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * Config.SoldierPeopleCost + 500);
+          this.Town.People = (int)Math.Max(this.Town.People, this.Character.Leadership * Config.SoldierPeopleCost + 500);
           this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10 + 1));
           await repo.SaveChangesAsync();
         }
@@ -258,7 +258,7 @@ namespace SangokuKmy.Models.Updates
               // 兵を補充
               if (this.CanSoldierForce)
               {
-                this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * Config.SoldierPeopleCost + 500);
+                this.Town.People = (int)Math.Max(this.Town.People, this.Character.Leadership * Config.SoldierPeopleCost + 500);
                 this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10 + 1));
                 await repo.SaveChangesAsync();
               }
