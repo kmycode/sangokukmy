@@ -15,6 +15,12 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
+      if (character.Money < 50)
+      {
+        await game.CharacterLogAsync($"金が足りません。<num>50</num> 必要です");
+        return;
+      }
+
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
       if (townOptional.HasData)
       {
@@ -46,6 +52,7 @@ namespace SangokuKmy.Models.Commands
 
         // 経験値、金の増減
         character.Contribution += 30;
+        character.Money -= 50;
         if (character.Strong > character.Intellect)
         {
           character.AddStrongEx(50);
