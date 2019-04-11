@@ -86,6 +86,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// 国庫拡張
     /// </summary>
     UndergroundStorage = 10,
+
+    /// <summary>
+    /// 国庫拡張2
+    /// </summary>
+    StomachStorage = 11,
+
+    /// <summary>
+    /// 国庫拡張3
+    /// </summary>
+    BloodVesselsStorage = 12,
   }
 
   public class CountryPolicyTypeInfo
@@ -163,6 +173,20 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "地下貯蔵",
         RequestedPoint = 4000,
         SubjectAppear = list => list.Contains(CountryPolicyType.Storage),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StomachStorage,
+        Name = "胃の中",
+        RequestedPoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.UndergroundStorage),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.BloodVesselsStorage,
+        Name = "血管の中",
+        RequestedPoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.StomachStorage),
       },
     };
 

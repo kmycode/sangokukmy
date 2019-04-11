@@ -41,11 +41,9 @@ namespace SangokuKmy.Models.Commands
 
       var policies = await repo.Country.GetPoliciesAsync(country.Id);
 
-      var max = Config.CountrySafeMax;
-      if (policies.Any(p => p.Type == CountryPolicyType.UndergroundStorage))
-      {
-        max *= 2;
-      }
+      var count = policies.Count(p => p.Type == CountryPolicyType.Storage || p.Type == CountryPolicyType.UndergroundStorage ||
+                                      p.Type == CountryPolicyType.StomachStorage || p.Type == CountryPolicyType.BloodVesselsStorage);
+      var max = Config.CountrySafeMax * count;
 
       var money = options.FirstOrDefault(o => o.Type == 1)?.NumberValue ?? 0;
       if (money > character.Money)
