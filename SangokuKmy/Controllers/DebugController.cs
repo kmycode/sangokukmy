@@ -66,14 +66,30 @@ namespace SangokuKmy.Controllers
       }
     }
 
-    [HttpGet("reset/02test")]
-    public async Task Reset02Test()
+    [HttpGet("reset/map/{num}")]
+    public string CreateNewMap([FromRoute] int num = 7)
     {
-      using (var repo = MainRepository.WithReadAndWrite())
+      num = Math.Min(30, Math.Max(1, num));
+
+      var towns = MapService.CreateMap(num);
+      var str = "";
+      for (var y = 0; y < 10; y++)
       {
-        await ResetService.Period0_2_SpecialAsync(repo);
-        await repo.SaveChangesAsync();
+        for (var x = 0; x < 10; x++)
+        {
+          var town = towns.FirstOrDefault(t => t.X == x && t.Y == y);
+          if (town == null)
+          {
+            str += "|     ";
+          }
+          else
+          {
+            str += "|==";
+          }
+        }
+        str += "|\n";
       }
+      return str;
     }
   }
 }

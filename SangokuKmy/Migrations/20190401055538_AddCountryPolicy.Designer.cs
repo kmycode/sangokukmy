@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20190401055538_AddCountryPolicy")]
+    partial class AddCountryPolicy
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,9 +30,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
-
-                    b.Property<int>("IntNextResetGameDate")
-                        .HasColumnName("next_reset_game_date");
 
                     b.Property<uint>("MainTownId")
                         .HasColumnName("main_town_id");
@@ -623,23 +622,6 @@ namespace SangokuKmy.Migrations
                     b.ToTable("country_researches");
                 });
 
-            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CountryScouter", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<uint>("CountryId")
-                        .HasColumnName("country_id");
-
-                    b.Property<uint>("TownId")
-                        .HasColumnName("town_id");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("country_scouters");
-                });
-
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CountryWar", b =>
                 {
                     b.Property<uint>("Id")
@@ -890,56 +872,6 @@ namespace SangokuKmy.Migrations
                     b.ToTable("historical_countries");
                 });
 
-            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.HistoricalMapLog", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnName("date");
-
-                    b.Property<short>("EventType")
-                        .HasColumnName("event_type");
-
-                    b.Property<uint>("HistoryId")
-                        .HasColumnName("history_id");
-
-                    b.Property<int>("IntGameDateTime")
-                        .HasColumnName("game_date");
-
-                    b.Property<string>("Message")
-                        .HasColumnName("message");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("historical_maplogs");
-                });
-
-            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.HistoricalTown", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<uint>("HistoryId")
-                        .HasColumnName("history_id");
-
-                    b.Property<string>("Name")
-                        .HasColumnName("name")
-                        .HasColumnType("varchar(64)");
-
-                    b.Property<short>("X")
-                        .HasColumnName("x");
-
-                    b.Property<short>("Y")
-                        .HasColumnName("y");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("historical_towns");
-                });
-
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.History", b =>
                 {
                     b.Property<uint>("Id")
@@ -1186,8 +1118,20 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("CommercialMax")
                         .HasColumnName("commercial_max");
 
+                    b.Property<short>("CountryBuilding")
+                        .HasColumnName("country_building");
+
+                    b.Property<int>("CountryBuildingValue")
+                        .HasColumnName("country_building_value");
+
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
+
+                    b.Property<short>("CountryLaboratory")
+                        .HasColumnName("country_laboratory");
+
+                    b.Property<int>("CountryLaboratoryValue")
+                        .HasColumnName("country_laboratory_value");
 
                     b.Property<int>("IntRicePrice")
                         .HasColumnName("rice_price");
@@ -1237,6 +1181,12 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("Wall")
                         .HasColumnName("wall");
+
+                    b.Property<int>("WallGuard")
+                        .HasColumnName("wallguard");
+
+                    b.Property<int>("WallGuardMax")
+                        .HasColumnName("wallguard_max");
 
                     b.Property<int>("WallMax")
                         .HasColumnName("wall_max");
@@ -1370,8 +1320,20 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("CommercialMax")
                         .HasColumnName("commercial_max");
 
+                    b.Property<short>("CountryBuilding")
+                        .HasColumnName("country_building");
+
+                    b.Property<int>("CountryBuildingValue")
+                        .HasColumnName("country_building_value");
+
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
+
+                    b.Property<short>("CountryLaboratory")
+                        .HasColumnName("country_laboratory");
+
+                    b.Property<int>("CountryLaboratoryValue")
+                        .HasColumnName("country_laboratory_value");
 
                     b.Property<int>("IntRicePrice")
                         .HasColumnName("rice_price");
@@ -1406,6 +1368,12 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("Wall")
                         .HasColumnName("wall");
+
+                    b.Property<int>("WallGuard")
+                        .HasColumnName("wallguard");
+
+                    b.Property<int>("WallGuardMax")
+                        .HasColumnName("wallguard_max");
 
                     b.Property<int>("WallMax")
                         .HasColumnName("wall_max");

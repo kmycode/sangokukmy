@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Updates
 {
@@ -46,7 +47,7 @@ namespace SangokuKmy.Models.Updates
       {
         if (this.CanSoldierForce)
         {
-          this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * 5 + 500);
+          this.Town.People = (int)Math.Max(this.Town.People, this.Character.Leadership * Config.SoldierPeopleCost + 500);
           this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10 + 1));
           await repo.SaveChangesAsync();
         }
@@ -171,7 +172,7 @@ namespace SangokuKmy.Models.Updates
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "農民_武将";
-      this.Character.Strong = (short)(10 + current.Year / 2.4f);
+      this.Character.Strong = (short)Math.Max(current.ToInt() * 0.7f / 12 + 100, 100);
       this.Character.Leadership = 100;
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;
@@ -191,7 +192,7 @@ namespace SangokuKmy.Models.Updates
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "農民_文官";
-      this.Character.Intellect = (short)(100 + current.Year / 3.2f);
+      this.Character.Intellect = (short)Math.Max(current.ToInt() * 0.7f / 12 + 100, 100);
       this.Character.Leadership = 100;
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;
@@ -199,14 +200,7 @@ namespace SangokuKmy.Models.Updates
 
     protected virtual void SetCommandOnNoWars(CharacterCommand command)
     {
-      if (this.GameDateTime.Month % 2 == 0)
-      {
-        command.Type = CharacterCommandType.Wall;
-      }
-      else
-      {
-        command.Type = CharacterCommandType.WallGuard;
-      }
+      command.Type = CharacterCommandType.Wall;
     }
 
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
@@ -264,7 +258,7 @@ namespace SangokuKmy.Models.Updates
               // 兵を補充
               if (this.CanSoldierForce)
               {
-                this.Town.People = Math.Max(this.Town.People, this.Character.Leadership * 5 + 500);
+                this.Town.People = (int)Math.Max(this.Town.People, this.Character.Leadership * Config.SoldierPeopleCost + 500);
                 this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10 + 1));
                 await repo.SaveChangesAsync();
               }
@@ -295,7 +289,7 @@ namespace SangokuKmy.Models.Updates
             else
             {
               // 壁塗り
-              command.Type = this.Town.Wall > this.Town.WallGuard ? CharacterCommandType.WallGuard : CharacterCommandType.Wall;
+              command.Type = CharacterCommandType.Wall;
               return command;
             }
           }

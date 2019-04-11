@@ -138,7 +138,7 @@ namespace SangokuKmy.Models.Updates
           CharacterId = characterId,
           Message = message,
         };
-        await repo.Character.AddCharacterLogAsync(characterId, log);
+        await repo.Character.AddCharacterLogAsync(log);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(log), characterId);
       }
       async Task<MapLog> AddMapLogInnerAsync(bool isImportant, EventType type, string message)
@@ -159,19 +159,15 @@ namespace SangokuKmy.Models.Updates
       {
         await AddMapLogInnerAsync(isImportant, type, message);
       }
-      async Task<uint> AddMapLogAndSaveAsync(bool isImportant, EventType type, string message)
-      {
-        var log = await AddMapLogInnerAsync(isImportant, type, message);
-        await repo.SaveChangesAsync();
-        return log.Id;
-      }
 
       var allCharacters = await repo.Character.GetAllAliveAsync();
       var allTowns = await repo.Town.GetAllAsync();
       var allCountries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown).ToArray();
+      var allPolicies = await repo.Country.GetPoliciesAsync();
       var countryData = allCountries
         .GroupJoin(allTowns, c => c.Id, t => t.CountryId, (c, ts) => new { Country = c, Towns = ts, })
-        .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, });
+        .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, })
+        .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, });
 
       if (system.GameDateTime.Year >= Config.UpdateStartYear)
       {
@@ -187,14 +183,7 @@ namespace SangokuKmy.Models.Updates
               AllSalary = (int)country
                 .Towns
                 .Sum(t => {
-                  var val = (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People * (t.Id == country.Country.CapitalTownId ? 1.4f : 1.0f) / 10000;
-
-                  // 太守府ハンデ
-                  if (t.Id == country.Country.CapitalTownId && t.TownBuilding == TownBuilding.ViceroyHouse)
-                  {
-                    var size = (float)t.TownBuildingValue / Config.TownBuildingMax;
-                    val = (int)(val * size);
-                  }
+                  var val = (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People / 10000;
 
                   return val;
                 }),
@@ -213,51 +202,58 @@ namespace SangokuKmy.Models.Updates
 
             // 収入から政務官収入をひく
             var secretaries = country.Characters.Where(c => c.AiType.IsSecretary());
-            if (secretaries.Any())
+            var scouters = await repo.Country.GetScoutersAsync(country.Country.Id);
+            if (secretaries.Any() || scouters.Any())
             {
-              var secretarySize = await CountryService.GetCountryBuildingSizeAsync(repo, country.Country.Id, CountryBuilding.Secretary);
-              if (secretarySize > 0.0f || secretaries.Any(s => s.AiType == CharacterAiType.SecretaryDefender))
+              bool PayAndCanContinue(int income)
               {
-                var target = secretarySize > 0.0f ? secretaries : secretaries.Where(s => s.AiType == CharacterAiType.SecretaryDefender);
-                var income = secretarySize > 0.0f ? (int)(Config.SecretaryCost / secretarySize) : Config.SecretaryCost;
-                foreach (var character in target)
+                var isContinue = false;
+                if (country.Country.SafeMoney >= income)
                 {
-                  var isContinue = false;
-                  if (country.Country.SafeMoney >= income)
+                  isContinue = true;
+                  country.Country.SafeMoney -= income;
+                }
+                else
+                {
+                  if (salary.AllSalary >= income - country.Country.SafeMoney)
                   {
+                    // 国庫が足りなければ収入から絞る
                     isContinue = true;
-                    country.Country.SafeMoney -= income;
-                  }
-                  else
-                  {
-                    if (salary.AllSalary >= income - country.Country.SafeMoney)
-                    {
-                      // 国庫が足りなければ収入から絞る
-                      isContinue = true;
-                      salary.AllSalary -= income - country.Country.SafeMoney;
-                      country.Country.SafeMoney = 0;
-                    }
-                  }
-                  // 勤務を継続するか？
-                  if (isContinue)
-                  {
-                    character.Money = 100000;
-                    character.Rice = 100000;
-                  }
-                  else
-                  {
-                    character.Money = 0;
-                    character.Rice = 0;
+                    salary.AllSalary -= income - country.Country.SafeMoney;
+                    country.Country.SafeMoney = 0;
                   }
                 }
+                return isContinue;
               }
-              if (secretarySize <= 0.0f)
+
+              var secretaryIncome = Config.SecretaryCost;
+              var scoutersIncome = Config.ScouterCost;
+              foreach (var character in secretaries)
               {
-                // 政務庁がなければ全員解任
-                foreach (var character in country.Characters.Where(c => c.AiType.IsSecretary() && c.AiType != CharacterAiType.SecretaryDefender))
+                var isContinue = PayAndCanContinue(secretaryIncome);
+
+                // 勤務を継続するか？
+                if (isContinue)
+                {
+                  character.Money = 100000;
+                  character.Rice = 100000;
+                }
+                else
                 {
                   character.Money = 0;
                   character.Rice = 0;
+                }
+              }
+              foreach (var scouter in scouters)
+              {
+                var isContinue = PayAndCanContinue(scoutersIncome);
+
+                if (!isContinue)
+                {
+                  repo.Country.RemoveScouter(scouter);
+
+                  scouter.IsRemoved = true;
+                  await StatusStreaming.Default.SendCountryAsync(ApiData.From(scouter), country.Country.Id);
                 }
               }
             }
@@ -334,81 +330,78 @@ namespace SangokuKmy.Models.Updates
           var targetTown = allTowns[RandomService.Next(0, allTowns.Count)];
           var targetTowns = allTowns.GetAroundTowns(targetTown);
 
-          float val, val2;
+          void SetEvents(float size, float aroundSize, float sizeIfPolicy, float aroundSizeIfPolicy, CountryPolicyType policy, Action<TownBase, float> func)
+          {
+            foreach (var town in targetTowns)
+            {
+              var cd = countryData.FirstOrDefault(c => c.Country.Id == town.CountryId);
+              var val = cd?.Policies.Any(p => p.Type == policy) == true ? aroundSizeIfPolicy : aroundSize;
+              func(town, val);
+            }
+            var cd2 = countryData.FirstOrDefault(c => c.Country.Id == targetTown.Id);
+            var val2 = cd2?.Policies.Any(p => p.Type == policy) == true ? sizeIfPolicy : size;
+            func(targetTown, val2);
+          }
 
-          var eventId = RandomService.Next(0, 6);
+          var eventId = RandomService.Next(0, 7);
           switch (eventId)
           {
             case 0:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺でいなごの大群が畑を襲いました");
-              foreach (var town in targetTowns)
+              SetEvents(0.65f, 0.75f, 1.0f, 1.0f, CountryPolicyType.Economy, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.Economy ? 0.85f : 0.85f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
                 town.Agriculture = (int)(town.Agriculture * val);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 0.75f : 0.75f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
-              targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
+              });
               break;
             case 1:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で洪水がおこりました");
-              foreach (var town in targetTowns)
+              SetEvents(0.75f, 0.85f, 1.0f, 1.0f, CountryPolicyType.SaveWall, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.SaveWall ? 0.94f : 0.94f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.06f;
                 town.Agriculture = (int)(town.Agriculture * val);
                 town.Commercial = (int)(town.Commercial * val);
                 town.Wall = (int)(town.Wall * val);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.SaveWall ? 0.85f : 0.85f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
-              targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
-              targetTown.Commercial = (int)(targetTown.Commercial * val2);
-              targetTown.Wall = (int)(targetTown.Wall * val2);
+              });
               break;
             case 2:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> を中心に疫病が広がっています。町の人も苦しんでいます");
-              foreach (var town in targetTowns)
+              SetEvents(0.75f, 0.85f, 1.0f, 1.0f, CountryPolicyType.Economy, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.Economy ? 0.85f : 0.85f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
                 town.People = (int)(town.People * val);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 0.75f : 0.75f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.12f;
-              targetTown.People = (int)(targetTown.People * val2);
+              });
               break;
             case 3:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺は、今年は豊作になりそうです");
-              foreach (var town in targetTowns)
+              SetEvents(1.30f, 1.15f, 1.50f, 1.30f, CountryPolicyType.Economy, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.Economy ? 1.12f : 1.12f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
                 town.Agriculture = Math.Min((int)(town.Agriculture * val), town.AgricultureMax);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 1.24f : 1.24f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.22f;
-              targetTown.Agriculture = Math.Min((int)(targetTown.Agriculture * val2), targetTown.AgricultureMax);
+              });
               break;
             case 4:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で地震が起こりました");
-              foreach (var town in targetTowns)
+              SetEvents(0.66f, 0.76f, 1.0f, 1.0f, CountryPolicyType.SaveWall, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.SaveWall ? 0.86f : 0.86f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.14f;
                 town.Agriculture = (int)(town.Agriculture * val);
                 town.Commercial = (int)(town.Commercial * val);
                 town.Wall = (int)(town.Wall * val);
-                val = town.TownBuilding != TownBuilding.SaveWall ? 0.94f : 0.94f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.06f;
                 town.People = (int)(town.People * val);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.SaveWall ? 0.76f : 0.76f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.19f;
-              targetTown.Agriculture = (int)(targetTown.Agriculture * val2);
-              targetTown.Commercial = (int)(targetTown.Commercial * val2);
-              targetTown.Wall = (int)(targetTown.Wall * val2);
-              targetTown.People = (int)(targetTown.People * val2);
+              });
               break;
             case 5:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺の市場が賑わっています");
-              foreach (var town in targetTowns)
+              SetEvents(1.30f, 1.15f, 1.50f, 1.30f, CountryPolicyType.Economy, (town, val) =>
               {
-                val = town.TownBuilding != TownBuilding.Economy ? 1.12f : 1.12f + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.15f;
-                town.Commercial = Math.Min((int)(town.Commercial * val), town.CommercialMax);
-              }
-              val2 = targetTown.TownBuilding != TownBuilding.Economy ? 1.24f : 1.24f + ((float)targetTown.TownBuildingValue / Config.TownBuildingMax) * 0.22f;
-              targetTown.Commercial = Math.Min((int)(targetTown.Commercial * val2), targetTown.CommercialMax);
+                town.Agriculture = Math.Min((int)(town.Agriculture * val), town.AgricultureMax);
+              });
+              break;
+            case 6:
+              await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で賊が出現しました");
+              SetEvents(0.66f, 0.76f, 1.0f, 1.0f, CountryPolicyType.AntiGang, (town, val) =>
+              {
+                town.Agriculture = (int)(town.Agriculture * val);
+                town.Commercial = (int)(town.Commercial * val);
+                town.People = (int)(town.People * val);
+                town.Security = (short)(town.Security * val);
+              });
               break;
           }
 
@@ -430,22 +423,6 @@ namespace SangokuKmy.Models.Updates
           var ricePriceMin = (int)(ricePriceBase * 0.8f);
           foreach (var town in allTowns)
           {
-            // 太守府
-            if (town.TownBuilding == TownBuilding.ViceroyHouse)
-            {
-              var size = (float)town.TownBuildingValue / Config.TownBuildingMax;
-              town.Security = (short)Math.Max(0, town.Security - 12 * (1.0f - size));
-              town.People = (int)Math.Max(0, town.People - 800 * (1.0f - size));
-              town.Agriculture = (short)Math.Max(0, town.Agriculture - 30 * (1.0f - size));
-              town.Commercial = (short)Math.Max(0, town.Commercial - 30 * (1.0f - size));
-              town.Technology = (short)Math.Max(0, town.Technology - 30 * (1.0f - size));
-              if (town.CountryId > 0)
-              {
-                town.Wall = (short)Math.Max(0, town.Wall - 30 * (1.0f - size));
-                town.WallGuard = (short)Math.Max(0, town.WallGuard - 30 * (1.0f - size));
-              }
-            }
-
             // 相場
             if (RandomService.Next(0, 2) == 0)
             {
@@ -508,7 +485,7 @@ namespace SangokuKmy.Models.Updates
                 town.TownBuilding == TownBuilding.TerroristHouse)
             {
               var charas = await repo.Town.GetCharactersAsync(town.Id);
-              var shortSize = (short)(size * 7);
+              var shortSize = (short)(size * 11);
               foreach (var chara in charas)
               {
                 if (town.TownBuilding == TownBuilding.TrainStrong)
@@ -538,14 +515,13 @@ namespace SangokuKmy.Models.Updates
             }
             else if (town.TownBuilding == TownBuilding.RepairWall)
             {
-              town.Wall = Math.Min((int)(town.Wall + 20 * size), town.WallMax);
-              town.WallGuard = Math.Min((int)(town.WallGuard + 20 * size), town.WallGuardMax);
+              town.Wall = Math.Min((int)(town.Wall + 15 * size), town.WallMax);
             }
             else if (town.TownBuilding == TownBuilding.MilitaryStation)
             {
               if (town.Security >= 10)
               {
-                town.Security = (short)Math.Min((int)(town.Security + 5 * size), 100);
+                town.Security = (short)Math.Min((int)(town.Security + 8 * size), 100);
               }
             }
           }
@@ -648,12 +624,17 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 異民族
-        if (system.TerroristCount <= 0 && !system.IsWaitingReset && (system.GameDateTime.Year >= 220 || (system.GameDateTime.Year >= 180 && RandomService.Next(0, 130) == 0)))
+        if (system.TerroristCount <= 0 && !system.IsWaitingReset &&
+              ((system.GameDateTime.Year >= 180 && RandomService.Next(0, 130) == 0) ||
+                system.GameDateTime.Year >= 220 ||
+               (system.GameDateTime.Year >= 150 && allCountries.Count(c => !c.HasOverthrown) <= 2 && RandomService.Next(0, 22) == 0) ||
+               (system.GameDateTime.Year >= 120 && allCountries.Count(c => !c.HasOverthrown) <= 3 && RandomService.Next(0, 48) == 0)))
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
           {
             system.TerroristCount++;
+            await repo.SaveChangesAsync();
           }
           else
           {
@@ -662,19 +643,74 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 農民反乱
-        if (RandomService.Next(0, 40) == 0)
+        if (!system.IsWaitingReset && RandomService.Next(0, 40) == 0)
         {
           var isCreated = await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
-          if (!isCreated)
+          if (isCreated)
+          {
+            await repo.SaveChangesAsync();
+          }
+          else
           {
             _logger.LogInformation("農民反乱出現の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
+          }
+        }
+
+        // 蛮族
+        if (allTowns.Any(t => t.CountryId == 0) && RandomService.Next(0, 192) == 0)
+        {
+          var towns = allTowns.Where(t => t.CountryId == 0 && allTowns.GetAroundTowns(t).Any(tt => tt.CountryId != 0)).ToArray();
+          if (towns.Any())
+          {
+            var isCreated = await AiService.CreateThiefCountryAsync(repo, towns[RandomService.Next(0, towns.Length)], (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+            if (isCreated)
+            {
+              await repo.SaveChangesAsync();
+            }
+            else
+            {
+              _logger.LogInformation("蛮族出現の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
+            }
           }
         }
 
         // 戦争状態にないAI国家がどっかに布告するようにする
         if (allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human))
         {
-          await AiService.CreateWarIfNotWarAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          var isCreated = await AiService.CreateWarIfNotWarAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          if (isCreated)
+          {
+            await repo.SaveChangesAsync();
+          }
+        }
+      }
+
+      // 斥候
+      {
+        var scouters = await repo.Country.GetScoutersAsync();
+        foreach (var scouter in scouters)
+        {
+          var countryOptional = await repo.Country.GetByIdAsync(scouter.CountryId);
+          var townOptional = await repo.Town.GetByIdAsync(scouter.TownId);
+          if (!countryOptional.HasData || !townOptional.HasData)
+          {
+            repo.Country.RemoveScouter(scouter);
+            continue;
+          }
+
+          var scoutedTown = ScoutedTown.From(townOptional.Data);
+          scoutedTown.ScoutedDateTime = system.GameDateTime;
+          scoutedTown.ScoutedCountryId = scouter.CountryId;
+          scoutedTown.ScoutMethod = ScoutMethod.Scouter;
+
+          await repo.ScoutedTown.AddScoutAsync(scoutedTown);
+          await repo.SaveChangesAsync();
+
+          var savedScoutedTown = (await repo.ScoutedTown.GetByTownIdAsync(townOptional.Data.Id, scouter.CountryId)).Data;
+          if (savedScoutedTown != null)
+          {
+            await StatusStreaming.Default.SendCountryAsync(ApiData.From(savedScoutedTown), scouter.CountryId);
+          }
         }
       }
 
@@ -810,7 +846,7 @@ namespace SangokuKmy.Models.Updates
         {
           var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
           character.DeleteTurn = (short)Config.DeleteTurns;
-          await AddMapLogAsync(EventType.SecretaryRemovedWithNoSalary, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、解雇されました", false);
+          await AddMapLogAsync(EventType.SecretaryRemoved, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、解雇されました", false);
         }
 
         // 放置削除の確認

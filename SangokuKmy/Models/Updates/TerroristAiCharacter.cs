@@ -54,7 +54,7 @@ namespace SangokuKmy.Models.Updates
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "異民族_武将";
-      this.Character.Strong = (short)(current.ToInt() * 1.2f / 12);
+      this.Character.Strong = (short)Math.Max(current.ToInt() * 0.81f / 12 + 100, 100);
       this.Character.Leadership = (short)Math.Min(current.ToInt() * 0.3f / 12 + 100, 150.0f);
       this.Character.Money = 99999999;
       this.Character.Rice = 99999999;
@@ -118,7 +118,7 @@ namespace SangokuKmy.Models.Updates
     {
       base.Initialize(current);
       this.Character.Name = "異民族_呂布";
-      this.Character.Strong = (short)Math.Max(30, this.Character.Strong - 30);
+      this.Character.Strong = (short)Math.Max(70, this.Character.Strong - 30);
       this.Character.Leadership = 90;
     }
   }
@@ -157,13 +157,17 @@ namespace SangokuKmy.Models.Updates
 
     protected override SoldierType FindSoldierType()
     {
-      if (this.Town.Technology >= 800)
+      if (this.Town.Technology >= 900)
       {
-        return SoldierType.Intellect;
+        return SoldierType.IntellectHeavyCavalry;
       }
       if (this.Town.Technology >= 500)
       {
         return SoldierType.LightIntellect;
+      }
+      if (this.Town.Technology >= 200)
+      {
+        return SoldierType.IntellectCommon;
       }
       return SoldierType.TerroristCommonA;
     }
@@ -172,7 +176,7 @@ namespace SangokuKmy.Models.Updates
     {
       this.Character.Name = "異民族_文官";
       this.Character.Strong = 10;
-      this.Character.Intellect = (short)(current.ToInt() * 1.2f / 12);
+      this.Character.Intellect = (short)Math.Max(current.ToInt() * 0.8f / 12 + 100, 100);
       this.Character.Leadership = 100;
       this.Character.Money = 99999999;
       this.Character.Rice = 99999999;
@@ -216,19 +220,27 @@ namespace SangokuKmy.Models.Updates
 
   public class TerroristPatrollerAiCharacter : WorkerAiCharacter
   {
+    protected enum DevelopModeType
+    {
+      Normal,
+      Low,
+    }
+
+    protected virtual DevelopModeType DevelopMode => DevelopModeType.Normal;
+
     public TerroristPatrollerAiCharacter(Character character) : base(character)
     {
     }
 
     protected override SoldierType FindSoldierType()
     {
-      if (this.Town.Technology >= 800)
+      if (this.Town.Technology >= 900)
       {
-        return SoldierType.Intellect;
+        return SoldierType.LightIntellect;
       }
       if (this.Town.Technology >= 500)
       {
-        return SoldierType.LightIntellect;
+        return SoldierType.IntellectCommon;
       }
       return SoldierType.TerroristCommonA;
     }
@@ -236,7 +248,7 @@ namespace SangokuKmy.Models.Updates
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "異民族_仁官";
-      this.Character.Intellect = (short)Math.Max(current.ToInt() * 1.4f / 12, 120);
+      this.Character.Intellect = (short)Math.Min(Math.Max(current.ToInt() * 1.4f / 12, 120), 300);
       this.Character.Popularity = 300;
       this.Character.Leadership = 100;
       this.Character.Money = 99999999;
@@ -270,9 +282,19 @@ namespace SangokuKmy.Models.Updates
         return;
       }
 
-      if (this.InputDevelopOnBorderOrMain())
+      if (this.DevelopMode == DevelopModeType.Normal)
       {
-        return;
+        if (this.InputDevelopOnBorderOrMain())
+        {
+          return;
+        }
+      }
+      else
+      {
+        if (this.InputDevelopOnBorderOrMainLow())
+        {
+          return;
+        }
       }
 
       if (this.InputWallDevelop())
@@ -432,14 +454,10 @@ namespace SangokuKmy.Models.Updates
 
     protected override void SetCommandOnNoWars(CharacterCommand command)
     {
-      var v = this.GameDateTime.Month % 3;
+      var v = this.GameDateTime.Month % 2;
       if (v == 0)
       {
         command.Type = CharacterCommandType.Wall;
-      }
-      else if (v == 1)
-      {
-        command.Type = CharacterCommandType.WallGuard;
       }
       else
       {
@@ -447,10 +465,6 @@ namespace SangokuKmy.Models.Updates
       }
 
       if (command.Type == CharacterCommandType.Wall && this.Town.Wall >= this.Town.WallMax)
-      {
-        command.Type = CharacterCommandType.WallGuard;
-      }
-      if (command.Type == CharacterCommandType.WallGuard && this.Town.WallGuard >= this.Town.WallGuardMax)
       {
         command.Type = CharacterCommandType.Technology;
       }
@@ -498,25 +512,13 @@ namespace SangokuKmy.Models.Updates
       {
         command.Type = CharacterCommandType.Wall;
       }
-      else if (this.Town.WallGuard < this.Town.WallGuardMax / 3)
-      {
-        command.Type = CharacterCommandType.WallGuard;
-      }
       else if (this.Town.Wall < this.Town.WallMax / 2)
       {
         command.Type = CharacterCommandType.Wall;
       }
-      else if (this.Town.WallGuard < this.Town.WallGuardMax / 2)
-      {
-        command.Type = CharacterCommandType.WallGuard;
-      }
       else if (this.Town.Wall < this.Town.WallMax)
       {
         command.Type = CharacterCommandType.Wall;
-      }
-      else if (this.Town.WallGuard < this.Town.WallGuardMax)
-      {
-        command.Type = CharacterCommandType.WallGuard;
       }
       else if (this.Town.TownBuildingValue < Config.TownBuildingMax * 2 / 3)
       {

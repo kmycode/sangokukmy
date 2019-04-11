@@ -14,8 +14,8 @@ namespace SangokuKmy.Models.Services
 {
   public static class EntryService
   {
-    public static int GetAttributeMax(GameDateTime current) => 100 + (Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) / 16;
-    public static int GetAttributeSumMax(GameDateTime current) => 200 + (Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) / 4;
+    public static int GetAttributeMax(GameDateTime current) => 100 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.65f * 0.4f);
+    public static int GetAttributeSumMax(GameDateTime current) => 200 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.65f);
 
     public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode)
     {
@@ -80,13 +80,19 @@ namespace SangokuKmy.Models.Services
       };
       chara.SetPassword(password);
 
+      // 来月の更新がまだ終わってないタイミングで登録したときの、武将更新時刻の調整
+      if (chara.LastUpdated - system.CurrentMonthStartDateTime > TimeSpan.FromSeconds(Config.UpdateTime))
+      {
+        chara.IntLastUpdatedGameDate++;
+      }
+
       if (town.CountryId > 0)
       {
         // 武将総数チェック
         var country = await repo.Country.GetByIdAsync(town.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
         if (country.IntEstablished + Config.CountryBattleStopDuring > system.GameDateTime.ToInt())
         {
-          var countryCharaCount = await repo.Country.CountCharactersAsync(country.Id);
+          var countryCharaCount = await repo.Country.CountCharactersAsync(country.Id, true);
           if (countryCharaCount >= Config.CountryJoinMaxOnLimited)
           {
             ErrorCode.CantJoinAtSuchCountryhError.Throw();
@@ -128,16 +134,15 @@ namespace SangokuKmy.Models.Services
           IntOverthrownGameDate = 0,
           LastMoneyIncomes = 0,
           LastRiceIncomes = 0,
+          PolicyPoint = 6000,
         };
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
-        await repo.SaveChangesAsync();
 
-        // 大都市建国ハンデ
-        if (town.Type == TownType.Large)
-        {
-          town.TownBuilding = TownBuilding.ViceroyHouse;
-        }
+        // 大都市に変更
+        MapService.UpdateTownType(town, TownType.Large);
+
+        await repo.SaveChangesAsync();
 
         chara.CountryId = country.Id;
         town.CountryId = country.Id;

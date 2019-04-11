@@ -30,16 +30,10 @@ namespace SangokuKmy.Models.Data.Entities
         TechnologyMax = town.TechnologyMax,
         Wall = town.Wall,
         WallMax = town.WallMax,
-        WallGuard = town.WallGuard,
-        WallGuardMax = town.WallGuardMax,
         Security = town.Security,
         IntRicePrice = town.IntRicePrice,
         TownBuilding = town.TownBuilding,
         TownBuildingValue = town.TownBuildingValue,
-        CountryBuilding = town.CountryBuilding,
-        CountryBuildingValue = town.CountryBuildingValue,
-        CountryLaboratory = town.CountryLaboratory,
-        CountryLaboratoryValue = town.CountryLaboratoryValue,
       };
       return t;
     }

@@ -72,9 +72,13 @@ namespace SangokuKmy.Models.Updates
       {
         ai = new SecretaryPioneerAiCharacter(chara);
       }
-      else if (chara.AiType == CharacterAiType.SecretaryDefender)
+      else if (chara.AiType == CharacterAiType.ThiefBattler)
       {
-        ai = new SecretaryDefenderAiCharacter(chara);
+        ai = new ThiefBattlerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ThiefPatroller)
+      {
+        ai = new ThiefPatrollerAiCharacter(chara);
       }
       else
       {
@@ -226,7 +230,7 @@ namespace SangokuKmy.Models.Updates
         // 探索範囲を自国の全都市に広げる
         var myCountryTowns = towns.Where(t => t.CountryId == this.Country.Id);
         var allRank = myCountryTowns
-          .OrderByDescending(t => t.People + t.Wall + t.WallGuard);
+          .OrderByDescending(t => t.People + t.Wall);
         var match = allRank.FirstOrDefault(subject);
         Town target;
         if (match != null)

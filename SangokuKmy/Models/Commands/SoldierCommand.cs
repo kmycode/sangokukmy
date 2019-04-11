@@ -7,6 +7,7 @@ using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -46,7 +47,18 @@ namespace SangokuKmy.Models.Commands
         CharacterSoldierTypeData soldierTypeData = null;
         if (isDefaultSoldierType)
         {
-          soldierTypeName = DefaultCharacterSoldierTypeParts.Get(soldierType).Data?.Name ?? "雑兵";
+          var type = DefaultCharacterSoldierTypeParts.Get(soldierType).Data;
+          if (type == null)
+          {
+            await game.CharacterLogAsync("ID: <num>" + (int)soldierType + "</num> の兵種は存在しません。<emerge>管理者にお問い合わせください</emerge>");
+            return;
+          }
+          if (!type.CanConscript)
+          {
+            await game.CharacterLogAsync($"{type.Name} を徴兵しようとしましたが、現在徴兵することはできません");
+            return;
+          }
+          soldierTypeName = type.Name;
           soldierTypeData = DefaultCharacterSoldierTypeParts.GetDataByDefault(soldierType);
         }
         else
@@ -54,6 +66,11 @@ namespace SangokuKmy.Models.Commands
           var typeOptional = await repo.CharacterSoldierType.GetByIdAsync((uint)soldierType);
           if (typeOptional.HasData)
           {
+            if (typeOptional.Data.Status != CharacterSoldierStatus.Available)
+            {
+              await game.CharacterLogAsync($"カスタム兵種 {typeOptional.Data.Name} を徴兵しようとしましたが、その兵種は研究中または削除済です");
+              return;
+            }
             var type = typeOptional.Data;
             soldierTypeName = type.Name;
             soldierTypeData = type.ToParts().ToData();
@@ -78,7 +95,7 @@ namespace SangokuKmy.Models.Commands
         {
           await game.CharacterLogAsync("所持金が足りません。");
         }
-        else if (town.People < soldierNumber * 5)
+        else if (town.People < soldierNumber * Config.SoldierPeopleCost)
         {
           await game.CharacterLogAsync("農民が足りません。");
         }
@@ -135,7 +152,7 @@ namespace SangokuKmy.Models.Commands
           }
           character.Contribution += 10;
           character.Money -= add * soldierTypeData.Money;
-          town.People -= add * 5;
+          town.People -= (int)(add * Config.SoldierPeopleCost);
           town.Security -= (short)(add / 10);
 
           await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");

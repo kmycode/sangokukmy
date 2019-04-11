@@ -248,5 +248,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// AIキャラ放置削除
     /// </summary>
     AiCharacterRemoved = 31,
+
+    /// <summary>
+    /// 新しい政策
+    /// </summary>
+    Policy = 32,
+
+    /// <summary>
+    /// 蛮族
+    /// </summary>
+    AppendThiefs = 33,
   }
 }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using SangokuKmy.Models.Data.ApiEntities;
 using System.Linq;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -157,18 +158,19 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="townId">都市ID</param>
     /// <returns>その都市に滞在する武将</returns>
-    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon, IReadOnlyList<CharacterCommand> Commands)>> GetCharactersWithIconAsync(uint townId)
+    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon, IReadOnlyList<CharacterCommand> Commands, Optional<CharacterSoldierType> CustomSoldierType)>> GetCharactersWithIconAsync(uint townId)
     {
       try
       {
         var system = await this.container.Context.SystemData.FirstAsync();
+        var intStartMonth = system.GameDateTime.Year >= Config.UpdateStartYear ? system.IntGameDateTime : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, }.ToInt();
         return (await this.container.Context.Characters
           .Where(c => c.TownId == townId && !c.HasRemoved)
           .GroupJoin(this.container.Context.CharacterIcons,
             c => c.Id,
             i => i.CharacterId,
             (c, i) => new { Character = c, Icons = i, })
-          .GroupJoin(this.container.Context.CharacterCommands.Where(c => c.IntGameDateTime <= system.IntGameDateTime + 8)
+          .GroupJoin(this.container.Context.CharacterCommands.Where(c => c.IntGameDateTime <= intStartMonth + 8)
               .GroupJoin(this.container.Context.CharacterCommandParameters,
                 c => c.Id,
                 p => p.CharacterCommandId,
@@ -177,6 +179,10 @@ namespace SangokuKmy.Models.Data.Repositories
             c => c.Command.CharacterId,
             (c, cs) => new { c.Character, c.Icons, Commands = cs.ToArray(), })
           .ToArrayAsync())
+          .GroupJoin(this.container.Context.CharacterSoldierTypes,
+              c => c.Character.SoldierType == SoldierType.Custom ? c.Character.CharacterSoldierTypeId : uint.MaxValue,
+              s => s.Id,
+              (c, ss) => new { c.Character, c.Commands, c.Icons, SoldierTypes = ss, })
           .OrderBy(data => data.Character.LastUpdated)
           .Select(data =>
           {
@@ -184,7 +190,7 @@ namespace SangokuKmy.Models.Data.Repositories
             {
               c.Command.SetParameters(c.Parameters);
               return c.Command;
-            }).ToArray());
+            }).ToArray(), data.SoldierTypes.FirstOrDefault().ToOptional());
           })
           .ToArray();
       }

@@ -438,6 +438,31 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     TerroristCommonC = 19,
 
+    /// <summary>
+    /// 賊A
+    /// </summary>
+    ThiefCommonA = 20,
+
+    /// <summary>
+    /// 賊B
+    /// </summary>
+    ThiefCommonB = 21,
+
+    /// <summary>
+    /// 賊C
+    /// </summary>
+    ThiefCommonC = 22,
+
+    /// <summary>
+    /// 文官雑兵
+    /// </summary>
+    IntellectCommon = 23,
+
+    /// <summary>
+    /// 文官重騎兵
+    /// </summary>
+    IntellectHeavyCavalry = 24,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,
@@ -463,22 +488,15 @@ namespace SangokuKmy.Models.Data.Entities
     SecretaryPioneer = 11,
     TerroristRyofu = 12,
     TerroristMainPatroller = 13,
-    SecretaryDefender = 14,
-  }
-
-  public static class DefenderSecretaryType
-  {
-    public const string SoldierAll = "1";
-    public const string SoldierLast9 = "2";
-    public const string Soldier9 = "3";
-    public const string Soldier1 = "4";
+    ThiefBattler = 14,
+    ThiefPatroller = 15,
   }
 
   public static class CharacterAiTypeExtensions
   {
     public static bool IsSecretary(this CharacterAiType type)
     {
-      return type == CharacterAiType.SecretaryPatroller || type == CharacterAiType.SecretaryUnitGather || type == CharacterAiType.SecretaryPioneer || type == CharacterAiType.SecretaryDefender;
+      return type == CharacterAiType.SecretaryPatroller || type == CharacterAiType.SecretaryUnitGather || type == CharacterAiType.SecretaryPioneer;
     }
   }
 }

@@ -79,7 +79,7 @@ namespace SangokuKmy.Models.Commands
       {
         ErrorCode.InvalidParameterError.Throw();
       }
-      if (!(await repo.Town.GetByCountryIdAsync(country.Id)).Any(t => t.CountryBuilding == CountryBuilding.CountrySafe))
+      if (!(await repo.Country.GetPoliciesAsync(country.Id)).Any(p => p.Type == CountryPolicyType.HumanDevelopment))
       {
         ErrorCode.InvalidOperationError.Throw();
       }

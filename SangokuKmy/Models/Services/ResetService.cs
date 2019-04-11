@@ -14,6 +14,8 @@ namespace SangokuKmy.Models.Services
   {
     public static async Task ResetAsync(MainRepository repo)
     {
+      await OnlineService.ResetAsync();
+
       await repo.AuthenticationData.ResetAsync();
       await repo.BattleLog.ResetAsync();
       await repo.CharacterCommand.ResetAsync();
@@ -104,47 +106,6 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(system));
     }
 
-    public static async Task Period0_2_SpecialAsync(MainRepository repo)
-    {
-      var system = await repo.System.GetAsync();
-      await RecordHistoryAsync(repo, system);
-
-      var towns = (await repo.Town.GetAllAsync()).ToList();
-      var targetTowns = new List<Town>();
-      for (var i = 0; i < 2; i++)
-      {
-        var t = towns[RandomService.Next(0, towns.Count)];
-        targetTowns.Add(t);
-        towns.Remove(t);
-      }
-
-      for (var i = 0; i < 2; i++)
-      {
-        system.TerroristCount++;
-        var defenders = await repo.Town.GetDefendersAsync(targetTowns[i].Id);
-        foreach (var d in defenders)
-        {
-          repo.Town.RemoveDefender(d.Character.Id);
-        }
-        await AiService.CreateTerroristCountryAsync(repo, async (type, message, isImportant) =>
-        {
-          var log = new MapLog
-          {
-            ApiGameDateTime = system.GameDateTime,
-            Date = DateTime.Now,
-            EventType = type,
-            IsImportant = isImportant,
-            Message = message,
-          };
-          await repo.MapLog.AddAsync(log);
-          await StatusStreaming.Default.SendAllAsync(ApiData.From(log));
-          await AnonymousStreaming.Default.SendAllAsync(ApiData.From(log));
-        }, targetTowns[i], true);
-      }
-
-      await repo.SaveChangesAsync();
-    }
-
     public static async Task Period0_2_SpecialEndAsync(MainRepository repo)
     {
       var system = await repo.System.GetAsync();
@@ -168,7 +129,6 @@ namespace SangokuKmy.Models.Services
       var characters = await repo.Character.GetAllAliveWithIconAsync();
       var maplogs = await repo.MapLog.GetAllImportantsAsync();
       var towns = await repo.Town.GetAllAsync();
-      var posts = Enumerable.Empty<CountryPost>();
 
       var unifiedCountry = countries.FirstOrDefault(c => !c.HasOverthrown);
       CountryMessage unifiedCountryMessage = null;
@@ -176,8 +136,6 @@ namespace SangokuKmy.Models.Services
       {
         var messageOptional = await repo.Country.GetMessageAsync(unifiedCountry.Id, CountryMessageType.Unified);
         messageOptional.Some((message) => unifiedCountryMessage = message);
-
-        posts = await repo.Country.GetPostsAsync(unifiedCountry.Id);
       }
 
       var history = new History
@@ -190,11 +148,6 @@ namespace SangokuKmy.Models.Services
         {
           var chara = HistoricalCharacter.FromCharacter(c.Character);
           chara.Icon = HistoricalCharacterIcon.FromCharacterIcon(c.Icon);
-          var post = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
-          if (post != null)
-          {
-            chara.Type = post.Type;
-          }
           return chara;
         }).ToArray(),
         Countries = countries.Select(c =>
@@ -222,7 +175,7 @@ namespace SangokuKmy.Models.Services
         {
           System.IO.File.Copy(Config.Game.UploadedIconDirectory + icon.FileName, Config.Game.HistoricalUploadedIconDirectory + icon.FileName);
         }
-        catch (Exception ex)
+        catch
         {
           // loggerがない！
         }
@@ -233,7 +186,7 @@ namespace SangokuKmy.Models.Services
 
     private static async Task ResetTownsAsync(MainRepository repo)
     {
-      var initialTowns = await repo.Town.GetAllInitialTownsAsync(); //MapService.CreateMap(7);
+      var initialTowns = MapService.CreateMap(7);
       var towns = new List<Town>();
       foreach (var itown in initialTowns)
       {

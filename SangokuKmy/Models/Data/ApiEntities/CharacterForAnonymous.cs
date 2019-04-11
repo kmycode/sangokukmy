@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Data.ApiEntities
 {
@@ -15,9 +16,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
   {
     [JsonProperty("id")]
     public uint Id { get; set; }
-
-    [JsonProperty("aliasId")]
-    public string AliasId { get; set; }
 
     [JsonProperty("name")]
     public string Name { get; set; }
@@ -49,6 +47,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("soldierType")]
     public int? SoldierType { get; set; }
 
+    [JsonProperty("characterSoldierType")]
+    public CharacterSoldierType CharacterSoldierType { get; set; }
+
     [JsonProperty("deleteTurn")]
     public int DeleteTurn { get; set; }
 
@@ -76,18 +77,19 @@ namespace SangokuKmy.Models.Data.ApiEntities
     {
     }
 
-
     public CharacterForAnonymous(Character character, CharacterIcon mainIcon, IReadOnlyList<CharacterCommand> commands, CharacterShareLevel level)
       : this(character, mainIcon, null, commands, level)
     {
     }
+
     public CharacterForAnonymous(Character character, CharacterIcon mainIcon, Reinforcement reinforcement, IReadOnlyList<CharacterCommand> commands, CharacterShareLevel level)
+      : this(character, mainIcon, reinforcement, commands, null, level)
+    {
+    }
+
+    public CharacterForAnonymous(Character character, CharacterIcon mainIcon, Reinforcement reinforcement, IReadOnlyList<CharacterCommand> commands, CharacterSoldierType soldierType, CharacterShareLevel level)
     {
       this.Id = character.Id;
-      if (character.AiType == CharacterAiType.SecretaryDefender)
-      {
-        this.AliasId = character.AliasId;
-      }
       this.Name = character.Name;
       this.MainIcon = mainIcon;
       this.ApiAiType = character.ApiAiType;
@@ -101,6 +103,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       {
         this.SoldierNumber = character.SoldierNumber;
         this.SoldierType = character.ApiSoldierType;
+        this.CharacterSoldierType = soldierType;
       }
       if (level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountry)
       {
@@ -108,7 +111,8 @@ namespace SangokuKmy.Models.Data.ApiEntities
         if (commands != null)
         {
           var cmds = new List<CharacterCommand>();
-          for (var i = character.IntLastUpdatedGameDate + 1; i <= character.IntLastUpdatedGameDate + 4; i++)
+          var intStartMonth = character.LastUpdatedGameDate.Year >= Config.UpdateStartYear ? character.IntLastUpdatedGameDate + 1 : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, }.ToInt();
+          for (var i = intStartMonth; i < intStartMonth + 4; i++)
           {
             cmds.Add(commands.FirstOrDefault(c => c.IntGameDateTime == i) ?? new CharacterCommand
             {

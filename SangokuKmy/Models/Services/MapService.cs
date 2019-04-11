@@ -46,7 +46,13 @@ namespace SangokuKmy.Models.Services
 
         for (var i = 1; i < townCount; i++)
         {
-          var pos = GetNewTownPosition(towns, null);
+          var pos = GetNewTownPosition(towns, null, true);
+          if (pos.X < 0 || pos.Y < 0)
+          {
+            i--;
+            continue;
+          }
+
           towns.Add(new Town
           {
             Id = (uint)i + 1,
@@ -57,23 +63,83 @@ namespace SangokuKmy.Models.Services
 
         if (townCount >= 5)
         {
-          var hit = 0;
-          var hit2 = 0;
+          // 拠点化されやすい都市がないか確認
+          var nearToSingleTown = 0;
+          var aroundsSeparated = 0;
+          var errors = 0;
           foreach (var t in towns)
           {
-            var arounds = towns.GetAroundTowns(t);
+            var arounds = towns.GetOrderedAroundTowns(t).ToArray();
             var c = arounds.Count(at => arounds.Any(att => att.IsNextToTown(at)));
-            if (c == arounds.Count())
+            if (c == 1)
             {
-              hit++;
+              nearToSingleTown++;
             }
-            else if (c <= 2)
+            else if (c == 0)
             {
-              hit2++;
+              errors++;
+            }
+            else
+            {
+              // 隣接都市がお互い隣接してるか確認する
+              var blocks = new List<List<TownBase>>
+              {
+                new List<TownBase>
+                {
+                  arounds[0],
+                },
+              };
+              for (var i = 0; i < arounds.Length - 1; i++)
+              {
+                var aa = arounds[i];
+                var bb = arounds[i + 1];
+                if (aa.IsNextToTown(bb))
+                {
+                  blocks.Last().Add(bb);
+                }
+                else
+                {
+                  blocks.Add(new List<TownBase>
+                  {
+                    bb,
+                  });
+                }
+              }
+              if (blocks.Count >= 2 && blocks.First().First().IsNextToTown(blocks.Last().Last()))
+              {
+                blocks.First().AddRange(blocks.Last());
+                blocks.RemoveAt(blocks.Count - 1);
+              }
+
+              if (blocks.Count != 1)
+              {
+                if (blocks.Count == 2)
+                {
+                  // 隣接していなくても、隣接都市が共通の隣接都市を持っていればセーフ
+                  var others = towns.Where(tt => t.Id != tt.Id);
+                  var aroundsGroup = blocks.Select(b => b.SelectMany(a => others.GetAroundTowns(a)).Distinct()).ToArray();
+                  if (!aroundsGroup[0].Intersect(aroundsGroup[1]).Any())
+                  {
+                    aroundsSeparated++;
+                  }
+                }
+                else
+                {
+                  aroundsSeparated++;
+                }
+              }
             }
           }
-          //isVerify = count >= townCount - townCount / 2 && count <= townCount - townCount / 6;
-          isVerify = hit == Math.Max(4, townCount - townCount * 3 / 5) && hit2 < townCount - townCount * 4 / 5;
+          isVerify = !towns.Any(t => towns.GetAroundTowns(t).Count() == 8) &&
+            errors == 0 &&
+            nearToSingleTown == 0 &&
+            aroundsSeparated == 0;
+
+          // 少都市数に応じた条件
+          if (isVerify && townCount <= 9 && townCount > 5)
+          {
+            isVerify = !towns.Any(t => towns.GetAroundTowns(t).Count() == townCount - 1);
+          }
         }
         else
         {
@@ -86,23 +152,11 @@ namespace SangokuKmy.Models.Services
           var yMax = towns.Max(t => t.Y);
           var xMin = towns.Min(t => t.X);
           var yMin = towns.Min(t => t.Y);
-          var centerX = (xMax - xMin) / 2 + xMin;
-          var centerY = (yMax - yMin) / 2 + yMin;
-          if (centerX < 5)
+          var xd = ((9 - xMax) - xMin) / 2;
+          var yd = ((9 - yMax) - yMin) / 2;
+          if (xd != 0 || yd != 0)
           {
-            ShiftMap(towns, (short)Math.Min(4 - centerX, 9 - xMax), 0);
-          }
-          else if (centerX > 5)
-          {
-            ShiftMap(towns, (short)-Math.Min(centerX - 5, xMin), 0);
-          }
-          if (centerY < 5)
-          {
-            ShiftMap(towns, (short)Math.Min(4 - centerY, 9 - yMax), 0);
-          }
-          else if (centerY > 5)
-          {
-            ShiftMap(towns, (short)-Math.Min(centerY - 5, yMin), 0);
+            ShiftMap(towns, (short)xd, (short)yd);
           }
 
           isVerify = towns.All(t => !string.IsNullOrWhiteSpace(GetTownName(t.X, t.Y)));
@@ -120,7 +174,12 @@ namespace SangokuKmy.Models.Services
 
     private static string GetTownName(short x, short y)
     {
-      return townNames[y * 10 + x];
+      var index = y * 10 + x;
+      if (index >= townNames.Length)
+      {
+        return string.Empty;
+      }
+      return townNames[index];
     }
 
     private static void ShiftMap(IEnumerable<Town> towns, short x, short y)
@@ -132,13 +191,13 @@ namespace SangokuKmy.Models.Services
       }
     }
 
-    public static (short X, short Y) GetNewTownPosition(IEnumerable<Town> existTowns, Func<Town, bool> subject)
+    public static (short X, short Y) GetNewTownPosition(IEnumerable<Town> existTowns, Func<Town, bool> subject, bool isHandouts = false)
     {
       var borderTowns = existTowns
         .Where(t => existTowns.GetAroundTowns(t).Count() <
-                    ((t.X < 9 && t.X > 0 && t.Y < 9 && t.Y > 0) ?  8 :
+                    ((t.X < 9 && t.X > 0 && t.Y < 9 && t.Y > 0) ?  8  :
                      (t.X < 9 && t.X > 0) ? 5 :
-                     (t.Y < 9 && t.Y > 0) ? 5 : 3));
+                     (t.Y < 9 && t.Y > 0) ? 5 : 3) - (isHandouts ? 2 : 0));
       if (subject != null)
       {
         borderTowns = borderTowns.Where(subject);
@@ -161,8 +220,15 @@ namespace SangokuKmy.Models.Services
         new Tuple<short, short>((short)(nearTown.X + 1), (short)(nearTown.Y + 1)),
       }
       .Where(t => t.Item1 >= 0 && t.Item1 < 10 && t.Item2 >= 0 && t.Item2 < 10)
+      .Where(t => !isHandouts || existTowns.GetAroundTowns(t.Item1, t.Item2).Count() < 7)
       .Where(t => !existTowns.Any(tt => tt.X == t.Item1 && tt.Y == t.Item2))
       .ToArray();
+      if (!townPositions.Any())
+      {
+        return (-1, -1);
+      }
+
+      var k = existTowns.GetAroundTowns(4, 5);
       var townPosition = townPositions[RandomService.Next(0, townPositions.Length)];
 
       return (townPosition.Item1, townPosition.Item2);
@@ -170,56 +236,13 @@ namespace SangokuKmy.Models.Services
 
     public static Town CreateTown(TownType typeId)
     {
-      if (typeId == TownType.Any)
-      {
-        var r = RandomService.Next(0, 10);
-        if (r <= 2)
-        {
-          typeId = TownType.Agriculture;
-        }
-        else if (r <= 6)
-        {
-          typeId = TownType.Commercial;
-        }
-        else if (r <= 8)
-        {
-          typeId = TownType.Fortress;
-        }
-        else if (r == 9)
-        {
-          typeId = TownType.Large;
-        }
-        else
-        {
-          typeId = TownType.Agriculture;
-        }
-      }
-      var type = typeId == TownType.Agriculture ? TownTypeDefinition.AgricultureType :
-                 typeId == TownType.Commercial ? TownTypeDefinition.CommercialType :
-                 typeId == TownType.Fortress ? TownTypeDefinition.FortressType :
-                 TownTypeDefinition.LargeType;
       var town = new Town
       {
         Type = typeId,
-        Agriculture = type.Agriculture,
-        AgricultureMax = type.AgricultureMax,
-        Commercial = type.Commercial,
-        CommercialMax = type.CommercialMax,
-        Technology = type.Technology,
-        TechnologyMax = type.TechnologyMax,
-        Wall = type.Wall,
-        WallMax = type.WallMax,
-        PeopleMax = type.PeopleMax,
-        People = type.People,
-        Security = (short)type.Security,
       };
-      town.WallGuard = town.Wall;
-      town.WallGuardMax = town.WallMax;
-      town.Agriculture = Math.Min(town.Agriculture, town.AgricultureMax);
-      town.Commercial = Math.Min(town.Commercial, town.CommercialMax);
-      town.Technology = Math.Min(town.Technology, town.TechnologyMax);
-      town.Wall = Math.Min(town.Wall, town.WallMax);
-      town.People = Math.Min(town.People, town.PeopleMax);
+      UpdateTownType(town, typeId);
+      town.RicePrice = 1.0f;
+
       {
         // 都市施設
         var b = new TownBuilding[]
@@ -236,6 +259,53 @@ namespace SangokuKmy.Models.Services
         town.TownBuilding = b[r];
       }
       return town;
+    }
+
+    public static void UpdateTownType(Town town, TownType typeId)
+    {
+      if (typeId == TownType.Any)
+      {
+        var r = RandomService.Next(0, 9);
+        if (r <= 2)
+        {
+          typeId = TownType.Agriculture;
+        }
+        else if (r <= 6)
+        {
+          typeId = TownType.Commercial;
+        }
+        else if (r <= 8)
+        {
+          typeId = TownType.Fortress;
+        }
+        else
+        {
+          typeId = TownType.Agriculture;
+        }
+      }
+      town.Type = typeId;
+
+      var type = typeId == TownType.Agriculture ? TownTypeDefinition.AgricultureType :
+                 typeId == TownType.Commercial ? TownTypeDefinition.CommercialType :
+                 typeId == TownType.Fortress ? TownTypeDefinition.FortressType :
+                 TownTypeDefinition.LargeType;
+
+      town.Agriculture = type.Agriculture;
+      town.AgricultureMax = type.AgricultureMax;
+      town.Commercial = type.Commercial;
+      town.CommercialMax = type.CommercialMax;
+      town.Technology = type.Technology;
+      town.TechnologyMax = type.TechnologyMax;
+      town.Wall = type.Wall;
+      town.WallMax = type.WallMax;
+      town.PeopleMax = type.PeopleMax;
+      town.People = type.People;
+      town.Security = (short)type.Security;
+      town.Agriculture = Math.Min(town.Agriculture, town.AgricultureMax);
+      town.Commercial = Math.Min(town.Commercial, town.CommercialMax);
+      town.Technology = Math.Min(town.Technology, town.TechnologyMax);
+      town.Wall = Math.Min(town.Wall, town.WallMax);
+      town.People = Math.Min(town.People, town.PeopleMax);
     }
 
     private abstract class TownTypeDefinition
@@ -285,7 +355,7 @@ namespace SangokuKmy.Models.Services
 
         public override int WallMax => RandomService.Next(18, 25) * 100;
 
-        public override int PeopleMax => 40000;
+        public override int PeopleMax => 50000;
 
         public override int People => 8000;
 
@@ -310,7 +380,7 @@ namespace SangokuKmy.Models.Services
 
         public override int WallMax => RandomService.Next(18, 25) * 100;
 
-        public override int PeopleMax => 40000;
+        public override int PeopleMax => 50000;
 
         public override int People => 14000;
 
@@ -360,7 +430,7 @@ namespace SangokuKmy.Models.Services
 
         public override int WallMax => RandomService.Next(12, 21) * 100;
 
-        public override int PeopleMax => 50000;
+        public override int PeopleMax => 60000;
 
         public override int People => 20000;
 
