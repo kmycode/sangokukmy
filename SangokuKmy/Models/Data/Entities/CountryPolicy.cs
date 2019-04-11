@@ -129,7 +129,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.SoldierDevelopment,
         Name = "兵種開発",
-        RequestedPoint = 4000,
+        RequestedPoint = 500_0000,
       },
       new CountryPolicyTypeInfo
       {
