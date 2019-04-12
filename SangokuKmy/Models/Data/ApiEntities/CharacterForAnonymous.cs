@@ -23,6 +23,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("countryId")]
     public uint CountryId { get; set; }
 
+    [JsonProperty("townId")]
+    public uint TownId { get; set; }
+
     [JsonProperty("mainIcon")]
     public CharacterIcon MainIcon { get; set; }
 
@@ -52,6 +55,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
 
     [JsonProperty("deleteTurn")]
     public int DeleteTurn { get; set; }
+
+    [JsonProperty("hasRemoved")]
+    public bool HasRemoved { get; set; }
 
     [JsonProperty("classValue")]
     public int Class { get; set; }
@@ -99,6 +105,11 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.Leadership = character.Leadership;
       this.Popularity = character.Popularity;
       this.Reinforcement = reinforcement;
+      this.HasRemoved = character.HasRemoved;
+      if (level == CharacterShareLevel.SameCountry || level == CharacterShareLevel.SameTown || level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountryTownOtherCountry)
+      {
+        this.TownId = character.TownId;
+      }
       if (level == CharacterShareLevel.SameTown || level == CharacterShareLevel.SameTownAndSameCountry)
       {
         this.SoldierNumber = character.SoldierNumber;
@@ -156,6 +167,11 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 同じ国である
     /// </summary>
     SameCountry,
+
+    /// <summary>
+    /// 同じ国にいる他国の武将
+    /// </summary>
+    SameCountryTownOtherCountry,
 
     /// <summary>
     /// 登録武将一覧または名将一覧

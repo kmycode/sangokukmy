@@ -253,7 +253,7 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         return (await this.container.Context.CharacterLogs
           .Where(l => l.CharacterId == characterId)
-          .OrderByDescending(l => l.Id)
+          .OrderByDescending(l => l.DateTime)
           .Take(count)
           .ToArrayAsync())
           .Reverse()
@@ -279,7 +279,7 @@ namespace SangokuKmy.Models.Data.Repositories
         return (await this.container.Context.CharacterLogs
           .Where(l => l.CharacterId == characterId)
           .Where(l => l.Id < sinceId)
-          .OrderByDescending(l => l.Id)
+          .OrderByDescending(l => l.DateTime)
           .Take(count)
           .ToArrayAsync())
           .Reverse()
@@ -303,7 +303,7 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         return (await this.container.Context.CharacterUpdateLogs
-          .OrderByDescending(l => l.Id)
+          .OrderByDescending(l => l.DateTime)
           .GroupJoin(this.container.Context.Characters, ul => ul.CharacterId, c => c.Id, (ul, cs) => new { Log = ul, Names = cs.Select(c => c.Name), })
           .Take(count)
           .ToArrayAsync())

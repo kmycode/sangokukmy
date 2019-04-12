@@ -111,6 +111,7 @@ namespace SangokuKmy.Models.Commands
       character.AddLeadershipEx(50);
       await game.CharacterLogAsync($"政務官 <character>{ai.Character.Name}</character> を雇いました");
       await game.MapLogAsync(EventType.SecretaryAdded, $"<country>{country.Name}</country> は、新しく政務官 <character>{ai.Character.Name}</character> を雇いました", false);
+      await CharacterService.StreamCharacterAsync(repo, ai.Character);
     }
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
@@ -262,7 +263,7 @@ namespace SangokuKmy.Models.Commands
       character.AddLeadershipEx(50);
       await game.CharacterLogAsync($"政務官 <character>{secretaryOptional.Data.Name}</character> を都市 <town>{townOptional.Data.Name}</town> に配属しました");
 
-      await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(townOptional.Data), repo);
+      await CharacterService.StreamCharacterAsync(repo, secretaryOptional.Data);
     }
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
@@ -322,6 +323,7 @@ namespace SangokuKmy.Models.Commands
       character.Contribution += 30;
       character.AddLeadershipEx(50);
       await game.CharacterLogAsync($"政務官 <character>{secretaryOptional.Data.Name}</character> を解雇しました。政務官武将更新のタイミングで削除されます");
+      await CharacterService.StreamCharacterAsync(repo, secretaryOptional.Data);
     }
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
