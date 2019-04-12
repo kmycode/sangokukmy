@@ -31,12 +31,14 @@ namespace SangokuKmy.Controllers
       SystemData system;
       Character chara;
       Country country;
+      IEnumerable<CharacterForAnonymous> allCharas;
       IEnumerable<MapLog> maplogs;
       IEnumerable<MapLog> importantMaplogs;
       IEnumerable<CharacterLog> characterLogs;
       IEnumerable<CountryForAnonymous> countries;
       IEnumerable<TownForAnonymous> towns;
       IEnumerable<Town> myTowns;
+      IEnumerable<TownDefender> defenders;
       IEnumerable<ScoutedTown> scoutedTowns;
       IEnumerable<ChatMessage> chatMessages;
       IEnumerable<CountryAlliance> alliances;
@@ -74,11 +76,21 @@ namespace SangokuKmy.Controllers
         reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
         countryMessages = await repo.Country.GetMessagesAsync(chara.CountryId);
         solidierTypes = await repo.CharacterSoldierType.GetByCharacterIdAsync(chara.Id);
+        defenders = await repo.Town.GetAllDefendersAsync();
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
         myTowns = allTowns.Where(tw => tw.CountryId == chara.CountryId || chara.TownId == tw.Id);
         scoutedTowns = await repo.ScoutedTown.GetByScoutedCountryIdAsync(chara.CountryId);
+
+        var allCharasData = await repo.Character.GetAllAliveWithIconAsync();
+        allCharas = allCharasData.Where(c => c.Character.Id != chara.Id).Select(c =>
+          new CharacterForAnonymous(c.Character, c.Icon,
+            (c.Character.CountryId == chara.CountryId && c.Character.TownId == chara.TownId) ? CharacterShareLevel.SameTownAndSameCountry :
+            c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameCountry :
+            c.Character.TownId == chara.TownId ? CharacterShareLevel.SameTown :
+            myTowns.Any(t => c.Character.TownId == t.Id) ? CharacterShareLevel.SameCountryTownOtherCountry :
+            CharacterShareLevel.Anonymous));
       }
 
       // HTTPヘッダを設定する
@@ -90,9 +102,10 @@ namespace SangokuKmy.Controllers
         .Concat(solidierTypes.Select(s => ApiData.From(s)))
         .Concat(new object[]
         {
-          ApiData.From(chara),
           ApiData.From(system),
+          ApiData.From(chara),
         })
+        .Concat(allCharas.Select(c => ApiData.From(c)))
         .Concat(maplogs.Select(ml => ApiData.From(ml)))
         //.Concat(importantMaplogs.Select(ml => ApiData.From(ml)))
         .Concat(characterLogs.Select(cl => ApiData.From(cl)))
@@ -100,6 +113,7 @@ namespace SangokuKmy.Controllers
         .Concat(towns.Select(tw => ApiData.From(tw)))
         .Concat(myTowns.Select(tw => ApiData.From(tw)))
         .Concat(scoutedTowns.Select(st => ApiData.From(st)))
+        .Concat(defenders.Where(d => myTowns.Any(t => t.Id == d.TownId) || d.TownId == chara.TownId).Select(d => ApiData.From(d)))
         .Concat(chatMessages.Select(cm => ApiData.From(cm)))
         .Concat(alliances.Select(ca => ApiData.From(ca)))
         .Concat(wars.Select(cw => ApiData.From(cw)))

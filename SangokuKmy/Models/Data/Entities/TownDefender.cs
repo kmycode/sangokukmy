@@ -10,8 +10,20 @@ namespace SangokuKmy.Models.Data.Entities
   {
     [Key]
     [Column("id")]
-    [JsonIgnore]
+    [JsonProperty("id")]
     public uint Id { get; set; }
+
+    [NotMapped]
+    [JsonIgnore]
+    public TownDefenderStatus Status { get; set; }
+
+    [NotMapped]
+    [JsonProperty("status")]
+    public short ApiStatus
+    {
+      get => (short)this.Status;
+      set => this.Status = (TownDefenderStatus)value;
+    }
 
     /// <summary>
     /// 都市ID
@@ -26,5 +38,11 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("character_id")]
     [JsonProperty("characterId")]
     public uint CharacterId { get; set; }
+  }
+
+  public enum TownDefenderStatus : short
+  {
+    Available = 0,
+    Losed = 1,
   }
 }

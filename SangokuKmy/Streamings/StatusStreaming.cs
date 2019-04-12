@@ -115,6 +115,42 @@ namespace SangokuKmy.Streamings
     public async Task SendCharacterAsync(IEnumerable<IApiData> data, IEnumerable<uint> charaIds) => await this.SendAsync(data, c => charaIds.Contains(c.ExtraData.Id));
 
     /// <summary>
+    /// 特定のIDを持った武将以外の、同じ国の武将に送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    public async Task SendCountryExceptForCharacterAsync<T>(ApiData<T> data, uint countryId, uint charaId) => await this.SendAsync(data, c => c.ExtraData.Id != charaId && c.ExtraData.CountryId == countryId);
+
+    /// <summary>
+    /// 特定のIDを持った武将以外の、同じ国の武将に送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    public async Task SendCountryExceptForCharacterAsync<T>(ApiData<T> data, uint countryId, IEnumerable<uint> charaIds) => await this.SendAsync(data, c => !charaIds.Contains(c.ExtraData.Id) && c.ExtraData.CountryId == countryId);
+
+    /// <summary>
+    /// 特定のIDを持った武将とその国以外の武将に送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    public async Task SendCountryExceptForCountryAsync<T>(ApiData<T> data, uint countryId) => await this.SendAsync(data, c => c.ExtraData.CountryId != countryId);
+
+    /// <summary>
+    /// 特定のIDを持った武将以外の武将に送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    public async Task SendExceptForCharactersAsync<T>(ApiData<T> data, IEnumerable<uint> charaIds) => await this.SendAsync(data, c => !charaIds.Contains(c.ExtraData.Id));
+
+    /// <summary>
+    /// 特定のIDを持った武将以外の武将に送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    public async Task SendCharacterExceptForCharactersAndCountryAsync<T>(ApiData<T> data, IEnumerable<uint> charaIds, uint countryId) => await this.SendAsync(data, c => !charaIds.Contains(c.ExtraData.Id) && c.ExtraData.CountryId != countryId);
+
+    /// <summary>
+    /// 特定のIDを持った武将以外の武将に送信する
+    /// </summary>
+    /// <param name="data">送信するデータ</param>
+    public async Task SendCharacterExceptForCharactersAndCountryAsync<T>(ApiData<T> data, IEnumerable<uint> charaIds, IEnumerable<uint> countryIds) => await this.SendAsync(data, c => !charaIds.Contains(c.ExtraData.Id) && !countryIds.Contains(c.ExtraData.CountryId));
+
+    /// <summary>
     /// 特定の国の武将にのみ送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>

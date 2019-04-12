@@ -202,6 +202,23 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// すべての守備情報を取得
+    /// </summary>
+    /// <returns>守備情報</returns>
+    public async Task<IReadOnlyList<TownDefender>> GetAllDefendersAsync()
+    {
+      try
+      {
+        return await this.container.Context.TownDefenders.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 都市IDから守備中の武将を取得
     /// </summary>
     /// <param name="townId">都市ID</param>
@@ -240,7 +257,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="characterId">武将ID</param>
     /// <param name="townId">都市ID</param>
-    public async Task SetDefenderAsync(uint characterId, uint townId)
+    public async Task<TownDefender> SetDefenderAsync(uint characterId, uint townId)
     {
       try
       {
@@ -255,10 +272,12 @@ namespace SangokuKmy.Models.Data.Repositories
           TownId = townId,
         };
         await this.container.Context.TownDefenders.AddAsync(def);
+        return def;
       }
       catch (Exception ex)
       {
         this.container.Error(ex);
+        return default;
       }
     }
 
@@ -277,6 +296,27 @@ namespace SangokuKmy.Models.Data.Repositories
       catch (Exception ex)
       {
         this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
+    /// 守備武将を削除する
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    public async Task<IReadOnlyList<TownDefender>> RemoveDefenderAsync(uint characterId)
+    {
+      try
+      {
+        var old = await this.container.Context.TownDefenders
+          .Where(td => td.CharacterId == characterId)
+          .ToArrayAsync();
+        this.container.Context.TownDefenders.RemoveRange(old);
+        return old;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
       }
     }
 

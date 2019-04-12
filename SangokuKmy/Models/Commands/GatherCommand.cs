@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Services;
 using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Commands
@@ -50,6 +51,8 @@ namespace SangokuKmy.Models.Commands
         var memberCharas = await repo.Character.GetByIdAsync(members.Select(m => m.CharacterId));
         foreach (var memberChara in memberCharas)
         {
+          var oldTownId = memberChara.TownId;
+
           memberChara.TownId = town.Id;
           await game.CharacterLogByIdAsync(memberChara.Id, "部隊 <unit>" + unit.Name + "</unit> の" + postName + " <character>" + character.Name + "</character> の指示で、<town>" + town.Name + "</town> に集合しました");
           await StatusStreaming.Default.SendCharacterAsync(new IApiData[] {
@@ -57,6 +60,12 @@ namespace SangokuKmy.Models.Commands
             ApiData.From(memberChara),
             ApiData.From(new ApiSignal { Type = SignalType.UnitGathered, }),
           }, memberChara.Id);
+
+          if (oldTownId != memberChara.TownId)
+          {
+            // 同じ都市にいる・いた別の国の人、または都市関係なく同じ国の人全員に伝える
+            await CharacterService.StreamCharacterAsync(repo, memberChara);
+          }
         }
       }
 

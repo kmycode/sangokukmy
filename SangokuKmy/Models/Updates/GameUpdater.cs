@@ -934,7 +934,6 @@ namespace SangokuKmy.Models.Updates
       await repo.SaveChangesAsync();
 
       // 更新の通知
-      notifies.Add(ApiData.From(character));
       notifies.Add(ApiData.From(new ApiSignal
       {
         Type = SignalType.CurrentCharacterUpdated,
@@ -946,8 +945,11 @@ namespace SangokuKmy.Models.Updates
 
       // ログイン中のユーザに新しい情報を通知する
       await StatusStreaming.Default.SendCharacterAsync(notifies, character.Id);
-      await StatusStreaming.Default.SendAllAsync(anonymousNotifies);
-      await AnonymousStreaming.Default.SendAllAsync(anonymousNotifies);
+      if (anonymousNotifies.Any())
+      {
+        await StatusStreaming.Default.SendAllAsync(anonymousNotifies);
+        await AnonymousStreaming.Default.SendAllAsync(anonymousNotifies);
+      }
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(updateLog));
       foreach (var charaData in anyoneNotifies.GroupBy(an => an.Item1, (id, items) => new { CharacterId = id, Items = items.Select(i => i.Item2), }))
       {
@@ -970,23 +972,35 @@ namespace SangokuKmy.Models.Updates
 
         // 同じ都市にいる他国の武将にも通知
         // （自分が他国の都市にいる場合は、都市データ受信のさいは、自分もここに含まれる）
-        var charas = (await repo.Town.GetCharactersWithIconAsync(town.Id))
-          .Select(d => d.Character)
+        var charas = (await repo.Town.GetCharactersAsync(town.Id))
           .Where(c => c.CountryId != town.CountryId);
-        foreach (var chara in charas)
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), charas.Select(c => c.Id));
+      });
+
+      // 武将情報を全員に送信
+      await CharacterService.StreamCharacterAsync(repo, character);
+
+      // 移動した場合、移動情報を全員に配信する
+      if (oldTownId != character.TownId)
+      {
+        var townCharacters = await repo.Town.GetCharactersWithIconAsync(character.TownId);
+        await StatusStreaming.Default.SendCharacterAsync(townCharacters.Where(tc => tc.Character.Id != character.Id).Select(tc => ApiData.From(new CharacterForAnonymous(tc.Character, tc.Icon, tc.Character.CountryId == character.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown))), character.Id);
+
+        var oldTown = await repo.Town.GetByIdAsync(oldTownId);
+        if (oldTown.HasData && oldTown.Data.CountryId != character.CountryId)
         {
-          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), chara.Id);
+          var oldTownCharacters = await repo.Town.GetCharactersWithIconAsync(oldTownId);
+          await StatusStreaming.Default.SendCharacterAsync(oldTownCharacters.Where(tc => tc.Character.CountryId != character.CountryId).Select(tc => ApiData.From(new CharacterForAnonymous(tc.Character, tc.Icon, tc.Character.CountryId == character.CountryId ? CharacterShareLevel.SameCountry : CharacterShareLevel.Anonymous))), character.Id);
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new TownForAnonymous(oldTown.Data)), character.Id);
         }
 
-        if (oldTownId != town.Id)
+        var newTown = await repo.Town.GetByIdAsync(character.TownId);
+        if (newTown.HasData && newTown.Data.CountryId != character.CountryId)
         {
-          await (await repo.Town.GetByIdAsync(oldTownId)).SomeAsync(async oldTown =>
-          {
-            // 支配したときとか、元の都市にいた人に武将数や守備人数の更新を指示する
-            await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(oldTown), repo);
-          });
+          var defenders = await repo.Town.GetAllDefendersAsync();
+          await StatusStreaming.Default.SendCharacterAsync(defenders.Where(d => d.TownId == newTown.Data.Id).Select(d => ApiData.From(d)), character.Id);
         }
-      });
+      }
 
       await repo.SaveChangesAsync();
     }

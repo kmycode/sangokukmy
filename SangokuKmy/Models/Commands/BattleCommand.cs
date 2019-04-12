@@ -348,6 +348,8 @@ namespace SangokuKmy.Models.Commands
         targetTown.Wall = targetCharacter.SoldierNumber;
       }
 
+      IEnumerable<TownDefender> removedDefenders = null;
+      TownDefender newDefender = null;
       {
         var targetCountry = targetCountryOptional.Data ?? new Country
         {
@@ -356,7 +358,7 @@ namespace SangokuKmy.Models.Commands
         var prefix = $"[<town>{targetTown.Name}</town>]{(continuousCount > 1 ? "(連戦)" : "")} <country>{myCountry.Name}</country> の <character>{character.Name}</character> は <country>{targetCountry.Name}</country> の <character>{targetCharacter.Name}</character>";
         if (character.SoldierNumber <= 0 && targetCharacter.SoldierNumber <= 0)
         {
-          repo.Town.RemoveDefender(targetCharacter.Id);
+          removedDefenders = await repo.Town.RemoveDefenderAsync(targetCharacter.Id);
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleDrawLose, prefix + " と引き分けました", false);
           await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> と引き分けました");
           if (!isWall)
@@ -425,7 +427,7 @@ namespace SangokuKmy.Models.Commands
             {
               targetExperience += 500;
             }
-            repo.Town.RemoveDefender(targetCharacter.Id);
+            removedDefenders = await repo.Town.RemoveDefenderAsync(targetCharacter.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.BattleWin, prefix + " を倒しました", false);
             await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> に勝利しました");
             await game.CharacterLogByIdAsync(targetCharacter.Id, $"<character>{character.Name}</character> に敗北しました。<town>{targetTown.Name}</town> の守備から外れました");
@@ -442,7 +444,7 @@ namespace SangokuKmy.Models.Commands
             myExperience += 50;
             myContribution += myExperience;
             character.TownId = targetTown.Id;
-            await repo.Town.SetDefenderAsync(character.Id, targetTown.Id);
+            newDefender = await repo.Town.SetDefenderAsync(character.Id, targetTown.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.TakeAway, "<country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <town>" + targetTown.Name + "</town> を支配しました", true);
             await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> を支配しました");
 
@@ -527,7 +529,23 @@ namespace SangokuKmy.Models.Commands
       }
 
       // 更新された都市データを通知
+      var townCharas = await repo.Town.GetCharactersAsync(targetTown.Id);
       await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown), repo);
+      if (removedDefenders != null && removedDefenders.Any() && targetCountryOptional.HasData)
+      {
+        foreach (var d in removedDefenders)
+        {
+          d.Status = TownDefenderStatus.Losed;
+          await StatusStreaming.Default.SendCountryAsync(ApiData.From(d), targetCountryOptional.Data.Id);
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(d), townCharas.Where(tc => tc.CountryId != targetCountryOptional.Data.Id).Select(tc => tc.Id));
+        }
+      }
+      if (newDefender != null)
+      {
+        newDefender.Status = TownDefenderStatus.Available;
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(newDefender), character.CountryId);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(newDefender), townCharas.Where(tc => tc.CountryId != character.CountryId).Select(tc => tc.Id));
+      }
 
       // 連戦
       if (canContinuous)

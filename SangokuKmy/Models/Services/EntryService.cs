@@ -211,6 +211,8 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(townData);
       await StatusStreaming.Default.SendAllAsync(maplogData);
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), town.CountryId);
+
+      await CharacterService.StreamCharacterAsync(repo, chara);
     }
 
     private static void CheckEntryStatus(GameDateTime current, string ipAddress, Character chara, string password, CharacterIcon icon, Town town, Country country)
