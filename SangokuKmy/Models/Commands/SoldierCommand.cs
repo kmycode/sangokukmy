@@ -53,7 +53,7 @@ namespace SangokuKmy.Models.Commands
             await game.CharacterLogAsync("ID: <num>" + (int)soldierType + "</num> の兵種は存在しません。<emerge>管理者にお問い合わせください</emerge>");
             return;
           }
-          if (!type.CanConscript)
+          if (!type.CanConscript && character.AiType == CharacterAiType.Human)
           {
             await game.CharacterLogAsync($"{type.Name} を徴兵しようとしましたが、現在徴兵することはできません");
             return;
