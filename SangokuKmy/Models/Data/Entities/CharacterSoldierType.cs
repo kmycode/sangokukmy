@@ -389,7 +389,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 2,
-          BaseDefend = 2,
+          BaseDefend = 1,
           TypeWall = 1,
           PowerStrong = 1,
         },
@@ -403,7 +403,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 4,
-          BaseDefend = 4,
+          BaseDefend = 2,
           TypeWall = 1,
           PowerStrong = 1,
         },
@@ -417,7 +417,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 6,
-          BaseDefend = 6,
+          BaseDefend = 3,
           TypeWall = 1,
           PowerStrong = 1,
         },
@@ -431,7 +431,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 9,
-          BaseDefend = 9,
+          BaseDefend = 4,
           TypeWall = 1,
           PowerStrong = 1,
         },
