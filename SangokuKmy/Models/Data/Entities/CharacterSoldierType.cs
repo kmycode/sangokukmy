@@ -345,7 +345,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "壁守兵",
         Data = new CharacterSoldierTypeData
         {
-          IntellectDefend = 10,
+          IntellectDefend = 100,
           IntellectEx = 1,
           TypeWall = 1,
           PowerStrong = 1,
