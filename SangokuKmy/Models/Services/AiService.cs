@@ -312,7 +312,7 @@ namespace SangokuKmy.Models.Services
       }
 
       var name = names[RandomService.Next(0, names.Length)];
-      if (RandomService.Next(0, 4) == 0 && !countries.Any(c => c.Name == "黄巾" && c.AiType == CountryAiType.Thiefs))
+      if (RandomService.Next(0, 7) == 0 && !countries.Any(c => c.Name == "黄巾" && c.AiType == CountryAiType.Thiefs))
       {
         name = "黄巾";
         charas.Add(CharacterAiType.ThiefBattler);
