@@ -31,7 +31,7 @@ namespace SangokuKmy.Models.Updates
     {
       this.Character.Name = "蛮族_武将";
       this.Character.Strong = (short)(this.Character.Strong * 0.7f);
-      this.Character.Leadership = 110;
+      this.Character.Leadership = 80;
     }
   }
 
