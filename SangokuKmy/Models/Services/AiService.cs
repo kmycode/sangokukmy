@@ -300,7 +300,7 @@ namespace SangokuKmy.Models.Services
         CharacterAiType.ThiefBattler,
         CharacterAiType.ThiefPatroller,
       };
-      if (system.GameDateTime.Year + 6 >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
+      if (system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 + 12)
       {
         charas.Add(CharacterAiType.ThiefBattler);
       }
