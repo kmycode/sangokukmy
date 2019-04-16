@@ -54,7 +54,11 @@ namespace SangokuKmy.Controllers
             CountryId = country.Id,
           };
 
-          if (country.IntEstablished + Config.CountryBattleStopDuring > system.IntGameDateTime)
+          if (country.AiType != CountryAiType.Human)
+          {
+            extra.IsJoinLimited = true;
+          }
+          else if (country.IntEstablished + Config.CountryBattleStopDuring > system.IntGameDateTime)
           {
             var characterCount = await repo.Country.CountCharactersAsync(country.Id, true);
             extra.IsJoinLimited = characterCount >= Config.CountryJoinMaxOnLimited;
