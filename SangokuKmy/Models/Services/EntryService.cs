@@ -103,6 +103,12 @@ namespace SangokuKmy.Models.Services
           }
         }
 
+        // AI国家チェック
+        if (country.AiType != CountryAiType.Human)
+        {
+          ErrorCode.CantJoinAtSuchCountryhError.Throw();
+        }
+
         chara.CountryId = town.CountryId;
         await repo.Character.AddAsync(chara);
 
