@@ -394,14 +394,25 @@ namespace SangokuKmy.Models.Updates
               });
               break;
             case 6:
-              await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で賊が出現しました");
-              SetEvents(0.66f, 0.76f, 1.0f, 1.0f, CountryPolicyType.AntiGang, (town, val) =>
+              if (system.GameDateTime.Year > Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 + 12)
               {
-                town.Agriculture = (int)(town.Agriculture * val);
-                town.Commercial = (int)(town.Commercial * val);
-                town.People = (int)(town.People * val);
-                town.Security = (short)(town.Security * val);
-              });
+                await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で賊が出現しました");
+                SetEvents(0.66f, 0.76f, 1.0f, 1.0f, CountryPolicyType.AntiGang, (town, val) =>
+                {
+                  town.Agriculture = (int)(town.Agriculture * val);
+                  town.Commercial = (int)(town.Commercial * val);
+                  town.People = (int)(town.People * val);
+                  town.Security = (short)(town.Security * val);
+                });
+              }
+              else
+              {
+                await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で義賊が貧しい人に施しをしています");
+                SetEvents(1.40f, 1.20f, 1.50f, 1.30f, CountryPolicyType.AntiGang, (town, val) =>
+                {
+                  town.Security = (short)Math.Min(town.Security * val, 100);
+                });
+              }
               break;
           }
 
