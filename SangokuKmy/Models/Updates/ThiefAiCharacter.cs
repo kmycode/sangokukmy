@@ -29,6 +29,7 @@ namespace SangokuKmy.Models.Updates
 
     public override void Initialize(GameDateTime current)
     {
+      base.Initialize(current);
       this.Character.Name = "蛮族_武将";
       this.Character.Strong = (short)(this.Character.Strong * 0.79f);
       this.Character.Leadership = 80;
@@ -45,6 +46,7 @@ namespace SangokuKmy.Models.Updates
 
     public override void Initialize(GameDateTime current)
     {
+      base.Initialize(current);
       this.Character.Name = "蛮族_仁官";
       this.Character.Intellect = 100;
       this.Character.Leadership = 40;
