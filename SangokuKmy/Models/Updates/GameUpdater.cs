@@ -410,7 +410,7 @@ namespace SangokuKmy.Models.Updates
                 await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で義賊が貧しい人に施しをしています");
                 SetEvents(1.40f, 1.20f, 1.50f, 1.30f, CountryPolicyType.AntiGang, (town, val) =>
                 {
-                  town.Security = (short)(town.Security * val);
+                  town.Security = (short)Math.Min(town.Security * val, 100);
                 });
               }
               break;
