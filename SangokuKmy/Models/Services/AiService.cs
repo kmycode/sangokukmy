@@ -96,6 +96,7 @@ namespace SangokuKmy.Models.Services
       foreach (var country in countries)
       {
         var towns = await repo.Town.GetByCountryIdAsync(country.Id);
+
         foreach (var town in towns.OrderByDescending(t => t.WallMax))
         {
           if (await CreateWarIfNotWarAsync(repo, country, town, mapLogAsync))
@@ -116,12 +117,13 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
+      var allCountries = await repo.Country.GetAllAsync();
       var warCountries = wars
         .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
         .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
         .Distinct()
         .ToArray();
-      var notWarCountries = (await repo.Country.GetAllAsync())
+      var notWarCountries = allCountries
         .Select(c => c.Id)
         .Where(c => c != self.Id)
         .Except(warCountries)
@@ -138,7 +140,20 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      var target = await repo.Country.GetAliveByIdAsync(aroundTowns[RandomService.Next(0, aroundTowns.Count())].CountryId);
+      var targets = aroundTowns.Where(t => t.CountryId != 0);
+      if (self.AiType == CountryAiType.Thiefs)
+      {
+        var characters = await repo.Character.GetAllAliveAsync();
+        var lowCharactersCountries = allCountries
+          .Where(c => characters.Count(cc => cc.CountryId == c.Id) < Config.CountryJoinMaxOnLimited - 1);
+        targets = targets.Where(t => !lowCharactersCountries.Any(c => c.Id == t.CountryId));
+      }
+      if (!targets.Any())
+      {
+        return false;
+      }
+
+      var target = await repo.Country.GetAliveByIdAsync(targets.ElementAt(RandomService.Next(0, targets.Count())).CountryId);
       if (!target.HasData)
       {
         return false;
@@ -280,6 +295,18 @@ namespace SangokuKmy.Models.Services
       return true;
     }
 
+    public static async Task<bool> CreateThiefCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
+    {
+      var towns = await repo.Town.GetAllAsync();
+      var targetTowns = towns.Where(t => t.CountryId == 0).ToArray();
+      if (!targetTowns.Any())
+      {
+        return false;
+      }
+
+      return await CreateThiefCountryAsync(repo, targetTowns[RandomService.Next(0, targetTowns.Length)], mapLogAsync);
+    }
+
     public static async Task<bool> CreateThiefCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync)
     {
       if (town.CountryId != 0)
@@ -298,12 +325,9 @@ namespace SangokuKmy.Models.Services
       var charas = new List<CharacterAiType>
       {
         CharacterAiType.ThiefBattler,
+        CharacterAiType.ThiefBattler,
         CharacterAiType.ThiefPatroller,
       };
-      if (system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 + 12)
-      {
-        charas.Add(CharacterAiType.ThiefBattler);
-      }
 
       var names = new string[] { "赤眉", "緑林", "黄巣", "侯景", }.Where(n => !countries.Where(c => !c.HasOverthrown && c.AiType == CountryAiType.Thiefs).Any(c => c.Name == n)).ToArray();
       if (!names.Any())
@@ -312,7 +336,7 @@ namespace SangokuKmy.Models.Services
       }
 
       var name = names[RandomService.Next(0, names.Length)];
-      if (RandomService.Next(0, 7) == 0 && !countries.Any(c => c.Name == "黄巾" && c.AiType == CountryAiType.Thiefs))
+      if (RandomService.Next(0, 18) == 0 && !countries.Any(c => c.Name == "黄巾" && c.AiType == CountryAiType.Thiefs))
       {
         name = "黄巾";
         charas.Add(CharacterAiType.ThiefBattler);

@@ -657,15 +657,15 @@ namespace SangokuKmy.Models.Updates
         }
 
         // 蛮族
-        if (allTowns.Any(t => t.CountryId == 0) &&
-            allCountries.Count(c => !c.HasOverthrown &&
-            c.AiType == CountryAiType.Thiefs) < 2 &&
-            RandomService.Next(0, 92) == 0)
+        //if (allTowns.Any(t => t.CountryId == 0) &&
+        //    allCountries.Count(c => !c.HasOverthrown &&
+        //    c.AiType == CountryAiType.Thiefs) < 2 &&
+        //    RandomService.Next(0, 92) == 0)
         {
           var towns = allTowns.Where(t => t.CountryId == 0 && allTowns.GetAroundTowns(t).Any(tt => tt.CountryId != 0)).ToArray();
           if (towns.Any())
           {
-            var isCreated = await AiService.CreateThiefCountryAsync(repo, towns[RandomService.Next(0, towns.Length)], (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+            var isCreated = await AiService.CreateThiefCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
             if (isCreated)
             {
               await repo.SaveChangesAsync();
