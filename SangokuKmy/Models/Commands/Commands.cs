@@ -42,6 +42,8 @@ namespace SangokuKmy.Models.Commands
       new PolicyCommand(),
       new AddScouterCommand(),
       new RemoveScouterCommand(),
+      new GetFormationCommand(),
+      new ChangeFormationCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

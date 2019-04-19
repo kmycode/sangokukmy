@@ -499,21 +499,30 @@ namespace SangokuKmy.Models.Updates
               var shortSize = (short)(size * 11);
               foreach (var chara in charas)
               {
+                var isNotify = false;
                 if (town.TownBuilding == TownBuilding.TrainStrong)
                 {
+                  var o = chara.Strong;
                   chara.AddStrongEx(shortSize);
+                  isNotify = chara.Strong != o;
                 }
                 else if (town.TownBuilding == TownBuilding.TrainIntellect)
                 {
+                  var o = chara.Intellect;
                   chara.AddIntellectEx(shortSize);
+                  isNotify = chara.Intellect != o;
                 }
                 else if (town.TownBuilding == TownBuilding.TrainLeadership)
                 {
+                  var o = chara.Leadership;
                   chara.AddLeadershipEx(shortSize);
+                  isNotify = chara.Leadership != o;
                 }
                 else if (town.TownBuilding == TownBuilding.TrainPopularity)
                 {
+                  var o = chara.Popularity;
                   chara.AddPopularityEx(shortSize);
+                  isNotify = chara.Popularity != o;
                 }
                 else if (town.TownBuilding == TownBuilding.TerroristHouse)
                 {
@@ -521,6 +530,15 @@ namespace SangokuKmy.Models.Updates
                   {
                     chara.Proficiency = Math.Max(chara.Proficiency, (short)(60 * size));
                   }
+                }
+
+                if (isNotify)
+                {
+                  await CharacterService.StreamCharacterAsync(repo, chara);
+                }
+                else
+                {
+                  await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
                 }
               }
             }
@@ -669,22 +687,17 @@ namespace SangokuKmy.Models.Updates
 
         // 蛮族
         if (allTowns.Any(t => t.CountryId == 0) &&
-            allCountries.Count(c => !c.HasOverthrown &&
-            c.AiType == CountryAiType.Thiefs) < 2 &&
+            allCountries.Count(c => !c.HasOverthrown && c.AiType == CountryAiType.Thiefs) < 2 &&
             RandomService.Next(0, 92) == 0)
         {
-          var towns = allTowns.Where(t => t.CountryId == 0 && allTowns.GetAroundTowns(t).Any(tt => tt.CountryId != 0)).ToArray();
-          if (towns.Any())
+          var isCreated = await AiService.CreateThiefCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          if (isCreated)
           {
-            var isCreated = await AiService.CreateThiefCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
-            if (isCreated)
-            {
-              await repo.SaveChangesAsync();
-            }
-            else
-            {
-              _logger.LogInformation("蛮族出現の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
-            }
+            await repo.SaveChangesAsync();
+          }
+          else
+          {
+            _logger.LogInformation("蛮族出現の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
           }
         }
 

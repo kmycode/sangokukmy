@@ -281,5 +281,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 政務官配属（都市）
     /// </summary>
     SecretaryToTown = 47,
+
+    /// <summary>
+    /// 陣形取得
+    /// </summary>
+    GetFormation = 48,
+
+    /// <summary>
+    /// 陣形変更
+    /// </summary>
+    ChangeFormation = 49,
   }
 }

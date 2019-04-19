@@ -100,6 +100,18 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("characterSoldierType")]
     public CharacterSoldierType CharacterSoldierType { get; set; }
 
+    [Column("formation_type")]
+    [JsonIgnore]
+    public FormationType FormationType { get; set; }
+
+    [NotMapped]
+    [JsonProperty("formationType")]
+    public short ApiFormationType
+    {
+      get => (short)this.FormationType;
+      set => this.FormationType = (FormationType)value;
+    }
+
     /// <summary>
     /// 兵士数
     /// </summary>
@@ -132,6 +144,7 @@ namespace SangokuKmy.Models.Data.Entities
         SoldierType = c.SoldierType,
         CharacterSoldierTypeId = c.CharacterSoldierTypeId,
         SoldierNumber = c.SoldierNumber,
+        FormationType = c.FormationType,
         IconId = icon.Id,
       };
     }

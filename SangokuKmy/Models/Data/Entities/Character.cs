@@ -152,6 +152,24 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
+    /// 陣形
+    /// </summary>
+    [Column("formation_type")]
+    [JsonIgnore]
+    public FormationType FormationType { get; set; }
+
+    /// <summary>
+    /// 陣形（API出力用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("formationType")]
+    public short ApiFormationType
+    {
+      get => (short)this.FormationType;
+      set => this.FormationType = (FormationType)value;
+    }
+
+    /// <summary>
     /// カスタム兵種のID
     /// </summary>
     [Column("character_soldier_type_id")]
@@ -263,6 +281,10 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("has_removed")]
     [JsonProperty("hasRemoved")]
     public bool HasRemoved { get; set; }
+
+    [Column("formation_point")]
+    [JsonProperty("formationPoint")]
+    public int FormationPoint { get; set; }
 
     #endregion
 

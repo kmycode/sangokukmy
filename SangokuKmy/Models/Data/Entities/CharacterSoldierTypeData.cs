@@ -207,26 +207,35 @@ namespace SangokuKmy.Models.Data.Entities
         Description = string.Join(',', parts.GroupBy(p => p.Name).Select(p => $"{p.Key}{p.Count()}")),
         Money = (short)parts.Sum(p => p.Money),
         Technology = (short)parts.Max(p => p.Technology),
-        PowerStrong = (short)parts.Sum(p => p.Data.PowerStrong),
-        PowerIntellect = (short)parts.Sum(p => p.Data.PowerIntellect),
-        BaseAttack = (short)parts.Sum(p => p.Data.BaseAttack),
-        BaseDefend = (short)parts.Sum(p => p.Data.BaseDefend),
-        StrongAttack = (short)parts.Sum(p => p.Data.StrongAttack),
-        StrongDefend = (short)parts.Sum(p => p.Data.StrongDefend),
-        IntellectAttack = (short)parts.Sum(p => p.Data.IntellectAttack),
-        IntellectDefend = (short)parts.Sum(p => p.Data.IntellectDefend),
-        WallAttack = (short)parts.Sum(p => p.Data.WallAttack),
-        WallDefend = (short)parts.Sum(p => p.Data.WallDefend),
-        ContinuousProbability = (short)parts.Sum(p => p.Data.ContinuousProbability),
-        RushProbability = (short)parts.Sum(p => p.Data.RushProbability),
-        RushAttack = (ushort)parts.Sum(p => p.Data.RushAttack),
-        StrongEx = (short)parts.Sum(p => p.Data.StrongEx),
-        IntellectEx = (short)parts.Sum(p => p.Data.IntellectEx),
-        LeadershipEx = (short)parts.Sum(p => p.Data.LeadershipEx),
-        PopularityEx = (short)parts.Sum(p => p.Data.PopularityEx),
-        TypeWall = (short)parts.Sum(p => p.Data.TypeWall),
       };
+      foreach (var p in parts)
+      {
+        d.Append(p.Data);
+      }
       return d;
+    }
+
+    public static CharacterSoldierTypeData Append(this CharacterSoldierTypeData self, CharacterSoldierTypeData d)
+    {
+      self.PowerStrong += d.PowerStrong;
+      self.PowerIntellect += d.PowerIntellect;
+      self.BaseAttack += d.BaseAttack;
+      self.BaseDefend += d.BaseDefend;
+      self.StrongAttack += d.StrongAttack;
+      self.StrongDefend += d.StrongDefend;
+      self.IntellectAttack += d.IntellectAttack;
+      self.IntellectDefend += d.IntellectDefend;
+      self.WallAttack += d.WallAttack;
+      self.WallDefend += d.WallDefend;
+      self.ContinuousProbability += d.ContinuousProbability;
+      self.RushProbability += d.RushProbability;
+      self.RushAttack += d.RushAttack;
+      self.StrongEx += d.StrongEx;
+      self.IntellectEx += d.IntellectEx;
+      self.LeadershipEx += d.LeadershipEx;
+      self.PopularityEx += d.PopularityEx;
+      self.TypeWall += d.TypeWall;
+      return self;
     }
   }
 }

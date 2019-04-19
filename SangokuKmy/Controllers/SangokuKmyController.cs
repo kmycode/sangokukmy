@@ -365,6 +365,38 @@ namespace SangokuKmy.Controllers
       return icon;
     }
 
+    [HttpPut("formations")]
+    [AuthenticationFilter]
+    public async Task SetFormationAsync(
+      [FromBody] Formation param)
+    {
+      Character chara;
+      var info = FormationTypeInfoes.Get(param.Type).GetOrError(ErrorCode.InvalidParameterError);
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        if (chara.FormationType == param.Type)
+        {
+          ErrorCode.MeaninglessOperationError.Throw();
+        }
+        if (chara.FormationPoint < 50)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        var formations = await repo.Character.GetCharacterFormationsAsync(chara.Id);
+        if (param.Type != FormationType.Normal && !formations.Any(f => f.Type == param.Type))
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        chara.FormationPoint -= 50;
+        chara.FormationType = param.Type;
+        await repo.SaveChangesAsync();
+      }
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
+    }
+
     [HttpGet("characters")]
     public async Task<ApiArrayData<CharacterForAnonymous>> GetAllCharactersAsync()
     {

@@ -164,6 +164,12 @@ namespace SangokuKmy.Models.Commands
           return;
         }
       }
+      var myFormation = FormationTypeInfoes.Get(character.FormationType);
+      if (!myFormation.HasData)
+      {
+        myFormation = FormationTypeInfoes.Get(FormationType.Normal);
+      }
+      mySoldierType.Append(myFormation.Data.Data);
       CharacterSoldierTypeData targetSoldierType = null;
       var canContinuous = false;
       var myAttackCorrection = 0;
@@ -262,6 +268,13 @@ namespace SangokuKmy.Models.Commands
             targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(SoldierType.Common);
           }
         }
+
+        var targetFormation = FormationTypeInfoes.Get(targetCharacter.FormationType);
+        if (!targetFormation.HasData)
+        {
+          targetFormation = FormationTypeInfoes.Get(FormationType.Normal);
+        }
+        targetSoldierType.Append(targetFormation.Data.Data);
 
         isWall = false;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
