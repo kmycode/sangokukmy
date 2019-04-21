@@ -70,7 +70,7 @@ namespace SangokuKmy.Controllers
         wars = await repo.CountryDiplomacies.GetAllWarsAsync();
         townWars = await repo.CountryDiplomacies.GetAllTownWarsAsync();
         policies = await repo.Country.GetPoliciesAsync();
-        scouters = await repo.Country.GetScoutersAsync(country.Id);
+        scouters = await repo.Country.GetScoutersAsync(country?.Id ?? 0);
         countryBbsItems = await repo.ThreadBbs.GetCountryBbsByCountryIdAsync(chara.CountryId);
         globalBbsItems = await repo.ThreadBbs.GetGlobalBbsAsync();
         reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
