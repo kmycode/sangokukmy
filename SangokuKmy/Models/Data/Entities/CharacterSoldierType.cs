@@ -347,7 +347,6 @@ namespace SangokuKmy.Models.Data.Entities
         {
           IntellectDefend = 100,
           IntellectEx = 1,
-          TypeWall = 1,
           PowerStrong = 1,
         },
         Money = 22,
