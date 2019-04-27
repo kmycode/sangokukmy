@@ -223,16 +223,27 @@ namespace SangokuKmy.Models.Services
       {
         return false;
       }
+      var countryCount = (await repo.Country.GetAllAsync()).Count(c => !c.HasOverthrown);
 
       var charas = new List<CharacterAiType>
       {
         CharacterAiType.TerroristBattler,
-        CharacterAiType.TerroristBattler,
-        CharacterAiType.TerroristRyofu,
         CharacterAiType.TerroristCivilOfficial,
         CharacterAiType.TerroristPatroller,
-        CharacterAiType.TerroristPatroller,
       };
+      if (countryCount <= 4)
+      {
+        charas.Add(CharacterAiType.TerroristBattler);
+      }
+      if (countryCount <= 3)
+      {
+        charas.Add(CharacterAiType.TerroristWallBattler);
+        charas.Add(CharacterAiType.FarmerPatroller);
+      }
+      if (countryCount <= 2)
+      {
+        charas.Add(CharacterAiType.TerroristRyofu);
+      }
 
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
       var name = names[RandomService.Next(0, names.Length)];
