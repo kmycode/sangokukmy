@@ -208,19 +208,19 @@ namespace SangokuKmy.Models.Updates
               bool PayAndCanContinue(int income)
               {
                 var isContinue = false;
-                if (country.Country.SafeMoney >= income)
+                if (salary.AllSalary >= income)
                 {
                   isContinue = true;
-                  country.Country.SafeMoney -= income;
+                  salary.AllSalary -= income;
                 }
                 else
                 {
-                  if (salary.AllSalary >= income - country.Country.SafeMoney)
+                  if (country.Country.SafeMoney >= income - salary.AllSalary)
                   {
-                    // 国庫が足りなければ収入から絞る
+                    // 収入が足りなければ国庫から絞る
                     isContinue = true;
-                    salary.AllSalary -= income - country.Country.SafeMoney;
-                    country.Country.SafeMoney = 0;
+                    country.Country.SafeMoney -= income - salary.AllSalary;
+                    salary.AllSalary = 0;
                   }
                 }
                 return isContinue;
