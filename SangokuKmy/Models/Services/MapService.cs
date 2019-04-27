@@ -434,7 +434,7 @@ namespace SangokuKmy.Models.Services
 
         public override int People => RandomService.Next(8, 21) * 1000;
 
-        public override int Security => 48;
+        public override int Security => 50;
       }
     }
   }
