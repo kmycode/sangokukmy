@@ -403,6 +403,10 @@ namespace SangokuKmy.Models.Updates
                 town.Commercial = (int)(town.Commercial * val);
                 town.People = (int)(town.People * val);
                 town.Security = (short)(town.Security * val);
+                if (ps.Contains(CountryPolicyType.KillGang) && c != null)
+                {
+                  c.PolicyPoint += 30;
+                }
               });
               break;
             case 7:

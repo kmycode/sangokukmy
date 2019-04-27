@@ -116,6 +116,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 国庫拡張3
     /// </summary>
     BloodVesselsStorage = 12,
+
+    /// <summary>
+    /// 賊の殲滅
+    /// </summary>
+    KillGang = 13,
   }
 
   public class CountryPolicyTypeInfo
@@ -220,6 +225,13 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "血管の中",
         BasePoint = 4000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StomachStorage),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.KillGang,
+        Name = "賊の殲滅",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
       },
     };
 
