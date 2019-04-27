@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Services;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Controllers
 {
@@ -145,6 +146,11 @@ namespace SangokuKmy.Controllers
 
             var post = (await repo.Country.GetPostsAsync(chara.CountryId)).Where(p => p.CharacterId == chara.Id);
             var isMonarch = post.Any(p => p.Type == CountryPostType.Monarch);
+
+            if (isMonarch && !Config.Game.IsAllowMonarchReinforcement)
+            {
+              ErrorCode.NotPermissionError.Throw();
+            }
 
             await CharacterService.ChangeTownAsync(repo, requestedCountry.CapitalTownId, chara);
             await CharacterService.ChangeCountryAsync(repo, requestedCountry.Id, new Character[] { chara, });
