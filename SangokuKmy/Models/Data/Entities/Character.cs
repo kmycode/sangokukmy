@@ -512,6 +512,7 @@ namespace SangokuKmy.Models.Data.Entities
     TerroristMainPatroller = 13,
     ThiefBattler = 14,
     ThiefPatroller = 15,
+    ThiefWallBattler = 16,
   }
 
   public static class CharacterAiTypeExtensions

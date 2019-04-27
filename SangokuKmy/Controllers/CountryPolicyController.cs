@@ -66,12 +66,14 @@ namespace SangokuKmy.Controllers
         }
 
         var policies = await repo.Country.GetPoliciesAsync(chara.CountryId);
-        if (policies.Any(p => p.Type == param.Type))
+        var old = policies.FirstOrDefault(p => p.Type == param.Type);
+        if (old != null && old.Status == CountryPolicyStatus.Available)
         {
           ErrorCode.MeaninglessOperationError.Throw();
         }
+        var status = old?.Status ?? CountryPolicyStatus.Unadopted;
 
-        if (country.PolicyPoint < info.Data.RequestedPoint)
+        if (country.PolicyPoint < info.Data.GetRequestedPoint(status))
         {
           ErrorCode.InvalidOperationError.Throw();
         }
@@ -82,7 +84,7 @@ namespace SangokuKmy.Controllers
         }
 
         param.CountryId = chara.CountryId;
-        country.PolicyPoint -= info.Data.RequestedPoint;
+        country.PolicyPoint -= info.Data.GetRequestedPoint(status);
         await repo.Country.AddPolicyAsync(param);
 
         maplog = new MapLog

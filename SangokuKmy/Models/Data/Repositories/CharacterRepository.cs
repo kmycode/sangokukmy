@@ -422,6 +422,30 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<Formation> GetFormationAsync(uint characterId, FormationType type)
+    {
+      try
+      {
+        var old = await this.container.Context.Formations.FirstOrDefaultAsync(f => f.CharacterId == characterId && f.Type == type);
+        if (old == null)
+        {
+          old = new Formation
+          {
+            CharacterId = characterId,
+            Type = type,
+            Level = 1,
+          };
+          await this.container.Context.Formations.AddAsync(old);
+        }
+        return old;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     public async Task<IReadOnlyList<Formation>> GetCharacterFormationsAsync(uint characterId)
     {
       try

@@ -125,7 +125,7 @@ namespace SangokuKmy.Models.Updates
 
   public class TerroristWallBattlerAiCharacter : TerroristBattlerAiCharacter
   {
-    protected override bool IsGoWall => true;
+    protected override AttackMode AttackType => AttackMode.BreakWall;
 
     protected override SoldierType FindSoldierType()
     {

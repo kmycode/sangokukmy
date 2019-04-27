@@ -49,9 +49,37 @@ namespace SangokuKmy.Models.Services
       };
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), charas.Select(c => c.Id));
 
-      // 新しい国の都市データ
-      var towns = await repo.Town.GetByCountryIdAsync(newId);
-      await StatusStreaming.Default.SendCharacterAsync(towns.Select(t => ApiData.From(t)), charas.Select(c => c.Id));
+      // 古い国のデータ、新しい国のデータ
+      var towns = await repo.Town.GetAllAsync();
+      var characters = (await repo.Character.GetAllAliveWithIconAsync()).Where(c => !charas.Any(cc => cc.Id != c.Character.Id));
+      var defenders = await repo.Town.GetAllDefendersAsync();
+      await StatusStreaming.Default.SendCharacterAsync(towns.Where(t => t.CountryId == newId).Select(t => ApiData.From(t)), charas.Select(c => c.Id));
+      await StatusStreaming.Default.SendCharacterAsync(towns.Where(t => t.CountryId != newId).Select(t => ApiData.From(new TownForAnonymous(t))), charas.Select(c => c.Id));
+      await StatusStreaming.Default.SendCharacterAsync(defenders.Where(d => towns.Any(t => t.Id == d.TownId && t.CountryId == newId)).Select(d => ApiData.From(d)), charas.Select(c => c.Id));
+
+      var ods = new List<TownDefender>();
+      foreach (var od in defenders.Where(d => !towns.Any(t => t.Id == d.TownId && t.CountryId == newId)))
+      {
+        ods.Add(new TownDefender
+        {
+          Id = od.Id,
+          TownId = od.TownId,
+          CharacterId = od.CharacterId,
+          Status = TownDefenderStatus.Losed,
+        });
+      }
+      await StatusStreaming.Default.SendCharacterAsync(ods.Select(d => ApiData.From(d)), charas.Select(c => c.Id));
+
+      foreach (var townGroup in charas.GroupBy(c => c.TownId))
+      {
+        var townId = townGroup.Key;
+        var townCharas = townGroup.Select(tc => tc.Id);
+        await StatusStreaming.Default.SendCharacterAsync(characters.Where(c => c.Character.CountryId == newId && c.Character.TownId == townId).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTownAndSameCountry))), townCharas);
+        await StatusStreaming.Default.SendCharacterAsync(characters.Where(c => c.Character.CountryId == newId && c.Character.TownId != townId).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameCountry))), townCharas);
+        await StatusStreaming.Default.SendCharacterAsync(characters.Where(c => c.Character.CountryId != newId && c.Character.TownId == townId).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown))), townCharas);
+        await StatusStreaming.Default.SendCharacterAsync(characters.Where(c => c.Character.CountryId != newId && c.Character.TownId != townId && towns.Any(ct => c.Character.TownId == ct.Id && ct.CountryId == newId)).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameCountryTownOtherCountry))), townCharas);
+        await StatusStreaming.Default.SendCharacterAsync(characters.Where(c => c.Character.CountryId != newId && c.Character.TownId != townId && !towns.Any(ct => c.Character.TownId == ct.Id && ct.CountryId == newId)).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.Anonymous))), townCharas);
+      }
     }
 
     public static async Task ChangeTownAsync(MainRepository repo, uint newId, Character chara)

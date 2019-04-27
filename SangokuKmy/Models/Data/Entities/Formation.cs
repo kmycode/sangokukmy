@@ -31,6 +31,14 @@ namespace SangokuKmy.Models.Data.Entities
       get => (short)this.Type;
       set => this.Type = (FormationType)value;
     }
+
+    [Column("experience")]
+    [JsonProperty("experience")]
+    public int Experience { get; set; }
+
+    [Column("level")]
+    [JsonProperty("level")]
+    public short Level { get; set; }
   }
 
   public enum FormationType : short
@@ -49,13 +57,54 @@ namespace SangokuKmy.Models.Data.Entities
 
     public string Name { get; set; }
 
-    public CharacterSoldierTypeData Data { get; set; }
+    public List<CharacterSoldierTypeData> Data { get; set; }
 
     public int RequiredPoint { get; set; }
-    
+
+    public int NextLevel { get; set; }
+
     public Func<IEnumerable<FormationType>, bool> SubjectAppear { get; set; }
 
     public bool CanGetByCommand { get; set; } = true;
+
+    public CharacterSoldierTypeData GetDataFromLevel(int level)
+    {
+      if (this.Data.Count > level - 1)
+      {
+        return this.Data[level - 1];
+      }
+      else
+      {
+        return this.Data[this.Data.Count - 1];
+      }
+    }
+
+    public bool CheckLevelUp(Formation formation)
+    {
+      if (formation.Type != this.Type)
+      {
+        return false;
+      }
+
+      if (formation.Level >= this.Data.Count)
+      {
+        formation.Experience = this.NextLevel;
+        return false;
+      }
+
+      if (formation.Experience >= this.NextLevel)
+      {
+        formation.Experience -= this.NextLevel;
+        formation.Level++;
+        if (formation.Level >= this.Data.Count)
+        {
+          formation.Experience = this.NextLevel;
+        }
+        return true;
+      }
+
+      return false;
+    }
   }
 
   public static class FormationTypeInfoes
@@ -66,20 +115,31 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = FormationType.Normal,
         Name = "通常",
-        Data = new CharacterSoldierTypeData
+        Data = new List<CharacterSoldierTypeData>
         {
+          new CharacterSoldierTypeData
+          {
+          },
+          new CharacterSoldierTypeData
+          {
+          },
         },
         RequiredPoint = 0,
+        NextLevel = 1000,
       },
       new FormationTypeInfo
       {
         Type = FormationType.GyorinA,
-        Name = "魚鱗 Lv.1",
-        Data = new CharacterSoldierTypeData
+        Name = "魚鱗",
+        Data = new List<CharacterSoldierTypeData>
         {
-          BaseAttack = 20,
+          new CharacterSoldierTypeData
+          {
+            BaseAttack = 10,
+          },
         },
         RequiredPoint = 500,
+        NextLevel = 1000,
       },
     };
 

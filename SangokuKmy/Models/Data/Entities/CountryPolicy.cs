@@ -31,6 +31,26 @@ namespace SangokuKmy.Models.Data.Entities
       get => (short)this.Type;
       set => this.Type = (CountryPolicyType)value;
     }
+
+    [Column("status")]
+    [JsonIgnore]
+    public CountryPolicyStatus Status { get; set; }
+
+    [NotMapped]
+    [JsonProperty("status")]
+    public short ApiStatus
+    {
+      get => (short)this.Status;
+      set => this.Status = (CountryPolicyStatus)value;
+    }
+  }
+
+  public enum CountryPolicyStatus : short
+  {
+    Unadopted = 0,
+    Available = 1,
+    Boosting = 2,
+    Boosted = 3,
   }
 
   public enum CountryPolicyType : short
@@ -104,9 +124,22 @@ namespace SangokuKmy.Models.Data.Entities
 
     public string Name { get; set; }
 
-    public int RequestedPoint { get; set; }
+    public int BasePoint { get; set; }
 
     public Func<IEnumerable<CountryPolicyType>, bool> SubjectAppear { get; set; }
+
+    public int GetRequestedPoint(CountryPolicyStatus status)
+    {
+      switch (status)
+      {
+        case CountryPolicyStatus.Available:
+          return 0;
+        case CountryPolicyStatus.Boosted:
+          return this.BasePoint / 2;
+        default:
+          return this.BasePoint;
+      }
+    }
   }
 
   public static class CountryPolicyTypeInfoes
@@ -117,75 +150,75 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.Storage,
         Name = "貯蔵",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Scouter,
         Name = "密偵",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.SoldierDevelopment,
         Name = "兵種開発",
-        RequestedPoint = 500_0000,
+        BasePoint = 500_0000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.HumanDevelopment,
         Name = "人材開発",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Economy,
         Name = "経済評論",
-        RequestedPoint = 2000,
+        BasePoint = 2000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.SaveWall,
         Name = "災害対策",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.AntiGang,
         Name = "賊の監視",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.BattleContinuous,
         Name = "連戦戦術",
-        RequestedPoint = 500_0000,
+        BasePoint = 500_0000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.BattleRush,
         Name = "突撃戦術",
-        RequestedPoint = 500_0000,
+        BasePoint = 500_0000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.UndergroundStorage,
         Name = "地下貯蔵",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
         SubjectAppear = list => list.Contains(CountryPolicyType.Storage),
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.StomachStorage,
         Name = "胃の中",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
         SubjectAppear = list => list.Contains(CountryPolicyType.UndergroundStorage),
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.BloodVesselsStorage,
         Name = "血管の中",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StomachStorage),
       },
     };

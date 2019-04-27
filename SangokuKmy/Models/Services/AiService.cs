@@ -141,13 +141,6 @@ namespace SangokuKmy.Models.Services
       }
 
       var targets = aroundTowns.Where(t => t.CountryId != 0);
-      if (self.AiType == CountryAiType.Thiefs)
-      {
-        var characters = await repo.Character.GetAllAliveAsync();
-        var lowCharactersCountries = allCountries
-          .Where(c => characters.Count(cc => cc.CountryId == c.Id) < Config.CountryJoinMaxOnLimited - 1);
-        targets = targets.Where(t => !lowCharactersCountries.Any(c => c.Id == t.CountryId));
-      }
       if (!targets.Any())
       {
         return false;
@@ -326,6 +319,7 @@ namespace SangokuKmy.Models.Services
       {
         CharacterAiType.ThiefBattler,
         CharacterAiType.ThiefBattler,
+        CharacterAiType.ThiefWallBattler,
         CharacterAiType.ThiefPatroller,
       };
 
@@ -340,7 +334,7 @@ namespace SangokuKmy.Models.Services
       {
         name = "黄巾";
         charas.Add(CharacterAiType.ThiefBattler);
-        charas.Add(CharacterAiType.ThiefBattler);
+        charas.Add(CharacterAiType.ThiefWallBattler);
         charas.Add(CharacterAiType.ThiefPatroller);
       }
 
