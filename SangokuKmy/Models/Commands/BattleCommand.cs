@@ -493,6 +493,8 @@ namespace SangokuKmy.Models.Commands
               {
                 targetCountry.HasOverthrown = true;
                 targetCountry.OverthrownGameDate = game.GameDateTime;
+                await StatusStreaming.Default.SendAllAsync(ApiData.From(targetCountry));
+                await AnonymousStreaming.Default.SendAllAsync(ApiData.From(targetCountry));
                 await game.MapLogAsync(EventType.Overthrown, "<country>" + targetCountry.Name + "</country> は滅亡しました", true);
 
                 var targetCountryCharacters = await repo.Character.RemoveCountryAsync(targetCountry.Id);
