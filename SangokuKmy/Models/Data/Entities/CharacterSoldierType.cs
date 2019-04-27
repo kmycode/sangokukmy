@@ -387,7 +387,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "守兵A",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 2,
+          BaseAttack = 3,
           BaseDefend = 1,
           TypeWall = 1,
           PowerStrong = 1,
@@ -401,7 +401,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "守兵B",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 4,
+          BaseAttack = 5,
           BaseDefend = 2,
           TypeWall = 1,
           PowerStrong = 1,
@@ -415,7 +415,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "守兵C",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 6,
+          BaseAttack = 7,
           BaseDefend = 3,
           TypeWall = 1,
           PowerStrong = 1,
