@@ -78,7 +78,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.InvalidOperationError.Throw();
         }
 
-        if (info.Data.SubjectAppear != null && !info.Data.SubjectAppear(policies.Select(p => p.Type)))
+        if (info.Data.SubjectAppear != null && !info.Data.SubjectAppear(policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type)))
         {
           ErrorCode.InvalidOperationError.Throw();
         }
