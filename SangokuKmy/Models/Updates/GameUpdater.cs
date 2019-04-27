@@ -494,7 +494,8 @@ namespace SangokuKmy.Models.Updates
 
             // 政策開発
             country.Country.PolicyPoint += 5;
-            if (country.Characters.Count() -
+            if (system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 &&
+                country.Characters.Count() -
                 reinforcements.Count(r => r.Status == ReinforcementStatus.Active && r.CharacterCountryId != country.Country.Id) +
                 reinforcements.Count(r => r.Status == ReinforcementStatus.Active && r.CharacterCountryId == country.Country.Id) <= 2)
             {
