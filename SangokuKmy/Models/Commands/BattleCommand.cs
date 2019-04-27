@@ -492,6 +492,7 @@ namespace SangokuKmy.Models.Commands
               var targetCountryTownCount = await repo.Town.CountByCountryIdAsync(targetCountry.Id);
               if (targetCountryTownCount <= 0)
               {
+                myCountry.PolicyPoint += 2000;
                 targetCountry.HasOverthrown = true;
                 targetCountry.OverthrownGameDate = game.GameDateTime;
                 await StatusStreaming.Default.SendAllAsync(ApiData.From(targetCountry));
@@ -518,6 +519,7 @@ namespace SangokuKmy.Models.Commands
                   await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), targetCountryCharacter.Character.Id);
                 }
 
+                await StatusStreaming.Default.SendCountryAsync(ApiData.From(myCountry), myCountry.Id);
                 StatusStreaming.Default.UpdateCache(targetCountryCharacters);
               }
             }
