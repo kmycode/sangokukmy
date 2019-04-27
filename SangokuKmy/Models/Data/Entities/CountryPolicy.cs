@@ -156,6 +156,21 @@ namespace SangokuKmy.Models.Data.Entities
     /// 郡県制
     /// </summary>
     GunKen = 20,
+
+    /// <summary>
+    /// 攻防の礎
+    /// </summary>
+    AttackDefend = 21,
+
+    /// <summary>
+    /// 土塁
+    /// </summary>
+    Earthwork = 22,
+
+    /// <summary>
+    /// 石城
+    /// </summary>
+    StoneCastle = 23,
   }
 
   public class CountryPolicyTypeInfo
@@ -267,6 +282,27 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "賊の殲滅",
         BasePoint = 2000,
         SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.AttackDefend,
+        Name = "攻防の礎",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Earthwork,
+        Name = "土塁",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AttackDefend) && list.Contains(CountryPolicyType.HumanDevelopment),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StoneCastle,
+        Name = "石城",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Earthwork) && list.Contains(CountryPolicyType.StrongCountry),
       },
       new CountryPolicyTypeInfo
       {

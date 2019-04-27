@@ -293,11 +293,12 @@ namespace SangokuKmy.Models.Commands
         targetCharacter.SoldierNumber = targetTown.Wall;
         log.DefenderType = DefenderType.Wall;
 
-        targetCharacter.SoldierType = targetTown.Technology > 900 ? SoldierType.Guard_Step4 :
-                            targetTown.Technology > 700 ? SoldierType.Guard_Step3 :
-                            targetTown.Technology > 500 ? SoldierType.Guard_Step2 :
-                            targetTown.Technology > 300 ? SoldierType.Guard_Step1 :
-                            SoldierType.WallCommon;
+        var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type);
+
+        targetCharacter.SoldierType = policies.Contains(CountryPolicyType.StoneCastle) ? SoldierType.Guard_Step4 :
+                            policies.Contains(CountryPolicyType.Earthwork) ? SoldierType.Guard_Step3 :
+                            policies.Contains(CountryPolicyType.AttackDefend) ? SoldierType.Guard_Step2 :
+                            SoldierType.Guard_Step1;
         targetCharacter.Strong = trendStrong;
         targetCharacter.Proficiency = 100;
 
