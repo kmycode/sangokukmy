@@ -490,6 +490,16 @@ namespace SangokuKmy.Models.Updates
           foreach (var country in countryData)
           {
             var oldPoint = country.Country.PolicyPoint;
+            var reinforcements = await repo.Reinforcement.GetByCountryIdAsync(country.Country.Id);
+
+            // 政策開発
+            country.Country.PolicyPoint += 5;
+            if (country.Characters.Count() -
+                reinforcements.Count(r => r.Status == ReinforcementStatus.Active && r.CharacterCountryId != country.Country.Id) +
+                reinforcements.Count(r => r.Status == ReinforcementStatus.Active && r.CharacterCountryId == country.Country.Id) <= 2)
+            {
+              country.Country.PolicyPoint += 3;
+            }
 
             var availablePolicies = country.Policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type);
             if (availablePolicies.Contains(CountryPolicyType.StrongCountry))
