@@ -84,6 +84,7 @@ namespace SangokuKmy.Controllers
         }
 
         param.CountryId = chara.CountryId;
+        param.Status = CountryPolicyStatus.Available;
         country.PolicyPoint -= info.Data.GetRequestedPoint(status);
         await repo.Country.AddPolicyAsync(param);
 
