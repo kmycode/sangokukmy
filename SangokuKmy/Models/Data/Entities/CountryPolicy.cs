@@ -121,6 +121,36 @@ namespace SangokuKmy.Models.Data.Entities
     /// 賊の殲滅
     /// </summary>
     KillGang = 13,
+
+    /// <summary>
+    /// 武官国家
+    /// </summary>
+    StrongCountry = 14,
+
+    /// <summary>
+    /// 文官国家
+    /// </summary>
+    IntellectCountry = 15,
+
+    /// <summary>
+    /// 人情国家
+    /// </summary>
+    PopularityCountry = 16,
+
+    /// <summary>
+    /// 農業国家
+    /// </summary>
+    AgricultureCountry = 17,
+
+    /// <summary>
+    /// 商業国家
+    /// </summary>
+    CommercialCountry = 18,
+
+    /// <summary>
+    /// 城塞国家
+    /// </summary>
+    WallCountry = 19,
   }
 
   public class CountryPolicyTypeInfo
@@ -232,6 +262,27 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "賊の殲滅",
         BasePoint = 2000,
         SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StrongCountry,
+        Name = "武官国家",
+        BasePoint = 1500,
+        SubjectAppear = list => list.Contains(CountryPolicyType.HumanDevelopment),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.IntellectCountry,
+        Name = "文官国家",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.HumanDevelopment),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.PopularityCountry,
+        Name = "仁官国家",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.IntellectCountry),
       },
     };
 

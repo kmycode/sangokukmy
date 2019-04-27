@@ -485,6 +485,33 @@ namespace SangokuKmy.Models.Updates
           await repo.SaveChangesAsync();
         }
 
+        // 武将に応じた政策
+        {
+          foreach (var country in countryData)
+          {
+            var oldPoint = country.Country.PolicyPoint;
+
+            var availablePolicies = country.Policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type);
+            if (availablePolicies.Contains(CountryPolicyType.StrongCountry))
+            {
+              country.Country.PolicyPoint += country.Characters.Count(c => c.GetCharacterType() == CharacterType.Strong) * 2;
+            }
+            if (availablePolicies.Contains(CountryPolicyType.IntellectCountry))
+            {
+              country.Country.PolicyPoint += country.Characters.Count(c => c.GetCharacterType() == CharacterType.Intellect) * 4;
+            }
+            if (availablePolicies.Contains(CountryPolicyType.PopularityCountry))
+            {
+              country.Country.PolicyPoint += country.Characters.Count(c => c.GetCharacterType() == CharacterType.Popularity) * 8;
+            }
+
+            if (country.Country.PolicyPoint != oldPoint)
+            {
+              await StatusStreaming.Default.SendCountryAsync(ApiData.From(country.Country), country.Country.Id);
+            }
+          }
+        }
+
         // 都市施設
         {
           foreach (var town in allTowns)
