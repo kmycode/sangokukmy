@@ -959,8 +959,14 @@ namespace SangokuKmy.Controllers
         var targetTown = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
         var targetCountry = await repo.Country.GetAliveByIdAsync(targetTown.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
 
+        if (targetTown.Id == targetCountry.CapitalTownId)
+        {
+          // 首都への攻略
+          ErrorCode.InvalidOperationError.Throw();
+        }
         if (await repo.Town.CountByCountryIdAsync(targetCountry.Id) <= 1)
         {
+          // 残り１都市の国への攻略
           ErrorCode.NotPermissionError.Throw();
         }
 
