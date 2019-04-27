@@ -338,7 +338,7 @@ namespace SangokuKmy.Models.Updates
               var val = cd?.Policies.Any(p => p.Type == policy) == true ? aroundSizeIfPolicy : aroundSize;
               func(town, val);
             }
-            var cd2 = countryData.FirstOrDefault(c => c.Country.Id == targetTown.Id);
+            var cd2 = countryData.FirstOrDefault(c => c.Country.Id == targetTown.CountryId);
             var val2 = cd2?.Policies.Any(p => p.Type == policy) == true ? sizeIfPolicy : size;
             func(targetTown, val2);
           }
