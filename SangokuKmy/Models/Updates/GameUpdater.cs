@@ -330,32 +330,34 @@ namespace SangokuKmy.Models.Updates
           var targetTown = allTowns[RandomService.Next(0, allTowns.Count)];
           var targetTowns = allTowns.GetAroundTowns(targetTown);
 
-          void SetEvents(float size, float aroundSize, float sizeIfPolicy, float aroundSizeIfPolicy, CountryPolicyType policy, Action<TownBase, float> func)
+          void SetEvents(float size, float aroundSize, float sizeIfPolicy, float aroundSizeIfPolicy, CountryPolicyType policy, Action<TownBase, float, IEnumerable<CountryPolicyType>, Country> func)
           {
             foreach (var town in targetTowns)
             {
               var cd = countryData.FirstOrDefault(c => c.Country.Id == town.CountryId);
-              var val = cd?.Policies.Any(p => p.Type == policy) == true ? aroundSizeIfPolicy : aroundSize;
-              func(town, val);
+              var policies = cd?.Policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type) ?? Enumerable.Empty<CountryPolicyType>();
+              var val = policies.Contains(policy) ? aroundSizeIfPolicy : aroundSize;
+              func(town, val, policies, cd?.Country);
             }
             var cd2 = countryData.FirstOrDefault(c => c.Country.Id == targetTown.CountryId);
-            var val2 = cd2?.Policies.Any(p => p.Type == policy) == true ? sizeIfPolicy : size;
-            func(targetTown, val2);
+            var policies2 = cd2?.Policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type) ?? Enumerable.Empty<CountryPolicyType>();
+            var val2 = policies2.Contains(policy) ? sizeIfPolicy : size;
+            func(targetTown, val2, policies2, cd2?.Country);
           }
 
-          var eventId = RandomService.Next(0, 7);
+          var eventId = RandomService.Next(0, 8);
           switch (eventId)
           {
             case 0:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺でいなごの大群が畑を襲いました");
-              SetEvents(0.65f, 0.75f, 1.0f, 1.0f, CountryPolicyType.Economy, (town, val) =>
+              SetEvents(0.65f, 0.75f, 1.0f, 1.0f, CountryPolicyType.Economy, (town, val, ps, c) =>
               {
                 town.Agriculture = (int)(town.Agriculture * val);
               });
               break;
             case 1:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で洪水がおこりました");
-              SetEvents(0.75f, 0.85f, 1.0f, 1.0f, CountryPolicyType.SaveWall, (town, val) =>
+              SetEvents(0.75f, 0.85f, 1.0f, 1.0f, CountryPolicyType.SaveWall, (town, val, ps, c) =>
               {
                 town.Agriculture = (int)(town.Agriculture * val);
                 town.Commercial = (int)(town.Commercial * val);
@@ -364,21 +366,21 @@ namespace SangokuKmy.Models.Updates
               break;
             case 2:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> を中心に疫病が広がっています。町の人も苦しんでいます");
-              SetEvents(0.75f, 0.85f, 1.0f, 1.0f, CountryPolicyType.Economy, (town, val) =>
+              SetEvents(0.75f, 0.85f, 1.0f, 1.0f, CountryPolicyType.Economy, (town, val, ps, c) =>
               {
                 town.People = (int)(town.People * val);
               });
               break;
             case 3:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺は、今年は豊作になりそうです");
-              SetEvents(1.30f, 1.15f, 1.50f, 1.30f, CountryPolicyType.Economy, (town, val) =>
+              SetEvents(1.30f, 1.15f, 1.50f, 1.30f, CountryPolicyType.Economy, (town, val, ps, c) =>
               {
                 town.Agriculture = Math.Min((int)(town.Agriculture * val), town.AgricultureMax);
               });
               break;
             case 4:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で地震が起こりました");
-              SetEvents(0.66f, 0.76f, 1.0f, 1.0f, CountryPolicyType.SaveWall, (town, val) =>
+              SetEvents(0.66f, 0.76f, 1.0f, 1.0f, CountryPolicyType.SaveWall, (town, val, ps, c) =>
               {
                 town.Agriculture = (int)(town.Agriculture * val);
                 town.Commercial = (int)(town.Commercial * val);
@@ -388,31 +390,27 @@ namespace SangokuKmy.Models.Updates
               break;
             case 5:
               await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺の市場が賑わっています");
-              SetEvents(1.30f, 1.15f, 1.50f, 1.30f, CountryPolicyType.Economy, (town, val) =>
+              SetEvents(1.30f, 1.15f, 1.50f, 1.30f, CountryPolicyType.Economy, (town, val, ps, c) =>
               {
                 town.Agriculture = Math.Min((int)(town.Agriculture * val), town.AgricultureMax);
               });
               break;
             case 6:
-              if (system.GameDateTime.Year > Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 + 12)
+              await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で賊が出現しました");
+              SetEvents(0.66f, 0.76f, 1.0f, 1.0f, CountryPolicyType.AntiGang, (town, val, ps, c) =>
               {
-                await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で賊が出現しました");
-                SetEvents(0.66f, 0.76f, 1.0f, 1.0f, CountryPolicyType.AntiGang, (town, val) =>
-                {
-                  town.Agriculture = (int)(town.Agriculture * val);
-                  town.Commercial = (int)(town.Commercial * val);
-                  town.People = (int)(town.People * val);
-                  town.Security = (short)(town.Security * val);
-                });
-              }
-              else
+                town.Agriculture = (int)(town.Agriculture * val);
+                town.Commercial = (int)(town.Commercial * val);
+                town.People = (int)(town.People * val);
+                town.Security = (short)(town.Security * val);
+              });
+              break;
+            case 7:
+              await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で義賊が貧しい人に施しをしています");
+              SetEvents(1.40f, 1.20f, 1.50f, 1.30f, CountryPolicyType.AntiGang, (town, val, ps, c) =>
               {
-                await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺で義賊が貧しい人に施しをしています");
-                SetEvents(1.40f, 1.20f, 1.50f, 1.30f, CountryPolicyType.AntiGang, (town, val) =>
-                {
-                  town.Security = (short)Math.Min(town.Security * val, 100);
-                });
-              }
+                town.Security = (short)Math.Min(town.Security * val, 100);
+              });
               break;
           }
 
