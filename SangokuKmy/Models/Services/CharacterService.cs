@@ -50,6 +50,7 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), charas.Select(c => c.Id));
 
       // 古い国のデータ、新しい国のデータ
+      var country = await repo.Country.GetByIdAsync(newId);
       var towns = await repo.Town.GetAllAsync();
       var characters = (await repo.Character.GetAllAliveWithIconAsync()).Where(c => !charas.Any(cc => cc.Id != c.Character.Id));
       var defenders = await repo.Town.GetAllDefendersAsync();
@@ -69,6 +70,10 @@ namespace SangokuKmy.Models.Services
         });
       }
       await StatusStreaming.Default.SendCharacterAsync(ods.Select(d => ApiData.From(d)), charas.Select(c => c.Id));
+      if (country.HasData)
+      {
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(country.Data), charas.Select(c => c.Id));
+      }
 
       foreach (var townGroup in charas.GroupBy(c => c.TownId))
       {
@@ -104,6 +109,15 @@ namespace SangokuKmy.Models.Services
       }
 
       await StreamCharacterAsync(repo, chara);
+
+      var allCharacters = await repo.Character.GetAllAliveWithIconAsync();
+      var allTowns = await repo.Town.GetAllAsync();
+      var townId = newId;
+      await StatusStreaming.Default.SendCharacterAsync(allCharacters.Where(c => c.Character.CountryId == chara.CountryId && c.Character.TownId == townId).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTownAndSameCountry))), chara.Id);
+      await StatusStreaming.Default.SendCharacterAsync(allCharacters.Where(c => c.Character.CountryId == chara.CountryId && c.Character.TownId != townId).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameCountry))), chara.Id);
+      await StatusStreaming.Default.SendCharacterAsync(allCharacters.Where(c => c.Character.CountryId != chara.CountryId && c.Character.TownId == townId).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown))), chara.Id);
+      await StatusStreaming.Default.SendCharacterAsync(allCharacters.Where(c => c.Character.CountryId != chara.CountryId && c.Character.TownId != townId && allTowns.Any(ct => c.Character.TownId == ct.Id && ct.CountryId == chara.CountryId)).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameCountryTownOtherCountry))), chara.Id);
+      await StatusStreaming.Default.SendCharacterAsync(allCharacters.Where(c => c.Character.CountryId != chara.CountryId && c.Character.TownId != townId && !allTowns.Any(ct => c.Character.TownId == ct.Id && ct.CountryId == chara.CountryId)).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.Anonymous))), chara.Id);
     }
 
     public static async Task StreamCharacterAsync(MainRepository repo, Character character)
