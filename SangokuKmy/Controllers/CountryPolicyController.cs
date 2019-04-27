@@ -102,8 +102,8 @@ namespace SangokuKmy.Controllers
       }
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(maplog));
-      await StatusStreaming.Default.SendCountryAsync(ApiData.From(param), param.CountryId);
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(param));
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(maplog));
     }
   }
