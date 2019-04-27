@@ -313,6 +313,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 蛮族の家
     /// </summary>
     TerroristHouse = 15,
+
+    /// <summary>
+    /// 宮殿
+    /// </summary>
+    Palace = 16,
   }
 
   public static class TownExtensions

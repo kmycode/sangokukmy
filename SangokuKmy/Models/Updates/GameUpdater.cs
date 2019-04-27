@@ -622,6 +622,14 @@ namespace SangokuKmy.Models.Updates
                 town.Security = (short)Math.Min((int)(town.Security + 8 * size), 100);
               }
             }
+            else if (town.TownBuilding == TownBuilding.Palace)
+            {
+              var cc = await repo.Country.GetAliveByIdAsync(town.CountryId);
+              if (cc.HasData)
+              {
+                cc.Data.PolicyPoint += (short)(9 * size);
+              }
+            }
           }
         }
 
