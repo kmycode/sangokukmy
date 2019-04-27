@@ -44,11 +44,6 @@ namespace SangokuKmy.Models.Data.Entities
   public enum FormationType : short
   {
     Normal = 0,
-
-    /// <summary>
-    /// 魚鱗
-    /// </summary>
-    GyorinA = 1,
   }
 
   public class FormationTypeInfo
@@ -120,25 +115,8 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSoldierTypeData
           {
           },
-          new CharacterSoldierTypeData
-          {
-          },
         },
         RequiredPoint = 0,
-        NextLevel = 1000,
-      },
-      new FormationTypeInfo
-      {
-        Type = FormationType.GyorinA,
-        Name = "魚鱗",
-        Data = new List<CharacterSoldierTypeData>
-        {
-          new CharacterSoldierTypeData
-          {
-            BaseAttack = 10,
-          },
-        },
-        RequiredPoint = 500,
         NextLevel = 1000,
       },
     };

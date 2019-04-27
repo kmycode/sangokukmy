@@ -358,6 +358,9 @@ namespace SangokuKmy.Models.Commands
         targetCharacter.SoldierNumber -= targetDamage;
         targetFormationData.Experience += (int)(myDamage * 0.39f);
 
+        myExperience += (int)(targetDamage * 0.42f);
+        targetExperience += (int)(myDamage * 0.39f);
+
         await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
         if (!isWall)
         {
