@@ -164,6 +164,65 @@ namespace SangokuKmy.Models.Services
         };
         await repo.Country.SetPostAsync(countryPost);
 
+        var policies = new List<CountryPolicy>
+        {
+          new CountryPolicy
+          {
+            Type = CountryPolicyType.GunKen,
+            Status = CountryPolicyStatus.Available,
+            CountryId = country.Id,
+          },
+        };
+        if (town.SubType == TownType.Agriculture)
+        {
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.AgricultureCountry,
+            Status = CountryPolicyStatus.Available,
+            CountryId = country.Id,
+          });
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.Scouter,
+            Status = CountryPolicyStatus.Boosted,
+            CountryId = country.Id,
+          });
+        }
+        else if (town.SubType == TownType.Commercial)
+        {
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.CommercialCountry,
+            Status = CountryPolicyStatus.Available,
+            CountryId = country.Id,
+          });
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.Storage,
+            Status = CountryPolicyStatus.Boosted,
+            CountryId = country.Id,
+          });
+        }
+        else if (town.SubType == TownType.Fortress)
+        {
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.WallCountry,
+            Status = CountryPolicyStatus.Available,
+            CountryId = country.Id,
+          });
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.AntiGang,
+            Status = CountryPolicyStatus.Boosted,
+            CountryId = country.Id,
+          });
+        }
+        foreach (var p in policies)
+        {
+          await repo.Country.AddPolicyAsync(p);
+        }
+
         maplog = new MapLog
         {
           Date = DateTime.Now,
