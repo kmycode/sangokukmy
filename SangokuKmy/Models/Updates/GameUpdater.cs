@@ -485,7 +485,7 @@ namespace SangokuKmy.Models.Updates
           await repo.SaveChangesAsync();
         }
 
-        // 武将に応じた政策
+        // 政策に応じて毎ターン任意の政策ポイントを支給、その他特殊効果
         {
           foreach (var country in countryData)
           {
@@ -503,6 +503,36 @@ namespace SangokuKmy.Models.Updates
             if (availablePolicies.Contains(CountryPolicyType.PopularityCountry))
             {
               country.Country.PolicyPoint += country.Characters.Count(c => c.GetCharacterType() == CharacterType.Popularity) * 8;
+            }
+
+            var capital = country.Towns.FirstOrDefault(t => country.Country.CapitalTownId == t.Id);
+            if (availablePolicies.Contains(CountryPolicyType.GunKen))
+            {
+              country.Country.PolicyPoint += country.Towns.Count(t => t.Type == TownType.Large) * 5;
+            }
+            if (availablePolicies.Contains(CountryPolicyType.AgricultureCountry))
+            {
+              country.Country.PolicyPoint += country.Towns.Count(t => t.Type == TownType.Agriculture) * 3;
+              if (capital?.SubType == TownType.Agriculture)
+              {
+                country.Country.PolicyPoint += 3;
+              }
+            }
+            if (availablePolicies.Contains(CountryPolicyType.CommercialCountry))
+            {
+              country.Country.PolicyPoint += country.Towns.Count(t => t.Type == TownType.Commercial) * 3;
+              if (capital?.SubType == TownType.Commercial)
+              {
+                country.Country.PolicyPoint += 3;
+              }
+            }
+            if (availablePolicies.Contains(CountryPolicyType.WallCountry))
+            {
+              country.Country.PolicyPoint += country.Towns.Count(t => t.Type == TownType.Fortress) * 3;
+              if (capital?.SubType == TownType.Fortress)
+              {
+                country.Country.PolicyPoint += 3;
+              }
             }
 
             if (country.Country.PolicyPoint != oldPoint)

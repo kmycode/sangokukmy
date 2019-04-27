@@ -151,6 +151,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 城塞国家
     /// </summary>
     WallCountry = 19,
+
+    /// <summary>
+    /// 郡県制
+    /// </summary>
+    GunKen = 20,
   }
 
   public class CountryPolicyTypeInfo
@@ -283,6 +288,33 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "仁官国家",
         BasePoint = 2000,
         SubjectAppear = list => list.Contains(CountryPolicyType.IntellectCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.GunKen,
+        Name = "郡県制",
+        BasePoint = 2000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.AgricultureCountry,
+        Name = "農業国家",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.GunKen),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.CommercialCountry,
+        Name = "商業国家",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.GunKen),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.WallCountry,
+        Name = "城塞国家",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.GunKen),
       },
     };
 

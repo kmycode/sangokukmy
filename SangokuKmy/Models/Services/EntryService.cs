@@ -146,6 +146,7 @@ namespace SangokuKmy.Models.Services
         await repo.Country.AddAsync(country);
 
         // 大都市に変更
+        town.SubType = town.Type;
         MapService.UpdateTownType(town, TownType.Large);
 
         await repo.SaveChangesAsync();
