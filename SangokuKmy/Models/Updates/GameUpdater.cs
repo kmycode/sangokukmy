@@ -495,7 +495,7 @@ namespace SangokuKmy.Models.Updates
             // 政策開発
             country.Country.PolicyPoint += 5;
             if (system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 &&
-                country.Characters.Count() -
+                country.Characters.Count(c => c.AiType == CharacterAiType.Human) -
                 reinforcements.Count(r => r.Status == ReinforcementStatus.Active && r.CharacterCountryId != country.Country.Id) +
                 reinforcements.Count(r => r.Status == ReinforcementStatus.Active && r.CharacterCountryId == country.Country.Id) <= 2)
             {
@@ -505,15 +505,15 @@ namespace SangokuKmy.Models.Updates
             var availablePolicies = country.Policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type);
             if (availablePolicies.Contains(CountryPolicyType.StrongCountry))
             {
-              country.Country.PolicyPoint += country.Characters.Count(c => c.GetCharacterType() == CharacterType.Strong) * 2;
+              country.Country.PolicyPoint += country.Characters.Count(c => c.AiType == CharacterAiType.Human && c.GetCharacterType() == CharacterType.Strong) * 2;
             }
             if (availablePolicies.Contains(CountryPolicyType.IntellectCountry))
             {
-              country.Country.PolicyPoint += country.Characters.Count(c => c.GetCharacterType() == CharacterType.Intellect) * 4;
+              country.Country.PolicyPoint += country.Characters.Count(c => c.AiType == CharacterAiType.Human && c.GetCharacterType() == CharacterType.Intellect) * 4;
             }
             if (availablePolicies.Contains(CountryPolicyType.PopularityCountry))
             {
-              country.Country.PolicyPoint += country.Characters.Count(c => c.GetCharacterType() == CharacterType.Popularity) * 8;
+              country.Country.PolicyPoint += country.Characters.Count(c => c.AiType == CharacterAiType.Human && c.GetCharacterType() == CharacterType.Popularity) * 8;
             }
 
             var capital = country.Towns.FirstOrDefault(t => country.Country.CapitalTownId == t.Id);
