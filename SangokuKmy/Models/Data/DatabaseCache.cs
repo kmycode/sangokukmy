@@ -31,6 +31,14 @@ namespace SangokuKmy.Models.Data
     }
 
     /// <summary>
+    /// キャッシュをクリアする
+    /// </summary>
+    public void Clear()
+    {
+      this._items = new List<T>();
+    }
+
+    /// <summary>
     /// キャッシュから要素を削除する
     /// </summary>
     /// <returns>削除した要素</returns>

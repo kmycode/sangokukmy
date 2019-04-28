@@ -139,7 +139,7 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         await this.container.RemoveAllRowsAsync(typeof(AuthenticationData));
-        await this.Cache.UpdateAsync(this.container.Context.AuthenticationData);
+        await this.Cache.Clear();
       }
       catch (Exception ex)
       {
