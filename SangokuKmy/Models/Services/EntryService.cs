@@ -217,6 +217,7 @@ namespace SangokuKmy.Models.Services
             Status = CountryPolicyStatus.Boosted,
             CountryId = country.Id,
           });
+          country.PolicyPoint += 500;
         }
         foreach (var p in policies)
         {
