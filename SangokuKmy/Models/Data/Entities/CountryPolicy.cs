@@ -31,6 +31,26 @@ namespace SangokuKmy.Models.Data.Entities
       get => (short)this.Type;
       set => this.Type = (CountryPolicyType)value;
     }
+
+    [Column("status")]
+    [JsonIgnore]
+    public CountryPolicyStatus Status { get; set; }
+
+    [NotMapped]
+    [JsonProperty("status")]
+    public short ApiStatus
+    {
+      get => (short)this.Status;
+      set => this.Status = (CountryPolicyStatus)value;
+    }
+  }
+
+  public enum CountryPolicyStatus : short
+  {
+    Unadopted = 0,
+    Available = 1,
+    Boosting = 2,
+    Boosted = 3,
   }
 
   public enum CountryPolicyType : short
@@ -96,6 +116,61 @@ namespace SangokuKmy.Models.Data.Entities
     /// 国庫拡張3
     /// </summary>
     BloodVesselsStorage = 12,
+
+    /// <summary>
+    /// 賊の殲滅
+    /// </summary>
+    KillGang = 13,
+
+    /// <summary>
+    /// 武官国家
+    /// </summary>
+    StrongCountry = 14,
+
+    /// <summary>
+    /// 文官国家
+    /// </summary>
+    IntellectCountry = 15,
+
+    /// <summary>
+    /// 人情国家
+    /// </summary>
+    PopularityCountry = 16,
+
+    /// <summary>
+    /// 農業国家
+    /// </summary>
+    AgricultureCountry = 17,
+
+    /// <summary>
+    /// 商業国家
+    /// </summary>
+    CommercialCountry = 18,
+
+    /// <summary>
+    /// 城塞国家
+    /// </summary>
+    WallCountry = 19,
+
+    /// <summary>
+    /// 郡県制
+    /// </summary>
+    GunKen = 20,
+
+    /// <summary>
+    /// 攻防の礎
+    /// </summary>
+    AttackDefend = 21,
+
+    /// <summary>
+    /// 土塁
+    /// </summary>
+    Earthwork = 22,
+
+    /// <summary>
+    /// 石城
+    /// </summary>
+    StoneCastle = 23,
   }
 
   public class CountryPolicyTypeInfo
@@ -104,9 +179,22 @@ namespace SangokuKmy.Models.Data.Entities
 
     public string Name { get; set; }
 
-    public int RequestedPoint { get; set; }
+    public int BasePoint { get; set; }
 
     public Func<IEnumerable<CountryPolicyType>, bool> SubjectAppear { get; set; }
+
+    public int GetRequestedPoint(CountryPolicyStatus status)
+    {
+      switch (status)
+      {
+        case CountryPolicyStatus.Available:
+          return 0;
+        case CountryPolicyStatus.Boosted:
+          return this.BasePoint / 2;
+        default:
+          return this.BasePoint;
+      }
+    }
   }
 
   public static class CountryPolicyTypeInfoes
@@ -117,76 +205,152 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.Storage,
         Name = "貯蔵",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Scouter,
         Name = "密偵",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.SoldierDevelopment,
         Name = "兵種開発",
-        RequestedPoint = 500_0000,
+        BasePoint = 500_0000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.HumanDevelopment,
         Name = "人材開発",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Economy,
         Name = "経済評論",
-        RequestedPoint = 2000,
+        BasePoint = 2000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.SaveWall,
         Name = "災害対策",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.AntiGang,
         Name = "賊の監視",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.BattleContinuous,
         Name = "連戦戦術",
-        RequestedPoint = 500_0000,
+        BasePoint = 500_0000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.BattleRush,
         Name = "突撃戦術",
-        RequestedPoint = 500_0000,
+        BasePoint = 500_0000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.UndergroundStorage,
         Name = "地下貯蔵",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
         SubjectAppear = list => list.Contains(CountryPolicyType.Storage),
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.StomachStorage,
         Name = "胃の中",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
         SubjectAppear = list => list.Contains(CountryPolicyType.UndergroundStorage),
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.BloodVesselsStorage,
         Name = "血管の中",
-        RequestedPoint = 4000,
+        BasePoint = 4000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StomachStorage),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.KillGang,
+        Name = "賊の殲滅",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.AttackDefend,
+        Name = "攻防の礎",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Earthwork,
+        Name = "土塁",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AttackDefend) && list.Contains(CountryPolicyType.HumanDevelopment),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StoneCastle,
+        Name = "石城",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Earthwork) && list.Contains(CountryPolicyType.StrongCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StrongCountry,
+        Name = "武官国家",
+        BasePoint = 1500,
+        SubjectAppear = list => list.Contains(CountryPolicyType.HumanDevelopment),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.IntellectCountry,
+        Name = "文官国家",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.HumanDevelopment),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.PopularityCountry,
+        Name = "仁官国家",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.IntellectCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.GunKen,
+        Name = "郡県制",
+        BasePoint = 2000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.AgricultureCountry,
+        Name = "農業国家",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.GunKen),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.CommercialCountry,
+        Name = "商業国家",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.GunKen),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.WallCountry,
+        Name = "城塞国家",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.GunKen),
       },
     };
 

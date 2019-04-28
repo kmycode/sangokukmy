@@ -17,12 +17,18 @@ namespace SangokuKmy.Models.Updates
     private CharacterCommand command;
     private IEnumerable<CountryWar> wars;
     private IEnumerable<Town> towns;
+    private IEnumerable<Country> countries;
+    private IEnumerable<Country> availableCountries = null;
 
     protected Town BorderTown => this.data.BorderTown;
 
     protected virtual bool CanSoldierForce => false;
 
-    protected virtual bool IsGoWall => false;
+    protected virtual AttackMode AttackType => AttackMode.Normal;
+
+    protected virtual bool IsWarAll => false;
+
+    protected virtual bool IsWarAllAvoidLowCharacters => false;
 
     protected virtual DefendLevel NeedDefendLevel => DefendLevel.NeedMyDefend;
 
@@ -172,7 +178,7 @@ namespace SangokuKmy.Models.Updates
           var capital = this.towns.FirstOrDefault(t => t.Id == this.Country.CapitalTownId);
           if (capital == null || capital.CountryId != this.Character.CountryId || (availableWars.Any() || nearReadyWars.Any()))
           {
-            if (capital.People < 4000)
+            if (capital != null && (capital.People < 4000 || capital.CountryId != this.Character.CountryId))
             {
               var main = this.towns
                 .Where(t => t.CountryId == this.Character.CountryId)
@@ -298,6 +304,21 @@ namespace SangokuKmy.Models.Updates
     {
       this.wars = wars;
       this.towns = await repo.Town.GetAllAsync();
+      this.countries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown);
+
+      if (this.IsWarAllAvoidLowCharacters)
+      {
+        var targets = new List<Country>();
+        foreach (var c in this.countries.Where(cc => cc.AiType == Data.Entities.CountryAiType.Human))
+        {
+          var count = await repo.Country.CountCharactersAsync(c.Id);
+          if (count >= Config.CountryJoinMaxOnLimited - 1)
+          {
+            targets.Add(c);
+          }
+        }
+        this.availableCountries = targets;
+      }
 
       this.command = new CharacterCommand
       {
@@ -321,36 +342,57 @@ namespace SangokuKmy.Models.Updates
 
     private IEnumerable<uint> GetWaringCountries()
     {
-      var availableWars = wars
-        .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
-      if (availableWars.Any())
+      if (!this.IsWarAll)
       {
-        var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
-        return targetCountryIds;
+        var availableWars = this.wars
+          .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
+        if (availableWars.Any())
+        {
+          var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
+          return targetCountryIds;
+        }
+      }
+      else
+      {
+        return (this.availableCountries ?? this.countries)
+          .Where(c => c.IntEstablished + Config.CountryBattleStopDuring <= this.GameDateTime.ToInt())
+          .Select(c => c.Id);
       }
       return Enumerable.Empty<uint>();
     }
 
     private IEnumerable<uint> GetNearReadyForWarCountries()
     {
-      var availableWars = wars
-        .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() + 12 && w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting));
-      if (availableWars.Any())
+      if (!this.IsWarAll)
       {
-        var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
-        return targetCountryIds;
+        var availableWars = this.wars
+          .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() + 12 && w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting));
+        if (availableWars.Any())
+        {
+          var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
+          return targetCountryIds;
+        }
+      }
+      else
+      {
+        return (this.availableCountries ?? this.countries)
+          .Where(c => c.IntEstablished + Config.CountryBattleStopDuring > this.GameDateTime.ToInt())
+          .Select(c => c.Id);
       }
       return Enumerable.Empty<uint>();
     }
 
     private IEnumerable<uint> GetReadyForWarCountries()
     {
-      var availableWars = wars
-        .Where(w => w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting));
-      if (availableWars.Any())
+      if (!this.IsWarAll)
       {
-        var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
-        return targetCountryIds;
+        var availableWars = wars
+          .Where(w => w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting));
+        if (availableWars.Any())
+        {
+          var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
+          return targetCountryIds;
+        }
       }
       return Enumerable.Empty<uint>();
     }
@@ -364,13 +406,18 @@ namespace SangokuKmy.Models.Updates
 
     private Town GetTownForSoldiers()
     {
-      Func<TownBase, bool> predicate = t => t.CountryId == this.Character.CountryId && t.People >= this.Character.Leadership * 6 && t.Security > this.Character.Leadership / 9;
-      var arounds = towns.GetAroundTowns(this.Town).ToList();
+      bool predicate(TownBase t) => t.CountryId == this.Character.CountryId && t.People >= this.Character.Leadership * 6 && t.Security > this.Character.Leadership / 9;
+      var arounds = this.towns.GetAroundTowns(this.Town).ToList();
       arounds.Add(this.Town);
 
       if (this.CanSoldierForce && this.Town.CountryId == this.Character.CountryId)
       {
         return this.Town;
+      }
+
+      if (this.CanSoldierForce && arounds.Any(t => t.CountryId == this.Character.CountryId))
+      {
+        return (Town)arounds.First(t => t.CountryId == this.Character.CountryId);
       }
 
       if (predicate(this.Town) && this.Town.Technology > 300)
@@ -400,7 +447,7 @@ namespace SangokuKmy.Models.Updates
         .OrderByDescending(t => t.Technology);
       if (myTowns.Any())
       {
-        return (Town)myTowns.First();
+        return myTowns.First();
       }
       else
       {
@@ -412,12 +459,20 @@ namespace SangokuKmy.Models.Updates
     {
       if (this.IsNeedSoldiers())
       {
-        var town = this.GetTownForSoldiers();
-
-        var isMove = await this.MoveToTownOrNextToTownAsync(repo, this.Town, town, this.command);
-        if (isMove)
+        if (!this.CanSoldierForce || this.Town.CountryId != this.Character.CountryId)
         {
-          return true;
+          var town = this.GetTownForSoldiers();
+          var isMove = await this.MoveToTownOrNextToTownAsync(repo, this.Town, town, this.command);
+          if (isMove)
+          {
+            return true;
+          }
+        }
+        else
+        {
+          this.Town.People = (int)Math.Max(this.Town.People, this.Character.Leadership * Config.SoldierPeopleCost + 500);
+          this.Town.Security = Math.Max(this.Town.Security, (short)(this.Character.Leadership / 10 + 1));
+          await repo.SaveChangesAsync();
         }
 
         this.command.Parameters.Add(new CharacterCommandParameter
@@ -472,63 +527,73 @@ namespace SangokuKmy.Models.Updates
           return true;
         }
       }
-
-      if (!this.IsGoWall)
+      
+      if (this.BorderTown != null)
       {
-        // 普通
-        if (this.BorderTown != null)
+        if (this.data.BorderTown.Id != this.Town.Id)
         {
-          if (this.data.BorderTown.Id != this.Town.Id)
-          {
-            var arounds = this.towns.GetAroundTowns(this.Town);
-            if (this.data.NextBattleTown != null && arounds.Any(t => t.Id == this.data.NextBattleTown.Id))
-            {
-              targetTown = this.data.NextBattleTown;
-            }
-            else
-            {
-              if (await this.InputMoveToBorderTownAsync(repo))
-              {
-                return true;
-              }
-            }
-          }
-          else
+          var arounds = this.towns.GetAroundTowns(this.Town);
+          if (this.data.NextBattleTown != null && arounds.Any(t => t.Id == this.data.NextBattleTown.Id))
           {
             targetTown = this.data.NextBattleTown;
           }
-        }
-      }
-      else
-      {
-        // 城壁優先
-        var activeWars = this.GetWaringCountries();
-        var arounds = this.towns.GetAroundTowns(this.Town);
-        var order = arounds.Where(t => activeWars.Any(w => w == t.CountryId));
-        if (order.Any())
-        {
-          var min = 32767;
-          foreach (var t in order.OrderBy(t => t.Wall))
+          else
           {
-            var d = await repo.Town.GetDefendersAsync(t.Id);
-            if (!d.Any())
+            if (await this.InputMoveToBorderTownAsync(repo))
             {
-              targetTown = (Town)t;
-              break;
-            }
-
-            if (d.Count < min)
-            {
-              min = d.Count;
-              targetTown = (Town)t;
+              return true;
             }
           }
         }
         else
         {
-          if (await this.InputMoveToBorderTownAsync(repo))
+          targetTown = this.data.NextBattleTown;
+        }
+      }
+      if (targetTown != null && this.AttackType != AttackMode.Normal)
+      {
+        // 城壁優先
+        var defenders = await repo.Town.GetDefendersAsync(targetTown.Id);
+        if ((this.AttackType == AttackMode.KillDefenders && !defenders.Any()) || defenders.Any())
+        {
+          var activeWars = this.GetWaringCountries();
+          var arounds = this.towns.GetAroundTowns(this.Town);
+          var targets = arounds.Where(t => activeWars.Any(w => w == t.CountryId));
+          if (!targets.Any())
           {
-            return true;
+            targets = arounds.Where(t => t.CountryId == 0);
+          }
+
+          if (targets.Count() == 1)
+          {
+            targetTown = (Town)targets.First();
+          }
+          else if (targets.Any())
+          {
+            // LINQのOrderByが安定ソートであることが前提
+            var ds = await repo.Town.GetAllDefendersAsync();
+            var targetsData = targets
+              .GroupJoin(ds, t => t.Id, dss => dss.TownId, (t, dss) => new { Town = t, Defenders = dss, })
+              .OrderBy(t => t.Town.Id == targetTown.Id ? 0 : 1);
+            if (this.AttackType == AttackMode.KillDefenders)
+            {
+              targetTown = (Town)targetsData.OrderByDescending(t => t.Defenders.Count()).First().Town;
+            }
+            else if (this.AttackType == AttackMode.BreakWall)
+            {
+              targetTown = (Town)targetsData.OrderByDescending(t => t.Town.Wall).OrderBy(t => t.Defenders.Count()).First().Town;
+            }
+            else if (this.AttackType == AttackMode.GetTown)
+            {
+              targetTown = (Town)targetsData.OrderBy(t => t.Town.Wall).OrderBy(t => t.Defenders.Count()).First().Town;
+            }
+          }
+          else
+          {
+            if (await this.InputMoveToBorderTownAsync(repo))
+            {
+              return true;
+            }
           }
         }
       }
@@ -878,6 +943,14 @@ namespace SangokuKmy.Models.Updates
       NeedThreeDefend,
       NeedTwoDefend,
       NeedAnyDefends,
+    }
+
+    protected enum AttackMode
+    {
+      Normal,
+      KillDefenders,
+      BreakWall,
+      GetTown,
     }
 
     private class AiCountryData

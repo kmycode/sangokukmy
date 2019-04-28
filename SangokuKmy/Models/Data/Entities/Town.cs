@@ -33,6 +33,24 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
+    /// サブ特化
+    /// </summary>
+    [Column("sub_type")]
+    [JsonIgnore]
+    public TownType SubType { get; set; }
+
+    /// <summary>
+    /// サブ特化（JSON出力用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("subType")]
+    public byte ApiSubType
+    {
+      get => (byte)this.SubType;
+      set => this.SubType = (TownType)value;
+    }
+
+    /// <summary>
     /// 支配国のID
     /// </summary>
     [Column("country_id")]
@@ -295,6 +313,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 蛮族の家
     /// </summary>
     TerroristHouse = 15,
+
+    /// <summary>
+    /// 宮殿
+    /// </summary>
+    Palace = 16,
   }
 
   public static class TownExtensions

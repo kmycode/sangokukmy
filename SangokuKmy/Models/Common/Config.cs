@@ -19,6 +19,10 @@ namespace SangokuKmy.Models.Common
       public static string UploadedIconDirectory { get; set; }
 
       public static string HistoricalUploadedIconDirectory { get; set; }
+
+      public static bool IsAllowMonarchReinforcement { get; set; } = false;
+
+      public static bool IsThief { get; set; } = false;
     }
 
     public static int UpdateTime { get; } = 600;

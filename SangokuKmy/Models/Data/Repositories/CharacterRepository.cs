@@ -410,6 +410,55 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task AddFormationAsync(Formation formation)
+    {
+      try
+      {
+        await this.container.Context.Formations.AddAsync(formation);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public async Task<Formation> GetFormationAsync(uint characterId, FormationType type)
+    {
+      try
+      {
+        var old = await this.container.Context.Formations.FirstOrDefaultAsync(f => f.CharacterId == characterId && f.Type == type);
+        if (old == null)
+        {
+          old = new Formation
+          {
+            CharacterId = characterId,
+            Type = type,
+            Level = 1,
+          };
+          await this.container.Context.Formations.AddAsync(old);
+        }
+        return old;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<IReadOnlyList<Formation>> GetCharacterFormationsAsync(uint characterId)
+    {
+      try
+      {
+        return await this.container.Context.Formations.Where(f => f.CharacterId == characterId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     /// <summary>
     /// 国を削除する。指定した国に仕官した武将は、全員無所属になる
     /// </summary>
@@ -444,6 +493,7 @@ namespace SangokuKmy.Models.Data.Repositories
         await this.container.RemoveAllRowsAsync(typeof(CharacterLog));
         await this.container.RemoveAllRowsAsync(typeof(CharacterUpdateLog));
         await this.container.RemoveAllRowsAsync(typeof(LogCharacterCache));
+        await this.container.RemoveAllRowsAsync(typeof(Formation));
       }
       catch (Exception ex)
       {

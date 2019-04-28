@@ -6,6 +6,10 @@ namespace SangokuKmy.Models.Updates
 {
   public class ThiefBattlerAiCharacter : TerroristBattlerAiCharacter
   {
+    protected override bool IsWarAll => true;
+
+    protected override bool IsWarAllAvoidLowCharacters => true;
+
     protected override SoldierType FindSoldierType()
     {
       if (this.Town.Technology >= 700)
@@ -33,6 +37,15 @@ namespace SangokuKmy.Models.Updates
       this.Character.Name = "蛮族_武将";
       this.Character.Strong = (short)(this.Character.Strong * 0.79f);
       this.Character.Leadership = 80;
+    }
+  }
+
+  public class ThiefWallBattlerAiCharacter : ThiefBattlerAiCharacter
+  {
+    protected override AttackMode AttackType => AttackMode.GetTown;
+
+    public ThiefWallBattlerAiCharacter(Character character) : base(character)
+    {
     }
   }
 

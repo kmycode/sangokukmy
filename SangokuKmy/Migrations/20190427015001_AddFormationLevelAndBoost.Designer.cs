@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20190427015001_AddFormationLevelAndBoost")]
+    partial class AddFormationLevelAndBoost
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1258,9 +1260,6 @@ namespace SangokuKmy.Migrations
                     b.Property<short>("Security")
                         .HasColumnName("security");
 
-                    b.Property<byte>("SubType")
-                        .HasColumnName("sub_type");
-
                     b.Property<int>("Technology")
                         .HasColumnName("technology");
 
@@ -1429,9 +1428,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<short>("Security")
                         .HasColumnName("security");
-
-                    b.Property<byte>("SubType")
-                        .HasColumnName("sub_type");
 
                     b.Property<int>("Technology")
                         .HasColumnName("technology");

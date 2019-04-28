@@ -100,6 +100,22 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("characterSoldierType")]
     public CharacterSoldierType CharacterSoldierType { get; set; }
 
+    [Column("formation_type")]
+    [JsonIgnore]
+    public FormationType FormationType { get; set; }
+
+    [NotMapped]
+    [JsonProperty("formationType")]
+    public short ApiFormationType
+    {
+      get => (short)this.FormationType;
+      set => this.FormationType = (FormationType)value;
+    }
+
+    [Column("formation_level")]
+    [JsonProperty("formationLevel")]
+    public short FormationLevel { get; set; }
+
     /// <summary>
     /// 兵士数
     /// </summary>
@@ -117,7 +133,7 @@ namespace SangokuKmy.Models.Data.Entities
 
   public static class LogCharacterCacheExtensions
   {
-    public static LogCharacterCache ToLogCache(this Character c, CharacterIcon icon)
+    public static LogCharacterCache ToLogCache(this Character c, CharacterIcon icon, Formation formation)
     {
       return new LogCharacterCache
       {
@@ -132,6 +148,8 @@ namespace SangokuKmy.Models.Data.Entities
         SoldierType = c.SoldierType,
         CharacterSoldierTypeId = c.CharacterSoldierTypeId,
         SoldierNumber = c.SoldierNumber,
+        FormationType = c.FormationType,
+        FormationLevel = formation.Level,
         IconId = icon.Id,
       };
     }

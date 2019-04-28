@@ -76,6 +76,10 @@ namespace SangokuKmy.Models.Updates
       {
         ai = new ThiefBattlerAiCharacter(chara);
       }
+      else if (chara.AiType == CharacterAiType.ThiefWallBattler)
+      {
+        ai = new ThiefWallBattlerAiCharacter(chara);
+      }
       else if (chara.AiType == CharacterAiType.ThiefPatroller)
       {
         ai = new ThiefPatrollerAiCharacter(chara);

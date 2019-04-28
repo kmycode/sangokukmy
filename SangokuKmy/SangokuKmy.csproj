@@ -17,7 +17,6 @@
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\images\" />
     <Folder Include="wwwroot\images\character-default-icons\" />
-    <Folder Include="Common\" />
     <Folder Include="Streamings\" />
     <Folder Include="Models\Data\Entities\Caches\" />
     <Folder Include="Models\Updates\" />

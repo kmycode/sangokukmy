@@ -152,6 +152,24 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
+    /// 陣形
+    /// </summary>
+    [Column("formation_type")]
+    [JsonIgnore]
+    public FormationType FormationType { get; set; }
+
+    /// <summary>
+    /// 陣形（API出力用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("formationType")]
+    public short ApiFormationType
+    {
+      get => (short)this.FormationType;
+      set => this.FormationType = (FormationType)value;
+    }
+
+    /// <summary>
     /// カスタム兵種のID
     /// </summary>
     [Column("character_soldier_type_id")]
@@ -264,6 +282,10 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("hasRemoved")]
     public bool HasRemoved { get; set; }
 
+    [Column("formation_point")]
+    [JsonProperty("formationPoint")]
+    public int FormationPoint { get; set; }
+
     #endregion
 
     public void AddStrongEx(short ex)
@@ -306,6 +328,19 @@ namespace SangokuKmy.Models.Data.Entities
       }
     }
 
+    public CharacterType GetCharacterType()
+    {
+      if (this.Strong > this.Intellect && this.Strong > this.Popularity)
+      {
+        return CharacterType.Strong;
+      }
+      if (this.Intellect > this.Popularity)
+      {
+        return CharacterType.Intellect;
+      }
+      return CharacterType.Popularity;
+    }
+
     /// <summary>
     /// パスワードを設定する。平文のパラメータを指定し、実際はハッシュに変換されたパスワードが保存される
     /// </summary>
@@ -339,6 +374,24 @@ namespace SangokuKmy.Models.Data.Entities
 
       return hashText;
     }
+  }
+
+  public enum CharacterType
+  {
+    /// <summary>
+    /// 武官
+    /// </summary>
+    Strong,
+
+    /// <summary>
+    /// 文官
+    /// </summary>
+    Intellect,
+
+    /// <summary>
+    /// 仁官
+    /// </summary>
+    Popularity,
   }
 
   public enum SoldierType : short
@@ -490,6 +543,7 @@ namespace SangokuKmy.Models.Data.Entities
     TerroristMainPatroller = 13,
     ThiefBattler = 14,
     ThiefPatroller = 15,
+    ThiefWallBattler = 16,
   }
 
   public static class CharacterAiTypeExtensions

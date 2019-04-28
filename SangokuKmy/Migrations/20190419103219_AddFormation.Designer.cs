@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20190419103219_AddFormation")]
+    partial class AddFormation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -572,9 +574,6 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
 
-                    b.Property<short>("Status")
-                        .HasColumnName("status");
-
                     b.Property<short>("Type")
                         .HasColumnName("type");
 
@@ -818,12 +817,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<uint>("CharacterId")
                         .HasColumnName("character_id");
-
-                    b.Property<int>("Experience")
-                        .HasColumnName("experience");
-
-                    b.Property<short>("Level")
-                        .HasColumnName("level");
 
                     b.Property<short>("Type")
                         .HasColumnName("type");
@@ -1069,9 +1062,6 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
 
-                    b.Property<short>("FormationLevel")
-                        .HasColumnName("formation_level");
-
                     b.Property<short>("FormationType")
                         .HasColumnName("formation_type");
 
@@ -1258,9 +1248,6 @@ namespace SangokuKmy.Migrations
                     b.Property<short>("Security")
                         .HasColumnName("security");
 
-                    b.Property<byte>("SubType")
-                        .HasColumnName("sub_type");
-
                     b.Property<int>("Technology")
                         .HasColumnName("technology");
 
@@ -1429,9 +1416,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<short>("Security")
                         .HasColumnName("security");
-
-                    b.Property<byte>("SubType")
-                        .HasColumnName("sub_type");
 
                     b.Property<int>("Technology")
                         .HasColumnName("technology");

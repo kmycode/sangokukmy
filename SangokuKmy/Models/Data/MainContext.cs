@@ -71,6 +71,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<CharacterSoldierType> CharacterSoldierTypes { get; set; }
 
     /// <summary>
+    /// 陣形
+    /// </summary>
+    public DbSet<Formation> Formations { get; set; }
+
+    /// <summary>
     /// 登録時のホスト
     /// </summary>
     public DbSet<EntryHost> EntryHosts { get; set; }
