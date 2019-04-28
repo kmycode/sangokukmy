@@ -223,25 +223,25 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.HumanDevelopment,
         Name = "人材開発",
-        BasePoint = 4000,
+        BasePoint = 3000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Economy,
         Name = "経済評論",
-        BasePoint = 2000,
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.SaveWall,
         Name = "災害対策",
-        BasePoint = 4000,
+        BasePoint = 3000,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.AntiGang,
         Name = "賊の監視",
-        BasePoint = 4000,
+        BasePoint = 3000,
       },
       new CountryPolicyTypeInfo
       {
@@ -259,21 +259,21 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.UndergroundStorage,
         Name = "地下貯蔵",
-        BasePoint = 4000,
+        BasePoint = 2000,
         SubjectAppear = list => list.Contains(CountryPolicyType.Storage),
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.StomachStorage,
         Name = "胃の中",
-        BasePoint = 4000,
+        BasePoint = 2000,
         SubjectAppear = list => list.Contains(CountryPolicyType.UndergroundStorage),
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.BloodVesselsStorage,
         Name = "血管の中",
-        BasePoint = 4000,
+        BasePoint = 3000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StomachStorage),
       },
       new CountryPolicyTypeInfo
