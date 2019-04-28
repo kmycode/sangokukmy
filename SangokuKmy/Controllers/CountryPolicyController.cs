@@ -93,7 +93,7 @@ namespace SangokuKmy.Controllers
           EventType = EventType.Policy,
           ApiGameDateTime = system.GameDateTime,
           Date = DateTime.Now,
-          IsImportant = true,
+          IsImportant = false,
           Message = $"<country>{country.Name}</country> は、政策 {info.Data.Name} を採用しました",
         };
         await repo.MapLog.AddAsync(maplog);
