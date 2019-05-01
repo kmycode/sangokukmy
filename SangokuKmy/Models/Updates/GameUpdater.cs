@@ -732,12 +732,12 @@ namespace SangokuKmy.Models.Updates
 
         // 異民族
         var countryCount = allCountries.Count(c => !c.HasOverthrown);
-        if (system.TerroristCount <= 0 && !system.IsWaitingReset &&
-              ((system.GameDateTime.Year >= 180 && RandomService.Next(0, 130) == 0) ||
-                system.GameDateTime.Year >= 220 ||
-                countryCount == 2 ||
-               (countryCount == 3 && RandomService.Next(0, 140) == 0) ||
-               (countryCount == 4 && RandomService.Next(0, 280) == 0)))
+        if (system.TerroristCount <= 0 && !system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 &&
+            ((system.GameDateTime.Year >= 180 && RandomService.Next(0, 130) == 0) ||
+              system.GameDateTime.Year >= 220 ||
+              countryCount == 2 ||
+             (countryCount == 3 && RandomService.Next(0, 140) == 0) ||
+             (countryCount == 4 && RandomService.Next(0, 280) == 0)))
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
