@@ -79,7 +79,7 @@ namespace SangokuKmy.Models.Services
         IsAvailable = true,
         IsMain = true,
         Type = CharacterIconType.Default,
-        FileName = "0.gif",
+        FileName = RandomService.Next(0, 99) + ".gif",
       };
       await repo.Character.AddCharacterIconAsync(icon);
     }
