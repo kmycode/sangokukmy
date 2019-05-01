@@ -736,8 +736,8 @@ namespace SangokuKmy.Models.Updates
               ((system.GameDateTime.Year >= 180 && RandomService.Next(0, 130) == 0) ||
                 system.GameDateTime.Year >= 220 ||
                 countryCount == 2 ||
-               (countryCount == 3 && RandomService.Next(0, 48) == 0) ||
-               (countryCount == 4 && RandomService.Next(0, 240) == 0)))
+               (countryCount == 3 && RandomService.Next(0, 140) == 0) ||
+               (countryCount == 4 && RandomService.Next(0, 280) == 0)))
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)

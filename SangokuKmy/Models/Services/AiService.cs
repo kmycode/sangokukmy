@@ -228,26 +228,25 @@ namespace SangokuKmy.Models.Services
       var charas = new List<CharacterAiType>
       {
         CharacterAiType.TerroristBattler,
-        CharacterAiType.TerroristCivilOfficial,
         CharacterAiType.TerroristPatroller,
       };
       if (countryCount <= 4)
       {
-        charas.Add(CharacterAiType.TerroristBattler);
+        charas.Add(CharacterAiType.TerroristCivilOfficial);
       }
       if (countryCount <= 3)
       {
         charas.Add(CharacterAiType.TerroristWallBattler);
-        charas.Add(CharacterAiType.FarmerPatroller);
+        charas.Add(CharacterAiType.TerroristPatroller);
       }
       if (countryCount <= 2)
       {
-        charas.Add(CharacterAiType.TerroristRyofu);
+        charas.Add(CharacterAiType.TerroristCivilOfficial);
       }
 
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
       var name = names[RandomService.Next(0, names.Length)];
-      if (RandomService.Next(0, 4) == 0)
+      if (RandomService.Next(0, 7) == 0)
       {
         name = "倭";
         charas.Add(CharacterAiType.TerroristRyofu);
