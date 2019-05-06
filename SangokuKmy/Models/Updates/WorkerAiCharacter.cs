@@ -220,18 +220,19 @@ namespace SangokuKmy.Models.Updates
       {
         if (availableWars.Any() || readyWars.Any())
         {
-          if (this.data.BorderTown != null && this.data.NextBattleTown == null)
+          async Task<Town> PickNextTownAsync(Town borderTown)
           {
-            var arounds = this.towns.GetAroundTowns(this.data.BorderTown).Where(t => mainWars.Contains(t.CountryId));
+            var arounds = this.towns.GetAroundTowns(borderTown).Where(t => mainWars.Contains(t.CountryId));
             if (arounds.Any())
             {
               // 前線都市が、目標都市への最短でないにしても、敵国と隣接している
-              var townData = new List<(TownBase Town, IEnumerable<Character> Defenders)>();
+              var townData = new List<(TownBase Town, IEnumerable<Character> Defenders, IEnumerable<Character> Stays)>();
               foreach (var town in arounds)
               {
                 townData.Add((
                   town,
-                  (await repo.Town.GetDefendersAsync(town.Id)).Select(d => d.Character)
+                  (await repo.Town.GetDefendersAsync(town.Id)).Select(d => d.Character),
+                  (await repo.Town.GetCharactersAsync(town.Id))
                 ));
               }
 
@@ -240,7 +241,7 @@ namespace SangokuKmy.Models.Updates
               {
                 //case BattleTargetOrder.Defenders:
                 default:
-                  target = townData.OrderByDescending(d => d.Defenders.Count()).First().Town;
+                  target = townData.OrderByDescending(d => d.Defenders.Count() * 2 + d.Stays.Count()).First().Town;
                   break;
                 case BattleTargetOrder.GetTown:
                   target = townData.GroupBy(d => d.Defenders.Count()).First().OrderBy(d => d.Town.Wall).First().Town;
@@ -250,7 +251,18 @@ namespace SangokuKmy.Models.Updates
                   break;
               }
 
-              this.data.NextBattleTown = (Town)target;
+              return (Town)target;
+            }
+
+            return null;
+          }
+
+          if (this.data.BorderTown != null && this.data.NextBattleTown == null)
+          {
+            var t = await PickNextTownAsync(this.data.BorderTown);
+            if (t != null)
+            {
+              this.data.NextBattleTown = t;
             }
             else
             {
@@ -269,12 +281,19 @@ namespace SangokuKmy.Models.Updates
             if (street != null && street.Count() > 1)
             {
               var s = street.ToArray();
-              for (var i = 0; i < s.Length; i++)
+              for (var i = 1; i < s.Length; i++)
               {
-                if (s[i].CountryId != this.Country.Id && i > 0)
+                if (s[i].CountryId != this.Country.Id)
                 {
                   this.data.BorderTown = s[i - 1];
                   this.data.NextBattleTown = s[i];
+
+                  var t = await PickNextTownAsync(this.data.BorderTown);
+                  if (t != null)
+                  {
+                    this.data.NextBattleTown = t;
+                  }
+
                   break;
                 }
               }
