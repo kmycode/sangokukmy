@@ -278,9 +278,6 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 5,
           BaseDefend = 3,
-          RushProbability = 12,
-          RushAttack = 18,
-          ContinuousProbability = 40,
           StrongEx = 1,
           PowerStrong = 1,
         },
@@ -296,9 +293,6 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 6,
           BaseDefend = 4,
-          RushProbability = 16,
-          RushAttack = 20,
-          ContinuousProbability = 60,
           StrongEx = 1,
           PowerStrong = 1,
         },
@@ -314,9 +308,6 @@ namespace SangokuKmy.Models.Data.Entities
         {
           IntellectAttack = 80,
           IntellectDefend = 40,
-          RushProbability = 9,
-          RushAttack = 16,
-          ContinuousProbability = 26,
           IntellectEx = 1,
           PowerStrong = 1,
         },
@@ -445,9 +436,6 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 3,
           BaseDefend = 2,
-          RushProbability = 12,
-          RushAttack = 12,
-          ContinuousProbability = 11,
           StrongEx = 1,
           PowerStrong = 1,
         },
@@ -462,9 +450,6 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 4,
           BaseDefend = 3,
-          RushProbability = 18,
-          RushAttack = 15,
-          ContinuousProbability = 27,
           StrongEx = 1,
           PowerStrong = 1,
         },
@@ -479,9 +464,6 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 6,
           BaseDefend = 4,
-          RushProbability = 24,
-          RushAttack = 22,
-          ContinuousProbability = 70,
           StrongEx = 1,
           PowerStrong = 1,
         },
