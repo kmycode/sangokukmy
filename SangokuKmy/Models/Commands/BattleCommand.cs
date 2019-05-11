@@ -304,7 +304,7 @@ namespace SangokuKmy.Models.Commands
         log.DefenderType = DefenderType.Wall;
         aiLog.TargetType = AiBattleTargetType.Wall;
 
-        var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type);
+        var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).GetAvailableTypes();
 
         targetCharacter.SoldierType = policies.Contains(CountryPolicyType.StoneCastle) ? SoldierType.Guard_Step4 :
                             policies.Contains(CountryPolicyType.Earthwork) ? SoldierType.Guard_Step3 :
@@ -323,6 +323,12 @@ namespace SangokuKmy.Models.Commands
 
         defenderCache = targetCharacter.ToLogCache(new CharacterIcon(), targetFormationData);
         isWall = true;
+
+        var myPolicies = (await repo.Country.GetPoliciesAsync(character.CountryId)).GetAvailableTypes();
+        if (myPolicies.Contains(CountryPolicyType.Shosha))
+        {
+          myAttackCorrection += 60;
+        }
       }
 
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");

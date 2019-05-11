@@ -518,6 +518,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     IntellectHeavyCavalry = 24,
 
+    /// <summary>
+    /// 義勇兵
+    /// </summary>
+    Military = 25,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,

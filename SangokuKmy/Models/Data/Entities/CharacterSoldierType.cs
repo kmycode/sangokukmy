@@ -540,6 +540,21 @@ namespace SangokuKmy.Models.Data.Entities
         Technology = 900,
         CanConscript = true,
       },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Military,
+        Name = "義勇兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 3,
+          BaseDefend = 2,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 2,
+        Technology = 200,
+        CanConscript = true,
+      },
     };
 
     public static Optional<CharacterSoldierTypePart> Get(SoldierType type)

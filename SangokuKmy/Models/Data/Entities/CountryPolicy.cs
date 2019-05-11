@@ -171,6 +171,51 @@ namespace SangokuKmy.Models.Data.Entities
     /// 石城
     /// </summary>
     StoneCastle = 23,
+
+    /// <summary>
+    /// 施設連携
+    /// </summary>
+    ConnectionBuildings = 24,
+
+    /// <summary>
+    /// 徴収
+    /// </summary>
+    Collection = 25,
+
+    /// <summary>
+    /// 壁に耳
+    /// </summary>
+    WallEar = 26,
+
+    /// <summary>
+    /// 増給
+    /// </summary>
+    AddSalary = 27,
+
+    /// <summary>
+    /// 復興支援
+    /// </summary>
+    HelpRepair = 28,
+
+    /// <summary>
+    /// 正義とは
+    /// </summary>
+    Justice = 29,
+
+    /// <summary>
+    /// げき
+    /// </summary>
+    JusticeMessage = 30,
+
+    /// <summary>
+    /// 攻城
+    /// </summary>
+    Siege = 31,
+
+    /// <summary>
+    /// 衝車常備
+    /// </summary>
+    Shosha = 32,
   }
 
   public class CountryPolicyTypeInfo
@@ -352,11 +397,82 @@ namespace SangokuKmy.Models.Data.Entities
         BasePoint = 3000,
         SubjectAppear = list => list.Contains(CountryPolicyType.GunKen),
       },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.ConnectionBuildings,
+        Name = "施設連携",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.StrongCountry) && list.Contains(CountryPolicyType.IntellectCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Collection,
+        Name = "徴収",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Economy) && list.Contains(CountryPolicyType.Storage),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.WallEar,
+        Name = "壁に耳",
+        BasePoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Collection) && list.Contains(CountryPolicyType.UndergroundStorage),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.AddSalary,
+        Name = "増給",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Economy) && list.Contains(CountryPolicyType.HumanDevelopment),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.HelpRepair,
+        Name = "復興支援",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.SaveWall),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Justice,
+        Name = "正義とは",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.KillGang),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.JusticeMessage,
+        Name = "檄",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Justice) && list.Contains(CountryPolicyType.StrongCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Siege,
+        Name = "攻城",
+        BasePoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AttackDefend) && list.Contains(CountryPolicyType.StrongCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Shosha,
+        Name = "衝車常備",
+        BasePoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Siege),
+      },
     };
 
     public static Optional<CountryPolicyTypeInfo> Get(CountryPolicyType type)
     {
       return infoes.FirstOrDefault(i => i.Type == type).ToOptional();
+    }
+  }
+
+  public static class CountryPolicyExtensions
+  {
+    public static IEnumerable<CountryPolicyType> GetAvailableTypes(this IEnumerable<CountryPolicy> policies)
+    {
+      return policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type);
     }
   }
 }

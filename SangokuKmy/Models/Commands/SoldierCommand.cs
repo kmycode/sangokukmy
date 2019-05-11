@@ -82,6 +82,16 @@ namespace SangokuKmy.Models.Commands
           }
         }
 
+        var moneyPerSoldier = soldierTypeData.Money;
+        if (isDefaultSoldierType && soldierType == SoldierType.Seiran)
+        {
+          var policies = await repo.Country.GetPoliciesAsync(character.CountryId);
+          if (policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.Siege))
+          {
+            moneyPerSoldier -= 50;
+          }
+        }
+
         var soldierNumber = soldierNumberOptional.Data.NumberValue;
         if (town.CountryId != character.CountryId)
         {
@@ -91,7 +101,7 @@ namespace SangokuKmy.Models.Commands
         {
           await game.CharacterLogAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
         }
-        else if (character.Money < soldierTypeData.Money * soldierNumber)
+        else if (character.Money < moneyPerSoldier * soldierNumber)
         {
           await game.CharacterLogAsync("所持金が足りません。");
         }
@@ -151,7 +161,7 @@ namespace SangokuKmy.Models.Commands
             character.CharacterSoldierTypeId = (uint)soldierType;
           }
           character.Contribution += 10;
-          character.Money -= add * soldierTypeData.Money;
+          character.Money -= add * moneyPerSoldier;
           town.People -= (int)(add * Config.SoldierPeopleCost);
           town.Security -= (short)(add / 10);
 
