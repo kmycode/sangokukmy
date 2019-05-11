@@ -132,5 +132,6 @@ namespace SangokuKmy.Models.Data.Entities
     Farmers = 1,
     Terrorists = 2,
     Thiefs = 3,
+    Managed = 4,
   }
 }

@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20190508103618_AddAiCountryPolicyFirst")]
+    partial class AddAiCountryPolicyFirst
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -29,14 +31,8 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
 
-                    b.Property<uint>("DefenderId")
-                        .HasColumnName("defender_id");
-
                     b.Property<int>("IntGameDateTime")
                         .HasColumnName("game_date_time");
-
-                    b.Property<int>("RestDefenderCount")
-                        .HasColumnName("rest_defender_count");
 
                     b.Property<short>("TargetType")
                         .HasColumnName("target_type");
@@ -46,9 +42,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<uint>("TownId")
                         .HasColumnName("town_id");
-
-                    b.Property<short>("TownType")
-                        .HasColumnName("town_type");
 
                     b.HasKey("Id");
 
@@ -61,20 +54,11 @@ namespace SangokuKmy.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id");
 
-                    b.Property<short>("CharacterSize")
-                        .HasColumnName("character_size");
-
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
 
-                    b.Property<short>("ForceDefendPolicy")
-                        .HasColumnName("force_defend_policy");
-
                     b.Property<bool>("IsPolicyFirst")
                         .HasColumnName("is_policy_first");
-
-                    b.Property<bool>("IsPolicySecond")
-                        .HasColumnName("is_policy_second");
 
                     b.Property<short>("PolicyTarget")
                         .HasColumnName("policy_target");
@@ -82,26 +66,8 @@ namespace SangokuKmy.Migrations
                     b.Property<short>("SeiranPolicy")
                         .HasColumnName("seiran_policy");
 
-                    b.Property<short>("UnitGatherPolicy")
-                        .HasColumnName("unit_gather_policy");
-
-                    b.Property<short>("UnitPolicy")
-                        .HasColumnName("unit_policy");
-
-                    b.Property<uint>("VirtualEnemyCountryId")
-                        .HasColumnName("virtual_enemy_country_id");
-
                     b.Property<short>("WarPolicy")
                         .HasColumnName("war_policy");
-
-                    b.Property<short>("WarStartDatePolicy")
-                        .HasColumnName("war_start_date_policy");
-
-                    b.Property<short>("WarStyle")
-                        .HasColumnName("war_style");
-
-                    b.Property<short>("WarTargetPolicy")
-                        .HasColumnName("war_target_policy");
 
                     b.HasKey("Id");
 
@@ -117,23 +83,14 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("BorderTownId")
                         .HasColumnName("border_town_id");
 
-                    b.Property<uint>("BorderUnitId")
-                        .HasColumnName("border_unit_id");
-
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
 
                     b.Property<int>("IntNextResetGameDate")
                         .HasColumnName("next_reset_game_date");
 
-                    b.Property<bool>("IsDefendForce")
-                        .HasColumnName("is_defend_force");
-
                     b.Property<uint>("MainTownId")
                         .HasColumnName("main_town_id");
-
-                    b.Property<uint>("MainUnitId")
-                        .HasColumnName("main_unit_id");
 
                     b.Property<uint>("NextTargetTownId")
                         .HasColumnName("next_target_town_id");

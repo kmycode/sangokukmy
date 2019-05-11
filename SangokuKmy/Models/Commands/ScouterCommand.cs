@@ -71,7 +71,7 @@ namespace SangokuKmy.Models.Commands
       }
       var country = countryOptional.Data;
 
-      var charas = await repo.Country.GetCharactersAsync(country.Id);
+      var charas = await repo.Country.GetCharactersWithIconsAndCommandsAsync(country.Id);
       var scouters = await repo.Country.GetScoutersAsync(country.Id);
       if (scouters.Count >= Config.ScouterMax)
       {

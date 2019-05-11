@@ -67,8 +67,6 @@ namespace SangokuKmy.Models.Common
 
     public static int SecretaryCost { get; } = 2000;
 
-    public static int SecretaryMax { get; } = 1;
-
     public static int ScouterMax { get; } = 2;
 
     public static int ScouterCost { get; } = 2000;

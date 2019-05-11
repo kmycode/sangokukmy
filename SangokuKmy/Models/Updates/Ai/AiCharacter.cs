@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SangokuKmy.Models.Updates
+namespace SangokuKmy.Models.Updates.Ai
 {
   public static class AiCharacterFactory
   {
@@ -84,6 +84,34 @@ namespace SangokuKmy.Models.Updates
       {
         ai = new ThiefPatrollerAiCharacter(chara);
       }
+      else if (chara.AiType == CharacterAiType.ManagedBattler)
+      {
+        ai = new ManagedBattlerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedWallBattler)
+      {
+        ai = new ManagedWallBattlerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedWallBreaker)
+      {
+        ai = new ManagedWallBreakerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedShortstopBattler)
+      {
+        ai = new ManagedShortstopBattlerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedCivilOfficial)
+      {
+        ai = new ManagedCivilOfficialAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedShortstopCivilOfficial)
+      {
+        ai = new ManagedShortstopCivilOfficialAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedPatroller)
+      {
+        ai = new ManagedPatrollerAiCharacter(chara);
+      }
       else
       {
         ai = new HumanCharacter(chara);
@@ -108,13 +136,26 @@ namespace SangokuKmy.Models.Updates
       this.Character = character;
     }
 
+    protected virtual async Task<Optional<CharacterCommand>> GetCommandAsNoCountryAsync(MainRepository repo)
+    {
+      return default;
+    }
+
     public virtual async Task<Optional<CharacterCommand>> GetCommandAsync(MainRepository repo, GameDateTime current)
     {
       var country = await repo.Country.GetAliveByIdAsync(this.Character.CountryId);
       if (!country.HasData)
       {
-        this.Character.DeleteTurn = (short)Config.DeleteTurns;
-        return default;
+        var cmd = await this.GetCommandAsNoCountryAsync(repo);
+        if (!cmd.HasData)
+        {
+          this.Character.DeleteTurn = (short)Config.DeleteTurns;
+          return default;
+        }
+        else
+        {
+          return cmd;
+        }
       }
 
       var town = await repo.Town.GetByIdAsync(this.Character.TownId);
@@ -222,8 +263,11 @@ namespace SangokuKmy.Models.Updates
       var capital = arounds.FirstOrDefault(a => a.Id == this.Country.CapitalTownId);
 
       var aroundsRank = arounds
-        .Where(subject)
-        .OrderByDescending(order);
+        .Where(subject);
+      if (order != null)
+      {
+        aroundsRank = aroundsRank.OrderByDescending(order);
+      }
       if (aroundsRank.Any())
       {
         // 条件に合う都市が隣にある

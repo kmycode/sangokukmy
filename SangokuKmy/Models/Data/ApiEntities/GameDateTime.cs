@@ -14,7 +14,23 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 月
     /// </summary>
     [JsonProperty("month")]
-    public short Month { get; set; }
+    public short Month
+    {
+      get => this._month;
+      set
+      {
+        if (value > 12)
+        {
+          this._month = (short)((value - 1) % 12 + 1);
+          this.Year += (short)((value - 1) / 12);
+        }
+        else
+        {
+          this._month = value;
+        }
+      }
+    }
+    private short _month;
 
     public static GameDateTime FromInt(int value)
     {

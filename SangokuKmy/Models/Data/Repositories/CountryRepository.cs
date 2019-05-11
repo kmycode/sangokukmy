@@ -155,7 +155,27 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="townId">都市ID</param>
     /// <returns>その都市に滞在する武将</returns>
-    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon, IReadOnlyList<CharacterCommand> Commands)>> GetCharactersAsync(uint countryId)
+    public async Task<IReadOnlyCollection<Character>> GetCharactersAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.Characters
+          .Where(c => c.CountryId == countryId && !c.HasRemoved)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 国IDから武将を取得
+    /// </summary>
+    /// <param name="townId">都市ID</param>
+    /// <returns>その都市に滞在する武将</returns>
+    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon, IReadOnlyList<CharacterCommand> Commands)>> GetCharactersWithIconsAndCommandsAsync(uint countryId)
     {
       try
       {

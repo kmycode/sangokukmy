@@ -134,5 +134,12 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("terrorist_count")]
     [JsonIgnore]
     public short TerroristCount { get; set; }
+
+    /// <summary>
+    /// 国家の出現回数
+    /// </summary>
+    [Column("management_count")]
+    [JsonIgnore]
+    public short ManagementCountryCount { get; set; }
   }
 }

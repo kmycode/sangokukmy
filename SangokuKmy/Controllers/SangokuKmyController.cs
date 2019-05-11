@@ -451,7 +451,7 @@ namespace SangokuKmy.Controllers
         }
 
         charas = (await repo.Town.GetCharactersWithIconAsync(townId))
-          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, null, c.Commands, c.CustomSoldierType.Data, c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown));
+          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, null, c.Character.AiType == CharacterAiType.Human ? c.Commands : null, c.CustomSoldierType.Data, c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
     }
@@ -509,7 +509,7 @@ namespace SangokuKmy.Controllers
 
         await repo.ScoutedTown.AddScoutAsync(scoutedTown);
         await repo.SaveChangesAsync();
-        
+
         savedScoutedTown = (await repo.ScoutedTown.GetByTownIdAsync(town.Id, chara.CountryId))
           .GetOrError(ErrorCode.InternalError, new { type = "already-scouted-town", value = scoutedTown.Id, });
       }
@@ -526,9 +526,9 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithRead())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        charas = (await repo.Country.GetCharactersAsync(countryId))
+        charas = (await repo.Country.GetCharactersWithIconsAndCommandsAsync(countryId))
           .GroupJoin(await repo.Reinforcement.GetByCountryIdAsync(countryId), c => c.Character.Id, r => r.CharacterId, (c, rs) => new { CharacterData = c, Reinforcements = rs })
-          .Select(c => new CharacterForAnonymous(c.CharacterData.Character, c.CharacterData.Icon, c.Reinforcements.FirstOrDefault(), c.CharacterData.Commands, chara.CountryId == c.CharacterData.Character.CountryId ? CharacterShareLevel.SameCountry : CharacterShareLevel.Anonymous));
+          .Select(c => new CharacterForAnonymous(c.CharacterData.Character, c.CharacterData.Icon, c.Reinforcements.FirstOrDefault(), c.CharacterData.Character.AiType == CharacterAiType.Human ? c.CharacterData.Commands : null, chara.CountryId == c.CharacterData.Character.CountryId ? CharacterShareLevel.SameCountry : CharacterShareLevel.Anonymous));
       }
       return ApiData.From(charas);
     }
@@ -678,7 +678,7 @@ namespace SangokuKmy.Controllers
         }
 
         var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-        
+
         var old = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
         var war = await repo.CountryDiplomacies.GetCountryWarAsync(self.CountryId, targetId);
         if (old.HasData &&
@@ -687,7 +687,7 @@ namespace SangokuKmy.Controllers
           old.Data.Status != CountryAllianceStatus.None)
         {
           var o = old.Data;
-          
+
           if ((param.Status == CountryAllianceStatus.Available || param.Status == CountryAllianceStatus.ChangeRequesting) &&
                 o.Status == CountryAllianceStatus.Requesting)
           {
@@ -907,27 +907,9 @@ namespace SangokuKmy.Controllers
           Status = param.Status,
           RequestedStopCountryId = param.RequestedStopCountryId,
         };
-        await repo.CountryDiplomacies.SetWarAsync(war);
 
-        // 戦争を周りに通知
-        var country1 = await repo.Country.GetAliveByIdAsync(war.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-        var country2 = await repo.Country.GetAliveByIdAsync(war.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-        mapLog = new MapLog
-        {
-          ApiGameDateTime = (await repo.System.GetAsync()).GameDateTime,
-          Date = DateTime.Now,
-          EventType = EventType.WarInReady,
-          IsImportant = true,
-          Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> へ侵攻します",
-        };
-        await repo.MapLog.AddAsync(mapLog);
-
-        await repo.SaveChangesAsync();
+        await CountryService.SendWarAndSaveAsync(repo, war);
       }
-
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(mapLog));
 
       if (alliance.HasData)
       {
@@ -1138,7 +1120,7 @@ namespace SangokuKmy.Controllers
           // 入隊制限がかかっている
           ErrorCode.UnitJoinLimitedError.Throw();
         }
-        
+
         var old = await repo.Unit.GetByMemberIdAsync(character.Id);
         if (old.Member.HasData)
         {

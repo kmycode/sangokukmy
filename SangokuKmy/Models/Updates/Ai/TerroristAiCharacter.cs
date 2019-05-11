@@ -6,7 +6,7 @@ using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data;
 using System.Threading.Tasks;
 
-namespace SangokuKmy.Models.Updates
+namespace SangokuKmy.Models.Updates.Ai
 {
   public class TerroristBattlerAiCharacter : WorkerAiCharacter
   {
@@ -151,6 +151,8 @@ namespace SangokuKmy.Models.Updates
 
   public class TerroristCivilOfficialAiCharacter : WorkerAiCharacter
   {
+    protected override DefendSeiranLevel NeedDefendSeiranLevel => DefendSeiranLevel.Seirans;
+
     public TerroristCivilOfficialAiCharacter(Character character) : base(character)
     {
     }

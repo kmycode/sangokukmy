@@ -26,5 +26,31 @@ namespace SangokuKmy.Models.Services
     {
       repo.Unit.RemoveMember(characterId);
     }
+
+    public static async Task CreateAndSaveAsync(MainRepository repo, Unit unit, uint leaderId)
+    {
+      await repo.Unit.AddAsync(unit);
+      await repo.SaveChangesAsync();
+
+      var member = new UnitMember
+      {
+        CharacterId = leaderId,
+        Post = UnitMemberPostType.Leader,
+        UnitId = unit.Id,
+      };
+      await repo.Unit.SetMemberAsync(member);
+      await repo.SaveChangesAsync();
+    }
+
+    public static async Task EntryAsync(MainRepository repo, uint unitId, uint charaId)
+    {
+      var member = new UnitMember
+      {
+        CharacterId = charaId,
+        Post = UnitMemberPostType.Normal,
+        UnitId = unitId,
+      };
+      await repo.Unit.SetMemberAsync(member);
+    }
   }
 }

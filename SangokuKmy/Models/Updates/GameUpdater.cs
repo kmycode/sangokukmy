@@ -13,6 +13,7 @@ using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Streamings;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SangokuKmy.Models.Services;
+using SangokuKmy.Models.Updates.Ai;
 
 namespace SangokuKmy.Models.Updates
 {
@@ -100,7 +101,7 @@ namespace SangokuKmy.Models.Updates
             }
 
             updates = updates.Where(ch => ch.LastUpdatedGameDate.ToInt() <= sys.IntGameDateTime);
-            await UpdateCharactersAsync(repo, updates.Select(ch => ch.Id).ToArray());
+            await UpdateCharactersAsync(repo, updates.OrderBy(ch => ch.LastUpdated).Select(ch => ch.Id).ToArray());
           }
         }
 
@@ -126,8 +127,6 @@ namespace SangokuKmy.Models.Updates
       // キャッシュ更新
       await EntityCaches.UpdateCharactersAsync(repo);
 
-      var notificationMapLogs = new List<ApiData<MapLog>>();
-
       // ログを追加する関数
       async Task AddLogAsync(uint characterId, string message)
       {
@@ -152,7 +151,9 @@ namespace SangokuKmy.Models.Updates
           Message = message,
         };
         await repo.MapLog.AddAsync(log);
-        notificationMapLogs.Add(ApiData.From(log));
+        await repo.SaveChangesAsync();
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(log));
+        await AnonymousStreaming.Default.SendAllAsync(ApiData.From(log));
         return log;
       }
       async Task AddMapLogAsync(bool isImportant, EventType type, string message)
@@ -730,6 +731,28 @@ namespace SangokuKmy.Models.Updates
           await repo.SaveChangesAsync();
         }
 
+        // AI国家
+        {
+          // 出現
+          if (allTowns.Any(t => t.CountryId == 0) &&
+            system.ManagementCountryCount < 3 &&
+            RandomService.Next(0, system.ManagementCountryCount * 60 + 5) == 0)
+          {
+            var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+            if (isCreated)
+            {
+              system.ManagementCountryCount++;
+            }
+          }
+
+          // 思考
+          foreach (var country in allCountries.Where(c => c.AiType == CountryAiType.Managed))
+          {
+            var c = await AiCountryFactory.CreateAsync(repo, country);
+            await c.RunAsync(repo);
+          }
+        }
+
         // 異民族
         var countryCount = allCountries.Count(c => !c.HasOverthrown);
         if (system.TerroristCount <= 0 && !system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 &&
@@ -785,7 +808,7 @@ namespace SangokuKmy.Models.Updates
         // 戦争状態にないAI国家がどっかに布告するようにする
         if (allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human))
         {
-          var isCreated = await AiService.CreateWarIfNotWarAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          var isCreated = await AiService.CreateWarIfNotWarAsync(repo);
           if (isCreated)
           {
             await repo.SaveChangesAsync();
@@ -833,9 +856,7 @@ namespace SangokuKmy.Models.Updates
       // ストリーミング中のユーザに新しいデータを通知する
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(system));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(updateLog));
-      await AnonymousStreaming.Default.SendAllAsync(notificationMapLogs);
       await StatusStreaming.Default.SendAllAsync(ApiData.From(system));
-      await StatusStreaming.Default.SendAllAsync(notificationMapLogs);
       foreach (var country in allCountries)
       {
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
