@@ -47,7 +47,7 @@ namespace SangokuKmy.Models.Commands
       }
       var country = countryOptional.Data;
 
-      if (country.AiType != CountryAiType.Human)
+      if (country.AiType != CountryAiType.Human && character.AiType == CharacterAiType.Human)
       {
         await game.CharacterLogAsync($"<country>{country.Name}</country> に仕官しようとしましたが、AIの統治する特別な国のため人間は仕官できません");
         return;

@@ -239,7 +239,7 @@ namespace SangokuKmy.Models.Updates.Ai
       // 目標都市を決める（ないこともある）
       if (this.data.TargetTown == null)
       {
-        if (availableWars.Any() || readyWars.Any())
+        if (mainWars.Any())
         {
           var match = this.towns
             .Where(t => t.CountryId != this.Country.Id)
@@ -256,7 +256,7 @@ namespace SangokuKmy.Models.Updates.Ai
       // 前線都市を決める（ないこともある）
       if (this.data.BorderTown == null || this.data.NextBattleTown == null)
       {
-        if (availableWars.Any() || readyWars.Any())
+        if (mainWars.Any())
         {
           async Task<Town> PickNextTownAsync(Town borderTown)
           {
@@ -373,6 +373,7 @@ namespace SangokuKmy.Models.Updates.Ai
       if (this.ForceDefendPolicy != ForceDefendPolicyLevel.NotCare)
       {
         var history = await repo.AiActionHistory.GetAsync(mainWars, AiBattleTownType.MainAndBorderTown, this.Country.Id);
+        var myHistory = await repo.AiActionHistory.GetAsync(this.Country.Id, AiBattleTownType.MainAndBorderTown, mainWars);
 
         var n = 48;
         if (this.ForceDefendPolicy == ForceDefendPolicyLevel.Negative)
@@ -385,6 +386,7 @@ namespace SangokuKmy.Models.Updates.Ai
         }
 
         var targets = history.Where(h => h.IntGameDateTime >= this.GameDateTime.ToInt() - n);
+        var myAttacks = myHistory.Where(h => h.IntGameDateTime >= this.GameDateTime.ToInt() - n);
         var money = 0;
         if (!history.Any())
         {
@@ -392,17 +394,20 @@ namespace SangokuKmy.Models.Updates.Ai
         }
         else if (this.ForceDefendPolicy == ForceDefendPolicyLevel.Aggressive)
         {
-          this.data.IsDefendForce = !targets.Any();
+          this.data.IsDefendForce = !targets.Any() &&
+            myAttacks.Min(h => h.RestDefenderCount) >= 1;
           money = 26_0000;
         }
         else if (this.ForceDefendPolicy == ForceDefendPolicyLevel.Medium)
         {
-          this.data.IsDefendForce = !targets.Any(t => t.RestDefenderCount == 0);
+          this.data.IsDefendForce = !targets.Any(t => t.RestDefenderCount == 0) &&
+            !myAttacks.Any(h => h.TargetType == AiBattleTargetType.Wall);
           money = 18_0000;
         }
         else if (this.ForceDefendPolicy == ForceDefendPolicyLevel.Negative)
         {
-          this.data.IsDefendForce = !targets.Any();
+          this.data.IsDefendForce = !targets.Any() &&
+            myAttacks.Count(h => h.TargetType == AiBattleTargetType.CharacterLowSoldiers) > myAttacks.Count(h => h.TargetType == AiBattleTargetType.Character);
           money = 10_0000;
         }
 
@@ -475,6 +480,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task<Optional<CharacterCommand>> GetCommandAsNoCountryAsync(MainRepository repo)
     {
+      this.towns = await repo.Town.GetAllAsync();
       this.command = new CharacterCommand
       {
         Id = 0,
@@ -1419,9 +1425,14 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         return false;
       }
-      var nextTown = this.GetMatchTown(this.towns, null, t => t.CountryId == countryId);
-      this.InputMoveToTown(nextTown.Id, this.command);
-      return true;
+      var nextTown = this.GetMatchTown(this.towns, null, t => t.CountryId == countryId, false);
+      var street = this.GetStreet(this.towns, this.Town, nextTown);
+      if (street.Count() >= 2)
+      {
+        this.InputMoveToTown(street.ElementAt(1).Id, this.command);
+        return true;
+      }
+      return false;
     }
 
     protected void InputJoinCountry()

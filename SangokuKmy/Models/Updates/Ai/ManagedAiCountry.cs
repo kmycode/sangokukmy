@@ -192,7 +192,10 @@ namespace SangokuKmy.Models.Updates.Ai
       var old = this.Management.VirtualEnemyCountryId;
       this.Management.VirtualEnemyCountryId = 0;
 
-      var aroundCountries = allTowns.GetAroundCountries(allTowns.Where(t => t.CountryId == this.Country.Id)).ToArray();
+      var aroundCountries = allTowns
+        .GetAroundCountries(allTowns.Where(t => t.CountryId == this.Country.Id))
+        .OrderBy(c => GetCountrySize(c))
+        .ToArray();
       if (!aroundCountries.Any(c => c != this.Country.Id))
       {
         return false;
@@ -205,7 +208,7 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       var aroundWars = wars.Where(w => !w.IsJoinAvailable(this.Country.Id) && aroundCountries.Any(c => w.IsJoinAvailable(c)));
-      aroundCountries = aroundCountries.Concat(
+      var aroundCountriesWithWars = aroundCountries.Concat(
         aroundWars.SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, }))
         .Where(c => c != this.Country.Id)
         .Distinct()
@@ -226,33 +229,33 @@ namespace SangokuKmy.Models.Updates.Ai
           this.Management.WarTargetPolicy == AiCountryWarTargetPolicy.EqualityStronger)
       {
         var mySize = GetCountrySize(this.Country.Id);
-        if (aroundCountries.Count() == 1)
+        if (aroundCountriesWithWars.Count() == 1)
         {
-          this.Management.VirtualEnemyCountryId = aroundCountries.First();
+          this.Management.VirtualEnemyCountryId = aroundCountriesWithWars.First();
         }
         else
         {
           if (this.Management.WarTargetPolicy == AiCountryWarTargetPolicy.EqualityWeaker)
           {
-            if (GetCountrySize(aroundCountries.First()) < mySize)
+            if (GetCountrySize(aroundCountriesWithWars.First()) < mySize)
             {
-              this.Management.VirtualEnemyCountryId = aroundCountries.Last(c => GetCountrySize(c) < mySize);
+              this.Management.VirtualEnemyCountryId = aroundCountriesWithWars.Last(c => GetCountrySize(c) < mySize);
             }
             else
             {
-              this.Management.VirtualEnemyCountryId = aroundCountries.First();
+              this.Management.VirtualEnemyCountryId = aroundCountriesWithWars.First();
             }
             return true;
           }
           if (this.Management.WarTargetPolicy == AiCountryWarTargetPolicy.EqualityStronger)
           {
-            if (GetCountrySize(aroundCountries.Last()) > mySize)
+            if (GetCountrySize(aroundCountriesWithWars.Last()) > mySize)
             {
-              this.Management.VirtualEnemyCountryId = aroundCountries.First(c => GetCountrySize(c) > mySize);
+              this.Management.VirtualEnemyCountryId = aroundCountriesWithWars.First(c => GetCountrySize(c) > mySize);
             }
             else
             {
-              this.Management.VirtualEnemyCountryId = aroundCountries.Last();
+              this.Management.VirtualEnemyCountryId = aroundCountriesWithWars.Last();
             }
             return true;
           }

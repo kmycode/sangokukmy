@@ -63,6 +63,15 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<AiBattleHistory>> GetAsync(uint countryId, AiBattleTownType townType, IEnumerable<uint> townCountryId)
+    {
+      await this.InitializeCacheAsync();
+      using (await locker.ReaderLockAsync())
+      {
+        return cache.Where(h => countryId == h.CountryId && h.TownType.HasFlag(townType) && townCountryId.Contains(h.TownCountryId)).ToArray();
+      }
+    }
+
     private async Task InitializeCacheAsync()
     {
       if (cache != null)

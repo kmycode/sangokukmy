@@ -94,47 +94,14 @@ namespace SangokuKmy.Models.Updates.Ai
         }
       }
 
-      // 普通に攻めるか攻城か
-      if (this.BorderTown != null && this.Town.Id == this.BorderTown.Id)
+      // 井闌使われたときの対応
+      if (management.HasData)
       {
-        if (this.NextBattleTown != null)
-        {
-          var defenders = await repo.Town.GetDefendersAsync(this.NextBattleTown.Id);
-          this.CurrentAttackType = defenders.Any() ? AttackMode.KillDefenders : AttackMode.BreakWall;
-        }
-        else
-        {
-          this.CurrentAttackType = AttackMode.KillDefenders;
-        }
-      }
-      else
-      {
-        var towns = await repo.Town.GetAllAsync();
-        var arounds = towns.GetAroundTowns(this.Town).Where(t => wars.Contains(t.CountryId));
-        if (arounds.Any())
-        {
-          var isAnyDefenders = false;
-          foreach (var town in arounds)
-          {
-            var defenders = await repo.Town.GetDefendersAsync(town.Id);
-            if (defenders.Any())
-            {
-              isAnyDefenders = true;
-              break;
-            }
-          }
-
-          this.CurrentAttackType = isAnyDefenders ? AttackMode.KillDefenders : AttackMode.BreakWall;
-        }
-
-        if (management.HasData)
-        {
-          var m = management.Data;
-          this._seiranLevel = m.SeiranPolicy == AgainstSeiranPolicy.NotCare ? DefendSeiranLevel.NotCare :
-                              m.SeiranPolicy == AgainstSeiranPolicy.NotCareMuch ? DefendSeiranLevel.HalfSeirans :
-                              m.SeiranPolicy == AgainstSeiranPolicy.Gonorrhea ? DefendSeiranLevel.SeiransWithUnits :
-                              DefendSeiranLevel.Seirans;
-        }
+        var m = management.Data;
+        this._seiranLevel = m.SeiranPolicy == AgainstSeiranPolicy.NotCare ? DefendSeiranLevel.NotCare :
+                            m.SeiranPolicy == AgainstSeiranPolicy.NotCareMuch ? DefendSeiranLevel.HalfSeirans :
+                            m.SeiranPolicy == AgainstSeiranPolicy.Gonorrhea ? DefendSeiranLevel.SeiransWithUnits :
+                            DefendSeiranLevel.Seirans;
       }
 
       // 部隊を使うか

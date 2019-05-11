@@ -144,6 +144,17 @@ namespace SangokuKmy.Models.Updates.Ai
     public virtual async Task<Optional<CharacterCommand>> GetCommandAsync(MainRepository repo, GameDateTime current)
     {
       var country = await repo.Country.GetAliveByIdAsync(this.Character.CountryId);
+
+      var town = await repo.Town.GetByIdAsync(this.Character.TownId);
+      if (!town.HasData)
+      {
+        return default;
+      }
+
+      this.GameDateTime = current;
+      this.Country = country.Data;
+      this.Town = town.Data;
+
       if (!country.HasData)
       {
         var cmd = await this.GetCommandAsNoCountryAsync(repo);
@@ -157,16 +168,6 @@ namespace SangokuKmy.Models.Updates.Ai
           return cmd;
         }
       }
-
-      var town = await repo.Town.GetByIdAsync(this.Character.TownId);
-      if (!town.HasData)
-      {
-        return default;
-      }
-
-      this.GameDateTime = current;
-      this.Country = country.Data;
-      this.Town = town.Data;
 
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.InsistedCountryId == this.Country.Id || w.RequestedCountryId == this.Country.Id);
 
@@ -249,7 +250,7 @@ namespace SangokuKmy.Models.Updates.Ai
       return (this.GetStreet(await repo.Town.GetAllAsync(), from, target)).ElementAt(1);
     }
 
-    protected Town GetMatchTown(IEnumerable<Town> towns, Func<TownBase, object> order, Func<TownBase, bool> subject)
+    protected Town GetMatchTown(IEnumerable<Town> towns, Func<TownBase, object> order, Func<TownBase, bool> subject, bool isSearchMyCountryTown = true)
     {
       var current = this.Town;
 
@@ -260,7 +261,6 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         arounds = arounds.OrderByDescending(order);
       }
-      var capital = arounds.FirstOrDefault(a => a.Id == this.Country.CapitalTownId);
 
       var aroundsRank = arounds
         .Where(subject);
@@ -276,7 +276,7 @@ namespace SangokuKmy.Models.Updates.Ai
       else
       {
         // 探索範囲を自国の全都市に広げる
-        var myCountryTowns = towns.Where(t => t.CountryId == this.Country.Id);
+        var myCountryTowns = isSearchMyCountryTown ? towns.Where(t => t.CountryId == this.Country.Id) : towns;
         var allRank = myCountryTowns
           .OrderByDescending(t => t.People + t.Wall);
         var match = allRank.FirstOrDefault(subject);
