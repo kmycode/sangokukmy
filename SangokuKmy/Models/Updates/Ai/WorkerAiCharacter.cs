@@ -431,7 +431,7 @@ namespace SangokuKmy.Models.Updates.Ai
       oldData.TargetTownId = this.data.TargetTown?.Id ?? 0;
       oldData.MainUnitId = this.data.MainUnit?.Id ?? 0;
       oldData.BorderUnitId = this.data.BorderUnit?.Id ?? 0;
-      old.Data.IsDefendForce = this.data.IsDefendForce && this.ForceDefendPolicy != ForceDefendPolicyLevel.NotCare;
+      oldData.IsDefendForce = this.data.IsDefendForce && this.ForceDefendPolicy != ForceDefendPolicyLevel.NotCare;
       if (!old.HasData)
       {
         await repo.AiCountry.AddAsync(oldData);

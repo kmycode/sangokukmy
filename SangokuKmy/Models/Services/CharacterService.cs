@@ -155,7 +155,7 @@ namespace SangokuKmy.Models.Services
       {
         foreach (var post in countryPosts)
         {
-          post.Type = CountryPostType.General;
+          post.Type = CountryPostType.UnAppointed;
           await repo.Country.SetPostAsync(post);
         }
       }

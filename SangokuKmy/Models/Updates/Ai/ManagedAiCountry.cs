@@ -321,7 +321,7 @@ namespace SangokuKmy.Models.Updates.Ai
       var startMonth = AiService.GetWarStartDateTime(this.Game.GameDateTime, this.Management.WarStartDatePolicy);
       if (startMonth.ToInt() <= this.Game.IntGameDateTime + 144)
       {
-        isCreated = await AiService.CreateWarAsync(repo, this.Country, target, startMonth);
+        isCreated = await AiService.CreateWarIfNotWarAsync(repo, this.Country, target, startMonth);
         if (isCreated)
         {
           this.Management.VirtualEnemyCountryId = 0;
@@ -463,11 +463,11 @@ namespace SangokuKmy.Models.Updates.Ai
       var type = chara.GetCharacterType();
       if (type == CharacterType.Strong)
       {
-        return chara.Money >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 30000 : 60000);
+        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 6_0000 : 12_0000);
       }
       if (type == CharacterType.Intellect)
       {
-        return chara.Money >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 70000 : 100000);
+        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 10_0000 : 17_0000);
       }
       if (type == CharacterType.Popularity)
       {

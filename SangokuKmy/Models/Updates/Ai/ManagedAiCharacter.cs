@@ -358,7 +358,7 @@ namespace SangokuKmy.Models.Updates.Ai
         var chara = charas
           .Where(c => c.AiType.IsManaged())
           .Where(c => c.GetCharacterType() != CharacterType.Popularity)
-          .OrderBy(c => c.Money * (c.GetCharacterType() == CharacterType.Intellect ? 1 : 2))
+          .OrderBy(c => c.Money)
           .FirstOrDefault();
         if (chara != null)
         {
