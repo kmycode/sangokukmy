@@ -183,7 +183,7 @@ namespace SangokuKmy.Models.Services
           });
           policies.Add(new CountryPolicy
           {
-            Type = CountryPolicyType.Scouter,
+            Type = CountryPolicyType.Economy,
             Status = CountryPolicyStatus.Boosted,
             CountryId = country.Id,
           });

@@ -150,14 +150,6 @@ namespace SangokuKmy.Models.Commands
       };
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
-      var aiLog = new AiBattleHistory
-      {
-        CharacterId = character.Id,
-        CountryId = character.CountryId,
-        IntGameDateTime = game.GameDateTime.ToInt(),
-        TownCountryId = targetTown.CountryId,
-        TownId = targetTown.Id,
-      };
 
       CharacterSoldierTypeData mySoldierType;
       int myRicePerSoldier;
@@ -203,6 +195,15 @@ namespace SangokuKmy.Models.Commands
       var targetExperience = 50;
       var targetContribution = 0;
       character.Rice -= character.SoldierNumber * myRicePerSoldier;
+      var aiLog = new AiBattleHistory
+      {
+        CharacterId = character.Id,
+        CountryId = character.CountryId,
+        IntGameDateTime = game.GameDateTime.ToInt(),
+        TownCountryId = targetTown.CountryId,
+        TownId = targetTown.Id,
+        AttackerSoldiersMoney = mySoldierType.Money * character.SoldierNumber,
+      };
 
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)

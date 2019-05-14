@@ -86,7 +86,7 @@ namespace SangokuKmy.Models.Services
       await repo.Character.AddCharacterIconAsync(icon);
     }
 
-    public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo)
+    public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, GameDateTime? startDate = null)
     {
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var countries = (await repo.Country.GetAllAsync())
@@ -98,7 +98,7 @@ namespace SangokuKmy.Models.Services
       var allTowns = await repo.Town.GetAllAsync();
       foreach (var country in countries)
       {
-        if (await CreateWarIfNotWarAsync(repo, country))
+        if (await CreateWarIfNotWarAsync(repo, country, startDate: startDate))
         {
           isCreated = true;
         }
@@ -329,18 +329,16 @@ namespace SangokuKmy.Models.Services
       country.Name = name;
       country.AiType = CountryAiType.Terrorists;
 
-      /*
       await repo.Country.AddPolicyAsync(new CountryPolicy
       {
         CountryId = country.Id,
-        Type = CountryPolicyType.BattleContinuous,
+        Type = CountryPolicyType.StoneCastle,
       });
       await repo.Country.AddPolicyAsync(new CountryPolicy
       {
         CountryId = country.Id,
-        Type = CountryPolicyType.BattleRush,
+        Type = CountryPolicyType.Shosha,
       });
-      */
 
       await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Data.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
       await repo.SaveChangesAsync();
@@ -428,7 +426,7 @@ namespace SangokuKmy.Models.Services
       return true;
     }
 
-    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
+    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync, int size = -1)
     {
       var towns = await repo.Town.GetAllAsync();
       var targetTowns = towns.Where(t => t.CountryId == 0).ToArray();
@@ -437,10 +435,10 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      return await CreateManagedCountryAsync(repo, targetTowns[RandomService.Next(0, targetTowns.Length)], mapLogAsync);
+      return await CreateManagedCountryAsync(repo, targetTowns[RandomService.Next(0, targetTowns.Length)], mapLogAsync, size);
     }
 
-    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync)
+    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync, int size = -1)
     {
       if (town.CountryId != 0)
       {
@@ -455,39 +453,64 @@ namespace SangokuKmy.Models.Services
       }
 
       var countries = await repo.Country.GetAllAsync();
-      var size = RandomService.Next(0, 3);
-      var charas = new List<CharacterAiType>
+      if (size < 0)
       {
-        CharacterAiType.ManagedBattler,
-        CharacterAiType.ManagedCivilOfficial,
-      };
+        size = RandomService.Next(0, 4);
+      }
+      List<CharacterAiType> charas = null;
 
       string[] names = null;
       if (size == 0)
       {
-        names = new string[] { "新", "戦国趙", "前趙（五胡漢）", "後趙", "冉魏", "前涼", "後涼", "成漢", "韓", "戦国魏", "春秋燕",
-          "前燕", "後燕", "北燕", "翟魏", "越", "代", "春秋呉", "十国呉", "張楚", "仲", "後秦", "西秦", "五胡夏", "東周",
-          "北涼", "南涼", "西涼", "劉宋", "南斉", "蕭梁", "東魏", "西魏", "北周", "北斉", "後梁", "後唐", "武周", "後晋",
-          "五代後漢", "後周", "前蜀", "後蜀", "南唐", "荊南", "閩", "十国楚", "南漢", "北漢", "岐", "五代十国燕", "呉越",
-          "曹", "蔡", "春秋陳", "鄭", "衛", "春秋宋", "魯", "中山", "杞", "曾", "邾", "滕", "春秋唐", "栄", "単", "沈", "莱",
-          "英", "六", "庸", "邢", "古蜀", "成家（公孫述）", "新末梁", };
+        charas = new List<CharacterAiType>
+        {
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedCivilOfficial,
+        };
+        names = new string[] { "冉魏", "成漢", "北燕", "翟魏", "代", "張楚", "仲", "後秦", "西秦", "五胡夏",
+          "西涼", "南斉", "蕭梁", "西魏", "北周", "後晋", "五代後漢", "後周", "前蜀", "後蜀", "荊南", "閩",
+          "北漢", "岐", "五代十国燕", "呉越", "曹", "蔡", "春秋陳", "鄭", "衛", "春秋宋", "魯", "中山", "杞",
+          "曾", "邾", "滕", "春秋唐", "栄", "単", "沈", "莱", "英", "六", "庸", "邢", "古蜀", "新末梁", "梁", };
       }
       if (size == 1)
       {
-        names = new string[] { "秦", "前秦", "晋", "西晋", "東晋", "斉", "金", "明", "隋", "陳", "楚", "春秋楚", "夏", "商", "北魏", "元", };
-        charas.Add(CharacterAiType.ManagedBattler);
-        charas.Add(CharacterAiType.ManagedBattler);
-        charas.Add(CharacterAiType.ManagedPatroller);
+        charas = new List<CharacterAiType>
+        {
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedCivilOfficial,
+          CharacterAiType.ManagedPatroller,
+        };
+        names = new string[] { "新", "戦国趙", "前趙（五胡漢）", "後趙", "前涼", "後涼", "韓", "戦国魏", "春秋燕",
+          "前燕", "後燕", "越", "春秋呉", "十国呉", "東周", "北涼", "南涼", "劉宋", "東魏", "北斉", "後梁", "後唐",
+          "武周", "南唐", "十国楚", "南漢", "成家（公孫述）", };
       }
       if (size == 2)
       {
-        names = new string[] { "魏", "蜀漢", "呉", "漢", "唐", "宋", "清", "西周", };
-        charas.Add(CharacterAiType.ManagedBattler);
-        charas.Add(CharacterAiType.ManagedBattler);
-        charas.Add(CharacterAiType.ManagedCivilOfficial);
-        charas.Add(CharacterAiType.ManagedPatroller);
+        charas = new List<CharacterAiType>
+        {
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedCivilOfficial,
+          CharacterAiType.ManagedPatroller,
+        };
+        names = new string[] { "秦", "前秦", "晋", "西晋", "東晋", "斉", "金", "明", "隋", "陳", "楚", "春秋楚", "夏", "商", "北魏", "元", };
       }
-      if (names == null)
+      if (size == 3)
+      {
+        charas = new List<CharacterAiType>
+        {
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedCivilOfficial,
+          CharacterAiType.ManagedCivilOfficial,
+          CharacterAiType.ManagedPatroller,
+        };
+        names = new string[] { "魏", "蜀漢", "呉", "漢", "唐", "宋", "清", "西周", };
+      }
+      if (names == null || charas == null)
       {
         return false;
       }
@@ -548,7 +571,7 @@ namespace SangokuKmy.Models.Services
       }
 
       var warPolicies = new AiCountryWarPolicy[] { AiCountryWarPolicy.Balance, AiCountryWarPolicy.Carefully, AiCountryWarPolicy.GoodFight, };
-      var policyTargets = new AiCountryPolicyTarget[] { AiCountryPolicyTarget.Money, AiCountryPolicyTarget.People, AiCountryPolicyTarget.Wall, };
+      var policyTargets = new AiCountryPolicyTarget[] { AiCountryPolicyTarget.Money, AiCountryPolicyTarget.WallAttack, AiCountryPolicyTarget.WallDefend, };
       var seiranPolicies = new AgainstSeiranPolicy[] { AgainstSeiranPolicy.Gonorrhea, AgainstSeiranPolicy.Mindful, AgainstSeiranPolicy.NotCare, AgainstSeiranPolicy.NotCare, };
       var warStyles = new AiCountryWarStyle[] { AiCountryWarStyle.Aggressive, AiCountryWarStyle.Negative, AiCountryWarStyle.Normal, AiCountryWarStyle.NotCare, };
       var unitPolicies = new AiCountryUnitPolicy[] { AiCountryUnitPolicy.NotCare, AiCountryUnitPolicy.BorderTownOnly, AiCountryUnitPolicy.BorderAndMainTown, };

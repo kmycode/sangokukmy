@@ -68,9 +68,9 @@ namespace SangokuKmy.Models.Data.Entities
   public enum AiCountryPolicyTarget : short
   {
     Unknown = 0,
-    Wall = 1,
+    WallDefend = 1,
     Money = 2,
-    People = 3,
+    WallAttack = 3,
   }
 
   public enum AgainstSeiranPolicy : short

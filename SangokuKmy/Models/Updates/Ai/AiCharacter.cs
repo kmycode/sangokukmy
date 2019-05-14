@@ -112,6 +112,12 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         ai = new ManagedPatrollerAiCharacter(chara);
       }
+      else if (chara.AiType == CharacterAiType.ManagedMoneyInflatingBattler ||
+        chara.AiType == CharacterAiType.ManagedMoneyInflatingCivilOfficial ||
+        chara.AiType == CharacterAiType.ManagedMoneyInflatingPatroller)
+      {
+        ai = new ManagedMoneyInflaterAiCharacter(chara);
+      }
       else
       {
         ai = new HumanCharacter(chara);

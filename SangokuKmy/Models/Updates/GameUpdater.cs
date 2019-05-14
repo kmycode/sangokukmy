@@ -797,7 +797,7 @@ namespace SangokuKmy.Models.Updates
         {
           // 出現
           if (allTowns.Any(t => t.CountryId == 0) &&
-            system.ManagementCountryCount < 3 &&
+            system.ManagementCountryCount < 0 &&
             RandomService.Next(0, system.ManagementCountryCount * 60 + 5) == 0)
           {
             var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
@@ -822,7 +822,7 @@ namespace SangokuKmy.Models.Updates
               system.GameDateTime.Year >= 220 ||
               countryCount == 2 ||
              (countryCount == 3 && RandomService.Next(0, 140) == 0) ||
-             (countryCount == 4 && RandomService.Next(0, 280) == 0)))
+             (countryCount == 4 && RandomService.Next(0, 420) == 0)))
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
@@ -870,10 +870,14 @@ namespace SangokuKmy.Models.Updates
         // 戦争状態にないAI国家がどっかに布告するようにする
         if (allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human))
         {
-          var isCreated = await AiService.CreateWarIfNotWarAsync(repo);
-          if (isCreated)
+          var month = AiService.GetWarStartDateTime(system.GameDateTime, AiCountryWarStartDatePolicy.First21);
+          if (month.ToInt() <= system.IntGameDateTime + 144)
           {
-            await repo.SaveChangesAsync();
+            var isCreated = await AiService.CreateWarIfNotWarAsync(repo, month);
+            if (isCreated)
+            {
+              await repo.SaveChangesAsync();
+            }
           }
         }
       }

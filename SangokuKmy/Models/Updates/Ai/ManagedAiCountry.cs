@@ -11,21 +11,27 @@ namespace SangokuKmy.Models.Updates.Ai
 {
   public class ManagedAiCountry : AiCountry
   {
+    private IReadOnlyList<Character> allCharacters;
+    private IReadOnlyList<Town> allTowns;
+
     private IEnumerable<CountryPolicyType> PolicyTypes
     {
       get
       {
         List<CountryPolicyType> primary = null;
-        if (this.Management.PolicyTarget == AiCountryPolicyTarget.Wall)
+        if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallDefend)
         {
           primary = new List<CountryPolicyType>
           {
+            CountryPolicyType.HumanDevelopment,
+            CountryPolicyType.IntellectCountry,
+            CountryPolicyType.StrongCountry,
             CountryPolicyType.AntiGang,
             CountryPolicyType.AttackDefend,
-            CountryPolicyType.HumanDevelopment,
             CountryPolicyType.Earthwork,
-            CountryPolicyType.StrongCountry,
             CountryPolicyType.StoneCastle,
+            CountryPolicyType.Economy,
+            CountryPolicyType.SaveWall,
           };
         }
         else if (this.Management.PolicyTarget == AiCountryPolicyTarget.Money)
@@ -33,35 +39,49 @@ namespace SangokuKmy.Models.Updates.Ai
           primary = new List<CountryPolicyType>
           {
             CountryPolicyType.HumanDevelopment,
-            CountryPolicyType.Storage,
-            CountryPolicyType.UndergroundStorage,
+            CountryPolicyType.IntellectCountry,
+            CountryPolicyType.StrongCountry,
             CountryPolicyType.Economy,
+            CountryPolicyType.AddSalary,
+            CountryPolicyType.Storage,
+            CountryPolicyType.Collection,
+            CountryPolicyType.UndergroundStorage,
+            CountryPolicyType.WallEar,
           };
         }
-        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.People)
+        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallAttack)
         {
           primary = new List<CountryPolicyType>
           {
-            CountryPolicyType.AntiGang,
-            CountryPolicyType.Economy,
-            CountryPolicyType.SaveWall,
             CountryPolicyType.HumanDevelopment,
+            CountryPolicyType.IntellectCountry,
+            CountryPolicyType.StrongCountry,
+            CountryPolicyType.AntiGang,
+            CountryPolicyType.AttackDefend,
+            CountryPolicyType.Siege,
+            CountryPolicyType.Shosha,
           };
         }
 
         var normal = new List<CountryPolicyType>
         {
-          CountryPolicyType.AntiGang,
-          CountryPolicyType.AttackDefend,
           CountryPolicyType.HumanDevelopment,
           CountryPolicyType.IntellectCountry,
           CountryPolicyType.StrongCountry,
-          CountryPolicyType.Storage,
+          CountryPolicyType.AntiGang,
+          CountryPolicyType.AttackDefend,
           CountryPolicyType.Earthwork,
-          CountryPolicyType.SaveWall,
           CountryPolicyType.StoneCastle,
-          CountryPolicyType.UndergroundStorage,
+          CountryPolicyType.PopularityCountry,
+          CountryPolicyType.Storage,
           CountryPolicyType.Economy,
+          CountryPolicyType.Collection,
+          CountryPolicyType.UndergroundStorage,
+          CountryPolicyType.WallEar,
+          CountryPolicyType.AddSalary,
+          CountryPolicyType.Siege,
+          CountryPolicyType.Shosha,
+          CountryPolicyType.SaveWall,
         };
 
         if (primary != null)
@@ -69,6 +89,10 @@ namespace SangokuKmy.Models.Updates.Ai
           return primary
             .Concat(normal)
             .Distinct();
+        }
+        if (!this.allCharacters.Any(c => c.CountryId == this.Country.Id && c.GetCharacterType() == CharacterType.Popularity))
+        {
+          normal.Remove(CountryPolicyType.PopularityCountry);
         }
 
         return normal;
@@ -80,26 +104,27 @@ namespace SangokuKmy.Models.Updates.Ai
       get
       {
         var primary = new List<CountryPolicyType>();
-        if (this.Management.PolicyTarget == AiCountryPolicyTarget.Wall)
+        if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallDefend)
         {
-          primary.Add(CountryPolicyType.Earthwork);
+          primary.Add(CountryPolicyType.StoneCastle);
         }
         else if (this.Management.PolicyTarget == AiCountryPolicyTarget.Money)
         {
-          primary.Add(CountryPolicyType.AntiGang);
+          primary.Add(CountryPolicyType.Earthwork);
         }
-        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.People)
+        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallAttack)
         {
-          primary.Add(CountryPolicyType.AntiGang);
-          primary.Add(CountryPolicyType.SaveWall);
+          primary.Add(CountryPolicyType.Earthwork);
         }
 
         if (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight)
         {
+          primary.Remove(CountryPolicyType.StoneCastle);
           primary.Add(CountryPolicyType.Earthwork);
         }
         else if (this.Management.SeiranPolicy == AgainstSeiranPolicy.NotCare || this.Management.SeiranPolicy == AgainstSeiranPolicy.NotCareMuch)
         {
+          primary.Remove(CountryPolicyType.StoneCastle);
           primary.Add(CountryPolicyType.Earthwork);
         }
         else
@@ -116,29 +141,80 @@ namespace SangokuKmy.Models.Updates.Ai
       get
       {
         var primary = new List<CountryPolicyType>();
-        primary.Add(CountryPolicyType.AttackDefend);
-        if (this.Management.PolicyTarget == AiCountryPolicyTarget.Wall)
+        if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallDefend)
         {
-          if (this.Management.CharacterSize == AiCountryCharacterSize.Medium ||
-            this.Management.CharacterSize == AiCountryCharacterSize.Large)
+          if (this.Management.CharacterSize == AiCountryCharacterSize.Small)
+          {
+            primary.Add(CountryPolicyType.AttackDefend);
+          }
+          else if (this.Management.CharacterSize == AiCountryCharacterSize.Medium)
           {
             primary.Add(CountryPolicyType.Earthwork);
+          }
+          else if (this.Management.CharacterSize == AiCountryCharacterSize.Large)
+          {
+            primary.Add(CountryPolicyType.StoneCastle);
           }
         }
         else if (this.Management.PolicyTarget == AiCountryPolicyTarget.Money)
         {
-          if (this.Management.CharacterSize == AiCountryCharacterSize.Large)
+          if (this.Management.CharacterSize == AiCountryCharacterSize.Small)
           {
+            primary.Add(CountryPolicyType.AddSalary);
+          }
+          else if (this.Management.CharacterSize == AiCountryCharacterSize.Medium)
+          {
+            primary.Add(CountryPolicyType.Collection);
+          }
+          else if (this.Management.CharacterSize == AiCountryCharacterSize.Large)
+          {
+            primary.Add(CountryPolicyType.WallEar);
           }
         }
-        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.People)
+        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallAttack)
         {
-          if (this.Management.CharacterSize == AiCountryCharacterSize.Large)
+          if (this.Management.CharacterSize == AiCountryCharacterSize.Small)
           {
+            primary.Add(CountryPolicyType.AttackDefend);
+          }
+          else if (this.Management.CharacterSize == AiCountryCharacterSize.Medium)
+          {
+            primary.Add(CountryPolicyType.Siege);
+          }
+          else if (this.Management.CharacterSize == AiCountryCharacterSize.Large)
+          {
+            primary.Add(CountryPolicyType.Shosha);
           }
         }
 
         return primary;
+      }
+    }
+
+    private IEnumerable<CountryPolicyType> RequestedPolicyTypesUntilWar
+    {
+      get
+      {
+        return new List<CountryPolicyType>
+        {
+          CountryPolicyType.AntiGang,
+          CountryPolicyType.AttackDefend,
+          CountryPolicyType.HumanDevelopment,
+          CountryPolicyType.Earthwork,
+          CountryPolicyType.StrongCountry,
+          CountryPolicyType.StoneCastle,
+        };
+      }
+    }
+
+    private IEnumerable<CountryPolicyType> RequestedPolicyTypesUntilWarFirst
+    {
+      get
+      {
+        return new List<CountryPolicyType>
+        {
+          CountryPolicyType.Earthwork,
+        };
       }
     }
 
@@ -148,10 +224,10 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task RunInnerAsync(MainRepository repo)
     {
-      var allTowns = await repo.Town.GetAllAsync();
-      var towns = allTowns.Where(t => t.CountryId == this.Country.Id);
-      var allCharacters = await repo.Character.GetAllAliveAsync();
-      var characters = allCharacters.Where(c => c.CountryId == this.Country.Id);
+      this.allTowns = await repo.Town.GetAllAsync();
+      var towns = this.allTowns.Where(t => t.CountryId == this.Country.Id);
+      this.allCharacters = await repo.Character.GetAllAliveAsync();
+      var characters = this.allCharacters.Where(c => c.CountryId == this.Country.Id);
       var policies = await repo.Country.GetPoliciesAsync(this.Country.Id);
       var allWars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var wars = allWars
@@ -164,21 +240,22 @@ namespace SangokuKmy.Models.Updates.Ai
 
       if (!wars.Any())
       {
-        this.ResetCharacterAiTypes(characters.Where(c => c.AiType.IsManaged()));
-        if (await this.FindVirtualEnemyCountryAsync(repo, allTowns, allCharacters))
+        this.ResetCharacterAiTypes(characters.Where(c => c.AiType.IsManaged() && !c.AiType.IsMoneyInflator()));
+        if (await this.FindVirtualEnemyCountryAsync(repo, this.allTowns, this.allCharacters))
         {
-          await this.SetWarAsync(repo, allTowns, allCharacters);
+          await this.SetWarAsync(repo, this.allTowns, this.allCharacters);
         }
       }
       else
       {
-        await this.ChangeSomeInWarAsync(repo, characters, towns, wars);
+        await this.ChangeSomeInWarAsync(repo, characters, this.allTowns, wars);
       }
 
-      await this.GetPolicyAsync(repo, policies, this.PolicyTypes);
+      var requestPolicies = !wars.Any() ? this.PolicyTypes : this.PolicyTypes.Concat(this.RequestedPolicyTypesUntilWar).Distinct();
+      await this.GetPolicyAsync(repo, policies, requestPolicies);
 
       this.Management.IsPolicyFirst = !wars.Any() && !this.IsReadyForFirst(policies);
-      this.Management.IsPolicySecond = !wars.Any() && !this.IsReadyForWar(policies);
+      this.Management.IsPolicySecond = !wars.Any() ? !this.IsReadyForWar(policies) : this.HasPolicies(policies, this.RequestedPolicyTypesUntilWarFirst);
     }
 
     private async Task<bool> FindVirtualEnemyCountryAsync(MainRepository repo, IEnumerable<Town> allTowns, IEnumerable<Character> allCharacters)
@@ -367,59 +444,64 @@ namespace SangokuKmy.Models.Updates.Ai
 
       var history = await repo.AiActionHistory.GetAsync(warTargets, AiBattleTownType.BorderTown, this.Country.Id);
 
+      var isSetActions = false;
+      var setSize = 1;
+
       if (history.Count() >= 50)
       {
         var historyTarget = history.OrderByDescending(h => h.IntGameDateTime).Take(60).ToArray();
         var wallCount = historyTarget.Count(h => h.TargetType == AiBattleTargetType.Wall);
         var defenderZeroCount = historyTarget.Count(h => h.RestDefenderCount == 0 || h.TargetType == AiBattleTargetType.Wall);
-
-        var isSet = false;
-        var setSize = 1;
-
+        var moneySum = historyTarget.Sum(h => h.AttackerSoldiersMoney);
+        
         if (this.Management.WarStyle == AiCountryWarStyle.Negative)
         {
-          isSet = defenderZeroCount == 0;
+          isSetActions = defenderZeroCount == 0 || moneySum < 60_0000;
         }
         if (this.Management.WarStyle == AiCountryWarStyle.Normal)
         {
-          isSet = defenderZeroCount < 4;
+          isSetActions = defenderZeroCount < 4 || moneySum < 40_0000;
         }
         if (this.Management.WarStyle == AiCountryWarStyle.Aggressive)
         {
-          isSet = wallCount == 0;
+          isSetActions = wallCount == 0 || moneySum < 20_0000;
         }
+      }
+      else if (history.Any() && history.Max(h => h.IntGameDateTime) < this.Game.IntGameDateTime - 48)
+      {
+        isSetActions = this.allCharacters.Where(c => c.AiType.IsManaged()).All(c => this.IsReadyForWar(c));
+      }
 
-        if (!isSet)
+      if (!isSetActions)
+      {
+        this.ResetCharacterAiTypes(targetCharas);
+      }
+      else
+      {
+        var alreadySet = targetCharas.Where(c => c.AiType.ToManagedStandard() != c.AiType);
+        var changables = targetCharas.Where(c => c.AiType.CanBattle() && c.AiType.ToManagedStandard() == c.AiType);
+        for (var i = alreadySet.Count(); i < setSize && changables.Any(); i++)
         {
-          this.ResetCharacterAiTypes(targetCharas);
-        }
-        else
-        {
-          var alreadySet = targetCharas.Where(c => c.AiType.ToManagedStandard() != c.AiType);
-          var changables = targetCharas.Where(c => c.AiType.CanBattle() && c.AiType.ToManagedStandard() == c.AiType);
-          for (var i = alreadySet.Count(); i < setSize && changables.Any(); i++)
+          var targets = changables.ToArray();
+          var target = targets[RandomService.Next(0, targets.Length)];
+          if (target.AiType == CharacterAiType.ManagedCivilOfficial)
           {
-            var targets = changables.ToArray();
-            var target = targets[RandomService.Next(0, targets.Length)];
-            if (target.AiType == CharacterAiType.ManagedCivilOfficial)
+            target.AiType = CharacterAiType.ManagedShortstopCivilOfficial;
+          }
+          if (target.AiType == CharacterAiType.ManagedBattler)
+          {
+            var r = RandomService.Next(0, 3);
+            if (r == 0)
             {
-              target.AiType = CharacterAiType.ManagedShortstopCivilOfficial;
+              target.AiType = CharacterAiType.ManagedShortstopBattler;
             }
-            if (target.AiType == CharacterAiType.ManagedBattler)
+            if (r == 1)
             {
-              var r = RandomService.Next(0, 3);
-              if (r == 0)
-              {
-                target.AiType = CharacterAiType.ManagedShortstopBattler;
-              }
-              if (r == 1)
-              {
-                target.AiType = CharacterAiType.ManagedWallBattler;
-              }
-              if (r == 2)
-              {
-                target.AiType = CharacterAiType.ManagedWallBreaker;
-              }
+              target.AiType = CharacterAiType.ManagedWallBattler;
+            }
+            if (r == 2)
+            {
+              target.AiType = CharacterAiType.ManagedWallBreaker;
             }
           }
         }
@@ -445,12 +527,17 @@ namespace SangokuKmy.Models.Updates.Ai
 
     private bool IsReadyForFirst(IEnumerable<CountryPolicy> policies)
     {
-      return this.RequestedPolicyTypesFirst.All(p => policies.Any(pp => pp.Type == p));
+      return this.HasPolicies(policies, this.RequestedPolicyTypesFirst);
     }
 
     private bool IsReadyForWar(IEnumerable<CountryPolicy> policies)
     {
-      return this.RequestedPolicyTypesForWar.All(p => policies.Any(pp => pp.Type == p));
+      return this.HasPolicies(policies, this.RequestedPolicyTypesForWar);
+    }
+
+    private bool HasPolicies(IEnumerable<CountryPolicy> policies, IEnumerable<CountryPolicyType> types)
+    {
+      return types.All(p => policies.GetAvailableTypes().Contains(p));
     }
 
     private bool IsReadyForWar(Town town)
@@ -461,13 +548,9 @@ namespace SangokuKmy.Models.Updates.Ai
     private bool IsReadyForWar(Character chara)
     {
       var type = chara.GetCharacterType();
-      if (type == CharacterType.Strong)
+      if (type == CharacterType.Strong || type == CharacterType.Intellect)
       {
-        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 6_0000 : 12_0000);
-      }
-      if (type == CharacterType.Intellect)
-      {
-        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 10_0000 : 17_0000);
+        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 20_0000 : 40_0000);
       }
       if (type == CharacterType.Popularity)
       {

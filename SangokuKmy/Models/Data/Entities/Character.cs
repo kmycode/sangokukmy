@@ -566,6 +566,9 @@ namespace SangokuKmy.Models.Data.Entities
     ManagedWallBreaker = 21,
     ManagedShortstopBattler = 22,
     ManagedShortstopCivilOfficial = 23,
+    ManagedMoneyInflatingBattler = 24,
+    ManagedMoneyInflatingCivilOfficial = 25,
+    ManagedMoneyInflatingPatroller = 26,
   }
 
   public static class CharacterAiTypeExtensions
@@ -587,17 +590,30 @@ namespace SangokuKmy.Models.Data.Entities
         type == CharacterAiType.ManagedWallBreaker;
     }
 
+    public static bool IsMoneyInflator(this CharacterAiType type)
+    {
+      return type == CharacterAiType.ManagedMoneyInflatingBattler ||
+        type == CharacterAiType.ManagedMoneyInflatingCivilOfficial ||
+        type == CharacterAiType.ManagedMoneyInflatingPatroller;
+    }
+
     public static CharacterAiType ToManagedStandard(this CharacterAiType type)
     {
       if (type == CharacterAiType.ManagedShortstopBattler ||
           type == CharacterAiType.ManagedWallBattler ||
-          type == CharacterAiType.ManagedWallBreaker)
+          type == CharacterAiType.ManagedWallBreaker ||
+          type == CharacterAiType.ManagedMoneyInflatingBattler)
       {
         return CharacterAiType.ManagedBattler;
       }
-      else if (type == CharacterAiType.ManagedShortstopCivilOfficial)
+      else if (type == CharacterAiType.ManagedShortstopCivilOfficial ||
+        type == CharacterAiType.ManagedMoneyInflatingCivilOfficial)
       {
         return CharacterAiType.ManagedCivilOfficial;
+      }
+      else if (type == CharacterAiType.ManagedMoneyInflatingPatroller)
+      {
+        return CharacterAiType.ManagedPatroller;
       }
       else
       {

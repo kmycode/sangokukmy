@@ -188,11 +188,6 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         if (management.Data.IsPolicyFirst && this.Character.Money > 100 && (this.Character.Strong >= 100 || this.Character.Intellect >= 100))
         {
-          if (this.InputRice())
-          {
-            return;
-          }
-
           this.InputPolicy();
           return;
         }
@@ -356,7 +351,7 @@ namespace SangokuKmy.Models.Updates.Ai
       if (this.Country.SafeMoney >= Config.PaySafeMax)
       {
         var chara = charas
-          .Where(c => c.AiType.IsManaged())
+          .Where(c => c.AiType.IsManaged() && !c.AiType.IsMoneyInflator())
           .Where(c => c.GetCharacterType() != CharacterType.Popularity)
           .OrderBy(c => c.Money)
           .FirstOrDefault();
@@ -516,17 +511,12 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (this.InputSellRiceForReadyWar())
+      if (await this.InputSellRiceForReadyWarAsync(repo))
       {
         return;
       }
 
-      if (this.Character.Money + this.Character.Rice < 20_0000 && this.InputRice())
-      {
-        return;
-      }
-
-      if (this.InputSellRice(1.1f))
+      if (await this.InputRiceAsync(repo, 20_0000))
       {
         return;
       }
@@ -536,23 +526,22 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (this.GameDateTime.Month % 6 == 1 || this.Character.Class < Config.NextLank * 8)
+      if ((this.GameDateTime.Month % 6 == 1 || this.Character.Class < Config.NextLank * 8) && this.InputPolicy())
       {
-        this.InputPolicy();
+        return;
       }
-      else if (this.GameDateTime.Year % 3 == 0)
+      else if (this.GameDateTime.Year % 5 == 0 && this.InputPolicy())
       {
-        this.InputPolicy();
+        return;
       }
       else
       {
-        if (this.InputRice())
+        if (this.IsPolicySecond && this.InputPolicy())
         {
           return;
         }
-        if (this.IsPolicySecond)
+        if (this.GameDateTime.Year % 3 == 1 && await this.InputRiceAsync(repo, 60_0000))
         {
-          this.InputPolicy();
           return;
         }
         if (this.Character.Leadership < this.Character.Strong * 0.666f)
@@ -728,12 +717,12 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (this.InputSellRiceForReadyWar())
+      if (await this.InputSellRiceForReadyWarAsync(repo))
       {
         return;
       }
 
-      if (this.InputSellRice(1.1f))
+      if (await this.InputRiceAsync(repo, 20_0000))
       {
         return;
       }
@@ -748,23 +737,22 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (this.GameDateTime.Month % 6 == 1 || this.Character.Class < Config.NextLank * 8)
+      if ((this.GameDateTime.Month % 6 == 1 || this.Character.Class < Config.NextLank * 8) && this.InputPolicy())
       {
-        this.InputPolicy();
+        return;
       }
-      else if (this.GameDateTime.Year % 2 == 0)
+      else if (this.GameDateTime.Year % 2 == 0 && this.InputPolicy())
       {
-        this.InputPolicy();
+        return;
       }
       else
       {
-        if (this.InputRice())
+        if (this.IsPolicySecond && this.InputPolicy())
         {
           return;
         }
-        if (this.IsPolicySecond)
+        if (this.GameDateTime.Year % 3 == 1 && await this.InputRiceAsync(repo, 60_0000))
         {
-          this.InputPolicy();
           return;
         }
         if (this.Character.Leadership < this.Character.Intellect * 0.666f)
@@ -914,23 +902,43 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (this.GameDateTime.Month % 6 == 0)
+      if (this.GameDateTime.Month % 3 == 0 && await this.InputRiceAlwaysAsync(repo, int.MaxValue))
+      {
+        return;
+      }
+      else if (this.GameDateTime.Month % 6 == 0)
       {
         this.InputSecurityForce();
       }
-      else
+
+      if (this.GameDateTime.Year % 3 == 1 && await this.InputRiceAlwaysAsync(repo, 1000_0000))
       {
-        if (this.InputRiceAlways())
-        {
-          return;
-        }
-        if (this.IsPolicySecond)
-        {
-          this.InputPolicy();
-          return;
-        }
-        this.InputTraining(TrainingType.Popularity);
+        return;
       }
+
+      this.InputTraining(TrainingType.Popularity);
+    }
+  }
+
+  public class ManagedMoneyInflaterAiCharacter : ManagedAiCharacter
+  {
+    public ManagedMoneyInflaterAiCharacter(Character character) : base(character)
+    {
+    }
+
+    protected override async Task ActionPersonalAsync(MainRepository repo)
+    {
+      if (await this.InputSafeInAsync(repo, Config.PaySafeMax, 2_0000))
+      {
+        return;
+      }
+
+      if (await this.InputRiceAlwaysAsync(repo, int.MaxValue))
+      {
+        return;
+      }
+
+      this.MoveToRandomTown();
     }
   }
 }

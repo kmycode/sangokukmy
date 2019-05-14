@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Nito.AsyncEx;
+using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data.Entities;
 using System;
 using System.Collections.Generic;
@@ -11,12 +12,28 @@ namespace SangokuKmy.Models.Data.Repositories
   public class AiActionHistoryRepository
   {
     private static readonly AsyncReaderWriterLock locker = new AsyncReaderWriterLock();
-    private static List<AiBattleHistory> cache = null;
+    private static List<AiBattleHistory> battleCache = null;
     private readonly IRepositoryContainer container;
 
     public AiActionHistoryRepository(IRepositoryContainer container)
     {
       this.container = container;
+    }
+
+    public async Task AddAsync(AiActionHistory history)
+    {
+      await this.InitializeCacheAsync();
+      try
+      {
+        using (await locker.WriterLockAsync())
+        {
+          await this.container.Context.AiActionHistories.AddAsync(history);
+        }
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
     }
 
     public async Task AddAsync(AiBattleHistory history)
@@ -27,7 +44,7 @@ namespace SangokuKmy.Models.Data.Repositories
         using (await locker.WriterLockAsync())
         {
           await this.container.Context.AiBattleHistories.AddAsync(history);
-          cache.Add(history);
+          battleCache.Add(history);
         }
       }
       catch (Exception ex)
@@ -36,12 +53,50 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<float> GetMinRicePriceAsync(uint charaId, int minGameDateTime)
+    {
+      try
+      {
+        var targets = this.container.Context.AiActionHistories
+          .Where(a => a.CharacterId == charaId && a.IntGameDateTime >= minGameDateTime);
+        if (!targets.Any())
+        {
+          return default;
+        }
+        return await targets.MinAsync(a => a.IntRicePrice) / Config.RicePriceBase;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<float> GetMaxRicePriceAsync(uint charaId, int minGameDateTime)
+    {
+      try
+      {
+        var targets = this.container.Context.AiActionHistories
+          .Where(a => a.CharacterId == charaId && a.IntGameDateTime >= minGameDateTime);
+        if (!targets.Any())
+        {
+          return default;
+        }
+        return await targets.MaxAsync(a => a.IntRicePrice) / Config.RicePriceBase;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     public async Task<IReadOnlyList<AiBattleHistory>> GetAsync(uint countryId, uint townId, uint townCountryId)
     {
       await this.InitializeCacheAsync();
       using (await locker.ReaderLockAsync())
       {
-        return cache.Where(h => h.CountryId == countryId && h.TownId == townId && h.TownCountryId == townCountryId).ToArray();
+        return battleCache.Where(h => h.CountryId == countryId && h.TownId == townId && h.TownCountryId == townCountryId).ToArray();
       }
     }
 
@@ -50,7 +105,7 @@ namespace SangokuKmy.Models.Data.Repositories
       await this.InitializeCacheAsync();
       using (await locker.ReaderLockAsync())
       {
-        return cache.Where(h => countryId.Contains(h.CountryId) && h.TownId == townId && h.TownCountryId == townCountryId).ToArray();
+        return battleCache.Where(h => countryId.Contains(h.CountryId) && h.TownId == townId && h.TownCountryId == townCountryId).ToArray();
       }
     }
 
@@ -59,7 +114,7 @@ namespace SangokuKmy.Models.Data.Repositories
       await this.InitializeCacheAsync();
       using (await locker.ReaderLockAsync())
       {
-        return cache.Where(h => countryId.Contains(h.CountryId) && h.TownType.HasFlag(townType) && h.TownCountryId == townCountryId).ToArray();
+        return battleCache.Where(h => countryId.Contains(h.CountryId) && h.TownType.HasFlag(townType) && h.TownCountryId == townCountryId).ToArray();
       }
     }
 
@@ -68,13 +123,13 @@ namespace SangokuKmy.Models.Data.Repositories
       await this.InitializeCacheAsync();
       using (await locker.ReaderLockAsync())
       {
-        return cache.Where(h => countryId == h.CountryId && h.TownType.HasFlag(townType) && townCountryId.Contains(h.TownCountryId)).ToArray();
+        return battleCache.Where(h => countryId == h.CountryId && h.TownType.HasFlag(townType) && townCountryId.Contains(h.TownCountryId)).ToArray();
       }
     }
 
     private async Task InitializeCacheAsync()
     {
-      if (cache != null)
+      if (battleCache != null)
       {
         return;
       }
@@ -82,7 +137,7 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         using (await locker.WriterLockAsync())
         {
-          cache = await this.container.Context.AiBattleHistories.ToListAsync();
+          battleCache = await this.container.Context.AiBattleHistories.ToListAsync();
         }
       }
       catch (Exception ex)
@@ -99,9 +154,10 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         await this.container.RemoveAllRowsAsync(typeof(AiBattleHistory));
+        await this.container.RemoveAllRowsAsync(typeof(AiActionHistory));
         using (await locker.WriterLockAsync())
         {
-          cache.Clear();
+          battleCache.Clear();
         }
       }
       catch (Exception ex)

@@ -32,6 +32,9 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("game_date_time")]
     public int IntGameDateTime { get; set; }
 
+    [Column("attacker_soldiers_money")]
+    public int AttackerSoldiersMoney { get; set; }
+
     [Column("target_type")]
     public AiBattleTargetType TargetType { get; set; }
 

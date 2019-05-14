@@ -80,6 +80,18 @@ namespace SangokuKmy.Models.Services
       });
       await repo.SaveChangesAsync();
 
+      Func<EventType, string, bool, Task> maplog = async (type, message, isImportant) => await repo.MapLog.AddAsync(new MapLog
+      {
+        Message = message,
+        EventType = type,
+        IsImportant = isImportant,
+        Date = DateTime.Now,
+        ApiGameDateTime = system.GameDateTime,
+      });
+      await AiService.CreateManagedCountryAsync(repo, maplog, 1);
+      await AiService.CreateManagedCountryAsync(repo, maplog, 0);
+      await repo.SaveChangesAsync();
+
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new ApiSignal
       {
         Type = SignalType.Reseted,
