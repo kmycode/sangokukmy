@@ -155,9 +155,12 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         await this.container.RemoveAllRowsAsync(typeof(AiBattleHistory));
         await this.container.RemoveAllRowsAsync(typeof(AiActionHistory));
-        using (await locker.WriterLockAsync())
+        if (battleCache != null)
         {
-          battleCache.Clear();
+          using (await locker.WriterLockAsync())
+          {
+            battleCache.Clear();
+          }
         }
       }
       catch (Exception ex)

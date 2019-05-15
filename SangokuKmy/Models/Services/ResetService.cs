@@ -88,7 +88,7 @@ namespace SangokuKmy.Models.Services
         Date = DateTime.Now,
         ApiGameDateTime = system.GameDateTime,
       });
-      await AiService.CreateManagedCountryAsync(repo, maplog, 1);
+      await AiService.CreateManagedCountryAsync(repo, maplog, 2);
       await AiService.CreateManagedCountryAsync(repo, maplog, 0);
       await repo.SaveChangesAsync();
 

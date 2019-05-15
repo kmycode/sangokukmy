@@ -28,6 +28,9 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("main_town_id")]
     public uint MainTownId { get; set; }
 
+    [Column("develop_town_id")]
+    public uint DevelopTownId { get; set; }
+
     [Column("next_reset_game_date")]
     public int IntNextResetGameDate { get; set; }
 

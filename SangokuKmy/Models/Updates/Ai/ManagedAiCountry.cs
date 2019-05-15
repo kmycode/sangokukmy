@@ -241,9 +241,16 @@ namespace SangokuKmy.Models.Updates.Ai
       if (!wars.Any())
       {
         this.ResetCharacterAiTypes(characters.Where(c => c.AiType.IsManaged() && !c.AiType.IsMoneyInflator()));
+
+        var isWar = false;
         if (await this.FindVirtualEnemyCountryAsync(repo, this.allTowns, this.allCharacters))
         {
-          await this.SetWarAsync(repo, this.allTowns, this.allCharacters);
+          isWar = await this.SetWarAsync(repo, this.allTowns, this.allCharacters);
+        }
+
+        if (!isWar)
+        {
+          await this.ChangeSomeInNotWarAsync(repo, characters, this.allTowns, wars);
         }
       }
       else
@@ -267,6 +274,11 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       var old = this.Management.VirtualEnemyCountryId;
+      if (old != 0 && (this.Game.GameDateTime.Year % 2 != 0 || this.Game.GameDateTime.Month != 1))
+      {
+        return true;
+      }
+
       this.Management.VirtualEnemyCountryId = 0;
 
       var aroundCountries = allTowns
@@ -396,7 +408,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
       var isCreated = false;
       var startMonth = AiService.GetWarStartDateTime(this.Game.GameDateTime, this.Management.WarStartDatePolicy);
-      if (startMonth.ToInt() <= this.Game.IntGameDateTime + 144)
+      if (startMonth.ToInt() <= this.Game.IntGameDateTime + 146)
       {
         isCreated = await AiService.CreateWarIfNotWarAsync(repo, this.Country, target, startMonth);
         if (isCreated)
@@ -415,95 +427,215 @@ namespace SangokuKmy.Models.Updates.Ai
       }
     }
 
-    private async Task ChangeSomeInWarAsync(MainRepository repo, IEnumerable<Character> charas, IEnumerable<Town> towns, IEnumerable<CountryWar> wars)
+    private async Task ChangeSomeInNotWarAsync(MainRepository repo, IEnumerable<Character> charas, IEnumerable<Town> towns, IEnumerable<CountryWar> wars)
     {
-      if (this.Management.WarStyle == AiCountryWarStyle.NotCare)
-      {
-        return;
-      }
-
       var storategyOptional = await repo.AiCountry.GetStorategyByCountryIdAsync(this.Country.Id);
       if (!storategyOptional.HasData)
       {
         return;
       }
       var storategy = storategyOptional.Data;
-      
-      var warTargets = wars
-        .Where(w => w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting)
-        .Select(w => w.RequestedCountryId == this.Country.Id ? w.InsistedCountryId : w.RequestedCountryId);
-      var targetCharas = charas.Where(c => c.AiType.IsManaged());
 
-      var enemyTowns = towns.Where(t => warTargets.Contains(t.CountryId));
-      var enemyAroundTowns = enemyTowns.Where(t => towns.GetAroundTowns(t).Any(tt => tt.CountryId == this.Country.Id));
-      if (enemyAroundTowns.Count() <= 1)
+      if (this.Management.DevelopStyle != AiCountryDevelopStyle.NotCare)
       {
-        this.ResetCharacterAiTypes(targetCharas);
+        bool Predicate(Town t) => t.Wall >= t.WallMax && t.Technology >= t.TechnologyMax;
+        int DevelopableSize(Town t) => (t.WallMax - t.Wall) + (t.TechnologyMax - t.Technology);
+
+        var isChangeTown = true;
+        var oldTarget = towns.FirstOrDefault(t => t.Id == storategy.DevelopTownId);
+        if (oldTarget != null)
+        {
+          isChangeTown = Predicate(oldTarget);
+        }
+
+        if (isChangeTown)
+        {
+          Town target = null;
+          var myRestTowns = towns.Where(t => t.CountryId == this.Country.Id && !Predicate(t));
+          if (myRestTowns.Any())
+          {
+            var style = this.Management.DevelopStyle;
+            if (style == AiCountryDevelopStyle.BorderTownFirst)
+            {
+              if (this.Management.VirtualEnemyCountryId != 0)
+              {
+                var borderTowns = myRestTowns.Where(t => towns.GetAroundTowns(t).Any(tt => tt.CountryId == this.Management.VirtualEnemyCountryId));
+                if (borderTowns.Any())
+                {
+                  target = borderTowns.OrderByDescending(t => DevelopableSize(t)).First();
+                }
+                else
+                {
+                  style = AiCountryDevelopStyle.LowerTownFirst;
+                }
+              }
+              else
+              {
+                style = AiCountryDevelopStyle.LowerTownFirst;
+              }
+            }
+            if (style == AiCountryDevelopStyle.LowerTownFirst)
+            {
+              target = myRestTowns.OrderByDescending(t => DevelopableSize(t)).First();
+            }
+            if (style == AiCountryDevelopStyle.HigherTownFirst)
+            {
+              target = myRestTowns.OrderBy(t => DevelopableSize(t)).First();
+            }
+          }
+
+          if (target != null)
+          {
+            storategy.DevelopTownId = target.Id;
+          }
+          else
+          {
+            storategy.DevelopTownId = 0;
+          }
+        }
+      }
+
+      if (this.Game.GameDateTime.Year > Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 + 2)
+      {
+        var allTargets = charas.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler ||
+          c.AiType.ToManagedStandard() == CharacterAiType.ManagedCivilOfficial ||
+          c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller);
+        var pattern = this.Game.GameDateTime.Year / 2 % 4;
+        var targets = allTargets
+          .Where(c => pattern == 1 ? c.Id % 2 == 0 : pattern == 0 ? c.Id % 2 == 1 : false)
+          .Where(c => c.Money > Config.RiceBuyMax * 2 || c.Rice > Config.RiceBuyMax * 2)
+          .Where(c => c.Money + c.Rice < 100_0000);
+        foreach (var c in targets)
+        {
+          if (c.AiType == CharacterAiType.ManagedBattler)
+          {
+            c.AiType = CharacterAiType.ManagedMoneyInflatingBattler;
+          }
+          else if (c.AiType == CharacterAiType.ManagedCivilOfficial)
+          {
+            c.AiType = CharacterAiType.ManagedMoneyInflatingCivilOfficial;
+          }
+          else if (c.AiType == CharacterAiType.ManagedPatroller)
+          {
+            c.AiType = CharacterAiType.ManagedMoneyInflatingPatroller;
+          }
+        }
+        foreach (var c in allTargets.Except(targets))
+        {
+          c.AiType = c.AiType.ToManagedStandard();
+        }
+      }
+    }
+
+    private async Task ChangeSomeInWarAsync(MainRepository repo, IEnumerable<Character> charas, IEnumerable<Town> towns, IEnumerable<CountryWar> wars)
+    {
+      var storategyOptional = await repo.AiCountry.GetStorategyByCountryIdAsync(this.Country.Id);
+      if (!storategyOptional.HasData)
+      {
         return;
       }
+      var storategy = storategyOptional.Data;
 
-      var history = await repo.AiActionHistory.GetAsync(warTargets, AiBattleTownType.BorderTown, this.Country.Id);
-
-      var isSetActions = false;
-      var setSize = 1;
-
-      if (history.Count() >= 50)
+      if (this.Management.WarStyle != AiCountryWarStyle.NotCare)
       {
-        var historyTarget = history.OrderByDescending(h => h.IntGameDateTime).Take(60).ToArray();
-        var wallCount = historyTarget.Count(h => h.TargetType == AiBattleTargetType.Wall);
-        var defenderZeroCount = historyTarget.Count(h => h.RestDefenderCount == 0 || h.TargetType == AiBattleTargetType.Wall);
-        var moneySum = historyTarget.Sum(h => h.AttackerSoldiersMoney);
-        
-        if (this.Management.WarStyle == AiCountryWarStyle.Negative)
+        var warTargets = wars
+          .Where(w => w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting)
+          .Select(w => w.RequestedCountryId == this.Country.Id ? w.InsistedCountryId : w.RequestedCountryId);
+        var targetCharas = charas.Where(c => c.AiType.IsManaged());
+
+        var enemyTowns = towns.Where(t => warTargets.Contains(t.CountryId));
+        var enemyAroundTowns = enemyTowns.Where(t => towns.GetAroundTowns(t).Any(tt => tt.CountryId == this.Country.Id));
+        if (enemyAroundTowns.Count() <= 1)
         {
-          isSetActions = defenderZeroCount == 0 || moneySum < 60_0000;
+          this.ResetCharacterAiTypes(targetCharas);
         }
-        if (this.Management.WarStyle == AiCountryWarStyle.Normal)
+        else
         {
-          isSetActions = defenderZeroCount < 4 || moneySum < 40_0000;
-        }
-        if (this.Management.WarStyle == AiCountryWarStyle.Aggressive)
-        {
-          isSetActions = wallCount == 0 || moneySum < 20_0000;
+          var history = await repo.AiActionHistory.GetAsync(warTargets, AiBattleTownType.BorderTown, this.Country.Id);
+
+          var isSetActions = false;
+          var setSize = 1;
+
+          if (history.Count() >= 50)
+          {
+            var historyTarget = history.OrderByDescending(h => h.IntGameDateTime).Take(60).ToArray();
+            var wallCount = historyTarget.Count(h => h.TargetType == AiBattleTargetType.Wall);
+            var defenderZeroCount = historyTarget.Count(h => h.RestDefenderCount == 0 || h.TargetType == AiBattleTargetType.Wall);
+            var moneySum = historyTarget.Sum(h => h.AttackerSoldiersMoney);
+
+            if (this.Management.WarStyle == AiCountryWarStyle.Negative)
+            {
+              isSetActions = defenderZeroCount == 0 || moneySum < 60_0000;
+            }
+            if (this.Management.WarStyle == AiCountryWarStyle.Normal)
+            {
+              isSetActions = defenderZeroCount < 4 || moneySum < 40_0000;
+            }
+            if (this.Management.WarStyle == AiCountryWarStyle.Aggressive)
+            {
+              isSetActions = wallCount == 0 || moneySum < 20_0000;
+            }
+          }
+          else if (history.Any() && history.Max(h => h.IntGameDateTime) < this.Game.IntGameDateTime - 48)
+          {
+            isSetActions = this.allCharacters.Where(c => c.AiType.IsManaged()).All(c => this.IsReadyForWar(c));
+          }
+
+          if (!isSetActions)
+          {
+            this.ResetCharacterAiTypes(targetCharas);
+          }
+          else
+          {
+            var alreadySet = targetCharas.Where(c => c.AiType.ToManagedStandard() != c.AiType);
+            var changables = targetCharas.Where(c => c.AiType.CanBattle() && c.AiType.ToManagedStandard() == c.AiType);
+            for (var i = alreadySet.Count(); i < setSize && changables.Any(); i++)
+            {
+              var targets = changables.ToArray();
+              var target = targets[RandomService.Next(0, targets.Length)];
+              if (target.AiType == CharacterAiType.ManagedCivilOfficial)
+              {
+                target.AiType = CharacterAiType.ManagedShortstopCivilOfficial;
+              }
+              if (target.AiType == CharacterAiType.ManagedBattler)
+              {
+                var r = RandomService.Next(0, 3);
+                if (r == 0)
+                {
+                  target.AiType = CharacterAiType.ManagedShortstopBattler;
+                }
+                if (r == 1)
+                {
+                  target.AiType = CharacterAiType.ManagedWallBattler;
+                }
+                if (r == 2)
+                {
+                  target.AiType = CharacterAiType.ManagedWallBreaker;
+                }
+              }
+            }
+          }
         }
       }
-      else if (history.Any() && history.Max(h => h.IntGameDateTime) < this.Game.IntGameDateTime - 48)
-      {
-        isSetActions = this.allCharacters.Where(c => c.AiType.IsManaged()).All(c => this.IsReadyForWar(c));
-      }
 
-      if (!isSetActions)
+      foreach (var c in charas.Where(c => c.CountryId == this.Country.Id && c.AiType.IsMoneyInflator()))
       {
-        this.ResetCharacterAiTypes(targetCharas);
+        c.AiType = c.AiType.ToManagedStandard();
+      }
+      if (wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24 && this.Game.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 + 1)
+      {
+        foreach (var c in charas.Where(c => c.CountryId == this.Country.Id &&
+          c.AiType == CharacterAiType.ManagedPatroller))
+        {
+          c.AiType = CharacterAiType.ManagedMoneyInflatingPatroller;
+        }
       }
       else
       {
-        var alreadySet = targetCharas.Where(c => c.AiType.ToManagedStandard() != c.AiType);
-        var changables = targetCharas.Where(c => c.AiType.CanBattle() && c.AiType.ToManagedStandard() == c.AiType);
-        for (var i = alreadySet.Count(); i < setSize && changables.Any(); i++)
+        foreach (var c in charas.Where(c => c.CountryId == this.Country.Id &&
+          c.AiType == CharacterAiType.ManagedMoneyInflatingPatroller))
         {
-          var targets = changables.ToArray();
-          var target = targets[RandomService.Next(0, targets.Length)];
-          if (target.AiType == CharacterAiType.ManagedCivilOfficial)
-          {
-            target.AiType = CharacterAiType.ManagedShortstopCivilOfficial;
-          }
-          if (target.AiType == CharacterAiType.ManagedBattler)
-          {
-            var r = RandomService.Next(0, 3);
-            if (r == 0)
-            {
-              target.AiType = CharacterAiType.ManagedShortstopBattler;
-            }
-            if (r == 1)
-            {
-              target.AiType = CharacterAiType.ManagedWallBattler;
-            }
-            if (r == 2)
-            {
-              target.AiType = CharacterAiType.ManagedWallBreaker;
-            }
-          }
+          c.AiType = CharacterAiType.ManagedPatroller;
         }
       }
     }

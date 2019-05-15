@@ -348,8 +348,6 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
 
-      await CreateWarIfNotWarAsync(repo, country);
-
       return true;
     }
 
@@ -577,6 +575,9 @@ namespace SangokuKmy.Models.Services
       var unitPolicies = new AiCountryUnitPolicy[] { AiCountryUnitPolicy.NotCare, AiCountryUnitPolicy.BorderTownOnly, AiCountryUnitPolicy.BorderAndMainTown, };
       var unitGatherPolicies = new AiCountryUnitGatherPolicy[] { AiCountryUnitGatherPolicy.Always, AiCountryUnitGatherPolicy.BeforePeopleChanges, };
       var forceDefendPolicies = new AiCountryForceDefendPolicy[] { AiCountryForceDefendPolicy.NotCare, AiCountryForceDefendPolicy.Negative, AiCountryForceDefendPolicy.Medium, AiCountryForceDefendPolicy.Aggressive, };
+      var developStyles = new AiCountryDevelopStyle[] { AiCountryDevelopStyle.BorderTownFirst, AiCountryDevelopStyle.HigherTownFirst, AiCountryDevelopStyle.LowerTownFirst, AiCountryDevelopStyle.NotCare, };
+      var warTargetPolicies = new AiCountryWarTargetPolicy[] { AiCountryWarTargetPolicy.EqualityStronger, AiCountryWarTargetPolicy.EqualityWeaker, AiCountryWarTargetPolicy.Random, AiCountryWarTargetPolicy.Weakest, };
+      var warStartDatePolicies = new AiCountryWarStartDatePolicy[] { AiCountryWarStartDatePolicy.First21, AiCountryWarStartDatePolicy.FirstBetween19And23, AiCountryWarStartDatePolicy.HurryUp, };
       var management = new AiCountryManagement
       {
         CountryId = country.Id,
@@ -587,6 +588,9 @@ namespace SangokuKmy.Models.Services
         UnitPolicy = RandomService.Next(unitPolicies),
         UnitGatherPolicy = RandomService.Next(unitGatherPolicies),
         ForceDefendPolicy = RandomService.Next(forceDefendPolicies),
+        DevelopStyle = RandomService.Next(developStyles),
+        WarTargetPolicy = RandomService.Next(warTargetPolicies),
+        WarStartDatePolicy = RandomService.Next(warStartDatePolicies),
       };
       await repo.AiCountry.AddAsync(management);
       await repo.SaveChangesAsync();

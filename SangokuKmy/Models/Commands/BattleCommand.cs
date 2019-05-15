@@ -560,24 +560,24 @@ namespace SangokuKmy.Models.Commands
       await repo.BattleLog.AddLogWithSaveAsync(log, logLines, attackerCache, defenderCache);
       await repo.MapLog.SetBattleLogIdAsync(mapLogId, log.Id);
       aiLog.RestDefenderCount = defenders.Any() ? (defenders.First().Character.SoldierNumber == 0 ? defenders.Count() - 1 : defenders.Count()) : 0;
-      if (character.AiType.IsManaged())
-      {
-        aiLog.TownType = AiBattleTownType.EnemyTown;
-        await repo.AiActionHistory.AddAsync(aiLog);
-      }
-      else if (targetCountryOptional.HasData && targetCountryOptional.Data.AiType == CountryAiType.Managed)
+      if (targetCountryOptional.HasData && targetCountryOptional.Data.AiType == CountryAiType.Managed)
       {
         var storategy = await repo.AiCountry.GetStorategyByCountryIdAsync(targetCountryOptional.Data.Id);
         if (storategy.HasData)
         {
           aiLog.TownType = storategy.Data.MainTownId == targetTownId && storategy.Data.BorderTownId == targetTownId ? AiBattleTownType.MainAndBorderTown :
-            storategy.Data.MainTownId == targetTownId ? AiBattleTownType.MainTown :
+            storategy.Data.MainTownId == targetTownId ? (AiBattleTownType.MainTown | AiBattleTownType.BorderTown) :
             storategy.Data.BorderTownId == targetTownId ? AiBattleTownType.BorderTown : AiBattleTownType.Others;
         }
         else
         {
           aiLog.TownType = AiBattleTownType.Others;
         }
+        await repo.AiActionHistory.AddAsync(aiLog);
+      }
+      else if (character.AiType.IsManaged())
+      {
+        aiLog.TownType = AiBattleTownType.EnemyTown;
         await repo.AiActionHistory.AddAsync(aiLog);
       }
 

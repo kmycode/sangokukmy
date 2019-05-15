@@ -102,7 +102,7 @@ namespace SangokuKmy.Models.Updates.Ai
         // 作戦見直し
         if (old.Data.IntNextResetGameDate <= this.GameDateTime.ToInt())
         {
-          if (!availableWars.Any())
+          if (!mainWars.Any())
           {
             old.Data.MainTownId = 0;
             old.Data.TargetTownId = 0;
@@ -127,6 +127,7 @@ namespace SangokuKmy.Models.Updates.Ai
         var target = this.towns.FirstOrDefault(t => t.Id == old.Data.TargetTownId);
         var border = this.towns.FirstOrDefault(t => t.Id == old.Data.BorderTownId);
         var nextTarget = this.towns.FirstOrDefault(t => t.Id == old.Data.NextTargetTownId);
+        this.data.DevelopTown = this.towns.FirstOrDefault(t => t.Id == old.Data.DevelopTownId);
         this.data.MainUnit = units.FirstOrDefault(u => u.Id == old.Data.MainUnitId);
         this.data.BorderUnit = units.FirstOrDefault(u => u.Id == old.Data.BorderUnitId);
         this.data.IsDefendForce = old.Data.IsDefendForce && this.ForceDefendPolicy != ForceDefendPolicyLevel.NotCare;
@@ -169,8 +170,7 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       if (this.data.BorderTown != null &&
-        (!this.towns.GetAroundTowns(this.data.BorderTown).Any(t => mainWars.Contains(t.CountryId)) ||
-         (availableWars.Any() && !this.towns.GetAroundTowns(this.data.BorderTown).Any(t => availableWars.Contains(t.CountryId)))))
+        !this.towns.GetAroundTowns(this.data.BorderTown).Any(t => mainWars.Contains(t.CountryId)))
       {
         // 前線都市が敵国と隣接していない
         this.data.BorderTown = null;
@@ -444,6 +444,7 @@ namespace SangokuKmy.Models.Updates.Ai
         CountryId = this.Country.Id,
       };
       oldData.MainTownId = this.data.MainTown?.Id ?? 0;
+      oldData.DevelopTownId = this.data.DevelopTown?.Id ?? 0;
       oldData.BorderTownId = this.data.BorderTown?.Id ?? 0;
       oldData.NextTargetTownId = this.data.NextBattleTown?.Id ?? 0;
       oldData.TargetTownId = this.data.TargetTown?.Id ?? 0;
@@ -732,29 +733,28 @@ namespace SangokuKmy.Models.Updates.Ai
       await RunAsync(this.data.MainUnit);
     }
 
-    private async Task<bool> InputMoveOrJoinUnitAsync(MainRepository repo, uint townId)
+    private async Task<Unit> JoinUnitAsync(MainRepository repo, uint targetTownId)
     {
-      async Task<bool> RunAsync(Unit unit, Town t)
+      async Task<bool> RunAsync(Unit u, Town t)
       {
-        if (unit != null &&
+        if (u != null &&
           t != null &&
-          t.Id == townId)
+          t.Id == targetTownId)
         {
-          if (!unit.Members.Any(u => u.Character.Id == this.Character.Id))
+          if (!u.Members.Any(uu => uu.Character.Id == this.Character.Id))
           {
-            await UnitService.EntryAsync(repo, unit.Id, this.Character.Id);
+            await UnitService.EntryAsync(repo, u.Id, this.Character.Id);
           }
-          return await this.IsGatherUnitNextTurnAsync(repo, this.UnitLevel, unit);
+          return true;
         }
-
-        if (unit != null)
+        else if (u != null)
         {
-          var member = unit.Members.FirstOrDefault(u => u.CharacterId == this.Character.Id);
+          var member = u.Members.FirstOrDefault(uu => uu.CharacterId == this.Character.Id);
           if (member != null)
           {
             if (member.Post == UnitMemberPostType.Leader)
             {
-              await UnitService.RemoveAsync(repo, unit.Id);
+              await UnitService.RemoveAsync(repo, u.Id);
             }
             else
             {
@@ -765,14 +765,27 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
+      Unit unit = null;
+
       if (await RunAsync(this.data.BorderUnit, this.data.BorderTown))
       {
-        return false;
+        unit = this.data.BorderUnit;
       }
 
       if (await RunAsync(this.data.MainUnit, this.data.MainTown))
       {
-        return false;
+        unit = this.data.MainUnit;
+      }
+
+      return unit;
+    }
+
+    private async Task<bool> InputMoveOrJoinUnitAsync(MainRepository repo, uint townId)
+    {
+      var unit = await this.JoinUnitAsync(repo, townId);
+      if (unit != null)
+      {
+        return await this.IsGatherUnitNextTurnAsync(repo, this.UnitLevel, unit);
       }
 
       var town = await repo.Town.GetByIdAsync(townId);
@@ -850,7 +863,7 @@ namespace SangokuKmy.Models.Updates.Ai
       }
     }
 
-    private async Task<bool> GetSoldiersAsync(MainRepository repo, int num = -1)
+    private async Task<bool> InputGetSoldiersAsync(MainRepository repo, int num = -1)
     {
       if (await this.IsNeedSoldiersAsync(repo))
       {
@@ -877,6 +890,11 @@ namespace SangokuKmy.Models.Updates.Ai
         if (this.Town.People + 1 < num * Config.SoldierPeopleCost || this.Town.Security + 1 < num / 10)
         {
           return await this.InputMoveOrJoinUnitAsync(repo, this.GetTownForSoldiers(num).Id);
+        }
+
+        if ((this.GetWaringCountries().Any() || this.GetNearReadyForWarCountries().Any()) && this.data.BorderTown != null)
+        {
+          await this.JoinUnitAsync(repo, this.data.BorderTown.Id);
         }
 
         this.command.Parameters.Add(new CharacterCommandParameter
@@ -967,6 +985,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected async Task<bool> InputBattleAsync(MainRepository repo)
     {
+      var wc = this.GetWaringCountries();
       if (!this.GetWaringCountries().Any() && !this.GetNearReadyForWarCountries().Any())
       {
         return false;
@@ -982,7 +1001,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
-      if (await this.GetSoldiersAsync(repo))
+      if (await this.InputGetSoldiersAsync(repo))
       {
         return true;
       }
@@ -1178,7 +1197,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
-      if (await this.GetSoldiersAsync(repo))
+      if (await this.InputGetSoldiersAsync(repo))
       {
         return true;
       }
@@ -1196,9 +1215,9 @@ namespace SangokuKmy.Models.Updates.Ai
       return await RunAsync(this.Town);
     }
 
-    protected async Task<bool> InputCountryDefendLoopAsync(MainRepository repo)
+    protected async Task<bool> InputCountryForceDefendLoopAsync(MainRepository repo)
     {
-      if (this.ForceDefendPolicy == ForceDefendPolicyLevel.NotCare)
+      if (!this.data.IsDefendForce)
       {
         return false;
       }
@@ -1236,7 +1255,7 @@ namespace SangokuKmy.Models.Updates.Ai
       var num1 = this.Town.People < 2000 ? 1 : this.Town.People < 5000 ? 5 : this.Town.People < 7000 ? 9 : this.Town.People / 700;
       var num2 = this.Character.Money < 30000 ? 1 : this.Character.Money < 80000 ? 9 : this.Character.Leadership;
       var num = Math.Min(num1, num2);
-      if (await this.GetSoldiersAsync(repo, num))
+      if (await this.InputGetSoldiersAsync(repo, num))
       {
         return true;
       }
@@ -1282,6 +1301,28 @@ namespace SangokuKmy.Models.Updates.Ai
       this.command.Type = CharacterCommandType.Security;
     }
 
+    protected async Task<bool> InputFirstSecurityAsync(MainRepository repo)
+    {
+      if (this.GameDateTime.Year > Config.UpdateStartYear)
+      {
+        return false;
+      }
+
+      if (this.Town.Security >= 60)
+      {
+        return false;
+      }
+
+      var charas = await repo.Country.GetCharactersAsync(this.Character.CountryId);
+      if (charas.Any(c => c.AiType == CharacterAiType.ManagedPatroller))
+      {
+        return false;
+      }
+
+      this.InputSecurityForce();
+      return true;
+    }
+
     protected async Task<bool> InputMoveToQuickestImportantTownAsync(MainRepository repo)
     {
       if (this.Town.CountryId == this.Character.CountryId)
@@ -1300,6 +1341,28 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       return false;
+    }
+
+    protected async Task<bool> InputMoveToDevelopTownAsync(MainRepository repo)
+    {
+      if (this.GetWaringCountries().Any() || this.GetNearReadyForWarCountries().Any())
+      {
+        return false;
+      }
+      if (this.data.DevelopTown == null)
+      {
+        return false;
+      }
+      return await this.InputMoveOrJoinUnitAsync(repo, this.data.DevelopTown.Id);
+    }
+
+    protected async Task<bool> InputMoveToBorderTownInWarAsync(MainRepository repo)
+    {
+      if (!this.GetWaringCountries().Any() && !this.GetNearReadyForWarCountries().Any())
+      {
+        return false;
+      }
+      return await this.InputMoveToBorderTownAsync(repo);
     }
 
     protected async Task<bool> InputMoveToBorderTownAsync(MainRepository repo)
@@ -1385,30 +1448,48 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected bool InputDevelop()
     {
+      var isDevelopIncome = this.Country.LastMoneyIncomes < 10000 || this.Country.LastRiceIncomes < 10000;
+
       var v = this.GameDateTime.Month % 2;
       if (v == 0)
       {
         command.Type = CharacterCommandType.Wall;
+        if (isDevelopIncome)
+        {
+          command.Type = CharacterCommandType.Agriculture;
+        }
       }
       else
       {
         command.Type = CharacterCommandType.Technology;
+        if (isDevelopIncome)
+        {
+          command.Type = CharacterCommandType.Commercial;
+        }
       }
 
-      // 内政の優先順位（謀略も考慮）
+      // 内政の優先順位
       if (this.Town.Technology < 801)
       {
         command.Type = CharacterCommandType.Technology;
       }
 
       // 最大値を監視
+      if (command.Type == CharacterCommandType.Agriculture && this.Town.Agriculture >= this.Town.AgricultureMax)
+      {
+        command.Type = CharacterCommandType.Commercial;
+      }
+      if (command.Type == CharacterCommandType.Commercial && this.Town.Commercial >= this.Town.CommercialMax)
+      {
+        command.Type = CharacterCommandType.Wall;
+      }
       if (command.Type == CharacterCommandType.Wall && this.Town.Wall >= this.Town.WallMax)
       {
         command.Type = CharacterCommandType.Technology;
       }
       if (command.Type == CharacterCommandType.Technology && this.Town.Technology >= this.Town.TechnologyMax)
       {
-        command.Type = CharacterCommandType.TownBuilding;
+        command.Type = this.Town.Wall < this.Town.WallMax ? CharacterCommandType.Wall : CharacterCommandType.TownBuilding;
       }
       if (command.Type == CharacterCommandType.TownBuilding &&
         (this.Town.TownBuildingValue >= Config.TownBuildingMax ||
@@ -1619,12 +1700,32 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
+      if (await this.InputSellRiceAsync(repo, 1.16f))
+      {
+        return true;
+      }
+
       if (await this.InputBuyRiceAsync(repo, 0.84f))
       {
         return true;
       }
 
-      if (await this.InputSellRiceAsync(repo, 1.16f))
+      return false;
+    }
+
+    protected async Task<bool> InputRiceAnywayAsync(MainRepository repo, int maxAssets, int minAssets)
+    {
+      if (this.Character.Money + this.Character.Rice > maxAssets)
+      {
+        return false;
+      }
+
+      if (this.Character.Rice >= minAssets && await this.InputSellRiceAsync(repo, 1.05f))
+      {
+        return true;
+      }
+
+      if (this.Character.Money >= minAssets && await this.InputBuyRiceAsync(repo, 0.95f))
       {
         return true;
       }
@@ -1635,9 +1736,9 @@ namespace SangokuKmy.Models.Updates.Ai
     protected async Task<bool> InputBuyRiceAsync(MainRepository repo, float rateMax)
     {
       var rate = this.GameDateTime.Year > Config.UpdateStartYear ?
-        await repo.AiActionHistory.GetMaxRicePriceAsync(this.Character.Id, this.GameDateTime.ToInt() - 200) : this.Town.RicePrice;
+        await repo.AiActionHistory.GetMinRicePriceAsync(this.Character.Id, this.GameDateTime.ToInt() - 200) : this.Town.RicePrice;
       var isWar = this.GetWaringCountries().Any() || this.GetNearReadyForWarCountries().Any() || this.GetReadyForWarCountries().Any();
-      if (this.Character.Money > (this.Character.GetCharacterType() == CharacterType.Popularity ? 5000 : isWar ? 30000 : 5000) &&
+      if (this.Character.Money > (this.Character.GetCharacterType() == CharacterType.Popularity ? 5000 : isWar ? 20000 : 5000) &&
           rate <= rateMax)
       {
         var a = Math.Min(Config.RiceBuyMax, this.Character.Money - 5000);
@@ -1668,7 +1769,7 @@ namespace SangokuKmy.Models.Updates.Ai
       var rate = this.GameDateTime.Year > Config.UpdateStartYear ?
         await repo.AiActionHistory.GetMaxRicePriceAsync(this.Character.Id, this.GameDateTime.ToInt() - 200) : this.Town.RicePrice;
       var isWar = this.GetWaringCountries().Any() || this.GetNearReadyForWarCountries().Any() || this.GetReadyForWarCountries().Any();
-      if (this.Character.Rice > (this.Character.GetCharacterType() == CharacterType.Popularity ? 20000 : isWar ? 10000 : 5000) &&
+      if (this.Character.Rice > (isWar ? 10000 : 5000) &&
           rate >= rateMin)
       {
         var a = Math.Min(Config.RiceBuyMax, this.Character.Rice - 5000);
@@ -1857,6 +1958,11 @@ namespace SangokuKmy.Models.Updates.Ai
       /// 次に攻めるところ
       /// </summary>
       public Town NextBattleTown { get; set; }
+
+      /// <summary>
+      /// 内政
+      /// </summary>
+      public Town DevelopTown { get; set; }
 
       /// <summary>
       /// 前線

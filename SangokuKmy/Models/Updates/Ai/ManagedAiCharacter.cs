@@ -29,6 +29,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override bool IsWarEmpty => true;
 
+    protected virtual bool CanPolicyFirst => true;
+
     protected bool IsPolicySecond { get; private set; }
 
     public ManagedAiCharacter(Character character) : base(character)
@@ -188,8 +190,11 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         if (management.Data.IsPolicyFirst && this.Character.Money > 100 && (this.Character.Strong >= 100 || this.Character.Intellect >= 100))
         {
-          this.InputPolicy();
-          return;
+          if (this.CanPolicyFirst)
+          {
+            this.InputPolicy();
+            return;
+          }
         }
         else if (management.Data.IsPolicySecond)
         {
@@ -248,11 +253,15 @@ namespace SangokuKmy.Models.Updates.Ai
           {
             var mainTown = towns.FirstOrDefault(t => t.Id == storategy.Data.MainTownId);
             var borderTown = towns.FirstOrDefault(t => t.Id == storategy.Data.BorderTownId);
-            if (mainTown != null && (mainTown.Security < 75 || (mainTown.Security < 100 && mainTown.People < 40000)))
+            if (mainTown != null &&
+              (mainTown.Security < 75 || (mainTown.Security < 100 && mainTown.People < 40000)) &&
+              !charas.Any(c => c.AiType == CharacterAiType.ManagedPatroller && c.TownId == mainTown.Id))
             {
               requestedType = CharacterAiType.SecretaryPatroller;
             }
-            else if (borderTown != null && (borderTown.Security < 75 || (borderTown.Security < 100 && borderTown.People < 40000)))
+            else if (borderTown != null &&
+              (borderTown.Security < 75 || (borderTown.Security < 100 && borderTown.People < 40000)) &&
+              !charas.Any(c => c.AiType == CharacterAiType.ManagedPatroller && c.TownId == borderTown.Id))
             {
               requestedType = CharacterAiType.SecretaryPatroller;
             }
@@ -264,7 +273,9 @@ namespace SangokuKmy.Models.Updates.Ai
           else
           {
             var capital = towns.FirstOrDefault(t => t.Id == this.Country.CapitalTownId && t.CountryId == this.Country.Id);
-            if (capital != null && (capital.Security < 75 || (capital.Security < 100 && capital.People < 40000)))
+            if (capital != null &&
+              (capital.Security < 75 || (capital.Security < 100 && capital.People < 40000)) &&
+              !charas.Any(c => c.AiType == CharacterAiType.ManagedPatroller && c.TownId == capital.Id))
             {
               requestedType = CharacterAiType.SecretaryPatroller;
             }
@@ -280,7 +291,9 @@ namespace SangokuKmy.Models.Updates.Ai
           this.InputAddSecretary(requestedType);
           return true;
         }
-        if (!secretaries.All(s => s.AiType == requestedType))
+        if (!secretaries.All(s => s.AiType == requestedType) &&
+          this.Country.LastMoneyIncomes > Config.SecretaryCost &&
+          this.Country.LastRiceIncomes > Config.SecretaryCost)
         {
           this.InputRemoveSecretary(secretaries.First(s => s.AiType != requestedType).Id);
           return true;
@@ -352,7 +365,7 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         var chara = charas
           .Where(c => c.AiType.IsManaged() && !c.AiType.IsMoneyInflator())
-          .Where(c => c.GetCharacterType() != CharacterType.Popularity)
+          .Where(c => c.AiType.ToManagedStandard() != CharacterAiType.ManagedPatroller)
           .OrderBy(c => c.Money)
           .FirstOrDefault();
         if (chara != null)
@@ -471,12 +484,17 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
     {
+      if (await this.InputFirstSecurityAsync(repo))
+      {
+        return;
+      }
+
       if (await this.InputGatherUnitAsync(repo))
       {
         return;
       }
 
-      if (await this.InputCountryDefendLoopAsync(repo))
+      if (await this.InputCountryForceDefendLoopAsync(repo))
       {
         return;
       }
@@ -516,7 +534,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (await this.InputRiceAsync(repo, 20_0000))
+      if (await this.InputRiceAsync(repo, 10_0000))
       {
         return;
       }
@@ -530,7 +548,7 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         return;
       }
-      else if (this.GameDateTime.Year % 5 == 0 && this.InputPolicy())
+      else if (this.GameDateTime.Year % 6 == 0 && this.InputPolicy())
       {
         return;
       }
@@ -540,7 +558,7 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           return;
         }
-        if (this.GameDateTime.Year % 3 == 1 && await this.InputRiceAsync(repo, 60_0000))
+        if (this.GameDateTime.Year % 3 == 1 && await this.InputRiceAsync(repo, 40_0000))
         {
           return;
         }
@@ -623,6 +641,9 @@ namespace SangokuKmy.Models.Updates.Ai
   {
     protected override DefendSeiranLevel NeedDefendSeiranLevel => DefendSeiranLevel.Seirans;
 
+    protected override bool CanPolicyFirst =>
+      (this.Country.LastMoneyIncomes >= 10000 && this.Country.LastRiceIncomes >= 10000) ? base.CanPolicyFirst : false;
+
     protected override AttackMode AttackType
     {
       get
@@ -677,12 +698,17 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
     {
+      if (await this.InputFirstSecurityAsync(repo))
+      {
+        return;
+      }
+
       if (await this.InputGatherUnitAsync(repo))
       {
         return;
       }
 
-      if (await this.InputCountryDefendLoopAsync(repo))
+      if (await this.InputCountryForceDefendLoopAsync(repo))
       {
         return;
       }
@@ -702,7 +728,12 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (await this.InputMoveToBorderTownAsync(repo))
+      if (await this.InputMoveToBorderTownInWarAsync(repo))
+      {
+        return;
+      }
+
+      if (await this.InputMoveToDevelopTownAsync(repo))
       {
         return;
       }
@@ -741,17 +772,13 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         return;
       }
-      else if (this.GameDateTime.Year % 2 == 0 && this.InputPolicy())
-      {
-        return;
-      }
       else
       {
         if (this.IsPolicySecond && this.InputPolicy())
         {
           return;
         }
-        if (this.GameDateTime.Year % 3 == 1 && await this.InputRiceAsync(repo, 60_0000))
+        if (this.GameDateTime.Year % 3 != 1 && await this.InputRiceAsync(repo, 60_0000))
         {
           return;
         }
@@ -832,7 +859,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (await this.InputCountryDefendLoopAsync(repo))
+      if (await this.InputCountryForceDefendLoopAsync(repo))
       {
         return;
       }
@@ -928,12 +955,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
     {
-      if (await this.InputSafeInAsync(repo, Config.PaySafeMax, 2_0000))
-      {
-        return;
-      }
-
-      if (await this.InputRiceAlwaysAsync(repo, int.MaxValue))
+      if (await this.InputRiceAnywayAsync(repo, int.MaxValue, Config.RiceBuyMax))
       {
         return;
       }

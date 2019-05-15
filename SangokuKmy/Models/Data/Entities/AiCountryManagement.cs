@@ -32,6 +32,9 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("seiran_policy")]
     public AgainstSeiranPolicy SeiranPolicy { get; set; }
 
+    [Column("develop_style")]
+    public AiCountryDevelopStyle DevelopStyle { get; set; }
+
     [Column("is_policy_first")]
     public bool IsPolicyFirst { get; set; }
 
@@ -71,6 +74,15 @@ namespace SangokuKmy.Models.Data.Entities
     WallDefend = 1,
     Money = 2,
     WallAttack = 3,
+  }
+
+  public enum AiCountryDevelopStyle : short
+  {
+    Unknown = 0,
+    NotCare = 1,
+    LowerTownFirst = 2,
+    BorderTownFirst = 3,
+    HigherTownFirst = 4,
   }
 
   public enum AgainstSeiranPolicy : short
