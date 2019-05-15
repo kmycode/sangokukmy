@@ -249,7 +249,7 @@ namespace SangokuKmy.Models.Services
         {
           TownBuilding.MilitaryStation,
           TownBuilding.OpenWall,
-          TownBuilding.RepairWall,
+          // TownBuilding.RepairWall,
           TownBuilding.TrainIntellect,
           TownBuilding.TrainLeadership,
           TownBuilding.TrainPopularity,
