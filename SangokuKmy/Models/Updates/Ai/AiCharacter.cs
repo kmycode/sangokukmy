@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SangokuKmy.Models.Updates
+namespace SangokuKmy.Models.Updates.Ai
 {
   public static class AiCharacterFactory
   {
@@ -84,6 +84,40 @@ namespace SangokuKmy.Models.Updates
       {
         ai = new ThiefPatrollerAiCharacter(chara);
       }
+      else if (chara.AiType == CharacterAiType.ManagedBattler)
+      {
+        ai = new ManagedBattlerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedWallBattler)
+      {
+        ai = new ManagedWallBattlerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedWallBreaker)
+      {
+        ai = new ManagedWallBreakerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedShortstopBattler)
+      {
+        ai = new ManagedShortstopBattlerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedCivilOfficial)
+      {
+        ai = new ManagedCivilOfficialAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedShortstopCivilOfficial)
+      {
+        ai = new ManagedShortstopCivilOfficialAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedPatroller)
+      {
+        ai = new ManagedPatrollerAiCharacter(chara);
+      }
+      else if (chara.AiType == CharacterAiType.ManagedMoneyInflatingBattler ||
+        chara.AiType == CharacterAiType.ManagedMoneyInflatingCivilOfficial ||
+        chara.AiType == CharacterAiType.ManagedMoneyInflatingPatroller)
+      {
+        ai = new ManagedMoneyInflaterAiCharacter(chara);
+      }
       else
       {
         ai = new HumanCharacter(chara);
@@ -108,14 +142,14 @@ namespace SangokuKmy.Models.Updates
       this.Character = character;
     }
 
+    protected virtual async Task<Optional<CharacterCommand>> GetCommandAsNoCountryAsync(MainRepository repo)
+    {
+      return default;
+    }
+
     public virtual async Task<Optional<CharacterCommand>> GetCommandAsync(MainRepository repo, GameDateTime current)
     {
       var country = await repo.Country.GetAliveByIdAsync(this.Character.CountryId);
-      if (!country.HasData)
-      {
-        this.Character.DeleteTurn = (short)Config.DeleteTurns;
-        return default;
-      }
 
       var town = await repo.Town.GetByIdAsync(this.Character.TownId);
       if (!town.HasData)
@@ -126,6 +160,20 @@ namespace SangokuKmy.Models.Updates
       this.GameDateTime = current;
       this.Country = country.Data;
       this.Town = town.Data;
+
+      if (!country.HasData)
+      {
+        var cmd = await this.GetCommandAsNoCountryAsync(repo);
+        if (!cmd.HasData)
+        {
+          this.Character.DeleteTurn = (short)Config.DeleteTurns;
+          return default;
+        }
+        else
+        {
+          return cmd;
+        }
+      }
 
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.InsistedCountryId == this.Country.Id || w.RequestedCountryId == this.Country.Id);
 
@@ -208,7 +256,7 @@ namespace SangokuKmy.Models.Updates
       return (this.GetStreet(await repo.Town.GetAllAsync(), from, target)).ElementAt(1);
     }
 
-    protected Town GetMatchTown(IEnumerable<Town> towns, Func<TownBase, object> order, Func<TownBase, bool> subject)
+    protected Town GetMatchTown(IEnumerable<Town> towns, Func<TownBase, object> order, Func<TownBase, bool> subject, bool isSearchMyCountryTown = true)
     {
       var current = this.Town;
 
@@ -219,11 +267,13 @@ namespace SangokuKmy.Models.Updates
       {
         arounds = arounds.OrderByDescending(order);
       }
-      var capital = arounds.FirstOrDefault(a => a.Id == this.Country.CapitalTownId);
 
       var aroundsRank = arounds
-        .Where(subject)
-        .OrderByDescending(order);
+        .Where(subject);
+      if (order != null)
+      {
+        aroundsRank = aroundsRank.OrderByDescending(order);
+      }
       if (aroundsRank.Any())
       {
         // 条件に合う都市が隣にある
@@ -232,7 +282,7 @@ namespace SangokuKmy.Models.Updates
       else
       {
         // 探索範囲を自国の全都市に広げる
-        var myCountryTowns = towns.Where(t => t.CountryId == this.Country.Id);
+        var myCountryTowns = isSearchMyCountryTown ? towns.Where(t => t.CountryId == this.Country.Id) : towns;
         var allRank = myCountryTowns
           .OrderByDescending(t => t.People + t.Wall);
         var match = allRank.FirstOrDefault(subject);

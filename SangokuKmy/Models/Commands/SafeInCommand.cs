@@ -40,10 +40,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       var policies = await repo.Country.GetPoliciesAsync(country.Id);
-
-      var count = policies.Count(p => p.Type == CountryPolicyType.Storage || p.Type == CountryPolicyType.UndergroundStorage ||
-                                      p.Type == CountryPolicyType.StomachStorage || p.Type == CountryPolicyType.BloodVesselsStorage);
-      var max = Config.CountrySafeMax * count;
+      var max = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type));
 
       var money = options.FirstOrDefault(o => o.Type == 1)?.NumberValue ?? 0;
       if (money > character.Money)

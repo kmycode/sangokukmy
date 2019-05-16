@@ -25,6 +25,7 @@ namespace SangokuKmy.Models.Services
       await repo.ChatMessage.ResetAsync();
       await repo.CountryDiplomacies.ResetAsync();
       await repo.AiCountry.ResetAsync();
+      await repo.AiActionHistory.ResetAsync();
       await repo.Country.ResetAsync();
       await repo.MapLog.ResetAsync();
       await repo.ScoutedTown.ResetAsync();
@@ -77,6 +78,18 @@ namespace SangokuKmy.Models.Services
         IsImportant = false,
         Message = "ゲームプログラムを開始しました",
       });
+      await repo.SaveChangesAsync();
+
+      Func<EventType, string, bool, Task> maplog = async (type, message, isImportant) => await repo.MapLog.AddAsync(new MapLog
+      {
+        Message = message,
+        EventType = type,
+        IsImportant = isImportant,
+        Date = DateTime.Now,
+        ApiGameDateTime = system.GameDateTime,
+      });
+      await AiService.CreateManagedCountryAsync(repo, maplog, 2);
+      await AiService.CreateManagedCountryAsync(repo, maplog, 0);
       await repo.SaveChangesAsync();
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new ApiSignal

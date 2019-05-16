@@ -396,6 +396,8 @@ namespace SangokuKmy.Models.Data.Entities
 
   public enum SoldierType : short
   {
+    Unknown = 0,
+
     /// <summary>
     /// 雑兵
     /// </summary>
@@ -516,6 +518,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     IntellectHeavyCavalry = 24,
 
+    /// <summary>
+    /// 義勇兵
+    /// </summary>
+    Military = 25,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,
@@ -523,6 +530,14 @@ namespace SangokuKmy.Models.Data.Entities
     Guard_Step3 = 102,
 
     Guard_Step4 = 103,
+  }
+
+  public static class DefaultCharacterSoldierTypeExtensions
+  {
+    public static bool IsForWall(this SoldierType type)
+    {
+      return type == SoldierType.Seiran;
+    }
   }
 
   public enum CharacterAiType
@@ -544,13 +559,77 @@ namespace SangokuKmy.Models.Data.Entities
     ThiefBattler = 14,
     ThiefPatroller = 15,
     ThiefWallBattler = 16,
+    ManagedPatroller = 17,
+    ManagedBattler = 18,
+    ManagedCivilOfficial = 19,
+    ManagedWallBattler = 20,
+    ManagedWallBreaker = 21,
+    ManagedShortstopBattler = 22,
+    ManagedShortstopCivilOfficial = 23,
+    ManagedMoneyInflatingBattler = 24,
+    ManagedMoneyInflatingCivilOfficial = 25,
+    ManagedMoneyInflatingPatroller = 26,
   }
 
   public static class CharacterAiTypeExtensions
   {
     public static bool IsSecretary(this CharacterAiType type)
     {
-      return type == CharacterAiType.SecretaryPatroller || type == CharacterAiType.SecretaryUnitGather || type == CharacterAiType.SecretaryPioneer;
+      return type == CharacterAiType.SecretaryPatroller ||
+        type == CharacterAiType.SecretaryUnitGather ||
+        type == CharacterAiType.SecretaryPioneer;
+    }
+
+    public static bool IsManaged(this CharacterAiType type)
+    {
+      return type == CharacterAiType.ManagedBattler ||
+        type == CharacterAiType.ManagedCivilOfficial ||
+        type == CharacterAiType.ManagedPatroller ||
+        type == CharacterAiType.ManagedShortstopBattler ||
+        type == CharacterAiType.ManagedWallBattler ||
+        type == CharacterAiType.ManagedWallBreaker;
+    }
+
+    public static bool IsMoneyInflator(this CharacterAiType type)
+    {
+      return type == CharacterAiType.ManagedMoneyInflatingBattler ||
+        type == CharacterAiType.ManagedMoneyInflatingCivilOfficial ||
+        type == CharacterAiType.ManagedMoneyInflatingPatroller;
+    }
+
+    public static CharacterAiType ToManagedStandard(this CharacterAiType type)
+    {
+      if (type == CharacterAiType.ManagedShortstopBattler ||
+          type == CharacterAiType.ManagedWallBattler ||
+          type == CharacterAiType.ManagedWallBreaker ||
+          type == CharacterAiType.ManagedMoneyInflatingBattler)
+      {
+        return CharacterAiType.ManagedBattler;
+      }
+      else if (type == CharacterAiType.ManagedShortstopCivilOfficial ||
+        type == CharacterAiType.ManagedMoneyInflatingCivilOfficial)
+      {
+        return CharacterAiType.ManagedCivilOfficial;
+      }
+      else if (type == CharacterAiType.ManagedMoneyInflatingPatroller)
+      {
+        return CharacterAiType.ManagedPatroller;
+      }
+      else
+      {
+        return type;
+      }
+    }
+
+    public static bool CanBattle(this CharacterAiType type)
+    {
+      return type != CharacterAiType.Human &&
+        !type.IsSecretary() &&
+        type != CharacterAiType.ManagedPatroller &&
+        type != CharacterAiType.FarmerPatroller &&
+        type != CharacterAiType.TerroristMainPatroller &&
+        type != CharacterAiType.TerroristPatroller &&
+        type != CharacterAiType.ThiefPatroller;
     }
   }
 }

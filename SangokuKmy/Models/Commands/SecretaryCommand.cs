@@ -11,6 +11,7 @@ using SangokuKmy.Models.Services;
 using SangokuKmy.Models.Updates;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Streamings;
+using SangokuKmy.Models.Updates.Ai;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -30,8 +31,9 @@ namespace SangokuKmy.Models.Commands
         ErrorCode.NotPermissionError.Throw();
       }
 
-      var policies = await repo.Country.GetPoliciesAsync(country.Id);
-      if (!policies.Any(p => p.Type == CountryPolicyType.HumanDevelopment))
+      var policies = (await repo.Country.GetPoliciesAsync(country.Id)).Where(p => p.Status == CountryPolicyStatus.Available);
+      var secretaryMax = CountryService.GetSecretaryMax(policies.Select(p => p.Type));
+      if (secretaryMax < 1)
       {
         ErrorCode.InvalidOperationError.Throw();
       }
@@ -63,10 +65,12 @@ namespace SangokuKmy.Models.Commands
       }
       var country = countryOptional.Data;
 
-      var charas = await repo.Country.GetCharactersAsync(country.Id);
-      if (charas.Count(c => c.Character.AiType.IsSecretary()) >= Config.SecretaryMax)
+      var charas = await repo.Country.GetCharactersWithIconsAndCommandsAsync(country.Id);
+      var policies = await repo.Country.GetPoliciesAsync(country.Id);
+      var secretaryMax = CountryService.GetSecretaryMax(policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type));
+      if (charas.Count(c => c.Character.AiType.IsSecretary()) >= secretaryMax)
       {
-        await game.CharacterLogAsync($"政務官を雇おうとしましたが、すでに政務官の数が上限 <num>{Config.SecretaryMax}</num> に達しています");
+        await game.CharacterLogAsync($"政務官を雇おうとしましたが、すでに政務官の数が上限 <num>{secretaryMax}</num> に達しています");
         return;
       }
 
@@ -93,7 +97,7 @@ namespace SangokuKmy.Models.Commands
       ai.Character.TownId = country.CapitalTownId;
       ai.Character.Money = 10000;
       ai.Character.Rice = 10000;
-      ai.Character.LastUpdated = DateTime.Now.AddSeconds(10);
+      ai.Character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime + 10);
       if (ai.Character.LastUpdated > system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime))
       {
         ai.Character.LastUpdatedGameDate = game.GameDateTime.NextMonth();
@@ -328,8 +332,8 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
-      var id = (CharacterAiType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
-      await repo.Character.GetByIdAsync((uint)id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+      var id = (uint)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
+      await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
 
       await this.CheckCanInputAsync(repo, characterId);
 

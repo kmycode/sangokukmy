@@ -75,6 +75,16 @@ namespace SangokuKmy.Models.Data.ApiEntities
       set => this.LastUpdated = value.ToDateTime();
     }
 
+    [JsonIgnore]
+    public GameDateTime LastUpdatedGameDate
+    {
+      get => GameDateTime.FromInt(this.IntLastUpdatedGameDate);
+      set => this.IntLastUpdatedGameDate = value.ToInt();
+    }
+
+    [JsonIgnore]
+    public int IntLastUpdatedGameDate { get; set; }
+
     [JsonProperty("commands")]
     public IEnumerable<CharacterCommand> Commands { get; set; }
 
@@ -119,6 +129,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       if (level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountry)
       {
         this.LastUpdated = character.LastUpdated;
+        this.IntLastUpdatedGameDate = character.IntLastUpdatedGameDate;
         if (commands != null)
         {
           var cmds = new List<CharacterCommand>();

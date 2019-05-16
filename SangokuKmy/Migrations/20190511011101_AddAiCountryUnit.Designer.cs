@@ -2,49 +2,28 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20190511011101_AddAiCountryUnit")]
+    partial class AddAiCountryUnit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.1.8-servicing-32085")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.AiActionHistory", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<uint>("CharacterId")
-                        .HasColumnName("character_id");
-
-                    b.Property<int>("IntGameDateTime")
-                        .HasColumnName("game_date_time");
-
-                    b.Property<int>("IntRicePrice")
-                        .HasColumnName("rice_price");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ai_action_histories");
-                });
-
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.AiBattleHistory", b =>
                 {
                     b.Property<uint>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id");
-
-                    b.Property<int>("AttackerSoldiersMoney")
-                        .HasColumnName("attacker_soldiers_money");
 
                     b.Property<uint>("CharacterId")
                         .HasColumnName("character_id");
@@ -89,9 +68,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
-
-                    b.Property<short>("DevelopStyle")
-                        .HasColumnName("develop_style");
 
                     b.Property<short>("ForceDefendPolicy")
                         .HasColumnName("force_defend_policy");
@@ -148,9 +124,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
-
-                    b.Property<uint>("DevelopTownId")
-                        .HasColumnName("develop_town_id");
 
                     b.Property<int>("IntNextResetGameDate")
                         .HasColumnName("next_reset_game_date");

@@ -195,6 +195,15 @@ namespace SangokuKmy.Models.Commands
       var targetExperience = 50;
       var targetContribution = 0;
       character.Rice -= character.SoldierNumber * myRicePerSoldier;
+      var aiLog = new AiBattleHistory
+      {
+        CharacterId = character.Id,
+        CountryId = character.CountryId,
+        IntGameDateTime = game.GameDateTime.ToInt(),
+        TownCountryId = targetTown.CountryId,
+        TownId = targetTown.Id,
+        AttackerSoldiersMoney = mySoldierType.Money * character.SoldierNumber,
+      };
 
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
@@ -255,6 +264,8 @@ namespace SangokuKmy.Models.Commands
         targetCharacter = defenders.First().Character;
         log.DefenderCharacterId = targetCharacter.Id;
         log.DefenderType = DefenderType.Character;
+        aiLog.DefenderId = targetCharacter.Id;
+        aiLog.TargetType = targetCharacter.SoldierNumber < 10 ? AiBattleTargetType.CharacterLowSoldiers : AiBattleTargetType.Character;
 
         if (targetCharacter.SoldierType != SoldierType.Custom)
         {
@@ -292,8 +303,9 @@ namespace SangokuKmy.Models.Commands
         targetCharacter.Name = targetTown.Name + "城壁";
         targetCharacter.SoldierNumber = targetTown.Wall;
         log.DefenderType = DefenderType.Wall;
+        aiLog.TargetType = AiBattleTargetType.Wall;
 
-        var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type);
+        var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).GetAvailableTypes();
 
         targetCharacter.SoldierType = policies.Contains(CountryPolicyType.StoneCastle) ? SoldierType.Guard_Step4 :
                             policies.Contains(CountryPolicyType.Earthwork) ? SoldierType.Guard_Step3 :
@@ -312,6 +324,12 @@ namespace SangokuKmy.Models.Commands
 
         defenderCache = targetCharacter.ToLogCache(new CharacterIcon(), targetFormationData);
         isWall = true;
+
+        var myPolicies = (await repo.Country.GetPoliciesAsync(character.CountryId)).GetAvailableTypes();
+        if (myPolicies.Contains(CountryPolicyType.Shosha))
+        {
+          myAttackCorrection += 60;
+        }
       }
 
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");
@@ -513,7 +531,7 @@ namespace SangokuKmy.Models.Commands
                   Message = string.Empty,
                   CountryId = 0,
                 };
-                foreach (var targetCountryCharacter in await repo.Country.GetCharactersAsync(targetCountry.Id))
+                foreach (var targetCountryCharacter in await repo.Country.GetCharactersWithIconsAndCommandsAsync(targetCountry.Id))
                 {
                   await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCountryCharacter.Character), targetCountryCharacter.Character.Id);
                   await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), targetCountryCharacter.Character.Id);
@@ -541,6 +559,27 @@ namespace SangokuKmy.Models.Commands
       log.MapLogId = mapLogId;
       await repo.BattleLog.AddLogWithSaveAsync(log, logLines, attackerCache, defenderCache);
       await repo.MapLog.SetBattleLogIdAsync(mapLogId, log.Id);
+      aiLog.RestDefenderCount = defenders.Any() ? (defenders.First().Character.SoldierNumber == 0 ? defenders.Count() - 1 : defenders.Count()) : 0;
+      if (targetCountryOptional.HasData && targetCountryOptional.Data.AiType == CountryAiType.Managed)
+      {
+        var storategy = await repo.AiCountry.GetStorategyByCountryIdAsync(targetCountryOptional.Data.Id);
+        if (storategy.HasData)
+        {
+          aiLog.TownType = storategy.Data.MainTownId == targetTownId && storategy.Data.BorderTownId == targetTownId ? AiBattleTownType.MainAndBorderTown :
+            storategy.Data.MainTownId == targetTownId ? (AiBattleTownType.MainTown | AiBattleTownType.BorderTown) :
+            storategy.Data.BorderTownId == targetTownId ? AiBattleTownType.BorderTown : AiBattleTownType.Others;
+        }
+        else
+        {
+          aiLog.TownType = AiBattleTownType.Others;
+        }
+        await repo.AiActionHistory.AddAsync(aiLog);
+      }
+      else if (character.AiType.IsManaged())
+      {
+        aiLog.TownType = AiBattleTownType.EnemyTown;
+        await repo.AiActionHistory.AddAsync(aiLog);
+      }
 
       // 貢献、経験値の設定
       myContribution += myExperience;

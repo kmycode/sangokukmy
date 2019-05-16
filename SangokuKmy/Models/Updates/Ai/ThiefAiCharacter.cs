@@ -2,7 +2,7 @@
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 
-namespace SangokuKmy.Models.Updates
+namespace SangokuKmy.Models.Updates.Ai
 {
   public class ThiefBattlerAiCharacter : TerroristBattlerAiCharacter
   {

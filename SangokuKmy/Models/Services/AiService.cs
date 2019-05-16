@@ -4,6 +4,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Updates;
+using SangokuKmy.Models.Updates.Ai;
 using SangokuKmy.Streamings;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,7 @@ namespace SangokuKmy.Models.Services
       {
         IntEstablished = system.IntGameDateTime - Config.CountryBattleStopDuring,
         CapitalTownId = town.Id,
+        PolicyPoint = 10000,
       };
       await repo.Country.AddAsync(country);
       await repo.SaveChangesAsync();
@@ -84,39 +86,31 @@ namespace SangokuKmy.Models.Services
       await repo.Character.AddCharacterIconAsync(icon);
     }
 
-    public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
+    public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, GameDateTime? startDate = null)
     {
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var countries = (await repo.Country.GetAllAsync())
         .Where(c => !c.HasOverthrown)
-        .Where(c => c.AiType != CountryAiType.Human)
+        .Where(c => c.AiType != CountryAiType.Human && c.AiType != CountryAiType.Managed)
         .Where(c => !wars.Any(w => w.RequestedCountryId == c.Id || w.InsistedCountryId == c.Id));
 
+      var isCreated = false;
       var allTowns = await repo.Town.GetAllAsync();
       foreach (var country in countries)
       {
-        var towns = await repo.Town.GetByCountryIdAsync(country.Id);
-
-        foreach (var town in towns.OrderByDescending(t => t.WallMax))
+        if (await CreateWarIfNotWarAsync(repo, country, startDate: startDate))
         {
-          if (await CreateWarIfNotWarAsync(repo, country, town, mapLogAsync))
-          {
-            return true;
-          }
+          isCreated = true;
         }
       }
 
-      return false;
+      return isCreated;
     }
 
-    public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, Country self, Town selfTown, Func<EventType, string, bool, Task> mapLogAsync)
+    public static async Task<IEnumerable<Country>> GetNotWarAroundCountriesAsync(MainRepository repo, Country self)
     {
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-      if (wars.Any(w => w.RequestedCountryId == self.Id || w.InsistedCountryId == self.Id))
-      {
-        return false;
-      }
-
+      
       var allCountries = await repo.Country.GetAllAsync();
       var warCountries = wars
         .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
@@ -130,50 +124,117 @@ namespace SangokuKmy.Models.Services
         .ToArray();
       if (!notWarCountries.Any())
       {
-        return false;
+        return Enumerable.Empty<Country>();
       }
 
       var allTowns = await repo.Town.GetAllAsync();
-      var aroundTowns = allTowns.GetAroundTowns(selfTown).Where(t => notWarCountries.Contains(t.CountryId)).ToArray();
-      if (!aroundTowns.Any())
+      var aroundTowns = allTowns
+        .Where(t => t.CountryId == self.Id)
+        .SelectMany(t => allTowns.GetAroundTowns(t).Where(tt => tt.CountryId != self.Id && notWarCountries.Contains(tt.CountryId)))
+        .Distinct()
+        .ToArray();
+      var aroundCountries = aroundTowns
+        .Select(t => t.CountryId)
+        .Distinct()
+        .Join(allCountries, t => t, c => c.Id, (t, c) => c)
+        .ToArray();
+
+      return aroundCountries;
+    }
+
+    public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, Country self, Country target = null, GameDateTime? startDate = null)
+    {
+      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+      if (wars.Any(w => w.RequestedCountryId == self.Id || w.InsistedCountryId == self.Id))
       {
         return false;
       }
 
-      var targets = aroundTowns.Where(t => t.CountryId != 0);
+      var targets = await GetNotWarAroundCountriesAsync(repo, self);
       if (!targets.Any())
       {
         return false;
       }
 
-      var target = await repo.Country.GetAliveByIdAsync(targets.ElementAt(RandomService.Next(0, targets.Count())).CountryId);
-      if (!target.HasData)
+      if (target == null)
       {
-        return false;
+        var targetOptional = await repo.Country.GetAliveByIdAsync(targets.ElementAt(RandomService.Next(0, targets.Count())).Id);
+        if (!targetOptional.HasData)
+        {
+          return false;
+        }
+        target = targetOptional.Data;
+      }
+      else
+      {
+        if (!targets.Any(t => t.Id == target.Id))
+        {
+          return false;
+        }
       }
 
-      var startMonth = (await repo.System.GetAsync()).GameDateTime;
-      var startYear = Math.Max(startMonth.Year, Config.UpdateStartYear + Config.CountryBattleStopDuring / 12);
-      startMonth = new GameDateTime
+      return await CreateWarAsync(repo, self, target, startDate);
+    }
+
+    public static GameDateTime GetWarStartDateTime(GameDateTime current, AiCountryWarStartDatePolicy policy = AiCountryWarStartDatePolicy.First21)
+    {
+      var startMonth = 1;
+      var startYear = (int)current.Year;
+      var first21 = startYear + 24 - startYear % 12;
+
+      // First21
+      if (policy == AiCountryWarStartDatePolicy.First21)
       {
-        Year = (short)(startYear + 24 - startYear % 12),  // 翌日または翌々日の２１時
-        Month = 1,
+        startYear = first21;
+      }
+      else if (policy == AiCountryWarStartDatePolicy.FirstBetween19And23)
+      {
+        if (current.Year + 12 < first21 - 13)
+        {
+          startYear = first21 - 13;
+        }
+        else if (current.Year + 12 > first21 - 11)
+        {
+          startYear = first21 - 1;
+        }
+        else
+        {
+          startYear = current.Year + 12;
+          startMonth = current.Month;
+        }
+      }
+      else if (policy == AiCountryWarStartDatePolicy.HurryUp)
+      {
+        startYear = current.Year + 12;
+        startMonth = current.Month;
+      }
+
+      var date = new GameDateTime
+      {
+        Year = (short)Math.Max(startYear, Config.UpdateStartYear + Config.CountryBattleStopDuring / 12),
+        Month = (short)startMonth,
       };
+      return date;
+    }
+
+    public static async Task<bool> CreateWarAsync(MainRepository repo, Country self, Country target, GameDateTime? startMonth = null)
+    {
+      if (startMonth == null)
+      {
+        var current = (await repo.System.GetAsync()).GameDateTime;
+        startMonth = GetWarStartDateTime(current, AiCountryWarStartDatePolicy.First21);
+      }
+
       var war = new CountryWar
       {
         RequestedCountryId = self.Id,
-        InsistedCountryId = target.Data.Id,
-        StartGameDate =  startMonth,
+        InsistedCountryId = target.Id,
+        StartGameDate = (GameDateTime)startMonth,
         Status = CountryWarStatus.InReady,
       };
-      repo.AiCountry.ResetByCountryId(self.Id);
-      await repo.CountryDiplomacies.SetWarAsync(war);
-      await repo.SaveChangesAsync();
+      repo.AiCountry.ResetStorategyByCountryId(self.Id);
 
-      await mapLogAsync(EventType.WarInReady, $"<country>{self.Name}</country> は、<date>{war.StartGameDate.ToString()}</date> より <country>{target.Data.Name}</country> へ侵攻します", true);
-
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(war));
+      await CountryService.SendWarAndSaveAsync(repo, war);
 
       return true;
     }
@@ -188,11 +249,7 @@ namespace SangokuKmy.Models.Services
         StartGameDate = startMonth,
         Status = CountryWarStatus.InReady,
       };
-      await repo.CountryDiplomacies.SetWarAsync(war);
-      await repo.SaveChangesAsync();
-
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(war));
+      await CountryService.SendWarAndSaveAsync(repo, war);
 
       return true;
     }
@@ -272,18 +329,16 @@ namespace SangokuKmy.Models.Services
       country.Name = name;
       country.AiType = CountryAiType.Terrorists;
 
-      /*
       await repo.Country.AddPolicyAsync(new CountryPolicy
       {
         CountryId = country.Id,
-        Type = CountryPolicyType.BattleContinuous,
+        Type = CountryPolicyType.StoneCastle,
       });
       await repo.Country.AddPolicyAsync(new CountryPolicy
       {
         CountryId = country.Id,
-        Type = CountryPolicyType.BattleRush,
+        Type = CountryPolicyType.Shosha,
       });
-      */
 
       await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Data.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
       await repo.SaveChangesAsync();
@@ -292,8 +347,6 @@ namespace SangokuKmy.Models.Services
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
-
-      await CreateWarIfNotWarAsync(repo, country, town.Data, mapLogAsync);
 
       return true;
     }
@@ -366,6 +419,188 @@ namespace SangokuKmy.Models.Services
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(town.Id)).Select(c => c.Id));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+
+      return true;
+    }
+
+    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync, int size = -1)
+    {
+      var towns = await repo.Town.GetAllAsync();
+      var targetTowns = towns.Where(t => t.CountryId == 0).ToArray();
+      if (!targetTowns.Any())
+      {
+        return false;
+      }
+
+      return await CreateManagedCountryAsync(repo, targetTowns[RandomService.Next(0, targetTowns.Length)], mapLogAsync, size);
+    }
+
+    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync, int size = -1)
+    {
+      if (town.CountryId != 0)
+      {
+        return false;
+      }
+
+      var system = await repo.System.GetAsync();
+      var countryColor = GetNotUsingCountryColor(await repo.Country.GetAllAsync());
+      if (countryColor == 0)
+      {
+        return false;
+      }
+
+      var countries = await repo.Country.GetAllAsync();
+      if (size < 0)
+      {
+        size = RandomService.Next(0, 4);
+      }
+      List<CharacterAiType> charas = null;
+
+      string[] names = null;
+      if (size == 0)
+      {
+        charas = new List<CharacterAiType>
+        {
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedCivilOfficial,
+        };
+        names = new string[] { "冉魏", "成漢", "北燕", "翟魏", "代", "張楚", "仲", "後秦", "西秦", "五胡夏",
+          "西涼", "南斉", "蕭梁", "西魏", "北周", "後晋", "五代後漢", "後周", "前蜀", "後蜀", "荊南", "閩",
+          "北漢", "岐", "五代十国燕", "呉越", "曹", "蔡", "春秋陳", "鄭", "衛", "春秋宋", "魯", "中山", "杞",
+          "曾", "邾", "滕", "春秋唐", "栄", "単", "沈", "莱", "英", "六", "庸", "邢", "古蜀", "新末梁", "梁", };
+      }
+      if (size == 1)
+      {
+        charas = new List<CharacterAiType>
+        {
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedCivilOfficial,
+          CharacterAiType.ManagedPatroller,
+        };
+        names = new string[] { "新", "戦国趙", "前趙（五胡漢）", "後趙", "前涼", "後涼", "韓", "戦国魏", "春秋燕",
+          "前燕", "後燕", "越", "春秋呉", "十国呉", "東周", "北涼", "南涼", "劉宋", "東魏", "北斉", "後梁", "後唐",
+          "武周", "南唐", "十国楚", "南漢", "成家（公孫述）", };
+      }
+      if (size == 2)
+      {
+        charas = new List<CharacterAiType>
+        {
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedCivilOfficial,
+          CharacterAiType.ManagedPatroller,
+        };
+        names = new string[] { "秦", "前秦", "晋", "西晋", "東晋", "斉", "金", "明", "隋", "陳", "楚", "春秋楚", "夏", "商", "北魏", "元", };
+      }
+      if (size == 3)
+      {
+        charas = new List<CharacterAiType>
+        {
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedBattler,
+          CharacterAiType.ManagedCivilOfficial,
+          CharacterAiType.ManagedCivilOfficial,
+          CharacterAiType.ManagedPatroller,
+        };
+        names = new string[] { "魏", "蜀漢", "呉", "漢", "唐", "宋", "清", "西周", };
+      }
+      if (names == null || charas == null)
+      {
+        return false;
+      }
+
+      var availableNames = names.Where(n => !countries.Any(c => c.Name == n)).ToArray();
+      if (!availableNames.Any())
+      {
+        return false;
+      }
+      var name = availableNames[RandomService.Next(0, availableNames.Length)];
+
+      var country = await CreateCountryAsync(repo, system, town, charas.ToArray());
+      country.CountryColorId = countryColor;
+      country.Name = name;
+      country.AiType = CountryAiType.Managed;
+
+      await mapLogAsync(EventType.Publish, $"<town>{town.Name}</town> で <country>{country.Name}</country> が建国されました", true);
+      await repo.SaveChangesAsync();
+
+      var myCharas = (await repo.Country.GetCharactersWithIconsAndCommandsAsync(country.Id)).Where(c => !c.Character.HasRemoved).ToArray();
+      var countNum = new string[] { "甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸", };
+      var count = 0;
+      foreach (var chara in myCharas)
+      {
+        chara.Character.Name = $"{country.Name}_{chara.Character.Name}_{countNum[count]}";
+        count++;
+      }
+
+      var post = new CountryPost
+      {
+        CountryId = country.Id,
+        CharacterId = myCharas[RandomService.Next(0, myCharas.Length)].Character.Id,
+        Type = CountryPostType.Monarch,
+      };
+      await repo.Country.SetPostAsync(post);
+
+      town.SubType = town.Type;
+      MapService.UpdateTownType(town, TownType.Large);
+      var policies = new List<CountryPolicy>
+      {
+        new CountryPolicy
+        {
+          CountryId = country.Id,
+          Type = CountryPolicyType.GunKen,
+          Status = CountryPolicyStatus.Available,
+        },
+        new CountryPolicy
+        {
+          CountryId = country.Id,
+          Type = town.SubType == TownType.Agriculture ? CountryPolicyType.AgricultureCountry :
+                 town.SubType == TownType.Commercial ? CountryPolicyType.CommercialCountry : CountryPolicyType.WallCountry,
+          Status = CountryPolicyStatus.Available,
+        },
+      };
+      foreach (var policy in policies)
+      {
+        await repo.Country.AddPolicyAsync(policy);
+      }
+
+      var warPolicies = new AiCountryWarPolicy[] { AiCountryWarPolicy.Balance, AiCountryWarPolicy.Carefully, AiCountryWarPolicy.GoodFight, };
+      var policyTargets = new AiCountryPolicyTarget[] { AiCountryPolicyTarget.Money, AiCountryPolicyTarget.WallAttack, AiCountryPolicyTarget.WallDefend, };
+      var seiranPolicies = new AgainstSeiranPolicy[] { AgainstSeiranPolicy.Gonorrhea, AgainstSeiranPolicy.Mindful, AgainstSeiranPolicy.NotCare, AgainstSeiranPolicy.NotCare, };
+      var warStyles = new AiCountryWarStyle[] { AiCountryWarStyle.Aggressive, AiCountryWarStyle.Negative, AiCountryWarStyle.Normal, AiCountryWarStyle.NotCare, };
+      var unitPolicies = new AiCountryUnitPolicy[] { AiCountryUnitPolicy.NotCare, AiCountryUnitPolicy.BorderTownOnly, AiCountryUnitPolicy.BorderAndMainTown, };
+      var unitGatherPolicies = new AiCountryUnitGatherPolicy[] { AiCountryUnitGatherPolicy.Always, AiCountryUnitGatherPolicy.BeforePeopleChanges, };
+      var forceDefendPolicies = new AiCountryForceDefendPolicy[] { AiCountryForceDefendPolicy.NotCare, AiCountryForceDefendPolicy.Negative, AiCountryForceDefendPolicy.Medium, AiCountryForceDefendPolicy.Aggressive, };
+      var developStyles = new AiCountryDevelopStyle[] { AiCountryDevelopStyle.BorderTownFirst, AiCountryDevelopStyle.HigherTownFirst, AiCountryDevelopStyle.LowerTownFirst, AiCountryDevelopStyle.NotCare, };
+      var warTargetPolicies = new AiCountryWarTargetPolicy[] { AiCountryWarTargetPolicy.EqualityStronger, AiCountryWarTargetPolicy.EqualityWeaker, AiCountryWarTargetPolicy.Random, AiCountryWarTargetPolicy.Weakest, };
+      var warStartDatePolicies = new AiCountryWarStartDatePolicy[] { AiCountryWarStartDatePolicy.First21, AiCountryWarStartDatePolicy.FirstBetween19And23, AiCountryWarStartDatePolicy.HurryUp, };
+      var management = new AiCountryManagement
+      {
+        CountryId = country.Id,
+        WarPolicy = RandomService.Next(warPolicies),
+        PolicyTarget = RandomService.Next(policyTargets),
+        SeiranPolicy = RandomService.Next(seiranPolicies),
+        WarStyle = RandomService.Next(warStyles),
+        UnitPolicy = RandomService.Next(unitPolicies),
+        UnitGatherPolicy = RandomService.Next(unitGatherPolicies),
+        ForceDefendPolicy = RandomService.Next(forceDefendPolicies),
+        DevelopStyle = RandomService.Next(developStyles),
+        WarTargetPolicy = RandomService.Next(warTargetPolicies),
+        WarStartDatePolicy = RandomService.Next(warStartDatePolicies),
+      };
+      await repo.AiCountry.AddAsync(management);
+      await repo.SaveChangesAsync();
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(town.Id)).Select(c => c.Id));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
+      await StatusStreaming.Default.SendAllAsync(myCharas.Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.Anonymous))));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
 
       return true;

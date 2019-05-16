@@ -95,4 +95,22 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     InReady = 4,
   }
+
+  public static class CountryWarExtensions
+  {
+    public static bool IsJoin(this CountryWar war, uint countryId)
+    {
+      return war.RequestedCountryId == countryId || war.InsistedCountryId == countryId;
+    }
+
+    public static bool IsJoinAvailable(this CountryWar war, uint countryId)
+    {
+      return war.Status != CountryWarStatus.Stoped && war.IsJoin(countryId);
+    }
+
+    public static uint GetEnemy(this CountryWar war, uint countryId)
+    {
+      return war.RequestedCountryId == countryId ? war.InsistedCountryId : war.RequestedCountryId;
+    }
+  }
 }

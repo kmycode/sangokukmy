@@ -249,7 +249,7 @@ namespace SangokuKmy.Models.Services
         {
           TownBuilding.MilitaryStation,
           TownBuilding.OpenWall,
-          TownBuilding.RepairWall,
+          // TownBuilding.RepairWall,
           TownBuilding.TrainIntellect,
           TownBuilding.TrainLeadership,
           TownBuilding.TrainPopularity,
@@ -351,7 +351,7 @@ namespace SangokuKmy.Models.Services
 
         public override int TechnologyMax => 900;
 
-        public override int Wall => RandomService.Next(1, 4) * 100;
+        public override int Wall => RandomService.Next(7, 11) * 100;
 
         public override int WallMax => RandomService.Next(10, 20) * 100;
 
@@ -376,7 +376,7 @@ namespace SangokuKmy.Models.Services
 
         public override int TechnologyMax => 900;
 
-        public override int Wall => RandomService.Next(1, 4) * 100;
+        public override int Wall => RandomService.Next(7, 11) * 100;
 
         public override int WallMax => RandomService.Next(10, 20) * 100;
 
@@ -401,7 +401,7 @@ namespace SangokuKmy.Models.Services
 
         public override int TechnologyMax => 999;
 
-        public override int Wall => RandomService.Next(1, 5) * 100;
+        public override int Wall => RandomService.Next(8, 15) * 100;
 
         public override int WallMax => RandomService.Next(18, 29) * 100;
 

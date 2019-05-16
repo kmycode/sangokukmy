@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20190514101940_AddAiActionHistory")]
+    partial class AddAiActionHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,9 +92,6 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
 
-                    b.Property<short>("DevelopStyle")
-                        .HasColumnName("develop_style");
-
                     b.Property<short>("ForceDefendPolicy")
                         .HasColumnName("force_defend_policy");
 
@@ -148,9 +147,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
-
-                    b.Property<uint>("DevelopTownId")
-                        .HasColumnName("develop_town_id");
 
                     b.Property<int>("IntNextResetGameDate")
                         .HasColumnName("next_reset_game_date");

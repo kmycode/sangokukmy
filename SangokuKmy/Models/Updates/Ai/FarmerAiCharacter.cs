@@ -7,7 +7,7 @@ using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Common;
 
-namespace SangokuKmy.Models.Updates
+namespace SangokuKmy.Models.Updates.Ai
 {
   public class FarmerBattlerAiCharacter : AiCharacter
   {

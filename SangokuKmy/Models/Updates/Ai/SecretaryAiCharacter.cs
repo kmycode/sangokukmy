@@ -6,7 +6,7 @@ using SangokuKmy.Models.Common;
 using System.Collections.Generic;
 using SangokuKmy.Models.Data.ApiEntities;
 
-namespace SangokuKmy.Models.Updates
+namespace SangokuKmy.Models.Updates.Ai
 {
   public abstract class SecretaryAiCharacter : AiCharacter
   {

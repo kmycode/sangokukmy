@@ -79,6 +79,7 @@ namespace SangokuKmy
       }
 
       // 更新処理を開始する
+      MlService.Logger = _logger;
       GameUpdater.BeginUpdate(_logger);
       OnlineService.BeginWatch(_logger);
 

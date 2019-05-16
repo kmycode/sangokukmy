@@ -66,7 +66,7 @@ namespace SangokuKmy.Models.Data.Repositories
           val.Unit.Members = val.Members.Select(umd =>
           {
             var um = umd.Member;
-            um.Character = new CharacterForAnonymous(umd.Character, umd.Icons.GetMainOrFirst().Data, CharacterShareLevel.Anonymous);
+            um.Character = new CharacterForAnonymous(umd.Character, umd.Icons.GetMainOrFirst().Data, CharacterShareLevel.SameCountry);
             return um;
           }).ToArray();
           return val.Unit;
