@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.ML;
-using Microsoft.ML.Data;
 using SangokuKmy.Models.Data.Entities;
 using System;
 using System.Collections.Generic;
@@ -15,6 +13,9 @@ namespace SangokuKmy.Models.Services
 
     public static AiBattleTargetType Predict(IEnumerable<AiBattleHistory> rawData, AiBattleHistory testData)
     {
+      return AiBattleTargetType.Character;
+
+      /*
       var dataCount = rawData.Count();
       if (dataCount == 0)
       {
@@ -45,7 +46,7 @@ namespace SangokuKmy.Models.Services
         FloatGameDateTime = testData.IntGameDateTime,
         FloatAttackerId = testData.CharacterId,
       };
-      
+
       var context = new MLContext();
       var data = context.Data.LoadFromEnumerable(mlData);
 
@@ -68,6 +69,7 @@ namespace SangokuKmy.Models.Services
         Logger?.LogError(ex, "機械学習で例外が発生しました");
         return AiBattleTargetType.Unknown;
       }
+      */
     }
 
     class AiBattleTargetTypeData
@@ -76,7 +78,7 @@ namespace SangokuKmy.Models.Services
 
       public float FloatAttackerId { get; set; }
 
-      [NoColumn]
+      //[NoColumn]
       public AiBattleTargetType TargetType { get; set; }
 
       public float FloatTargetType
@@ -88,7 +90,7 @@ namespace SangokuKmy.Models.Services
 
     class AiBattleTargetTypeResult
     {
-      [ColumnName("PredictedLabel")]
+      //[ColumnName("PredictedLabel")]
       public float FloatTargetType { get; set; }
 
       public AiBattleTargetType TargetType
