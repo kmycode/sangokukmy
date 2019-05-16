@@ -565,15 +565,15 @@ namespace SangokuKmy.Models.Updates.Ai
 
             if (this.Management.WarStyle == AiCountryWarStyle.Negative)
             {
-              isSetActions = defenderZeroCount == 0 || moneySum < 60_0000;
+              isSetActions = defenderZeroCount == 0 || moneySum < 40_0000;
             }
             if (this.Management.WarStyle == AiCountryWarStyle.Normal)
             {
-              isSetActions = defenderZeroCount < 4 || moneySum < 40_0000;
+              isSetActions = defenderZeroCount < 4 || moneySum < 60_0000;
             }
             if (this.Management.WarStyle == AiCountryWarStyle.Aggressive)
             {
-              isSetActions = wallCount == 0 || moneySum < 20_0000;
+              isSetActions = wallCount == 0 || moneySum < 80_0000;
             }
           }
           else if (history.Any() && history.Max(h => h.IntGameDateTime) < this.Game.IntGameDateTime - 48)
@@ -588,11 +588,16 @@ namespace SangokuKmy.Models.Updates.Ai
           else
           {
             var alreadySet = targetCharas.Where(c => c.AiType.ToManagedStandard() != c.AiType);
-            var changables = targetCharas.Where(c => c.AiType.CanBattle() && c.AiType.ToManagedStandard() == c.AiType);
+            var changables = targetCharas
+              .Where(c => c.AiType.CanBattle() && c.AiType.ToManagedStandard() == c.AiType);
+            if (changables.Any(c => c.AiType == CharacterAiType.ManagedBattler))
+            {
+              changables = changables.Where(c => c.AiType == CharacterAiType.ManagedBattler);
+            }
             for (var i = alreadySet.Count(); i < setSize && changables.Any(); i++)
             {
               var targets = changables.ToArray();
-              var target = targets[RandomService.Next(0, targets.Length)];
+              var target = RandomService.Next(targets);
               if (target.AiType == CharacterAiType.ManagedCivilOfficial)
               {
                 target.AiType = CharacterAiType.ManagedShortstopCivilOfficial;

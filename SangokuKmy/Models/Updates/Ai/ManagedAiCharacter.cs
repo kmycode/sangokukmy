@@ -82,19 +82,10 @@ namespace SangokuKmy.Models.Updates.Ai
       return true;
     }
 
-    protected override async Task ActionAsync(MainRepository repo)
+    protected override async Task BeforeActionAsync(MainRepository repo)
     {
       var management = await repo.AiCountry.GetManagementByCountryIdAsync(this.Country.Id);
       var wars = (await this.GetWarTargetsAsync(repo)).ToArray();
-
-      var post = await repo.Country.GetPostsAsync(this.Country.Id);
-      if (post.Any(p => p.CharacterId == this.Character.Id && (p.Type == CountryPostType.Monarch || p.Type == CountryPostType.Warrior)))
-      {
-        if (await this.ActionAsMonarchAsync(repo))
-        {
-          return;
-        }
-      }
 
       // 井闌使われたときの対応
       if (management.HasData)
@@ -185,6 +176,20 @@ namespace SangokuKmy.Models.Updates.Ai
           this._forceDefendLevel = ForceDefendPolicyLevel.Aggressive;
         }
       }
+    }
+
+    protected override async Task ActionAsync(MainRepository repo)
+    {
+      var management = await repo.AiCountry.GetManagementByCountryIdAsync(this.Country.Id);
+
+      var post = await repo.Country.GetPostsAsync(this.Country.Id);
+      if (post.Any(p => p.CharacterId == this.Character.Id && (p.Type == CountryPostType.Monarch || p.Type == CountryPostType.Warrior)))
+      {
+        if (await this.ActionAsMonarchAsync(repo))
+        {
+          return;
+        }
+      }
 
       if (management.HasData)
       {
@@ -206,6 +211,21 @@ namespace SangokuKmy.Models.Updates.Ai
     }
 
     protected abstract Task ActionPersonalAsync(MainRepository repo);
+
+    protected override async Task ActionAfterDefendLoopAsync(MainRepository repo)
+    {
+      if (this.GameDateTime.Month % 6 == 0 && this.Character.Money >= 50 && this.InputPolicy())
+      {
+        return;
+      }
+
+      if (await this.InputRiceAnywayAsync(repo, 50_0000, Config.RiceBuyMax / 2))
+      {
+        return;
+      }
+
+      await base.ActionAfterDefendLoopAsync(repo);
+    }
 
     protected async Task<IEnumerable<uint>> GetWarTargetsAsync(MainRepository repo)
     {
@@ -286,14 +306,14 @@ namespace SangokuKmy.Models.Updates.Ai
           }
         }
 
-        if (secretaries.Count() < secretaryMax)
+        if (secretaries.Count() < secretaryMax &&
+          this.Country.LastMoneyIncomes > Config.SecretaryCost &&
+          this.Country.LastRiceIncomes > Config.SecretaryCost)
         {
           this.InputAddSecretary(requestedType);
           return true;
         }
-        if (!secretaries.All(s => s.AiType == requestedType) &&
-          this.Country.LastMoneyIncomes > Config.SecretaryCost &&
-          this.Country.LastRiceIncomes > Config.SecretaryCost)
+        if (!secretaries.All(s => s.AiType == requestedType))
         {
           this.InputRemoveSecretary(secretaries.First(s => s.AiType != requestedType).Id);
           return true;
@@ -408,7 +428,7 @@ namespace SangokuKmy.Models.Updates.Ai
       if (this.soldierTypeCache == SoldierType.Unknown)
       {
         if (this.Town.Technology >= 500 &&
-          this.Character.Money > this.Character.Leadership * 300 + 3_0000 &&
+          this.Character.Money > this.Character.Leadership * 300 + 5_0000 &&
           (this.AttackType == AttackMode.BreakWall ||
            this.AttackType == AttackMode.GetTown ||
            (nextBattleTown != null &&
@@ -424,23 +444,23 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           this.soldierTypeCache = SoldierType.Seiran;
         }
-        else if (this.Town.Technology >= 800 && this.Character.Money > this.Character.Leadership * 240 + 3_0000)
+        else if (this.Town.Technology >= 800 && this.Character.Money > this.Character.Leadership * 240 + 15_0000)
         {
           this.soldierTypeCache = SoldierType.RepeatingCrossbow;
         }
-        else if (this.Town.Technology >= 700 && this.Character.Money > this.Character.Leadership * 200 + 2_0000)
+        else if (this.Town.Technology >= 700 && this.Character.Money > this.Character.Leadership * 200 + 12_0000)
         {
           this.soldierTypeCache = SoldierType.HeavyCavalry;
         }
-        else if (this.Town.Technology >= 600 && this.Character.Money > this.Character.Leadership * 160 + 2_0000)
+        else if (this.Town.Technology >= 600 && this.Character.Money > this.Character.Leadership * 160 + 8_0000)
         {
           this.soldierTypeCache = SoldierType.HeavyInfantry;
         }
-        else if (this.Town.Technology >= 400 && this.Character.Money > this.Character.Leadership * 90 + 2_0000)
+        else if (this.Town.Technology >= 400 && this.Character.Money > this.Character.Leadership * 90 + 6_0000)
         {
           this.soldierTypeCache = SoldierType.StrongCrossbow;
         }
-        else if (this.Town.Technology >= 300 && this.Character.Money > this.Character.Leadership * 50 + 1_0000)
+        else if (this.Town.Technology >= 300 && this.Character.Money > this.Character.Leadership * 50 + 3_0000)
         {
           this.soldierTypeCache = SoldierType.LightInfantry;
         }
@@ -499,7 +519,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (await this.InputDefendLoopAsync(repo, 5000, 20000))
+      if (await this.InputDefendLoopAsync(repo, 5000, 5_0000))
       {
         return;
       }
@@ -561,6 +581,14 @@ namespace SangokuKmy.Models.Updates.Ai
         if (this.GameDateTime.Year % 3 == 1 && await this.InputRiceAsync(repo, 40_0000))
         {
           return;
+        }
+        if (this.GameDateTime.Month % 6 == 0)
+        {
+          if (this.InputPolicy() || this.InputTownBuilding())
+          {
+            return;
+          }
+          this.InputSoldierTrainingForce();
         }
         if (this.Character.Leadership < this.Character.Strong * 0.666f)
         {
@@ -663,11 +691,11 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override SoldierType FindSoldierType()
     {
-      if (this.Town.Technology >= 900 && this.Character.Money > this.Character.Leadership * 300 + 3_0000)
+      if (this.Town.Technology >= 900 && this.Character.Money > this.Character.Leadership * 300 + 15_0000)
       {
         return SoldierType.IntellectHeavyCavalry;
       }
-      if (this.Town.Technology >= 500 && this.Character.Money > this.Character.Leadership * 100 + 1_0000)
+      if (this.Town.Technology >= 500 && this.Character.Money > this.Character.Leadership * 100 + 3_0000)
       {
         return SoldierType.LightIntellect;
       }
@@ -713,7 +741,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (await this.InputDefendLoopAsync(repo, 8000, 25000))
+      if (await this.InputDefendLoopAsync(repo, 8000, 6_0000))
       {
         return;
       }
@@ -781,6 +809,14 @@ namespace SangokuKmy.Models.Updates.Ai
         if (this.GameDateTime.Year % 3 != 1 && await this.InputRiceAsync(repo, 60_0000))
         {
           return;
+        }
+        if (this.GameDateTime.Month % 6 == 0)
+        {
+          if (this.InputPolicy() || this.InputTownBuilding())
+          {
+            return;
+          }
+          this.InputSoldierTrainingForce();
         }
         if (this.Character.Leadership < this.Character.Intellect * 0.666f)
         {

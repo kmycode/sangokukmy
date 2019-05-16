@@ -375,8 +375,10 @@ namespace SangokuKmy.Models.Updates.Ai
       // 強制的に全員守備ループするかどうか
       if (this.ForceDefendPolicy != ForceDefendPolicyLevel.NotCare)
       {
-        var history = await repo.AiActionHistory.GetAsync(mainWars, AiBattleTownType.MainAndBorderTown, this.Country.Id);
-        var myHistory = await repo.AiActionHistory.GetAsync(this.Country.Id, AiBattleTownType.MainAndBorderTown, mainWars);
+        var history = (await repo.AiActionHistory.GetAsync(mainWars, AiBattleTownType.BorderTown, this.Country.Id))
+          .Concat(await repo.AiActionHistory.GetAsync(mainWars, AiBattleTownType.MainTown, this.Country.Id));
+        var myHistory = (await repo.AiActionHistory.GetAsync(this.Country.Id, AiBattleTownType.BorderTown, mainWars))
+          .Concat(await repo.AiActionHistory.GetAsync(this.Country.Id, AiBattleTownType.MainTown, mainWars));
 
         var n = 48;
         if (this.ForceDefendPolicy == ForceDefendPolicyLevel.Negative)
@@ -390,7 +392,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
         var targets = history.Where(h => h.IntGameDateTime >= this.GameDateTime.ToInt() - n);
         var myAttacks = myHistory.Where(h => h.IntGameDateTime >= this.GameDateTime.ToInt() - n);
-        var targetsUsedMoneyAverage = history.Count() < 30 ? targets.Average(t => t.AttackerSoldiersMoney) : int.MaxValue;
+        var targetsUsedMoneyAverage = (history.Count() < 30 && targets.Any()) ? targets.Average(t => t.AttackerSoldiersMoney) : int.MaxValue;
         var money = 0;
         var minMoney = 0;
 
@@ -488,6 +490,8 @@ namespace SangokuKmy.Models.Updates.Ai
         Type = CharacterCommandType.None,
       };
 
+      await this.BeforeActionAsync(repo);
+
       if (!await this.InitializeAiDataAsync(repo))
       {
         return this.command;
@@ -522,6 +526,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
       return this.command.ToOptional();
     }
+
+    protected virtual async Task BeforeActionAsync(MainRepository repo) { }
 
     protected abstract Task ActionAsync(MainRepository repo);
 
@@ -886,6 +892,10 @@ namespace SangokuKmy.Models.Updates.Ai
         var will = await this.GetBattleTargetTownAsync(repo);
         var type = await this.FindSoldierTypeAsync(repo, will.Town);
         num = Math.Min(num <= 0 ? this.Character.Leadership : num, this.GetSoldierNumberMax(type));
+        if (this.Character.SoldierNumber >= num)
+        {
+          return false;
+        }
 
         if (this.Town.People + 1 < num * Config.SoldierPeopleCost || this.Town.Security + 1 < num / 10)
         {
@@ -1004,6 +1014,11 @@ namespace SangokuKmy.Models.Updates.Ai
       if (await this.InputGetSoldiersAsync(repo))
       {
         return true;
+      }
+
+      if (this.Character.SoldierNumber <= 0)
+      {
+        return false;
       }
 
       if (this.Town.CountryId != this.Character.CountryId)
@@ -1125,15 +1140,19 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         await this.LeaveAllUnitsAsync(repo);
 
-        var post = new CountryPost
+        var posts = await repo.Country.GetPostsAsync(this.Country.Id);
+        if (!posts.Any(p => p.CharacterId == this.Character.Id))
         {
-          Type = CountryPostType.GrandGeneral,
-          CharacterId = this.Character.Id,
-          CountryId = this.Character.CountryId,
-        };
-        await repo.Country.SetPostAsync(post);
-        await repo.SaveChangesAsync();
-        await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
+          var post = new CountryPost
+          {
+            Type = CountryPostType.GrandGeneral,
+            CharacterId = this.Character.Id,
+            CountryId = this.Character.CountryId,
+          };
+          await repo.Country.SetPostAsync(post);
+          await repo.SaveChangesAsync();
+          await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
+        }
 
         this.command.Parameters.Add(new CharacterCommandParameter
         {
@@ -1149,7 +1168,7 @@ namespace SangokuKmy.Models.Updates.Ai
       }
     }
 
-    protected async Task<bool> InputDefendAsync(MainRepository repo, DefendLevel level)
+    protected async Task<bool> InputDefendAsync(MainRepository repo, DefendLevel level, bool isGetSoldiers = true)
     {
       if (level == DefendLevel.NotCare)
       {
@@ -1197,7 +1216,12 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
-      if (await this.InputGetSoldiersAsync(repo))
+      if (this.Character.SoldierNumber <= 0)
+      {
+        return false;
+      }
+
+      if (isGetSoldiers && await this.InputGetSoldiersAsync(repo))
       {
         return true;
       }
@@ -1247,7 +1271,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
-      if (await this.InputDefendAsync(repo, DefendLevel.NeedMyDefend))
+      if (await this.InputDefendAsync(repo, DefendLevel.NeedMyDefend, false))
       {
         return true;
       }
@@ -1260,27 +1284,34 @@ namespace SangokuKmy.Models.Updates.Ai
         return true;
       }
 
+      await this.ActionAfterDefendLoopAsync(repo);
+      return true;
+    }
+
+    protected virtual async Task ActionAfterDefendLoopAsync(MainRepository repo)
+    {
+      if (this.InputSoldierTrainingIfNoMoney(1000))
+      {
+        return;
+      }
+
       if (this.Character.Intellect > this.Character.Strong)
       {
         if (this.Town.Technology < this.Town.TechnologyMax)
         {
           this.command.Type = CharacterCommandType.Technology;
-          return true;
         }
 
         if (this.Town.Wall < this.Town.WallMax)
         {
           this.command.Type = CharacterCommandType.Wall;
-          return true;
         }
 
         this.InputTraining(TrainingType.Intellect);
-        return true;
       }
       else
       {
         this.InputTraining(TrainingType.Strong);
-        return true;
       }
     }
 
@@ -1565,6 +1596,11 @@ namespace SangokuKmy.Models.Updates.Ai
       return false;
     }
 
+    protected void InputSoldierTrainingForce()
+    {
+      this.command.Type = CharacterCommandType.SoldierTraining;
+    }
+
     protected bool InputSoldierTrainingIfNoMoney(int min)
     {
       if (this.Character.Money < min)
@@ -1684,7 +1720,9 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected async Task<bool> InputRiceAsync(MainRepository repo, int maxAssets)
     {
-      var isWar = this.GetWaringCountries().Any() || this.GetNearReadyForWarCountries().Any() || this.GetReadyForWarCountries().Any();
+      var isWar = this.GetWaringCountries().Any(w => w != 0) ||
+        this.GetNearReadyForWarCountries().Any(w => w != 0) ||
+        this.GetReadyForWarCountries().Any(w => w != 0);
       if (isWar)
       {
         return false;
