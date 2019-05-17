@@ -293,12 +293,13 @@ namespace SangokuKmy.Models.Services
       }
       if (countryCount <= 3)
       {
+        charas.Add(CharacterAiType.TerroristBattler);
         charas.Add(CharacterAiType.TerroristWallBattler);
-        charas.Add(CharacterAiType.TerroristPatroller);
       }
       if (countryCount <= 2)
       {
         charas.Add(CharacterAiType.TerroristCivilOfficial);
+        charas.Add(CharacterAiType.TerroristPatroller);
       }
 
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
