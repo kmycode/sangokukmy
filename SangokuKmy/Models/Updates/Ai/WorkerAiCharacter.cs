@@ -169,6 +169,11 @@ namespace SangokuKmy.Models.Updates.Ai
         }
       }
 
+      if (availableWars.Any() && this.data.BorderTown != null && this.data.BorderTown.People < 10000)
+      {
+        this.data.BorderTown = this.GetTownForSoldiers(predicate: t => t.People > 20000 && this.towns.GetAroundTowns(t).Any(tt => availableWars.Contains(tt.CountryId)));
+      }
+
       if (this.data.BorderTown != null &&
         !this.towns.GetAroundTowns(this.data.BorderTown).Any(t => mainWars.Contains(t.CountryId)))
       {
@@ -794,6 +799,11 @@ namespace SangokuKmy.Models.Updates.Ai
         return await this.IsGatherUnitNextTurnAsync(repo, this.UnitLevel, unit);
       }
 
+      return await this.InputMoveToTownAsync(repo, townId);
+    }
+
+    private async Task<bool> InputMoveToTownAsync(MainRepository repo, uint townId)
+    {
       var town = await repo.Town.GetByIdAsync(townId);
       if (!town.HasData)
       {
@@ -811,16 +821,18 @@ namespace SangokuKmy.Models.Updates.Ai
            this.GetNearReadyForWarCountries().Any());
     }
 
-    private Town GetTownForSoldiers(int num = -1)
+    private Town GetTownForSoldiers(int num = -1, Func<TownBase, bool> predicate = null)
     {
       if (num <= 0)
       {
         num = this.Character.Leadership;
       }
 
-      bool predicate(TownBase t) => t.CountryId == this.Character.CountryId &&
-        t.People + 1 >= num * Config.SoldierPeopleCost &&
-        t.Security + 1 > num / 10;
+      if (predicate == null)
+      {
+        predicate = t => t.People + 1 >= num * Config.SoldierPeopleCost &&
+          t.Security + 1 > num / 10;
+      }
       var arounds = this.towns.GetAroundTowns(this.Town).ToList();
       arounds.Add(this.Town);
 
@@ -834,23 +846,23 @@ namespace SangokuKmy.Models.Updates.Ai
         return (Town)arounds.First(t => t.CountryId == this.Character.CountryId);
       }
 
-      if (predicate(this.Town) && this.Town.Technology > 300)
+      if (this.Town.CountryId == this.Character.CountryId && predicate(this.Town) && this.Town.Technology > 300)
       {
         return this.Town;
       }
 
-      if (this.data.BorderTown != null && predicate(this.data.BorderTown) && this.data.BorderTown.Technology > 300)
+      if (this.data.BorderTown != null && this.data.BorderTown.CountryId == this.Character.CountryId && predicate(this.data.BorderTown) && this.data.BorderTown.Technology > 300)
       {
         return this.data.BorderTown;
       }
 
-      var targets = arounds.Where(predicate);
+      var targets = arounds.Where(a => a.CountryId == this.Character.CountryId).Where(predicate);
       if (targets.Any())
       {
         return (Town)targets.OrderByDescending(t => t.Technology + t.People).First();
       }
-
-      if (predicate(this.data.MainTown) && this.data.MainTown.Technology > 500)
+      
+      if (this.data.MainTown.CountryId == this.Character.CountryId && predicate(this.data.MainTown) && this.data.MainTown.Technology > 500)
       {
         return this.data.MainTown;
       }
@@ -858,10 +870,10 @@ namespace SangokuKmy.Models.Updates.Ai
       var myTowns = this.towns
         .Where(t => t.CountryId == this.Character.CountryId)
         .Where(predicate)
-        .OrderByDescending(t => t.Technology);
+        .OrderByDescending(t => t.Technology + t.People);
       if (myTowns.Any())
       {
-        return myTowns.First();
+        return (Town)myTowns.First();
       }
       else
       {
@@ -1766,6 +1778,32 @@ namespace SangokuKmy.Models.Updates.Ai
       if (this.Character.Money >= minAssets && await this.InputBuyRiceAsync(repo, 0.95f))
       {
         return true;
+      }
+
+      return false;
+    }
+
+    protected async Task<bool> InputExpandRicePriceRangeAsync(MainRepository repo)
+    {
+      var min = await repo.AiActionHistory.GetMinRicePriceAsync(this.Character.Id, this.GameDateTime.ToInt() - 199);
+      var max = await repo.AiActionHistory.GetMaxRicePriceAsync(this.Character.Id, this.GameDateTime.ToInt() - 199);
+
+      var minLower = this.towns.OrderBy(t => t.RicePrice).FirstOrDefault(t => t.RicePrice < min && t.RicePrice < 0.95f);
+      var maxHigher = this.towns.OrderByDescending(t => t.RicePrice).FirstOrDefault(t => t.RicePrice > max && t.RicePrice > 1.05f);
+
+      if (maxHigher != null)
+      {
+        if (await this.InputMoveToTownAsync(repo, maxHigher.Id))
+        {
+          return true;
+        }
+      }
+      if (minLower != null)
+      {
+        if (await this.InputMoveToTownAsync(repo, minLower.Id))
+        {
+          return true;
+        }
       }
 
       return false;

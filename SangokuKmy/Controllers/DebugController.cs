@@ -27,6 +27,18 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
     }
+
+    [HttpGet("step/month/{m}")]
+    public async Task StepNextDay(int m)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var debug = await repo.System.GetDebugDataAsync();
+        debug.UpdatableLastDateTime = debug.UpdatableLastDateTime.AddSeconds(Config.UpdateTime * m);
+        await repo.SaveChangesAsync();
+      }
+    }
+
     [HttpGet("password/{pass}")]
     public object PasswordHash(
       [FromRoute] string pass)

@@ -252,9 +252,18 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           await this.ChangeSomeInNotWarAsync(repo, characters, this.allTowns, wars);
         }
+        await this.ChangeSomeInNotWarOrInReadyAsync(repo, characters, this.allTowns, wars);
       }
       else
       {
+        if (!wars.Any(w => w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting) &&
+          wars.Any(w => w.Status == CountryWarStatus.InReady))
+        {
+          if (wars.Where(w => w.Status == CountryWarStatus.InReady).All(w => w.IntStartGameDate > this.Game.IntGameDateTime + 24))
+          {
+            await this.ChangeSomeInNotWarOrInReadyAsync(repo, characters, this.allTowns, wars);
+          }
+        }
         await this.ChangeSomeInWarAsync(repo, characters, this.allTowns, wars);
       }
 
@@ -429,6 +438,43 @@ namespace SangokuKmy.Models.Updates.Ai
 
     private async Task ChangeSomeInNotWarAsync(MainRepository repo, IEnumerable<Character> charas, IEnumerable<Town> towns, IEnumerable<CountryWar> wars)
     {
+      var policies = await repo.Country.GetPoliciesAsync(this.Country.Id);
+      var safeInMax = CountryService.GetCountrySafeMax(policies.GetAvailableTypes());
+      if (this.Game.GameDateTime.Year >= Config.UpdateStartYear + 8)
+      {
+        var allTargets = charas.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler ||
+          c.AiType.ToManagedStandard() == CharacterAiType.ManagedCivilOfficial ||
+          c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller);
+        var pattern = this.Game.GameDateTime.Year / 2 % 4;
+        var targets = allTargets
+          .Where(c => pattern == 1 ? c.Id % 2 == 0 : pattern == 0 ? c.Id % 2 == 1 : false)
+          .Where(c => c.Money > Config.RiceBuyMax * 2 || c.Rice > Config.RiceBuyMax * 2)
+          .Where(c => c.Money + c.Rice < 100_0000)
+          .Where(c => c.AiType.ToManagedStandard() != CharacterAiType.ManagedPatroller || safeInMax > 0);
+        foreach (var c in targets)
+        {
+          if (c.AiType == CharacterAiType.ManagedBattler)
+          {
+            c.AiType = CharacterAiType.ManagedMoneyInflatingBattler;
+          }
+          else if (c.AiType == CharacterAiType.ManagedCivilOfficial)
+          {
+            c.AiType = CharacterAiType.ManagedMoneyInflatingCivilOfficial;
+          }
+          else if (safeInMax > 0 && c.AiType == CharacterAiType.ManagedPatroller)
+          {
+            c.AiType = CharacterAiType.ManagedMoneyInflatingPatroller;
+          }
+        }
+        foreach (var c in allTargets.Except(targets))
+        {
+          c.AiType = c.AiType.ToManagedStandard();
+        }
+      }
+    }
+
+    private async Task ChangeSomeInNotWarOrInReadyAsync(MainRepository repo, IEnumerable<Character> charas, IEnumerable<Town> towns, IEnumerable<CountryWar> wars)
+    {
       var storategyOptional = await repo.AiCountry.GetStorategyByCountryIdAsync(this.Country.Id);
       if (!storategyOptional.HasData)
       {
@@ -492,37 +538,6 @@ namespace SangokuKmy.Models.Updates.Ai
           {
             storategy.DevelopTownId = 0;
           }
-        }
-      }
-
-      if (this.Game.GameDateTime.Year > Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 + 2)
-      {
-        var allTargets = charas.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler ||
-          c.AiType.ToManagedStandard() == CharacterAiType.ManagedCivilOfficial ||
-          c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller);
-        var pattern = this.Game.GameDateTime.Year / 2 % 4;
-        var targets = allTargets
-          .Where(c => pattern == 1 ? c.Id % 2 == 0 : pattern == 0 ? c.Id % 2 == 1 : false)
-          .Where(c => c.Money > Config.RiceBuyMax * 2 || c.Rice > Config.RiceBuyMax * 2)
-          .Where(c => c.Money + c.Rice < 100_0000);
-        foreach (var c in targets)
-        {
-          if (c.AiType == CharacterAiType.ManagedBattler)
-          {
-            c.AiType = CharacterAiType.ManagedMoneyInflatingBattler;
-          }
-          else if (c.AiType == CharacterAiType.ManagedCivilOfficial)
-          {
-            c.AiType = CharacterAiType.ManagedMoneyInflatingCivilOfficial;
-          }
-          else if (c.AiType == CharacterAiType.ManagedPatroller)
-          {
-            c.AiType = CharacterAiType.ManagedMoneyInflatingPatroller;
-          }
-        }
-        foreach (var c in allTargets.Except(targets))
-        {
-          c.AiType = c.AiType.ToManagedStandard();
         }
       }
     }
@@ -629,18 +644,26 @@ namespace SangokuKmy.Models.Updates.Ai
       }
       if (wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24 && this.Game.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 + 1)
       {
-        foreach (var c in charas.Where(c => c.CountryId == this.Country.Id &&
-          c.AiType == CharacterAiType.ManagedPatroller))
+        foreach (var c in charas.Where(c => c.CountryId == this.Country.Id))
         {
-          c.AiType = CharacterAiType.ManagedMoneyInflatingPatroller;
+          if (c.AiType == CharacterAiType.ManagedBattler && c.Money + c.Rice < 18_0000)
+          {
+            c.AiType = CharacterAiType.ManagedMoneyInflatingBattler;
+          }
+          else if (c.AiType == CharacterAiType.ManagedPatroller)
+          {
+            c.AiType = CharacterAiType.ManagedMoneyInflatingPatroller;
+          }
         }
       }
       else
       {
-        foreach (var c in charas.Where(c => c.CountryId == this.Country.Id &&
-          c.AiType == CharacterAiType.ManagedMoneyInflatingPatroller))
+        foreach (var c in charas.Where(c => c.CountryId == this.Country.Id))
         {
-          c.AiType = CharacterAiType.ManagedPatroller;
+          if (c.AiType.IsMoneyInflator())
+          {
+            c.AiType = c.AiType.ToManagedStandard();
+          }
         }
       }
     }
