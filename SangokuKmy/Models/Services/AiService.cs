@@ -110,10 +110,12 @@ namespace SangokuKmy.Models.Services
     public static async Task<IEnumerable<Country>> GetNotWarAroundCountriesAsync(MainRepository repo, Country self)
     {
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-      
+      var allTowns = await repo.Town.GetAllAsync();
+
       var allCountries = await repo.Country.GetAllAsync();
       var warCountries = wars
         .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
+        .Where(w => allTowns.GetAroundTowns(allTowns.Where(t => t.CountryId == w.InsistedCountryId)).Any(t => t.CountryId == w.RequestedCountryId))
         .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
         .Distinct()
         .ToArray();
@@ -127,7 +129,6 @@ namespace SangokuKmy.Models.Services
         return Enumerable.Empty<Country>();
       }
 
-      var allTowns = await repo.Town.GetAllAsync();
       var aroundTowns = allTowns
         .Where(t => t.CountryId == self.Id)
         .SelectMany(t => allTowns.GetAroundTowns(t).Where(tt => tt.CountryId != self.Id && notWarCountries.Contains(tt.CountryId)))
