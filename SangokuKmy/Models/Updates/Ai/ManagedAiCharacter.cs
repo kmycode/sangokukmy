@@ -936,6 +936,7 @@ namespace SangokuKmy.Models.Updates.Ai
       if (this.GameDateTime.Month % 6 == 0)
       {
         this.InputSecurityForce();
+        return;
       }
 
       this.InputTraining(TrainingType.Popularity);
