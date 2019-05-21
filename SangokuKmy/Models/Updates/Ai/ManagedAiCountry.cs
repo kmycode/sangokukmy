@@ -642,7 +642,7 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         c.AiType = c.AiType.ToManagedStandard();
       }
-      if (wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24 && this.Game.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 + 1)
+      if (wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24 && this.Game.GameDateTime.Year >= Config.UpdateStartYear + 6)
       {
         foreach (var c in charas.Where(c => c.CountryId == this.Country.Id))
         {
