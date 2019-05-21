@@ -448,7 +448,7 @@ namespace SangokuKmy.Models.Updates.Ai
         var pattern = this.Game.GameDateTime.Year / 2 % 4;
         var targets = allTargets
           .Where(c => pattern == 1 ? c.Id % 2 == 0 : pattern == 0 ? c.Id % 2 == 1 : false)
-          .Where(c => c.Money > Config.RiceBuyMax * 2 || c.Rice > Config.RiceBuyMax * 2)
+          .Where(c => c.Money > Config.RiceBuyMax + 7000 || c.Rice > Config.RiceBuyMax + 7000)
           .Where(c => c.Money + c.Rice < 100_0000)
           .Where(c => c.AiType.ToManagedStandard() != CharacterAiType.ManagedPatroller || safeInMax > 0);
         foreach (var c in targets)
@@ -642,9 +642,9 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         c.AiType = c.AiType.ToManagedStandard();
       }
-      if (wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24 && this.Game.GameDateTime.Year >= Config.UpdateStartYear + 6)
+      if (wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24)
       {
-        foreach (var c in charas.Where(c => c.CountryId == this.Country.Id))
+        foreach (var c in charas.Where(c => c.CountryId == this.Country.Id && (c.Money >= Config.RiceBuyMax || c.Rice >= Config.RiceBuyMax)))
         {
           if (c.AiType == CharacterAiType.ManagedBattler && c.Money + c.Rice < 18_0000)
           {
