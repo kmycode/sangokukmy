@@ -198,6 +198,14 @@ namespace SangokuKmy.Models.Commands
         {
           soldierType = SoldierType.Common;
         }
+        else if (soldierType == SoldierType.Military)
+        {
+          var policies = await repo.Country.GetPoliciesAsync(chara.CountryId);
+          if (!policies.GetAvailableTypes().Contains(CountryPolicyType.JusticeMessage))
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+        }
       }
       else
       {
