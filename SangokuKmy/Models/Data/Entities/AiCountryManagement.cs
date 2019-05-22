@@ -58,6 +58,12 @@ namespace SangokuKmy.Models.Data.Entities
 
     [Column("force_defend_policy")]
     public AiCountryForceDefendPolicy ForceDefendPolicy { get; set; }
+
+    [Column("town_war_target_town_id")]
+    public uint TownWarTargetTownId { get; set; }
+
+    [Column("town_war_policy")]
+    public AiCountryTownWarPolicy TownWarPolicy { get; set; }
   }
 
   public enum AiCountryWarPolicy : short
@@ -150,5 +156,15 @@ namespace SangokuKmy.Models.Data.Entities
     Negative = 2,
     Medium = 3,
     Aggressive = 4,
+  }
+
+  public enum AiCountryTownWarPolicy : short
+  {
+    Unknown = 0,
+    NotCare = 1,
+    Negative = 2,
+    Medium = 3,
+    Aggressive = 4,
+    ExtraAggressive = 5,
   }
 }

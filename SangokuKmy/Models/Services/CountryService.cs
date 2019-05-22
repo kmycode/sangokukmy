@@ -38,6 +38,13 @@ namespace SangokuKmy.Models.Services
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(mapLog));
     }
 
+    public static async Task SendTownWarAndSaveAsync(MainRepository repo, TownWar war)
+    {
+      await repo.CountryDiplomacies.SetTownWarAsync(war);
+      await repo.SaveChangesAsync();
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(war), war.RequestedCountryId);
+    }
+
     public static async Task<bool> SetPolicyAndSaveAsync(MainRepository repo, Country country, CountryPolicyType type, bool isCheckSubjects = true)
     {
       var info = CountryPolicyTypeInfoes.Get(type);

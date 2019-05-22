@@ -924,8 +924,6 @@ namespace SangokuKmy.Controllers
     public async Task SetTownWarAsync(
       [FromRoute] uint townId)
     {
-      TownWar war;
-
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var system = await repo.System.GetAsync();
@@ -993,7 +991,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
-        war = new TownWar
+        var war = new TownWar
         {
           RequestedCountryId = country.Id,
           InsistedCountryId = targetCountry.Id,
@@ -1001,12 +999,8 @@ namespace SangokuKmy.Controllers
           TownId = townId,
           Status = TownWarStatus.InReady,
         };
-        await repo.CountryDiplomacies.SetTownWarAsync(war);
-
-        await repo.SaveChangesAsync();
+        await CountryService.SendTownWarAndSaveAsync(repo, war);
       }
-
-      await StatusStreaming.Default.SendCountryAsync(ApiData.From(war), war.RequestedCountryId);
     }
 
     [AuthenticationFilter]

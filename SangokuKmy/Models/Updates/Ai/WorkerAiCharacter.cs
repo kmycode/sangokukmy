@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SangokuKmy.Migrations;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.Entities;
@@ -19,6 +18,7 @@ namespace SangokuKmy.Models.Updates.Ai
     private AiCountryData data;
     private CharacterCommand command;
     private IEnumerable<CountryWar> wars;
+    private IEnumerable<TownWar> townWars;
     private IEnumerable<Town> towns;
     private IEnumerable<Country> countries;
     private IEnumerable<Country> availableCountries = null;
@@ -36,6 +36,8 @@ namespace SangokuKmy.Models.Updates.Ai
     protected virtual bool IsWarEmpty => false;
 
     protected virtual bool IsWarAllAvoidLowCharacters => false;
+
+    protected virtual int RequestedTechnologyForSoldier => 0;
 
     protected virtual ForceDefendPolicyLevel ForceDefendPolicy => ForceDefendPolicyLevel.NotCare;
 
@@ -85,12 +87,24 @@ namespace SangokuKmy.Models.Updates.Ai
       var mainWars = availableWars.Any() ? availableWars :
                      nearReadyWars.Any() ? nearReadyWars : readyWars;
 
-      if (!mainWars.Any() && managementOptional.HasData)
+      if (managementOptional.HasData)
       {
-        var country = await repo.Country.GetByIdAsync(managementOptional.Data.VirtualEnemyCountryId);
-        if (country.HasData)
+        if (!mainWars.Any())
         {
-          mainWars = mainWars.Append(country.Data.Id);
+          var country = await repo.Country.GetByIdAsync(managementOptional.Data.VirtualEnemyCountryId);
+          if (country.HasData)
+          {
+            mainWars = mainWars.Append(country.Data.Id);
+          }
+        }
+
+        this.data.WillTownWarTown = this.towns.FirstOrDefault(t => t.Id == managementOptional.Data.TownWarTargetTownId);
+        if (this.data.WillTownWarTown != null)
+        {
+          if (this.data.WillTownWarTown.CountryId == this.Country.Id)
+          {
+            this.data.WillTownWarTown = null;
+          }
         }
       }
 
@@ -470,6 +484,7 @@ namespace SangokuKmy.Models.Updates.Ai
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
     {
       this.wars = wars;
+      this.townWars = await repo.CountryDiplomacies.GetAllTownWarsAsync();
       this.towns = await repo.Town.GetAllAsync();
       this.countries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown);
 
@@ -539,6 +554,13 @@ namespace SangokuKmy.Models.Updates.Ai
     protected virtual async Task<bool> ActionAsNoCountryAsync(MainRepository repo)
     {
       return false;
+    }
+
+    private Optional<TownWar> GetAvailableTownWar()
+    {
+      return this.townWars
+        .FirstOrDefault(t => t.RequestedCountryId == this.Country.Id && t.Status == TownWarStatus.Available)
+        .ToOptional();
     }
 
     private IEnumerable<uint> GetWaringCountries()
@@ -818,7 +840,8 @@ namespace SangokuKmy.Models.Updates.Ai
       var will = await this.GetBattleTargetTownAsync(repo);
       return this.Character.SoldierNumber < Math.Min(30, this.GetSoldierNumberMax(await this.FindSoldierTypeAsync(repo, will.Town))) &&
           (this.GetWaringCountries().Any() ||
-           this.GetNearReadyForWarCountries().Any());
+           this.GetNearReadyForWarCountries().Any() ||
+           this.data.WillTownWarTown != null);
     }
 
     private Town GetTownForSoldiers(int num = -1, Func<TownBase, bool> predicate = null)
@@ -1008,7 +1031,7 @@ namespace SangokuKmy.Models.Updates.Ai
     protected async Task<bool> InputBattleAsync(MainRepository repo)
     {
       var wc = this.GetWaringCountries();
-      if (!this.GetWaringCountries().Any() && !this.GetNearReadyForWarCountries().Any())
+      if (!this.GetWaringCountries().Any() && !this.GetNearReadyForWarCountries().Any() && this.data.WillTownWarTown == null)
       {
         return false;
       }
@@ -1046,10 +1069,19 @@ namespace SangokuKmy.Models.Updates.Ai
         }
       }
 
+      if (this.data.WillTownWarTown != null && !this.Town.IsNextToTown(this.data.WillTownWarTown))
+      {
+        var moveTo = this.towns.GetAroundTowns(this.data.WillTownWarTown).FirstOrDefault(t => t.CountryId == this.Country.Id);
+        if (moveTo != null)
+        {
+          return await this.MoveToTownOrNextToTownAsync(repo, this.Town, (Town)moveTo, this.command);
+        }
+      }
+
       Town targetTown = null;
 
       // 井闌判定
-      if (this.Town.Wall > 0 && this.NeedDefendSeiranLevel != DefendSeiranLevel.NotCare)
+      if (this.Town.Wall > 0 && this.NeedDefendSeiranLevel != DefendSeiranLevel.NotCare && this.data.WillTownWarTown == null)
       {
         Town seiranTown = null;
         var enemyNormalAttackers = new List<Character>();
@@ -1131,6 +1163,11 @@ namespace SangokuKmy.Models.Updates.Ai
         }
       }
 
+      if (this.data.WillTownWarTown != null && this.GetAvailableTownWar().HasData)
+      {
+        targetTown = this.data.WillTownWarTown;
+      }
+
       if (targetTown == null)
       {
         var target = await this.GetBattleTargetTownAsync(repo);
@@ -1148,7 +1185,7 @@ namespace SangokuKmy.Models.Updates.Ai
         }
       }
 
-      if (targetTown != null && this.GetWaringCountries().Any())
+      if (targetTown != null && (this.GetWaringCountries().Any() || this.GetAvailableTownWar().HasData))
       {
         await this.LeaveAllUnitsAsync(repo);
 
@@ -2049,6 +2086,11 @@ namespace SangokuKmy.Models.Updates.Ai
       /// 拠点
       /// </summary>
       public Town MainTown { get; set; }
+
+      /// <summary>
+      /// 攻略対象候補
+      /// </summary>
+      public Town WillTownWarTown { get; set; }
 
       /// <summary>
       /// 前線の部隊

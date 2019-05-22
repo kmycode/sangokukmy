@@ -263,6 +263,10 @@ namespace SangokuKmy.Models.Updates.Ai
           {
             await this.ChangeSomeInNotWarOrInReadyAsync(repo, characters, this.allTowns, wars);
           }
+          else
+          {
+            this.Management.TownWarTargetTownId = 0;
+          }
         }
         await this.ChangeSomeInWarAsync(repo, characters, this.allTowns, wars);
       }
@@ -270,7 +274,7 @@ namespace SangokuKmy.Models.Updates.Ai
       var requestPolicies = !wars.Any() ? this.PolicyTypes : this.PolicyTypes.Concat(this.RequestedPolicyTypesUntilWar).Distinct();
       await this.GetPolicyAsync(repo, policies, requestPolicies);
 
-      this.Management.IsPolicyFirst = !wars.Any() && !this.IsReadyForFirst(policies);
+      this.Management.IsPolicyFirst = !wars.Any() && this.Management.TownWarTargetTownId != 0 && allTowns.GetAroundCountries(allTowns.Where(t => t.CountryId == this.Country.Id)).Any(c => c == 1) && !this.IsReadyForFirst(policies);
       this.Management.IsPolicySecond = !wars.Any() ? !this.IsReadyForWar(policies) : this.HasPolicies(policies, this.RequestedPolicyTypesUntilWarFirst);
     }
 
@@ -283,7 +287,9 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       var old = this.Management.VirtualEnemyCountryId;
-      if (old != 0 && (this.Game.GameDateTime.Year % 2 != 0 || this.Game.GameDateTime.Month != 1))
+      if (old != 0 &&
+        (await repo.Country.GetAliveByIdAsync(old)).HasData &&
+        (this.Management.WarTargetPolicy == AiCountryWarTargetPolicy.Random || (this.Game.GameDateTime.Year % 2 != 0 || this.Game.GameDateTime.Month != 1)))
       {
         return true;
       }
@@ -427,6 +433,153 @@ namespace SangokuKmy.Models.Updates.Ai
       }
       return isCreated;
     }
+    
+    private async Task<bool> SetTownWarAsync(MainRepository repo, IEnumerable<Town> allTowns, IEnumerable<Character> allCharacters)
+    {
+      if (this.Management.TownWarPolicy == AiCountryTownWarPolicy.NotCare)
+      {
+        return false;
+      }
+
+      var townWars = await repo.CountryDiplomacies.GetAllTownWarsAsync();
+      var lastTownWar = townWars.OrderByDescending(w => w.IntGameDate).FirstOrDefault(w => w.RequestedCountryId == this.Country.Id);
+      if (lastTownWar != null && lastTownWar.Status == TownWarStatus.Terminated && lastTownWar.IntGameDate > this.Game.IntGameDateTime - 114)
+      {
+        this.Management.TownWarTargetTownId = 0;
+        return false;
+      }
+      if (lastTownWar != null && lastTownWar.Status == TownWarStatus.Available)
+      {
+        return false;
+      }
+
+      var charas = allCharacters.Where(c =>
+        c.CountryId == this.Country.Id &&
+        c.AiType.IsManaged() &&
+        !c.AiType.IsMoneyInflator() &&
+        c.AiType.CanBattle());
+      var readyCharas = charas.Where(c => this.IsReadyForWar(c) && c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler);
+      if (readyCharas.Count() < charas.Count() / 2)
+      {
+        this.Management.TownWarTargetTownId = 0;
+        return false;
+      }
+
+      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+      if (wars.Any(w =>
+        w.IsJoinAvailable(this.Country.Id) &&
+        (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting || (lastTownWar != null && w.IntStartGameDate - 6 < lastTownWar.IntGameDate + 120))))
+      {
+        this.Management.TownWarTargetTownId = 0;
+        return false;
+      }
+
+      var countries = await repo.Country.GetAllAsync();
+      var targetTowns = allTowns
+        .GroupBy(t => t.CountryId)
+        .Where(g => g.Key != this.Country.Id && g.Count() >= 2)
+        .Join(
+          countries.Where(c => !wars.Any(w => !w.IsJoinAvailable(this.Country.Id) && w.IsJoinAvailable(c.Id))),
+          g => g.Key,
+          c => c.Id,
+          (g, c) => new { Country = c, Towns = g.Where(t => t.Id != c.CapitalTownId && allTowns.GetAroundTowns(t).Any(tt => tt.CountryId == this.Country.Id)), })
+        .SelectMany(c => c.Towns);
+
+      if (this.Management.TownWarTargetTownId != 0)
+      {
+        var town = allTowns.FirstOrDefault(t => t.Id == this.Management.TownWarTargetTownId);
+        if (town != null && targetTowns.Any(t => t.Id == town.Id))
+        {
+          if (town.CountryId == this.Country.Id || !allTowns.GetAroundTowns(town).Any(t => t.CountryId == this.Country.Id))
+          {
+            this.Management.TownWarTargetTownId = 0;
+          }
+        }
+        else
+        {
+          this.Management.TownWarTargetTownId = 0;
+        }
+      }
+
+      if (this.Management.TownWarTargetTownId == 0 && targetTowns.Any())
+      {
+        if (this.Management.TownWarPolicy == AiCountryTownWarPolicy.Negative)
+        {
+          var getBack = townWars
+            .OrderByDescending(w => w.IntGameDate)
+            .Where(w => targetTowns.Any(t => t.Id == w.TownId) && targetTowns.FirstOrDefault(t => t.Id == w.TownId)?.CountryId != this.Country.Id)
+            .FirstOrDefault(w => w.InsistedCountryId == this.Country.Id && w.Status == TownWarStatus.Terminated);
+          if (getBack != null)
+          {
+            this.Management.TownWarTargetTownId = getBack.Id;
+          }
+        }
+        else
+        {
+          var storategy = await repo.AiCountry.GetStorategyByCountryIdAsync(this.Country.Id);
+          if (storategy.HasData)
+          {
+            var s = storategy.Data;
+            if (targetTowns.Any(t => t.Id == s.NextTargetTownId))
+            {
+              // TownWarPolicy = Medium or Aggressive
+              this.Management.TownWarTargetTownId = s.NextTargetTownId;
+            }
+            else if ((this.Management.TownWarPolicy == AiCountryTownWarPolicy.Aggressive || this.Management.TownWarPolicy == AiCountryTownWarPolicy.ExtraAggressive) && s.BorderTownId != 0)
+            {
+              var borderTown = allTowns.FirstOrDefault(t => t.Id == s.BorderTownId);
+              if (borderTown != null)
+              {
+                var targets = allTowns
+                  .GetAroundTowns(borderTown)
+                  .OrderBy(t => t.Wall)
+                  .Where(t => targetTowns.Any(tt => tt.Id == t.Id));
+                if (this.Management.TownWarPolicy == AiCountryTownWarPolicy.Aggressive)
+                {
+                  var myWars = wars.Where(w => w.IsJoinAvailable(this.Country.Id)).Select(w => w.GetEnemy(this.Country.Id)).Distinct();
+                  if (!myWars.Any() && this.Management.VirtualEnemyCountryId != 0)
+                  {
+                    myWars = myWars.Append(this.Management.VirtualEnemyCountryId);
+                  }
+                  targets = targets.Where(t => myWars.Contains(t.CountryId));
+                }
+                if (targets.Any())
+                {
+                  this.Management.TownWarTargetTownId = targets.First().Id;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (this.Management.TownWarTargetTownId != 0)
+      {
+        if (lastTownWar == null || lastTownWar.IntGameDate < this.Game.IntGameDateTime - 120)
+        {
+          var town = allTowns.First(t => t.Id == this.Management.TownWarTargetTownId);
+          var arounds = allTowns.GetAroundTowns(town).Where(t => t.CountryId == this.Country.Id);
+
+          var inReadyCharacters = readyCharas.Count(c => c.SoldierNumber >= Math.Min((short)10, c.Leadership) && arounds.Any(t => t.Id == c.TownId));
+          var waitingCharacters = readyCharas.Count() - inReadyCharacters;
+
+          if (waitingCharacters <= inReadyCharacters / 2)
+          {
+            await CountryService.SendTownWarAndSaveAsync(repo, new TownWar
+            {
+              RequestedCountryId = this.Country.Id,
+              InsistedCountryId = town.CountryId,
+              TownId = town.Id,
+              IntGameDate = this.Game.IntGameDateTime + 1,
+              Status = TownWarStatus.InReady,
+            });
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
 
     private void ResetCharacterAiTypes(IEnumerable<Character> charas)
     {
@@ -451,6 +604,10 @@ namespace SangokuKmy.Models.Updates.Ai
           .Where(c => c.Money > Config.RiceBuyMax + 7000 || c.Rice > Config.RiceBuyMax + 7000)
           .Where(c => c.Money + c.Rice < 100_0000)
           .Where(c => c.AiType.ToManagedStandard() != CharacterAiType.ManagedPatroller || safeInMax > 0);
+        if (this.Management.TownWarTargetTownId != 0)
+        {
+          targets = Enumerable.Empty<Character>();
+        }
         foreach (var c in targets)
         {
           if (c.AiType == CharacterAiType.ManagedBattler)
@@ -540,6 +697,8 @@ namespace SangokuKmy.Models.Updates.Ai
           }
         }
       }
+
+      await this.SetTownWarAsync(repo, towns, charas);
     }
 
     private async Task ChangeSomeInWarAsync(MainRepository repo, IEnumerable<Character> charas, IEnumerable<Town> towns, IEnumerable<CountryWar> wars)
