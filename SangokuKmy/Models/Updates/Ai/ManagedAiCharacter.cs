@@ -665,6 +665,8 @@ namespace SangokuKmy.Models.Updates.Ai
   {
     protected override DefendSeiranLevel NeedDefendSeiranLevel => DefendSeiranLevel.Seirans;
 
+    protected override int RequestedTechnologyForSoldier => 500;
+
     protected override bool CanPolicyFirst =>
       (this.Country.LastMoneyIncomes >= 10000 && this.Country.LastRiceIncomes >= 10000) ? base.CanPolicyFirst : false;
 

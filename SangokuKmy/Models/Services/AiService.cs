@@ -580,6 +580,7 @@ namespace SangokuKmy.Models.Services
       var developStyles = new AiCountryDevelopStyle[] { AiCountryDevelopStyle.BorderTownFirst, AiCountryDevelopStyle.HigherTownFirst, AiCountryDevelopStyle.LowerTownFirst, AiCountryDevelopStyle.NotCare, };
       var warTargetPolicies = new AiCountryWarTargetPolicy[] { AiCountryWarTargetPolicy.EqualityStronger, AiCountryWarTargetPolicy.EqualityWeaker, AiCountryWarTargetPolicy.Random, AiCountryWarTargetPolicy.Weakest, };
       var warStartDatePolicies = new AiCountryWarStartDatePolicy[] { AiCountryWarStartDatePolicy.First21, AiCountryWarStartDatePolicy.FirstBetween19And23, AiCountryWarStartDatePolicy.HurryUp, };
+      var townWarPolicies = new AiCountryTownWarPolicy[] { AiCountryTownWarPolicy.ExtraAggressive, AiCountryTownWarPolicy.Aggressive, AiCountryTownWarPolicy.Medium, AiCountryTownWarPolicy.Negative, };
       var management = new AiCountryManagement
       {
         CountryId = country.Id,
@@ -593,6 +594,7 @@ namespace SangokuKmy.Models.Services
         DevelopStyle = RandomService.Next(developStyles),
         WarTargetPolicy = RandomService.Next(warTargetPolicies),
         WarStartDatePolicy = RandomService.Next(warStartDatePolicies),
+        TownWarPolicy = RandomService.Next(townWarPolicies),
       };
       await repo.AiCountry.AddAsync(management);
       await repo.SaveChangesAsync();
