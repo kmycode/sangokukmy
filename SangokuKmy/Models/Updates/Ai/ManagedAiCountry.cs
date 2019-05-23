@@ -869,7 +869,7 @@ namespace SangokuKmy.Models.Updates.Ai
       var type = chara.GetCharacterType();
       if (type == CharacterType.Strong || type == CharacterType.Intellect)
       {
-        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 20_0000 : 40_0000);
+        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 45_0000 : 40_0000);
       }
       if (type == CharacterType.Popularity)
       {
