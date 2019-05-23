@@ -444,15 +444,15 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           this.soldierTypeCache = SoldierType.Seiran;
         }
-        else if (this.Town.Technology >= 800 && this.Character.Money > this.Character.Leadership * 240 + 20_0000)
+        else if (this.Town.Technology >= 800 && this.Character.Money > this.Character.Leadership * 240 + 45_0000)
         {
           this.soldierTypeCache = SoldierType.RepeatingCrossbow;
         }
-        else if (this.Town.Technology >= 700 && this.Character.Money > this.Character.Leadership * 200 + 12_0000)
+        else if (this.Town.Technology >= 700 && this.Character.Money > this.Character.Leadership * 200 + 22_0000)
         {
           this.soldierTypeCache = SoldierType.HeavyCavalry;
         }
-        else if (this.Town.Technology >= 600 && this.Character.Money > this.Character.Leadership * 160 + 10_0000)
+        else if (this.Town.Technology >= 600 && this.Character.Money > this.Character.Leadership * 160 + 12_0000)
         {
           this.soldierTypeCache = SoldierType.HeavyInfantry;
         }
@@ -689,7 +689,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override SoldierType FindSoldierType()
     {
-      if (this.Town.Technology >= 900 && this.Character.Money > this.Character.Leadership * 300 + 24_0000)
+      if (this.Town.Technology >= 900 && this.Character.Money > this.Character.Leadership * 300 + 32_0000)
       {
         return SoldierType.IntellectHeavyCavalry;
       }

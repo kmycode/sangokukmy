@@ -423,7 +423,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
       var isCreated = false;
       var startMonth = AiService.GetWarStartDateTime(this.Game.GameDateTime, this.Management.WarStartDatePolicy);
-      if (startMonth.ToInt() <= this.Game.IntGameDateTime + 146)
+      var nextStartMonth = AiService.GetWarStartDateTime(this.Game.GameDateTime.NextMonth(), this.Management.WarStartDatePolicy);
+      if (startMonth.ToInt() != nextStartMonth.ToInt())
       {
         isCreated = await AiService.CreateWarIfNotWarAsync(repo, this.Country, target, startMonth);
         if (isCreated)
@@ -869,7 +870,7 @@ namespace SangokuKmy.Models.Updates.Ai
       var type = chara.GetCharacterType();
       if (type == CharacterType.Strong || type == CharacterType.Intellect)
       {
-        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 20_0000 : 40_0000);
+        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 45_0000 : 40_0000);
       }
       if (type == CharacterType.Popularity)
       {
