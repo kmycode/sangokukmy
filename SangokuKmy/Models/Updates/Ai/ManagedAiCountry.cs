@@ -423,7 +423,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
       var isCreated = false;
       var startMonth = AiService.GetWarStartDateTime(this.Game.GameDateTime, this.Management.WarStartDatePolicy);
-      if (startMonth.ToInt() <= this.Game.IntGameDateTime + 146)
+      var nextStartMonth = AiService.GetWarStartDateTime(this.Game.GameDateTime.NextMonth(), this.Management.WarStartDatePolicy);
+      if (startMonth.ToInt() != nextStartMonth.ToInt())
       {
         isCreated = await AiService.CreateWarIfNotWarAsync(repo, this.Country, target, startMonth);
         if (isCreated)
