@@ -335,11 +335,13 @@ namespace SangokuKmy.Models.Services
       {
         CountryId = country.Id,
         Type = CountryPolicyType.StoneCastle,
+        Status = CountryPolicyStatus.Available,
       });
       await repo.Country.AddPolicyAsync(new CountryPolicy
       {
         CountryId = country.Id,
         Type = CountryPolicyType.Shosha,
+        Status = CountryPolicyStatus.Available,
       });
 
       await mapLogAsync(EventType.AppendTerrorists, $"<town>{town.Data.Name}</town> に異民族が出現し、<country>{country.Name}</country> を建国しました", true);
