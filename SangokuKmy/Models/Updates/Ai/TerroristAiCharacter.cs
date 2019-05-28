@@ -10,7 +10,7 @@ namespace SangokuKmy.Models.Updates.Ai
 {
   public class TerroristBattlerAiCharacter : WorkerAiCharacter
   {
-    protected override UnitPolicyLevel UnitLevel => UnitPolicyLevel.BorderOnly;
+    protected override UnitPolicyLevel UnitLevel => UnitPolicyLevel.NotCare;
 
     protected override UnitGatherPolicyLevel UnitGatherLevel => UnitGatherPolicyLevel.Always;
 

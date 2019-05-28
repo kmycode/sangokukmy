@@ -1573,8 +1573,8 @@ namespace SangokuKmy.Models.Updates.Ai
       }
       if (command.Type == CharacterCommandType.TownBuilding &&
         (this.Town.TownBuildingValue >= Config.TownBuildingMax ||
-         this.Town.TownBuilding != TownBuilding.RepairWall ||
-         this.Town.TownBuilding != TownBuilding.TerroristHouse))
+         (this.Town.TownBuilding != TownBuilding.RepairWall &&
+          this.Town.TownBuilding != TownBuilding.TerroristHouse)))
       {
         return false;
       }
