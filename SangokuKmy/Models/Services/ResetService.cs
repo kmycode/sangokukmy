@@ -60,6 +60,7 @@ namespace SangokuKmy.Models.Services
       system.IsWaitingReset = false;
       system.IntResetGameDateTime = 0;
       system.TerroristCount = 0;
+      system.ManagementCountryCount = 0;
       if (system.IsNextPeriodBeta)
       {
         system.BetaVersion++;
