@@ -39,8 +39,8 @@ namespace SangokuKmy.Models.Services
           new Town
           {
             Id = 1,
-            X = (short)(RandomService.Next(0, 2) + 4),
-            Y = (short)(RandomService.Next(0, 2) + 4),
+            X = (short)RandomService.Next(0, 10),
+            Y = (short)RandomService.Next(0, 10),
           },
         };
 
@@ -70,12 +70,11 @@ namespace SangokuKmy.Models.Services
           foreach (var t in towns)
           {
             var arounds = towns.GetOrderedAroundTowns(t).ToArray();
-            var c = arounds.Count(at => arounds.Any(att => att.IsNextToTown(at)));
-            if (c == 1)
+            if (arounds.Count() == 1)
             {
               nearToSingleTown++;
             }
-            else if (c == 0)
+            else if (!arounds.Any())
             {
               errors++;
             }
@@ -130,10 +129,10 @@ namespace SangokuKmy.Models.Services
               }
             }
           }
-          isVerify = !towns.Any(t => towns.GetAroundTowns(t).Count() == 8) &&
+          isVerify = !towns.Any(t => towns.GetAroundTowns(t).Count() >= 7) &&
+            nearToSingleTown <= townCount / 3 &&
             errors == 0 &&
-            nearToSingleTown == 0 &&
-            aroundsSeparated == 0;
+            aroundsSeparated <= townCount / 3;
 
           // 少都市数に応じた条件
           if (isVerify && townCount <= 9 && townCount > 5)
@@ -148,17 +147,6 @@ namespace SangokuKmy.Models.Services
 
         if (isVerify)
         {
-          var xMax = towns.Max(t => t.X);
-          var yMax = towns.Max(t => t.Y);
-          var xMin = towns.Min(t => t.X);
-          var yMin = towns.Min(t => t.Y);
-          var xd = ((9 - xMax) - xMin) / 2;
-          var yd = ((9 - yMax) - yMin) / 2;
-          if (xd != 0 || yd != 0)
-          {
-            ShiftMap(towns, (short)xd, (short)yd);
-          }
-
           isVerify = towns.All(t => !string.IsNullOrWhiteSpace(GetTownName(t.X, t.Y)));
         }
       }
