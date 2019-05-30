@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using SangokuKmy.Common;
 using System.Linq;
+using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Entities
 {
@@ -42,6 +43,18 @@ namespace SangokuKmy.Models.Data.Entities
     {
       get => (short)this.Status;
       set => this.Status = (CountryPolicyStatus)value;
+    }
+
+    [Column("game_date")]
+    [JsonIgnore]
+    public int IntGameDate { get; set; }
+
+    [NotMapped]
+    [JsonProperty("gameDate")]
+    public GameDateTime GameDate
+    {
+      get => GameDateTime.FromInt(this.IntGameDate);
+      set => this.IntGameDate = value.ToInt();
     }
   }
 
@@ -216,6 +229,26 @@ namespace SangokuKmy.Models.Data.Entities
     /// 衝車常備
     /// </summary>
     Shosha = 32,
+
+    /// <summary>
+    /// 号令
+    /// </summary>
+    UnitOrder = 33,
+
+    /// <summary>
+    /// 採用策
+    /// </summary>
+    Recruitment = 34,
+
+    /// <summary>
+    /// 武官の肇
+    /// </summary>
+    StrongStart = 35,
+
+    /// <summary>
+    /// 障子に目
+    /// </summary>
+    Shoji = 36,
   }
 
   public class CountryPolicyTypeInfo
@@ -248,130 +281,6 @@ namespace SangokuKmy.Models.Data.Entities
     {
       new CountryPolicyTypeInfo
       {
-        Type = CountryPolicyType.Storage,
-        Name = "貯蔵",
-        BasePoint = 4000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.Scouter,
-        Name = "密偵",
-        BasePoint = 4000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.SoldierDevelopment,
-        Name = "兵種開発",
-        BasePoint = 500_0000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.HumanDevelopment,
-        Name = "人材開発",
-        BasePoint = 3000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.Economy,
-        Name = "経済評論",
-        BasePoint = 4000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.SaveWall,
-        Name = "災害対策",
-        BasePoint = 3000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.AntiGang,
-        Name = "賊の監視",
-        BasePoint = 3000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.BattleContinuous,
-        Name = "連戦戦術",
-        BasePoint = 500_0000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.BattleRush,
-        Name = "突撃戦術",
-        BasePoint = 500_0000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.UndergroundStorage,
-        Name = "地下貯蔵",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.Storage),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.StomachStorage,
-        Name = "胃の中",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.UndergroundStorage),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.BloodVesselsStorage,
-        Name = "血管の中",
-        BasePoint = 3000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.StomachStorage),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.KillGang,
-        Name = "賊の殲滅",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.AttackDefend,
-        Name = "攻防の礎",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.Earthwork,
-        Name = "土塁",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.AttackDefend) && list.Contains(CountryPolicyType.HumanDevelopment),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.StoneCastle,
-        Name = "石城",
-        BasePoint = 3000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.Earthwork) && list.Contains(CountryPolicyType.StrongCountry),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.StrongCountry,
-        Name = "武官国家",
-        BasePoint = 1500,
-        SubjectAppear = list => list.Contains(CountryPolicyType.HumanDevelopment),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.IntellectCountry,
-        Name = "文官国家",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.HumanDevelopment),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.PopularityCountry,
-        Name = "仁官国家",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.IntellectCountry),
-      },
-      new CountryPolicyTypeInfo
-      {
         Type = CountryPolicyType.GunKen,
         Name = "郡県制",
         BasePoint = 2000,
@@ -397,12 +306,12 @@ namespace SangokuKmy.Models.Data.Entities
         BasePoint = 3000,
         SubjectAppear = list => list.Contains(CountryPolicyType.GunKen),
       },
+
       new CountryPolicyTypeInfo
       {
-        Type = CountryPolicyType.ConnectionBuildings,
-        Name = "施設連携",
-        BasePoint = 3000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.StrongCountry) && list.Contains(CountryPolicyType.IntellectCountry),
+        Type = CountryPolicyType.Economy,
+        Name = "経済評論",
+        BasePoint = 4000,
       },
       new CountryPolicyTypeInfo
       {
@@ -413,17 +322,31 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CountryPolicyTypeInfo
       {
-        Type = CountryPolicyType.WallEar,
-        Name = "壁に耳",
-        BasePoint = 4000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.Collection) && list.Contains(CountryPolicyType.UndergroundStorage),
-      },
-      new CountryPolicyTypeInfo
-      {
         Type = CountryPolicyType.AddSalary,
         Name = "増給",
         BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.Economy) && list.Contains(CountryPolicyType.HumanDevelopment),
+        SubjectAppear = list => list.Contains(CountryPolicyType.Collection),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.WallEar,
+        Name = "壁に耳",
+        BasePoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AddSalary) && list.Contains(CountryPolicyType.UndergroundStorage),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Shoji,
+        Name = "障子に目",
+        BasePoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.WallEar) && list.Contains(CountryPolicyType.StomachStorage),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.SaveWall,
+        Name = "災害対策",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Economy),
       },
       new CountryPolicyTypeInfo
       {
@@ -431,6 +354,117 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "復興支援",
         BasePoint = 2000,
         SubjectAppear = list => list.Contains(CountryPolicyType.SaveWall),
+      },
+
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Storage,
+        Name = "貯蔵",
+        BasePoint = 4000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.UndergroundStorage,
+        Name = "地下貯蔵",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Storage),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StomachStorage,
+        Name = "胃の中",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.UndergroundStorage),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.BloodVesselsStorage,
+        Name = "血管の中",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.StomachStorage),
+      },
+
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.HumanDevelopment,
+        Name = "人材開発",
+        BasePoint = 3000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StrongCountry,
+        Name = "武官国家",
+        BasePoint = 1500,
+        SubjectAppear = list => list.Contains(CountryPolicyType.HumanDevelopment),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.IntellectCountry,
+        Name = "文官国家",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.StrongCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.UnitOrder,
+        Name = "号令",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.IntellectCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.ConnectionBuildings,
+        Name = "施設連携",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.UnitOrder),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.PopularityCountry,
+        Name = "人情国家",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.ConnectionBuildings),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Recruitment,
+        Name = "採用策",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.PopularityCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StrongStart,
+        Name = "武官の肇",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.StrongCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Scouter,
+        Name = "密偵",
+        BasePoint = 4000,
+      },
+
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.AntiGang,
+        Name = "賊の監視",
+        BasePoint = 3000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.AttackDefend,
+        Name = "攻防の礎",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.KillGang,
+        Name = "賊の殲滅",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
       },
       new CountryPolicyTypeInfo
       {
@@ -448,6 +482,20 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CountryPolicyTypeInfo
       {
+        Type = CountryPolicyType.Earthwork,
+        Name = "土塁",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AttackDefend) && list.Contains(CountryPolicyType.HumanDevelopment),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StoneCastle,
+        Name = "石城",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Earthwork) && list.Contains(CountryPolicyType.StrongCountry),
+      },
+      new CountryPolicyTypeInfo
+      {
         Type = CountryPolicyType.Siege,
         Name = "攻城",
         BasePoint = 4000,
@@ -459,6 +507,25 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "衝車常備",
         BasePoint = 4000,
         SubjectAppear = list => list.Contains(CountryPolicyType.Siege),
+      },
+
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.SoldierDevelopment,
+        Name = "兵種開発",
+        BasePoint = 500_0000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.BattleContinuous,
+        Name = "連戦戦術",
+        BasePoint = 500_0000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.BattleRush,
+        Name = "突撃戦術",
+        BasePoint = 500_0000,
       },
     };
 
