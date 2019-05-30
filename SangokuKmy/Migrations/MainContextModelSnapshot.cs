@@ -707,6 +707,9 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
 
+                    b.Property<int>("IntGameDate")
+                        .HasColumnName("game_date");
+
                     b.Property<short>("Status")
                         .HasColumnName("status");
 
