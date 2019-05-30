@@ -69,6 +69,19 @@ namespace SangokuKmy.Models.Updates.Ai
     }
   }
 
+  public class SecretaryLeaderAiCharacter : SecretaryGatherAiCharacter
+  {
+    public SecretaryLeaderAiCharacter(Character character) : base(character)
+    {
+    }
+
+    public override void Initialize(GameDateTime current)
+    {
+      base.Initialize(current);
+      this.Character.Name = "政務官_部隊長";
+    }
+  }
+
   public class SecretaryPioneerAiCharacter : SecretaryAiCharacter
   {
     public SecretaryPioneerAiCharacter(Character character) : base(character)

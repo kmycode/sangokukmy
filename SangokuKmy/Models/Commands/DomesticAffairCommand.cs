@@ -6,6 +6,7 @@ using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Services;
+using System.Linq;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -14,8 +15,16 @@ namespace SangokuKmy.Models.Commands
   /// </summary>
   public abstract class DomesticAffairCommand : Command
   {
+    private CommandSystemData Game { get; set; }
+
+    protected IEnumerable<CountryPolicy> Policies { get; private set; }
+
+    protected bool IsStrongStartAvailable => this.Policies.Any(p => p.Type == CountryPolicyType.StrongStart && p.Status == CountryPolicyStatus.Available && p.IntGameDate <= this.Game.GameDateTime.ToInt() && p.IntGameDate + 144 > this.Game.GameDateTime.ToInt());
+
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
+      this.Game = game;
+
       if (this.GetCharacterAssets(character) < this.UseAssetsLength())
       {
         await game.CharacterLogAsync(this.GetCharacterAssetName() + $"が足りません。<num>{this.UseAssetsLength()}</num> 必要です");
@@ -31,6 +40,8 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync("<town>" + town.Name + "</town>で内政しようとしましたが、自国の都市ではありません");
           return;
         }
+
+        this.Policies = await repo.Country.GetPoliciesAsync(character.CountryId);
 
         // 内政値に加算する
         // $znouadd = int(($kint+$kprodmg)/20 + rand(($kint+$kprodmg)) / 40);
@@ -73,8 +84,25 @@ namespace SangokuKmy.Models.Commands
     protected abstract int GetMaxValue(Town town);
     protected abstract void SetValue(Town town, int value);
     protected virtual string GetValueAddingText() => "開発";
-    protected virtual int GetCharacterAttribute(Character character) => character.Intellect;
-    protected virtual void AddCharacterAttributeEx(Character character, short ex) => character.AddIntellectEx(ex);
+    protected virtual int GetCharacterAttribute(Character character) => !this.IsStrongStartAvailable ? character.Intellect : Math.Max(character.Intellect, character.Strong);
+    protected virtual void AddCharacterAttributeEx(Character character, short ex)
+    {
+      if (!this.IsStrongStartAvailable)
+      {
+        character.AddIntellectEx(ex);
+      }
+      else
+      {
+        if (character.Intellect > character.Strong)
+        {
+          character.AddIntellectEx(ex);
+        }
+        else
+        {
+          character.AddStrongEx(ex);
+        }
+      }
+    }
     protected virtual int GetCharacterAssets(Character character) => character.Money;
     protected virtual void SetCharacterAssets(Character character, int value) => character.Money = value;
     protected virtual string GetCharacterAssetName() => "金";
@@ -145,8 +173,25 @@ namespace SangokuKmy.Models.Commands
     protected override int GetCharacterAssets(Character character) => character.Rice;
     protected override string GetCharacterAssetName() => "米";
     protected override void SetCharacterAssets(Character character, int value) => character.Rice = value;
-    protected override int GetCharacterAttribute(Character character) => character.Popularity;
-    protected override void AddCharacterAttributeEx(Character character, short ex) => character.AddPopularityEx(ex);
+    protected override int GetCharacterAttribute(Character character) => !this.IsStrongStartAvailable ? character.Popularity : Math.Max(character.Popularity, character.Strong);
+    protected override void AddCharacterAttributeEx(Character character, short ex)
+    {
+      if (!this.IsStrongStartAvailable)
+      {
+        character.AddPopularityEx(ex);
+      }
+      else
+      {
+        if (character.Intellect > character.Strong)
+        {
+          character.AddPopularityEx(ex);
+        }
+        else
+        {
+          character.AddStrongEx(ex);
+        }
+      }
+    }
   }
 
   /// <summary>

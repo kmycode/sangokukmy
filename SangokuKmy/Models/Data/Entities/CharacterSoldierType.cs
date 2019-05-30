@@ -553,12 +553,10 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "義勇兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 3,
-          BaseDefend = 2,
-          StrongEx = 1,
-          PowerStrong = 1,
+          PopularityEx = 1,
+          PowerPopularity = 1,
         },
-        Money = 2,
+        Money = 10,
         Technology = 200,
         CanConscript = true,
       },

@@ -322,10 +322,18 @@ namespace SangokuKmy.Models.Updates
             }
 
             // 徴収
-            var collectionSize = country.Policies.Count(p => p.Status == CountryPolicyStatus.Available &&
-              (p.Type == CountryPolicyType.Collection || p.Type == CountryPolicyType.WallEar)) * 2000;
+            var policies = country.Policies.GetAvailableTypes();
+            var collectionSize = policies.Contains(CountryPolicyType.Collection) ? 2000 : 0;
             if (collectionSize > 0)
             {
+              if (policies.Contains(CountryPolicyType.WallEar))
+              {
+                collectionSize *= 2;
+              }
+              if (policies.Contains(CountryPolicyType.Shoji))
+              {
+                collectionSize *= 2;
+              }
               country.Country.SafeMoney = Math.Min(
                 CountryService.GetCountrySafeMax(
                   country.Policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type)),
@@ -797,10 +805,9 @@ namespace SangokuKmy.Models.Updates
         {
           // 出現
           if (allTowns.Any(t => t.CountryId == 0) &&
-            system.ManagementCountryCount < 0 &&
-            RandomService.Next(0, system.ManagementCountryCount * 60 + 5) == 0)
+            system.ManagementCountryCount < 1)
           {
-            var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+            var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message), 1);
             if (isCreated)
             {
               system.ManagementCountryCount++;

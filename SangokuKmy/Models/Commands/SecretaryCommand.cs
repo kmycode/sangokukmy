@@ -111,6 +111,16 @@ namespace SangokuKmy.Models.Commands
       await repo.SaveChangesAsync();
       await AiService.SetIconAsync(repo, ai.Character);
 
+      if (type == CharacterAiType.SecretaryUnitLeader)
+      {
+        await UnitService.CreateAndSaveAsync(repo, new Unit
+        {
+          CountryId = character.CountryId,
+          IsLimited = false,
+          Name = "政務官部隊 ID:" + ai.Character.Id,
+        }, ai.Character.Id);
+      }
+
       character.Contribution += 30;
       character.AddLeadershipEx(50);
       await game.CharacterLogAsync($"政務官 <character>{ai.Character.Name}</character> を雇いました");
@@ -164,6 +174,11 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"政務官を配属または転属しようとしましたが、指定された武将は政務官ではありません");
         return;
       }
+      if (secretaryOptional.Data.AiType == CharacterAiType.SecretaryUnitLeader)
+      {
+        await game.CharacterLogAsync($"政務官を配属または転属しようとしましたが、部隊長は部隊を変更できません");
+        return;
+      }
 
       var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
       if (!countryOptional.HasData)
@@ -204,8 +219,13 @@ namespace SangokuKmy.Models.Commands
       var id = (CharacterAiType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var unitId = (CharacterAiType)options.FirstOrDefault(p => p.Type == 2).Or(ErrorCode.LackOfCommandParameter).NumberValue;
 
-      await repo.Character.GetByIdAsync((uint)id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+      var secretary = await repo.Character.GetByIdAsync((uint)id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
       await repo.Unit.GetByIdAsync((uint)unitId).GetOrErrorAsync(ErrorCode.UnitNotFoundError);
+
+      if (secretary.AiType == CharacterAiType.SecretaryUnitLeader)
+      {
+        ErrorCode.InvalidOperationError.Throw();
+      }
 
       await this.CheckCanInputAsync(repo, characterId);
 
@@ -259,6 +279,16 @@ namespace SangokuKmy.Models.Commands
       {
         await game.CharacterLogAsync($"政務官を配属または転属しようとしましたが、指定された都市は存在しません");
         return;
+      }
+
+      if (secretaryOptional.Data.AiType == CharacterAiType.SecretaryUnitLeader)
+      {
+        var oldTownOptional = await repo.Town.GetByIdAsync(secretaryOptional.Data.TownId);
+        if (!oldTownOptional.Data.IsNextToTown(townOptional.Data))
+        {
+          await game.CharacterLogAsync($"<town>{oldTownOptional.Data.Name}</town> にいる政務官を <town>{townOptional.Data.Name}</town> に配属または転属しようとしましたが、部隊長は所在都市に隣接する都市にしか移動できません");
+          return;
+        }
       }
 
       secretaryOptional.Data.TownId = townOptional.Data.Id;
@@ -321,6 +351,16 @@ namespace SangokuKmy.Models.Commands
       {
         await game.CharacterLogAsync($"政務官を解雇しようとしましたが、指定された武将は政務官ではありません");
         return;
+      }
+
+      if (secretaryOptional.Data.AiType == CharacterAiType.SecretaryUnitLeader)
+      {
+        var units = await repo.Unit.GetByCountryIdAsync(secretaryOptional.Data.CountryId);
+        var unit = units.FirstOrDefault(u => u.Members.Any(m => m.CharacterId == secretaryOptional.Data.Id && m.Post == UnitMemberPostType.Leader));
+        if (unit != null)
+        {
+          await UnitService.RemoveAsync(repo, unit.Id);
+        }
       }
 
       secretaryOptional.Data.AiType = CharacterAiType.RemovedSecretary;

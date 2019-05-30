@@ -60,6 +60,7 @@ namespace SangokuKmy.Models.Services
       system.IsWaitingReset = false;
       system.IntResetGameDateTime = 0;
       system.TerroristCount = 0;
+      system.ManagementCountryCount = 0;
       if (system.IsNextPeriodBeta)
       {
         system.BetaVersion++;
@@ -78,18 +79,6 @@ namespace SangokuKmy.Models.Services
         IsImportant = false,
         Message = "ゲームプログラムを開始しました",
       });
-      await repo.SaveChangesAsync();
-
-      Func<EventType, string, bool, Task> maplog = async (type, message, isImportant) => await repo.MapLog.AddAsync(new MapLog
-      {
-        Message = message,
-        EventType = type,
-        IsImportant = isImportant,
-        Date = DateTime.Now,
-        ApiGameDateTime = system.GameDateTime,
-      });
-      await AiService.CreateManagedCountryAsync(repo, maplog, 2);
-      await AiService.CreateManagedCountryAsync(repo, maplog, 0);
       await repo.SaveChangesAsync();
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new ApiSignal

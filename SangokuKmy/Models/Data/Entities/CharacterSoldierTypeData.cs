@@ -27,6 +27,9 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("powerIntellect")]
     public short PowerIntellect { get; set; }
 
+    [JsonProperty("powerPopularity")]
+    public short PowerPopularity { get; set; }
+
     [JsonProperty("baseAttack")]
     public short BaseAttack { get; set; }
     
@@ -140,6 +143,7 @@ namespace SangokuKmy.Models.Data.Entities
       var p = 0;
       p += (int)(chara.Strong * (this.PowerStrong / 10.0f));
       p += (int)(chara.Intellect * (this.PowerIntellect / 10.0f));
+      p += (int)(chara.Popularity * (this.PowerPopularity / 10.0f));
       return p;
     }
 
@@ -219,6 +223,7 @@ namespace SangokuKmy.Models.Data.Entities
     {
       self.PowerStrong += d.PowerStrong;
       self.PowerIntellect += d.PowerIntellect;
+      self.PowerPopularity += d.PowerPopularity;
       self.BaseAttack += d.BaseAttack;
       self.BaseDefend += d.BaseDefend;
       self.StrongAttack += d.StrongAttack;

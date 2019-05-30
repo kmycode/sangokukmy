@@ -569,6 +569,7 @@ namespace SangokuKmy.Models.Data.Entities
     ManagedMoneyInflatingBattler = 24,
     ManagedMoneyInflatingCivilOfficial = 25,
     ManagedMoneyInflatingPatroller = 26,
+    SecretaryUnitLeader = 27,
   }
 
   public static class CharacterAiTypeExtensions
@@ -577,7 +578,8 @@ namespace SangokuKmy.Models.Data.Entities
     {
       return type == CharacterAiType.SecretaryPatroller ||
         type == CharacterAiType.SecretaryUnitGather ||
-        type == CharacterAiType.SecretaryPioneer;
+        type == CharacterAiType.SecretaryPioneer ||
+        type == CharacterAiType.SecretaryUnitLeader;
     }
 
     public static bool IsManaged(this CharacterAiType type)

@@ -45,7 +45,7 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(war), war.RequestedCountryId);
     }
 
-    public static async Task<bool> SetPolicyAndSaveAsync(MainRepository repo, Country country, CountryPolicyType type, bool isCheckSubjects = true)
+    public static async Task<bool> SetPolicyAndSaveAsync(MainRepository repo, Country country, CountryPolicyType type, CountryPolicyStatus status = CountryPolicyStatus.Available, bool isCheckSubjects = true)
     {
       var info = CountryPolicyTypeInfoes.Get(type);
       if (!info.HasData)
@@ -59,9 +59,9 @@ namespace SangokuKmy.Models.Services
       {
         return false;
       }
-      var status = old?.Status ?? CountryPolicyStatus.Unadopted;
+      var oldStatus = old?.Status ?? CountryPolicyStatus.Unadopted;
 
-      if (country.PolicyPoint < info.Data.GetRequestedPoint(status))
+      if (country.PolicyPoint < info.Data.GetRequestedPoint(oldStatus))
       {
         return false;
       }
@@ -71,39 +71,50 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
+      var system = await repo.System.GetAsync();
       var param = new CountryPolicy
       {
         CountryId = country.Id,
-        Status = CountryPolicyStatus.Available,
+        Status = status,
         Type = type,
+        GameDate = system.GameDateTime.Year >= Config.UpdateStartYear ? system.GameDateTime : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, },
       };
-      country.PolicyPoint -= info.Data.GetRequestedPoint(status);
+      country.PolicyPoint -= info.Data.GetRequestedPoint(oldStatus);
       await repo.Country.AddPolicyAsync(param);
 
-      var system = await repo.System.GetAsync();
-      var maplog = new MapLog
+      if (status == CountryPolicyStatus.Available)
       {
-        EventType = EventType.Policy,
-        ApiGameDateTime = system.GameDateTime,
-        Date = DateTime.Now,
-        IsImportant = false,
-        Message = $"<country>{country.Name}</country> は、政策 {info.Data.Name} を採用しました",
-      };
-      await repo.MapLog.AddAsync(maplog);
+        var maplog = new MapLog
+        {
+          EventType = EventType.Policy,
+          ApiGameDateTime = system.GameDateTime,
+          Date = DateTime.Now,
+          IsImportant = false,
+          Message = $"<country>{country.Name}</country> は、政策 {info.Data.Name} を採用しました",
+        };
+        await repo.MapLog.AddAsync(maplog);
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(maplog));
+        await AnonymousStreaming.Default.SendAllAsync(ApiData.From(maplog));
+      }
 
       await repo.SaveChangesAsync();
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(maplog));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(param));
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(maplog));
+
+      if (type == CountryPolicyType.StrongStart &&
+        status == CountryPolicyStatus.Available &&
+        !policies.Any(p => p.Type == CountryPolicyType.IntellectCountry && (p.Status == CountryPolicyStatus.Available || p.Status == CountryPolicyStatus.Boosted)))
+      {
+        await SetPolicyAndSaveAsync(repo, country, CountryPolicyType.IntellectCountry, CountryPolicyStatus.Boosted);
+      }
 
       return true;
     }
 
     public static int GetSecretaryMax(IEnumerable<CountryPolicyType> policies)
     {
-      return policies.Contains(CountryPolicyType.HumanDevelopment) ? 1 : 0;
+      return policies.Count(p => p == CountryPolicyType.HumanDevelopment || p == CountryPolicyType.Recruitment);
     }
 
     public static int GetCountrySafeMax(IEnumerable<CountryPolicyType> policies)

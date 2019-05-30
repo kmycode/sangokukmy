@@ -481,7 +481,6 @@ namespace SangokuKmy.Models.Services
           CharacterAiType.ManagedBattler,
           CharacterAiType.ManagedBattler,
           CharacterAiType.ManagedCivilOfficial,
-          CharacterAiType.ManagedPatroller,
         };
         names = new string[] { "新", "戦国趙", "前趙（五胡漢）", "後趙", "前涼", "後涼", "韓", "戦国魏", "春秋燕",
           "前燕", "後燕", "越", "春秋呉", "十国呉", "東周", "北涼", "南涼", "劉宋", "東魏", "北斉", "後梁", "後唐",
@@ -576,7 +575,7 @@ namespace SangokuKmy.Models.Services
       var policyTargets = new AiCountryPolicyTarget[] { AiCountryPolicyTarget.Money, AiCountryPolicyTarget.WallAttack, AiCountryPolicyTarget.WallDefend, };
       var seiranPolicies = new AgainstSeiranPolicy[] { AgainstSeiranPolicy.Gonorrhea, AgainstSeiranPolicy.Mindful, AgainstSeiranPolicy.NotCare, AgainstSeiranPolicy.NotCare, };
       var warStyles = new AiCountryWarStyle[] { AiCountryWarStyle.Aggressive, AiCountryWarStyle.Negative, AiCountryWarStyle.Normal, AiCountryWarStyle.NotCare, };
-      var unitPolicies = new AiCountryUnitPolicy[] { AiCountryUnitPolicy.NotCare, AiCountryUnitPolicy.BorderTownOnly, AiCountryUnitPolicy.BorderAndMainTown, };
+      var unitPolicies = new AiCountryUnitPolicy[] { AiCountryUnitPolicy.NotCare, };
       var unitGatherPolicies = new AiCountryUnitGatherPolicy[] { AiCountryUnitGatherPolicy.Always, AiCountryUnitGatherPolicy.BeforePeopleChanges, };
       var forceDefendPolicies = new AiCountryForceDefendPolicy[] { AiCountryForceDefendPolicy.NotCare, AiCountryForceDefendPolicy.Negative, AiCountryForceDefendPolicy.Medium, AiCountryForceDefendPolicy.Aggressive, };
       var developStyles = new AiCountryDevelopStyle[] { AiCountryDevelopStyle.BorderTownFirst, AiCountryDevelopStyle.HigherTownFirst, AiCountryDevelopStyle.LowerTownFirst, AiCountryDevelopStyle.NotCare, };
