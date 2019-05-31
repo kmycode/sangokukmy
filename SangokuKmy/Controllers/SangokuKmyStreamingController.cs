@@ -93,6 +93,15 @@ namespace SangokuKmy.Controllers
             c.Character.TownId == chara.TownId ? CharacterShareLevel.SameTown :
             myTowns.Any(t => c.Character.TownId == t.Id) ? CharacterShareLevel.SameCountryTownOtherCountry :
             CharacterShareLevel.Anonymous));
+
+        if (chara.CountryId != 0)
+        {
+          var posts = await repo.Country.GetPostsAsync(chara.CountryId);
+          if (!posts.Any(p => p.Type == CountryPostType.Monarch && p.CharacterId == chara.Id))
+          {
+            countryMessages = countryMessages.Where(m => m.Type != CountryMessageType.Unified);
+          }
+        }
       }
 
       // HTTPヘッダを設定する

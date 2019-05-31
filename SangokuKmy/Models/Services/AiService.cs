@@ -111,6 +111,7 @@ namespace SangokuKmy.Models.Services
     {
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var allTowns = await repo.Town.GetAllAsync();
+      var system = await repo.System.GetAsync();
 
       var allCountries = await repo.Country.GetAllAsync();
       var warCountries = wars

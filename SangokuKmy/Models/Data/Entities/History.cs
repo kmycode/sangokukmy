@@ -13,7 +13,7 @@ namespace SangokuKmy.Models.Data.Entities
   {
     [Key]
     [Column("id")]
-    [JsonIgnore]
+    [JsonProperty("id")]
     public uint Id { get; set; }
 
     /// <summary>

@@ -34,7 +34,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// アイコン
     /// </summary>
     [NotMapped]
-    [JsonProperty("icon")]
+    [JsonProperty("mainIcon")]
     public HistoricalCharacterIcon Icon { get; set; }
 
     /// <summary>
