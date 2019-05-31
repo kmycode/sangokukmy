@@ -158,6 +158,10 @@ namespace SangokuKmy.Models.Data.Entities
     {
       return type == CountryPostType.Monarch || type == CountryPostType.Warrior || type == CountryPostType.GrandGeneral;
     }
+    public static bool CanCountryUnifiedMessage(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch;
+    }
 
     /// <summary>
     /// 政策権限があるか確認する
@@ -175,6 +179,10 @@ namespace SangokuKmy.Models.Data.Entities
     public static bool CanCountrySetting(this IEnumerable<CountryPost> posts)
     {
       return posts.Any(p => p.Type.CanCountrySetting());
+    }
+    public static bool CanCountryUnifiedMessage(this IEnumerable<CountryPost> posts)
+    {
+      return posts.Any(p => p.Type.CanCountryUnifiedMessage());
     }
 
     /// <summary>

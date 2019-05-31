@@ -601,6 +601,19 @@ namespace SangokuKmy.Controllers
         {
           ErrorCode.NotPermissionError.Throw();
         }
+        if (param.Type == CountryMessageType.Unified && !myPosts.CanCountryUnifiedMessage())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        if (param.Type == CountryMessageType.Unified)
+        {
+          var system = await repo.System.GetAsync();
+          if (!system.IsWaitingReset)
+          {
+            ErrorCode.InvalidOperationError.Throw();
+          }
+        }
 
         CharacterIcon icon;
         if (param.WriterIconId > 0)
@@ -641,7 +654,14 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
 
-      await StatusStreaming.Default.SendCountryAsync(ApiData.From(message), message.CountryId);
+      if (message.Type == CountryMessageType.Commanders || message.Type == CountryMessageType.Solicitation)
+      {
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(message), message.CountryId);
+      }
+      if (message.Type == CountryMessageType.Unified)
+      {
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(message), this.AuthData.CharacterId);
+      }
       if (message.Type == CountryMessageType.Solicitation)
       {
         await AnonymousStreaming.Default.SendAllAsync(ApiData.From(message));
@@ -820,6 +840,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
+        var towns = await repo.Town.GetAllAsync();
         var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
 
         var old = await repo.CountryDiplomacies.GetCountryWarAsync(self.CountryId, targetId);
@@ -866,6 +887,12 @@ namespace SangokuKmy.Controllers
         });
         old.None(() =>
         {
+          if (!towns.GetAroundCountries(towns.Where(t => t.CountryId == param.InsistedCountryId)).Contains(param.RequestedCountryId))
+          {
+            // 飛び地布告
+            ErrorCode.InvalidOperationError.Throw();
+          }
+
           if (param.Status == CountryWarStatus.StopRequesting || param.Status == CountryWarStatus.Stoped)
           {
             // 存在しない戦争を停戦にはできない

@@ -88,31 +88,32 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
-    public async Task<Optional<History>> GetAsync(int period, int betaVersion)
+    public async Task<IReadOnlyList<History>> GetAllAsync()
     {
       try
       {
-        var history = await this.container.Context.Histories.FirstOrDefaultAsync(h => h.Period == period && h.BetaVersion == betaVersion);
+        var histories = await this.container.Context.Histories.ToArrayAsync();
+        foreach (var h in histories)
+        {
+          await this.SetHistoryListDataAsync(h);
+        }
+        return histories;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<Optional<History>> GetAsync(uint id)
+    {
+      try
+      {
+        var history = await this.container.Context.Histories.FirstOrDefaultAsync(h => h.Id == id);
         if (history != null)
         {
-          var charaData = await this.container.Context.HistoricalCharacters
-            .Where(c => c.HistoryId == history.Id)
-            .Join(this.container.Context.HistoricalCharacterIcons, c => c.Id, i => i.CharacterId, (c, i) => new { Character = c, Icon = i, })
-            .ToArrayAsync();
-          history.Characters = charaData.Select(d =>
-          {
-            d.Character.Icon = d.Icon;
-            return d.Character;
-          }).ToArray();
-          history.Countries = await this.container.Context.HistoricalCountries
-            .Where(c => c.HistoryId == history.Id)
-            .ToArrayAsync();
-          history.MapLogs = await this.container.Context.HistoricalMapLogs
-            .Where(c => c.HistoryId == history.Id)
-            .ToArrayAsync();
-          history.Towns = await this.container.Context.HistoricalTowns
-            .Where(c => c.HistoryId == history.Id)
-            .ToArrayAsync();
+          await this.SetHistoryInnerDataAsync(history);
         }
 
         return history.ToOptional();
@@ -122,6 +123,64 @@ namespace SangokuKmy.Models.Data.Repositories
         this.container.Error(ex);
         return default;
       }
+    }
+
+    public async Task<Optional<History>> GetAsync(int period, int betaVersion)
+    {
+      try
+      {
+        var history = await this.container.Context.Histories.FirstOrDefaultAsync(h => h.Period == period && h.BetaVersion == betaVersion);
+        if (history != null)
+        {
+          await this.SetHistoryInnerDataAsync(history);
+        }
+
+        return history.ToOptional();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    private async Task SetHistoryListDataAsync(History history)
+    {
+      var charaData = await this.container.Context.HistoricalCharacters
+        .Where(c => c.HistoryId == history.Id)
+        .Join(this.container.Context.HistoricalCharacterIcons, c => c.Id, i => i.CharacterId, (c, i) => new { Character = c, Icon = i, })
+        .ToArrayAsync();
+      history.Characters = charaData.Select(d =>
+      {
+        d.Character.Icon = d.Icon;
+        return d.Character;
+      }).ToArray();
+      history.Countries = await this.container.Context.HistoricalCountries
+        .Where(c => c.HistoryId == history.Id && !c.HasOverthrown)
+        .ToArrayAsync();
+    }
+
+    private async Task SetHistoryInnerDataAsync(History history)
+    {
+      var charaData = await this.container.Context.HistoricalCharacters
+        .Where(c => c.HistoryId == history.Id)
+        .Join(this.container.Context.HistoricalCharacterIcons, c => c.Id, i => i.CharacterId, (c, i) => new { Character = c, Icon = i, })
+        .ToArrayAsync();
+      history.Characters = charaData.Select(d =>
+      {
+        d.Character.Icon = d.Icon;
+        return d.Character;
+      }).ToArray();
+      history.Countries = await this.container.Context.HistoricalCountries
+        .Where(c => c.HistoryId == history.Id)
+        .ToArrayAsync();
+      history.MapLogs = await this.container.Context.HistoricalMapLogs
+        .Where(c => c.HistoryId == history.Id)
+        .OrderByDescending(c => c.Date)
+        .ToArrayAsync();
+      history.Towns = await this.container.Context.HistoricalTowns
+        .Where(c => c.HistoryId == history.Id)
+        .ToArrayAsync();
     }
   }
 }

@@ -24,8 +24,8 @@ namespace SangokuKmy.Models.Updates.Ai
           primary = new List<CountryPolicyType>
           {
             CountryPolicyType.HumanDevelopment,
-            CountryPolicyType.IntellectCountry,
             CountryPolicyType.StrongCountry,
+            CountryPolicyType.IntellectCountry,
             CountryPolicyType.AntiGang,
             CountryPolicyType.AttackDefend,
             CountryPolicyType.Earthwork,
@@ -39,8 +39,8 @@ namespace SangokuKmy.Models.Updates.Ai
           primary = new List<CountryPolicyType>
           {
             CountryPolicyType.HumanDevelopment,
-            CountryPolicyType.IntellectCountry,
             CountryPolicyType.StrongCountry,
+            CountryPolicyType.IntellectCountry,
             CountryPolicyType.Economy,
             CountryPolicyType.AddSalary,
             CountryPolicyType.Storage,
@@ -54,8 +54,8 @@ namespace SangokuKmy.Models.Updates.Ai
           primary = new List<CountryPolicyType>
           {
             CountryPolicyType.HumanDevelopment,
-            CountryPolicyType.IntellectCountry,
             CountryPolicyType.StrongCountry,
+            CountryPolicyType.IntellectCountry,
             CountryPolicyType.AntiGang,
             CountryPolicyType.AttackDefend,
             CountryPolicyType.Siege,
@@ -66,21 +66,26 @@ namespace SangokuKmy.Models.Updates.Ai
         var normal = new List<CountryPolicyType>
         {
           CountryPolicyType.HumanDevelopment,
-          CountryPolicyType.IntellectCountry,
           CountryPolicyType.StrongCountry,
+          CountryPolicyType.IntellectCountry,
           CountryPolicyType.AntiGang,
           CountryPolicyType.AttackDefend,
           CountryPolicyType.Earthwork,
           CountryPolicyType.StoneCastle,
-          CountryPolicyType.PopularityCountry,
           CountryPolicyType.Storage,
           CountryPolicyType.Economy,
+          CountryPolicyType.AddSalary,
           CountryPolicyType.Collection,
           CountryPolicyType.UndergroundStorage,
           CountryPolicyType.WallEar,
-          CountryPolicyType.AddSalary,
+          CountryPolicyType.StomachStorage,
+          CountryPolicyType.Shoji,
           CountryPolicyType.Siege,
           CountryPolicyType.Shosha,
+          CountryPolicyType.UnitOrder,
+          CountryPolicyType.ConnectionBuildings,
+          CountryPolicyType.PopularityCountry,
+          CountryPolicyType.Recruitment,
           CountryPolicyType.SaveWall,
         };
 
@@ -89,10 +94,6 @@ namespace SangokuKmy.Models.Updates.Ai
           return primary
             .Concat(normal)
             .Distinct();
-        }
-        if (!this.allCharacters.Any(c => c.CountryId == this.Country.Id && c.GetCharacterType() == CharacterType.Popularity))
-        {
-          normal.Remove(CountryPolicyType.PopularityCountry);
         }
 
         return normal;

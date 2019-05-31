@@ -14,6 +14,27 @@ namespace SangokuKmy.Models.Services
   {
     public static async Task ResetAsync(MainRepository repo)
     {
+      var now = DateTime.Now;
+      var system = await repo.System.GetAsync();
+
+      var history = await repo.History.GetAsync(system.Period, system.BetaVersion);
+      if (history.HasData)
+      {
+        var countries = await repo.Country.GetAllAsync();
+
+        var unifiedCountry = countries.FirstOrDefault(c => !c.HasOverthrown);
+        CountryMessage unifiedCountryMessage = null;
+        if (unifiedCountry != null)
+        {
+          var messageOptional = await repo.Country.GetMessageAsync(unifiedCountry.Id, CountryMessageType.Unified);
+          messageOptional.Some((message) => unifiedCountryMessage = message);
+        }
+        if (unifiedCountryMessage != null)
+        {
+          history.Data.UnifiedCountryMessage = unifiedCountryMessage.Message;
+        }
+      }
+
       await OnlineService.ResetAsync();
 
       await repo.AuthenticationData.ResetAsync();
@@ -49,8 +70,6 @@ namespace SangokuKmy.Models.Services
 
       await ResetTownsAsync(repo);
 
-      var now = DateTime.Now;
-      var system = await repo.System.GetAsync();
       system.GameDateTime = new GameDateTime
       {
         Year = Config.StartYear,
@@ -118,11 +137,10 @@ namespace SangokuKmy.Models.Services
       var towns = await repo.Town.GetAllAsync();
 
       var unifiedCountry = countries.FirstOrDefault(c => !c.HasOverthrown);
-      CountryMessage unifiedCountryMessage = null;
+      var posts = Enumerable.Empty<CountryPost>();
       if (unifiedCountry != null)
       {
-        var messageOptional = await repo.Country.GetMessageAsync(unifiedCountry.Id, CountryMessageType.Unified);
-        messageOptional.Some((message) => unifiedCountryMessage = message);
+        posts = await repo.Country.GetPostsAsync(unifiedCountry.Id);
       }
 
       var history = new History
@@ -130,11 +148,16 @@ namespace SangokuKmy.Models.Services
         Period = system.Period,
         BetaVersion = system.BetaVersion,
         UnifiedDateTime = DateTime.Now,
-        UnifiedCountryMessage = unifiedCountryMessage?.Message ?? string.Empty,
+        UnifiedCountryMessage = string.Empty,
         Characters = characters.Select(c =>
         {
           var chara = HistoricalCharacter.FromCharacter(c.Character);
           chara.Icon = HistoricalCharacterIcon.FromCharacterIcon(c.Icon);
+          var post = posts.FirstOrDefault(p => p.CharacterId == c.Character.Id);
+          if (post != null)
+          {
+            chara.Type = post.Type;
+          }
           return chara;
         }).ToArray(),
         Countries = countries.Select(c =>
