@@ -189,6 +189,7 @@ namespace SangokuKmy.Models.Updates
                   return val;
                 }),
               PaidSalary = 0,
+              AllContributions = country.Characters.Where(c => !c.AiType.IsSecretary()).Sum(c => c.Contribution),
             };
             salary.AllSalary = Math.Max(salary.AllSalary, 0);
 
@@ -259,29 +260,15 @@ namespace SangokuKmy.Models.Updates
               }
             }
 
-            // 国の収入によらず、各武将に本来必要な収入を算出
-            var lankSalary = country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.AddSalary) ? 250 : 200;
-            var characterIncomes = country.Characters
-              .Where(c => !c.AiType.IsSecretary())
-              .OrderByDescending(c => c.Contribution)
-              .Select(c => {
-                var currentLank = Math.Min(Config.LankCount - 1, c.Class / Config.NextLank);
-                var addMax = 1000 + currentLank * lankSalary;
-                return new
-                {
-                  Chararcter = c,
-                  CurrentLank = currentLank,
-                  IncomeMax = addMax,
-                  Weight = c.Contribution,
-                };
-              });
-
             // 収入を武将に配る
-            foreach (var incomeData in characterIncomes)
+            var lankSalary = country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.AddSalary) ? 250 : 200;
+            foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary()))
             {
-              var character = incomeData.Chararcter;
-
-              var add = Math.Min(salary.AllSalary - salary.PaidSalary, incomeData.IncomeMax);
+              var currentLank = Math.Min(Config.LankCount - 1, character.Class / Config.NextLank);
+              var add = salary.AllContributions > 0 ?
+                (int)(salary.AllSalary * (float)character.Contribution / salary.AllContributions + character.Contribution * 1.3f) : 0;
+              var addMax = 1000 + currentLank * lankSalary;
+              add = Math.Min(Math.Max(add, 0), addMax);
               salary.PaidSalary += add;
 
               if (system.GameDateTime.Month == 1)
@@ -321,7 +308,7 @@ namespace SangokuKmy.Models.Updates
                 }
                 var newAddMax = 1000 + newLank * lankSalary;
                 await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました");
-                if (incomeData.CurrentLank != newLank)
+                if (currentLank != newLank)
                 {
                   await AddLogAsync(character.Id, "【昇格】最大収入が <num>" + newAddMax + "</num> になりました");
                 }
