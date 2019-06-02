@@ -263,27 +263,25 @@ namespace SangokuKmy.Models.Updates
             var lankSalary = country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.AddSalary) ? 250 : 200;
             var characterIncomes = country.Characters
               .Where(c => !c.AiType.IsSecretary())
+              .OrderByDescending(c => c.Contribution)
               .Select(c => {
                 var currentLank = Math.Min(Config.LankCount - 1, c.Class / Config.NextLank);
-                var add = (int)(c.Contribution * 1.3f);
                 var addMax = 1000 + currentLank * lankSalary;
-                add = Math.Min(Math.Max(add, 0), addMax);
                 return new
                 {
                   Chararcter = c,
                   CurrentLank = currentLank,
-                  RequestedIncome = add,
+                  IncomeMax = addMax,
+                  Weight = c.Contribution,
                 };
               });
-            var requestedIncomeSum = characterIncomes.Sum(c => c.RequestedIncome);
-            var salaryRate = Math.Min((float)requestedIncomeSum / salary.AllSalary, 1.0f);
 
             // 収入を武将に配る
             foreach (var incomeData in characterIncomes)
             {
               var character = incomeData.Chararcter;
 
-              var add = (int)(incomeData.RequestedIncome * salaryRate);
+              var add = Math.Min(salary.AllSalary - salary.PaidSalary, incomeData.IncomeMax);
               salary.PaidSalary += add;
 
               if (system.GameDateTime.Month == 1)
