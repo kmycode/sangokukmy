@@ -111,7 +111,6 @@ namespace SangokuKmy.Models.Services
     {
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var allTowns = await repo.Town.GetAllAsync();
-      var system = await repo.System.GetAsync();
 
       var allCountries = await repo.Country.GetAllAsync();
       var warCountries = wars
@@ -350,8 +349,8 @@ namespace SangokuKmy.Models.Services
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
       return true;
     }
@@ -423,8 +422,8 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(town.Id)).Select(c => c.Id));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
       return true;
     }
@@ -604,10 +603,10 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(town.Id)).Select(c => c.Id));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
       await StatusStreaming.Default.SendAllAsync(myCharas.Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.Anonymous))));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
       return true;
     }
@@ -650,8 +649,8 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(town.Id)).Select(c => c.Id));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
       if (targetCountryOptional.HasData)
       {
