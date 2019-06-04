@@ -446,11 +446,24 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
-    public async Task<IReadOnlyList<Formation>> GetCharacterFormationsAsync(uint characterId)
+    public async Task<IReadOnlyList<Formation>> GetFormationsAsync(uint characterId)
     {
       try
       {
         return await this.container.Context.Formations.Where(f => f.CharacterId == characterId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<IReadOnlyList<CharacterItem>> GetItemsAsync(uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.CharacterItems.Where(i => i.Status == CharacterItemStatus.CharacterHold && i.CharacterId == charaId).ToArrayAsync();
       }
       catch (Exception ex)
       {

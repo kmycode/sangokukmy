@@ -39,6 +39,7 @@ namespace SangokuKmy.Models.Services
 
       await repo.AuthenticationData.ResetAsync();
       await repo.BattleLog.ResetAsync();
+      await repo.CharacterItem.ResetAsync();
       await repo.CharacterCommand.ResetAsync();
       await repo.CharacterSoldierType.ResetAsync();
       await repo.Character.ResetAsync();
@@ -68,7 +69,7 @@ namespace SangokuKmy.Models.Services
         // Loggerがない！
       }
 
-      await ResetTownsAsync(repo);
+      await ResetTownsAndSaveAsync(repo);
 
       system.GameDateTime = new GameDateTime
       {
@@ -194,7 +195,7 @@ namespace SangokuKmy.Models.Services
       await repo.History.RecordAndSaveAsync(history);
     }
 
-    private static async Task ResetTownsAsync(MainRepository repo)
+    private static async Task ResetTownsAndSaveAsync(MainRepository repo)
     {
       var initialTowns = MapService.CreateMap(7);
       var towns = new List<Town>();
@@ -209,6 +210,10 @@ namespace SangokuKmy.Models.Services
       }
 
       await repo.Town.AddTownsAsync(towns);
+      await repo.SaveChangesAsync();
+
+      await ItemService.InitializeItemOnTownsAsync(repo, towns);
+      await repo.SaveChangesAsync();
     }
   }
 }

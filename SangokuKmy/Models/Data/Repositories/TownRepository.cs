@@ -320,6 +320,19 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<CharacterItem>> GetItemsAsync(uint townId)
+    {
+      try
+      {
+        return await this.container.Context.CharacterItems.Where(i => (i.Status == CharacterItemStatus.TownOnSale || i.Status == CharacterItemStatus.TownHidden) && i.TownId == townId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     /// <summary>
     /// 初期化に使うデータを取得
     /// </summary>

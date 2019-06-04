@@ -160,6 +160,12 @@ namespace SangokuKmy.Models.Data
     private ReinforcementRepository _reinforcement;
 
     /// <summary>
+    /// アイテム
+    /// </summary>
+    public CharacterItemRepository CharacterItem => this._characterItem = this._characterItem ?? new CharacterItemRepository(this.container);
+    private CharacterItemRepository _characterItem;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>

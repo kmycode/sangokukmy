@@ -71,6 +71,24 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
+    /// 出身
+    /// </summary>
+    [Column("from")]
+    [JsonIgnore]
+    public CharacterFrom From { get; set; }
+
+    /// <summary>
+    /// 出身（API用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("from")]
+    public short ApiFrom
+    {
+      get => (short)this.From;
+      set => this.From = (CharacterFrom)value;
+    }
+
+    /// <summary>
     /// 国のID
     /// </summary>
     [Column("country_id")]
@@ -374,6 +392,21 @@ namespace SangokuKmy.Models.Data.Entities
 
       return hashText;
     }
+  }
+
+  public enum CharacterFrom
+  {
+    Unknown = 0,
+
+    /// <summary>
+    /// 武家
+    /// </summary>
+    Warrior = 1,
+
+    /// <summary>
+    /// 文官
+    /// </summary>
+    Civilian = 2,
   }
 
   public enum CharacterType

@@ -44,6 +44,10 @@ namespace SangokuKmy.Models.Commands
       new RemoveScouterCommand(),
       new GetFormationCommand(),
       new ChangeFormationCommand(),
+      new ResearchFormationCommand(),
+      new BuyItemCommand(),
+      new SellItemCommand(),
+      new HandOverItemCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

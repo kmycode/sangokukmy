@@ -291,5 +291,25 @@ namespace SangokuKmy.Models.Data.Entities
     /// 陣形変更
     /// </summary>
     ChangeFormation = 49,
+
+    /// <summary>
+    /// アイテム購入
+    /// </summary>
+    BuyItem = 50,
+
+    /// <summary>
+    /// アイテム売却
+    /// </summary>
+    SellItem = 51,
+
+    /// <summary>
+    /// アイテムを渡す
+    /// </summary>
+    HandOverItem = 52,
+
+    /// <summary>
+    /// 陣形研究
+    /// </summary>
+    ResearchFormation = 53,
   }
 }

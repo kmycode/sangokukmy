@@ -187,12 +187,14 @@ namespace SangokuKmy.Models.Commands
       var myAttackSoldierTypeCorrection = 0;
       var myDefenceSoldierTypeCorrection = 0;
       var myExperience = 50;
+      var myFormationExperience = 0;
       var myContribution = 20;
       var targetAttackCorrection = 0;
       var targetDefenceCorrection = 0;
       var targetAttackSoldierTypeCorrection = 0;
       var targetDefenceSoldierTypeCorrection = 0;
       var targetExperience = 50;
+      var targetFormationExperience = 0;
       var targetContribution = 0;
       character.Rice -= character.SoldierNumber * myRicePerSoldier;
       var aiLog = new AiBattleHistory
@@ -209,47 +211,9 @@ namespace SangokuKmy.Models.Commands
       if (myPostOptional.HasData)
       {
         var myPost = myPostOptional.Data;
-        if (myPost.Type == CountryPostType.BowmanGeneral)
-        {
-          if (character.SoldierType == SoldierType.Archer ||
-              character.SoldierType == SoldierType.StrongCrossbow ||
-              character.SoldierType == SoldierType.RepeatingCrossbow)
-          {
-            myAttackCorrection += 10;
-          }
-        }
-        else if (myPost.Type == CountryPostType.CavalryGeneral)
-        {
-          if (character.SoldierType == SoldierType.HeavyCavalry ||
-              character.SoldierType == SoldierType.LightCavalry)
-          {
-            myAttackCorrection += 10;
-          }
-        }
-        else if (myPost.Type == CountryPostType.GuardGeneral)
-        {
-          if (character.SoldierType == SoldierType.Guard)
-          {
-            myAttackCorrection += 10;
-          }
-        }
-        else if (myPost.Type == CountryPostType.GrandGeneral)
-        {
-          myAttackCorrection += 10;
-        }
-        else if (myPost.Type == CountryPostType.General)
-        {
-          if (character.SoldierType == SoldierType.Common ||
-              character.SoldierType == SoldierType.LightInfantry ||
-              character.SoldierType == SoldierType.HeavyInfantry)
-          {
-            myAttackCorrection += 10;
-          }
-        }
-        else if (myPost.Type == CountryPostType.Monarch)
-        {
-          myAttackCorrection += 20;
-        }
+        var postCorrections = mySoldierType.CalcPostCorrections(myPost.Type);
+        myAttackCorrection += postCorrections.AttackCorrection;
+        myDefenceCorrection += postCorrections.DefendCorrection;
       }
 
       Character targetCharacter;
@@ -368,14 +332,14 @@ namespace SangokuKmy.Models.Commands
         character.SoldierNumber -= myDamage;
         if (!isWall)
         {
-          myFormationData.Experience += (int)(targetDamage * 0.42f);
+          myFormationExperience += (int)(targetDamage * 0.42f);
         }
         else
         {
-          myFormationData.Experience += Math.Min((int)(targetDamage * 0.22f), 40);
+          myFormationExperience += Math.Min((int)(targetDamage * 0.22f), 40);
         }
         targetCharacter.SoldierNumber -= targetDamage;
-        targetFormationData.Experience += (int)(myDamage * 0.39f);
+        targetFormationExperience += (int)(myDamage * 0.39f);
 
         myExperience += (int)(targetDamage * 0.42f);
         targetExperience += (int)(myDamage * 0.39f);
@@ -587,7 +551,8 @@ namespace SangokuKmy.Models.Commands
       // 貢献、経験値の設定
       myContribution += myExperience;
       character.Contribution += (int)(myContribution);
-      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType));
+      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType) + $" 陣形ex: <num>{myFormationExperience}</num>");
+      myFormationData.Experience += myFormationExperience;
       if (myFormation.CheckLevelUp(myFormationData))
       {
         await game.CharacterLogAsync($"陣形 {myFormation.Name} のレベルが <num>{myFormationData.Level}</num> に上昇しました");
@@ -597,7 +562,7 @@ namespace SangokuKmy.Models.Commands
       {
         targetContribution += targetExperience;
         targetCharacter.Contribution += (int)(targetContribution);
-        await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType));
+        await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType) + $" 陣形ex: <num>{targetFormationExperience}</num>");
 
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCharacter), targetCharacter.Id);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
@@ -606,6 +571,7 @@ namespace SangokuKmy.Models.Commands
           Data = new { townName = targetTown.Name, targetName = character.Name, isWin = targetCharacter.SoldierNumber > 0, },
         }), targetCharacter.Id);
 
+        targetFormationData.Experience += targetFormationExperience;
         if (targetFormation.CheckLevelUp(targetFormationData))
         {
           await game.CharacterLogByIdAsync(targetCharacter.Id, $"陣形 {targetFormation.Name} のレベルが <num>{targetFormationData.Level}</num> に上昇しました");

@@ -384,7 +384,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.InvalidOperationError.Throw();
         }
 
-        var formations = await repo.Character.GetCharacterFormationsAsync(chara.Id);
+        var formations = await repo.Character.GetFormationsAsync(chara.Id);
         if (param.Type != FormationType.Normal && !formations.Any(f => f.Type == param.Type))
         {
           ErrorCode.InvalidOperationError.Throw();
@@ -476,6 +476,25 @@ namespace SangokuKmy.Controllers
           .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
+    }
+
+    [AuthenticationFilter]
+    [HttpGet("town/{townId}/items")]
+    public async Task<ApiArrayData<CharacterItem>> GetTownItemsAsync(
+      [FromRoute] uint townId)
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+
+        if (town.CountryId != chara.CountryId && town.Id != chara.TownId)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        return ApiData.From(await repo.Town.GetItemsAsync(townId));
+      }
     }
 
     [AuthenticationFilter]

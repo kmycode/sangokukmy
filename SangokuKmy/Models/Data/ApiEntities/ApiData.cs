@@ -106,5 +106,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<CountryScouter> From(CountryScouter data) => From(33, data);
     public static ApiData<TownDefender> From(TownDefender data) => From(34, data);
     public static ApiData<Formation> From(Formation data) => From(35, data);
+    public static ApiData<CharacterItem> From(CharacterItem data) => From(36, data);
+    public static ApiArrayData<CharacterItem> From(IEnumerable<CharacterItem> data) => From(36, data);
   }
 }

@@ -160,6 +160,12 @@ namespace SangokuKmy.Models.Services
         }
       }
 
+      var items = await repo.Character.GetItemsAsync(character.Id);
+      foreach (var item in items)
+      {
+        await ItemService.ReleaseCharacterAsync(item, character);
+      }
+
       repo.ScoutedTown.RemoveCharacter(character.Id);
       repo.Town.RemoveDefender(character.Id);
       repo.EntryHost.RemoveCharacter(character.Id);
