@@ -217,7 +217,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       // 都市の支配国チェック
-      if (soldierTypeData.Technology > 0 && town.CountryId != chara.CountryId)
+      if (soldierTypeData.Technology > 0 && (town.CountryId != chara.CountryId || town.Technology < soldierTypeData.Technology))
       {
         ErrorCode.LackOfTownTechnologyForSoldier.Throw();
       }
