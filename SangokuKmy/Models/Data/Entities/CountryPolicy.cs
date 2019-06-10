@@ -533,6 +533,11 @@ namespace SangokuKmy.Models.Data.Entities
     {
       return infoes.FirstOrDefault(i => i.Type == type).ToOptional();
     }
+
+    public static IEnumerable<CountryPolicyTypeInfo> GetAll()
+    {
+      return infoes;
+    }
   }
 
   public static class CountryPolicyExtensions

@@ -246,6 +246,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode NotImplementedError { get; } = new ErrorCode(501, 44);
 
+    /// <summary>
+    /// アイテム所持数が最大に達しているエラー
+    /// </summary>
+    public static ErrorCode NotMoreItemsError { get; } = new ErrorCode(403, 45);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

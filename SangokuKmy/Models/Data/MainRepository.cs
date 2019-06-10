@@ -166,6 +166,12 @@ namespace SangokuKmy.Models.Data
     private CharacterItemRepository _characterItem;
 
     /// <summary>
+    /// 遅延して現れる効果
+    /// </summary>
+    public DelayEffectRepository DelayEffect => this._delayEffect = this._delayEffect ?? new DelayEffectRepository(this.container);
+    private DelayEffectRepository _delayEffect;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>

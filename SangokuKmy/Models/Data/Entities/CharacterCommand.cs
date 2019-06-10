@@ -311,5 +311,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 陣形研究
     /// </summary>
     ResearchFormation = 53,
+
+    /// <summary>
+    /// 都市巡回
+    /// </summary>
+    TownPatrol = 54,
   }
 }

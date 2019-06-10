@@ -43,7 +43,7 @@ namespace SangokuKmy.Models.Commands
       var info = infoOptional.Data;
 
       var charaItems = await repo.Character.GetItemsAsync(character.Id);
-      var target = charaItems.FirstOrDefault(i => i.Type == itemType);
+      var target = charaItems.FirstOrDefault(i => i.Type == itemType && i.Status == CharacterItemStatus.CharacterHold);
       if (target == null)
       {
         await game.CharacterLogAsync($"アイテム {info.Name} を売却しようとしましたが、それは現在所持していません");
@@ -51,7 +51,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       character.Money += info.Money / 2;
-      await ItemService.ReleaseCharacterAsync(target, character);
+      await ItemService.ReleaseCharacterAsync(repo, target, character);
       await game.CharacterLogAsync($"<town>{town.Name}</town> にアイテム {info.Name} を売却しました");
     }
 
@@ -61,7 +61,7 @@ namespace SangokuKmy.Models.Commands
       var chara = await repo.Character.GetByIdAsync(characterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
 
       var items = await repo.Character.GetItemsAsync(chara.Id);
-      if (!items.Any(i => i.Type == itemType))
+      if (!items.Any(i => i.Type == itemType && i.Status == CharacterItemStatus.CharacterHold))
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }

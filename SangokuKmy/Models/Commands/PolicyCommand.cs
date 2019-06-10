@@ -64,6 +64,15 @@ namespace SangokuKmy.Models.Commands
 
         await game.CharacterLogAsync($"<country>{country.Name}</country> の政策ポイントを <num>+{add}</num> 上げました");
 
+        if (RandomService.Next(0, 500) == 0)
+        {
+          var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
+          if (info.HasData)
+          {
+            await game.CharacterLogAsync($"<town>{town.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
+          }
+        }
+
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
       }
       else

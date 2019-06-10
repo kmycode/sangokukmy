@@ -307,7 +307,9 @@ namespace SangokuKmy.Models.Updates
                     break;
                 }
                 var newAddMax = 1000 + newLank * lankSalary;
-                await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました");
+                character.SkillPoint++;
+                character.FormationPoint += 20;
+                await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました。陣形P <num>+20</num>、技能P <num>+1</num>");
                 if (currentLank != newLank)
                 {
                   await AddLogAsync(character.Id, "【昇格】最大収入が <num>" + newAddMax + "</num> になりました");
@@ -644,25 +646,25 @@ namespace SangokuKmy.Models.Updates
                 if (town.TownBuilding == TownBuilding.TrainStrong)
                 {
                   var o = chara.Strong;
-                  chara.AddStrongEx(chara.CountryId == town.CountryId ? connectedSize : shortSize);
+                  chara.AddStrongEx(isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize);
                   isNotify = chara.Strong != o;
                 }
                 else if (town.TownBuilding == TownBuilding.TrainIntellect)
                 {
                   var o = chara.Intellect;
-                  chara.AddIntellectEx(chara.CountryId == town.CountryId ? connectedSize : shortSize);
+                  chara.AddIntellectEx(isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize);
                   isNotify = chara.Intellect != o;
                 }
                 else if (town.TownBuilding == TownBuilding.TrainLeadership)
                 {
                   var o = chara.Leadership;
-                  chara.AddLeadershipEx(chara.CountryId == town.CountryId ? connectedSize : shortSize);
+                  chara.AddLeadershipEx(isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize);
                   isNotify = chara.Leadership != o;
                 }
                 else if (town.TownBuilding == TownBuilding.TrainPopularity)
                 {
                   var o = chara.Popularity;
-                  chara.AddPopularityEx(chara.CountryId == town.CountryId ? connectedSize : shortSize);
+                  chara.AddPopularityEx(isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize);
                   isNotify = chara.Popularity != o;
                 }
                 else if (town.TownBuilding == TownBuilding.TerroristHouse)

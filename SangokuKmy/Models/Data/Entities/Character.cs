@@ -304,6 +304,10 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("formationPoint")]
     public int FormationPoint { get; set; }
 
+    [Column("skill_point")]
+    [JsonProperty("skillPoint")]
+    public int SkillPoint { get; set; }
+
     #endregion
 
     public void AddStrongEx(short ex)

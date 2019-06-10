@@ -24,7 +24,7 @@ namespace SangokuKmy.Models.Services
         var oldChara = await repo.Character.GetByIdAsync(item.CharacterId);
         if (oldChara.HasData)
         {
-          await ReleaseCharacterAsync(item, oldChara.Data);
+          await ReleaseCharacterAsync(repo, item, oldChara.Data);
         }
       }
 
@@ -46,22 +46,49 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
     }
 
-    public static async Task ReleaseCharacterAsync(CharacterItem item, Character chara)
+    public static async Task SetCharacterPendingAsync(MainRepository repo, CharacterItem item, Character chara)
     {
-      if (item.Status != CharacterItemStatus.CharacterHold || item.CharacterId != chara.Id)
+      if (item.Status == CharacterItemStatus.CharacterHold)
+      {
+        if (item.CharacterId == chara.Id)
+        {
+          return;
+        }
+
+        var oldChara = await repo.Character.GetByIdAsync(item.CharacterId);
+        if (oldChara.HasData)
+        {
+          await ReleaseCharacterAsync(repo, item, oldChara.Data);
+        }
+      }
+
+      item.Status = CharacterItemStatus.CharacterPending;
+      item.CharacterId = chara.Id;
+      item.TownId = 0;
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
+    }
+
+    public static async Task ReleaseCharacterAsync(MainRepository repo, CharacterItem item, Character chara)
+    {
+      if ((item.Status != CharacterItemStatus.CharacterHold && item.Status != CharacterItemStatus.CharacterPending) || item.CharacterId != chara.Id)
       {
         return;
       }
 
-      var strong = (short)item.GetSumOfValues(CharacterItemEffectType.Strong);
-      var intellect = (short)item.GetSumOfValues(CharacterItemEffectType.Intellect);
-      var leadership = (short)item.GetSumOfValues(CharacterItemEffectType.Leadership);
-      var popularity = (short)item.GetSumOfValues(CharacterItemEffectType.Popularity);
+      if (item.Status == CharacterItemStatus.CharacterHold)
+      {
+        var strong = (short)item.GetSumOfValues(CharacterItemEffectType.Strong);
+        var intellect = (short)item.GetSumOfValues(CharacterItemEffectType.Intellect);
+        var leadership = (short)item.GetSumOfValues(CharacterItemEffectType.Leadership);
+        var popularity = (short)item.GetSumOfValues(CharacterItemEffectType.Popularity);
 
-      chara.Strong -= strong;
-      chara.Intellect -= intellect;
-      chara.Leadership -= leadership;
-      chara.Popularity -= popularity;
+        chara.Strong -= strong;
+        chara.Intellect -= intellect;
+        chara.Leadership -= leadership;
+        chara.Popularity -= popularity;
+      }
 
       item.Status = CharacterItemStatus.TownOnSale;
       item.CharacterId = 0;
@@ -73,6 +100,13 @@ namespace SangokuKmy.Models.Services
 
     public static async Task<Optional<CharacterItemInfo>> PickTownHiddenItemAsync(MainRepository repo, uint townId, Character chara)
     {
+      var skills = await repo.Character.GetSkillsAsync(chara.Id);
+      var holdItems = await repo.Character.GetItemsAsync(chara.Id);
+      if (holdItems.Count(i => i.Status == CharacterItemStatus.CharacterHold) >= CharacterService.GetItemMax(skills))
+      {
+        return default;
+      }
+
       var items = await repo.Town.GetItemsAsync(townId);
       var hiddenItems = items.Where(i => i.Status == CharacterItemStatus.TownHidden);
       if (!hiddenItems.Any())

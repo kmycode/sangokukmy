@@ -163,7 +163,7 @@ namespace SangokuKmy.Models.Services
       var items = await repo.Character.GetItemsAsync(character.Id);
       foreach (var item in items)
       {
-        await ItemService.ReleaseCharacterAsync(item, character);
+        await ItemService.ReleaseCharacterAsync(repo, item, character);
       }
 
       repo.ScoutedTown.RemoveCharacter(character.Id);
@@ -174,6 +174,11 @@ namespace SangokuKmy.Models.Services
       character.PasswordHash = character.AliasId;
       character.AliasId = "RM";   // 新規登録で4文字未満のIDは登録できない
       character.HasRemoved = true;
+    }
+
+    public static int GetItemMax(IEnumerable<CharacterSkill> skills)
+    {
+      return 3 + skills.GetSumOfValues(CharacterSkillEffectType.ItemMax);
     }
   }
 }

@@ -71,6 +71,7 @@ namespace SangokuKmy.Models.Data.Entities
     TownHidden = 2,
     CharacterHold = 3,
     Hidden = 4,
+    CharacterPending = 5,
   }
 
   public enum CharacterItemType : short

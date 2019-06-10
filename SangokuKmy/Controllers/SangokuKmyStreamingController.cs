@@ -54,6 +54,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<CharacterSoldierType> solidierTypes;
       IEnumerable<Formation> formations;
       IEnumerable<CharacterItem> items;
+      IEnumerable<CharacterSkill> skills;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -81,6 +82,7 @@ namespace SangokuKmy.Controllers
         defenders = await repo.Town.GetAllDefendersAsync();
         formations = await repo.Character.GetFormationsAsync(chara.Id);
         items = await repo.CharacterItem.GetAllAsync();
+        skills = await repo.Character.GetSkillsAsync(chara.Id);
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
@@ -140,6 +142,7 @@ namespace SangokuKmy.Controllers
         .Concat(countryMessages.Select(c => ApiData.From(c)))
         .Concat(formations.Select(f => ApiData.From(f)))
         .Concat(items.Select(i => ApiData.From(i)))
+        .Concat(skills.Select(s => ApiData.From(s)))
         .ToList();
       sendData.Add(ApiData.From(new ApiSignal
       {

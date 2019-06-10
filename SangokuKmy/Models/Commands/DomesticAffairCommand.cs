@@ -67,6 +67,15 @@ namespace SangokuKmy.Models.Commands
         this.AddCharacterAttributeEx(character, 50);
 
         await game.CharacterLogAsync("<town>" + town.Name + "</town> の " + this.GetValueName() + " を <num>+" + add + "</num> " + this.GetValueAddingText() + "しました");
+
+        if (RandomService.Next(0, 500) == 0)
+        {
+          var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
+          if (info.HasData)
+          {
+            await game.CharacterLogAsync($"<town>{town.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
+          }
+        }
       }
       else
       {

@@ -49,15 +49,15 @@ namespace SangokuKmy.Models.Commands
       var info = infoOptional.Data;
 
       var charaItems = await repo.Character.GetItemsAsync(character.Id);
-      var item = charaItems.FirstOrDefault(i => i.Type == itemType);
+      var item = charaItems.FirstOrDefault(i => i.Type == itemType && i.Status == CharacterItemStatus.CharacterHold);
       if (item == null)
       {
         await game.CharacterLogAsync($"アイテム {info.Name} を譲渡しようとしましたが、それは現在所持していません");
         return;
       }
 
-      await ItemService.ReleaseCharacterAsync(item, character);
-      await ItemService.SetCharacterAsync(repo, item, target);
+      await ItemService.ReleaseCharacterAsync(repo, item, character);
+      await ItemService.SetCharacterPendingAsync(repo, item, target);
       await game.CharacterLogAsync($"<character>{target.Name}</character> にアイテム {info.Name} を譲渡しました");
       await game.CharacterLogByIdAsync(target.Id, $"<character>{character.Name}</character> からアイテム {info.Name} を受け取りました");
     }
@@ -74,8 +74,13 @@ namespace SangokuKmy.Models.Commands
         ErrorCode.CharacterNotFoundError.Throw();
       }
 
+      if (target.Id == chara.Id)
+      {
+        ErrorCode.InvalidCommandParameter.Throw();
+      }
+
       var items = await repo.Character.GetItemsAsync(chara.Id);
-      if (!items.Any(i => i.Type == itemType))
+      if (!items.Any(i => i.Type == itemType && i.Status == CharacterItemStatus.CharacterHold))
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }
