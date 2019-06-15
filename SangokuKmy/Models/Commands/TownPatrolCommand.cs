@@ -36,7 +36,7 @@ namespace SangokuKmy.Models.Commands
           return;
         }
         
-        if (RandomService.Next(0, 370) == 0)
+        if (RandomService.Next(0, 330) == 0)
         {
           var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
           if (info.HasData)
@@ -99,25 +99,41 @@ namespace SangokuKmy.Models.Commands
         }
         else
         {
-          var targets = new List<TownPatrolResult>
+          var targets = default(List<TownPatrolResult>);
+          if (character.From == CharacterFrom.Warrior)
           {
-            TownPatrolResult.Strong,
-            TownPatrolResult.Intellect,
-            TownPatrolResult.Leadership,
-            TownPatrolResult.Popularity,
-            TownPatrolResult.Agriculture,
-            TownPatrolResult.AgricultureMax,
-            TownPatrolResult.Commercial,
-            TownPatrolResult.CommercialMax,
-            TownPatrolResult.Technology,
-            TownPatrolResult.TechnologyMax,
-            TownPatrolResult.Wall,
-            TownPatrolResult.WallMax,
-            TownPatrolResult.TownBuilding,
-            TownPatrolResult.Policy,
-            TownPatrolResult.Money,
-            TownPatrolResult.FormationPoint,
-          };
+            targets = new List<TownPatrolResult>
+            {
+              TownPatrolResult.Strong,
+              TownPatrolResult.Wall,
+              TownPatrolResult.WallMax,
+              TownPatrolResult.Policy,
+              TownPatrolResult.Money,
+              TownPatrolResult.FormationPoint,
+            };
+          }
+          else
+          {
+            targets = new List<TownPatrolResult>
+            {
+              TownPatrolResult.Strong,
+              TownPatrolResult.Intellect,
+              TownPatrolResult.Leadership,
+              TownPatrolResult.Popularity,
+              TownPatrolResult.Agriculture,
+              TownPatrolResult.AgricultureMax,
+              TownPatrolResult.Commercial,
+              TownPatrolResult.CommercialMax,
+              TownPatrolResult.Technology,
+              TownPatrolResult.TechnologyMax,
+              TownPatrolResult.Wall,
+              TownPatrolResult.WallMax,
+              TownPatrolResult.TownBuilding,
+              TownPatrolResult.Policy,
+              TownPatrolResult.Money,
+              TownPatrolResult.FormationPoint,
+            };
+          }
           var result = RandomService.Next(targets);
 
           if (result == TownPatrolResult.Strong)
@@ -175,9 +191,9 @@ namespace SangokuKmy.Models.Commands
           }
           else if (result == TownPatrolResult.Wall)
           {
-            await game.CharacterLogAsync($"城壁を補強しました。城壁 <num>+12</num>、知力Ex <num>+50</num>");
+            await game.CharacterLogAsync($"城壁を補強しました。城壁 <num>+12</num>、武力Ex <num>+50</num>");
             town.Wall = Math.Min(town.WallMax, town.Wall + 12);
-            character.AddIntellectEx(50);
+            character.AddStrongEx(50);
           }
           else if (result == TownPatrolResult.TownBuilding)
           {
@@ -226,8 +242,8 @@ namespace SangokuKmy.Models.Commands
           }
           else if (result == TownPatrolResult.FormationPoint)
           {
-            await game.CharacterLogAsync($"陣形ポイント <num>20</num> を獲得しました");
-            character.FormationPoint += 20;
+            await game.CharacterLogAsync($"陣形ポイント <num>2</num> を獲得しました");
+            character.FormationPoint += 2;
           }
         }
 
