@@ -472,6 +472,18 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task AddSkillAsync(CharacterSkill skill)
+    {
+      try
+      {
+        await this.container.Context.CharacterSkills.AddAsync(skill);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     public async Task<IReadOnlyList<CharacterSkill>> GetSkillsAsync(uint charaId)
     {
       try

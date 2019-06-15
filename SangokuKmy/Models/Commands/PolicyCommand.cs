@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
@@ -38,6 +39,7 @@ namespace SangokuKmy.Models.Commands
           return;
         }
         var country = countryOptional.Data;
+        var skills = await repo.Character.GetSkillsAsync(character.Id);
 
         // 内政値に加算する
         // $kgat += int($klea/6 + rand($klea/6));
@@ -49,6 +51,20 @@ namespace SangokuKmy.Models.Commands
           add = 1;
         }
         country.PolicyPoint += add;
+
+        // 政策ブースト
+        if (RandomService.Next(0, 1000) <= skills.GetSumOfValues(CharacterSkillEffectType.PolicyBoostProbabilityThousandth))
+        {
+          var policies = await repo.Country.GetPoliciesAsync(country.Id);
+          var allPolicies = CountryPolicyTypeInfoes.GetAll();
+          var notPolicies = allPolicies.Where(pi => !policies.Any(p => p.Status != CountryPolicyStatus.Unadopted && p.Status != CountryPolicyStatus.Boosting && p.Type == pi.Type));
+          if (notPolicies.Any())
+          {
+            var info = RandomService.Next(notPolicies);
+            await CountryService.SetPolicyAndSaveAsync(repo, country, info.Type, CountryPolicyStatus.Boosted, false);
+            await game.CharacterLogAsync($"<country>{country.Name}</country> の政策 {info.Name} について新しい知見を得、政策をブーストしました");
+          }
+        }
 
         // 経験値、金の増減
         character.Contribution += 30;

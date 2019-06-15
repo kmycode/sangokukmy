@@ -165,5 +165,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 登用拒否
     /// </summary>
     PromotionRefused = 10,
+
+    /// <summary>
+    /// 無効になった登用
+    /// </summary>
+    PromotionDenied = 11,
   }
 }

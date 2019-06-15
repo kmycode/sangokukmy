@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using SangokuKmy.Common;
 using System.Linq;
 using SangokuKmy.Models.Data.ApiEntities;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Data.Entities
 {
@@ -249,6 +250,33 @@ namespace SangokuKmy.Models.Data.Entities
     /// 障子に目
     /// </summary>
     Shoji = 36,
+
+    /// <summary>
+    /// 胡人徴発
+    /// </summary>
+    GetTerrorists = 37,
+  }
+
+  public enum CountryPolicyEffectType
+  {
+    Secretary,
+    CountrySafeMax,
+    CountrySafeCollectionMax,
+    ScouterMax,
+    BoostWith,
+  }
+
+  public enum CountryPolicyEffectCalcType
+  {
+    Add,
+    Mul,
+  }
+
+  public class CountryPolicyEffect
+  {
+    public CountryPolicyEffectType Type { get; set; }
+    public int Value { get; set; }
+    public CountryPolicyEffectCalcType CalcType { get; set; } = CountryPolicyEffectCalcType.Add;
   }
 
   public class CountryPolicyTypeInfo
@@ -258,6 +286,8 @@ namespace SangokuKmy.Models.Data.Entities
     public string Name { get; set; }
 
     public int BasePoint { get; set; }
+
+    public List<CountryPolicyEffect> Effects { get; set; } = new List<CountryPolicyEffect>();
 
     public Func<IEnumerable<CountryPolicyType>, bool> SubjectAppear { get; set; }
 
@@ -310,15 +340,38 @@ namespace SangokuKmy.Models.Data.Entities
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Economy,
-        Name = "経済評論",
+        Name = "経済論",
         BasePoint = 4000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Storage,
+        Name = "貯蔵",
+        BasePoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Economy),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.CountrySafeMax,
+            Value = Config.CountrySafeMax,
+          },
+        },
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Collection,
         Name = "徴収",
         BasePoint = 3000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.Economy) && list.Contains(CountryPolicyType.Storage),
+        SubjectAppear = list => list.Contains(CountryPolicyType.Storage),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.CountrySafeCollectionMax,
+            Value = 2000,
+          },
+        },
       },
       new CountryPolicyTypeInfo
       {
@@ -329,17 +382,80 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CountryPolicyTypeInfo
       {
+        Type = CountryPolicyType.UndergroundStorage,
+        Name = "地下貯蔵",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.AddSalary),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.CountrySafeMax,
+            Value = Config.CountrySafeMax,
+          },
+        },
+      },
+      new CountryPolicyTypeInfo
+      {
         Type = CountryPolicyType.WallEar,
         Name = "壁に耳",
         BasePoint = 4000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.AddSalary) && list.Contains(CountryPolicyType.UndergroundStorage),
+        SubjectAppear = list => list.Contains(CountryPolicyType.UndergroundStorage),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.CountrySafeCollectionMax,
+            Value = 2,
+            CalcType = CountryPolicyEffectCalcType.Mul,
+          },
+        },
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StomachStorage,
+        Name = "胃の中",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.WallEar),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.CountrySafeMax,
+            Value = Config.CountrySafeMax,
+          },
+        },
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Shoji,
         Name = "障子に目",
         BasePoint = 4000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.WallEar) && list.Contains(CountryPolicyType.StomachStorage),
+        SubjectAppear = list => list.Contains(CountryPolicyType.StomachStorage),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.CountrySafeCollectionMax,
+            Value = 2,
+            CalcType = CountryPolicyEffectCalcType.Mul,
+          },
+        },
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.BloodVesselsStorage,
+        Name = "血管の中",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Shoji),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.CountrySafeMax,
+            Value = Config.CountrySafeMax,
+          },
+        },
       },
       new CountryPolicyTypeInfo
       {
@@ -356,39 +472,20 @@ namespace SangokuKmy.Models.Data.Entities
         SubjectAppear = list => list.Contains(CountryPolicyType.SaveWall),
       },
 
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.Storage,
-        Name = "貯蔵",
-        BasePoint = 4000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.UndergroundStorage,
-        Name = "地下貯蔵",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.Storage),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.StomachStorage,
-        Name = "胃の中",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.UndergroundStorage),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.BloodVesselsStorage,
-        Name = "血管の中",
-        BasePoint = 3000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.StomachStorage),
-      },
 
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.HumanDevelopment,
         Name = "人材開発",
         BasePoint = 3000,
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.Secretary,
+            Value = 1,
+          },
+        },
       },
       new CountryPolicyTypeInfo
       {
@@ -413,24 +510,32 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CountryPolicyTypeInfo
       {
-        Type = CountryPolicyType.ConnectionBuildings,
-        Name = "施設連携",
-        BasePoint = 3000,
+        Type = CountryPolicyType.PopularityCountry,
+        Name = "人情国家",
+        BasePoint = 2000,
         SubjectAppear = list => list.Contains(CountryPolicyType.UnitOrder),
       },
       new CountryPolicyTypeInfo
       {
-        Type = CountryPolicyType.PopularityCountry,
-        Name = "人情国家",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.ConnectionBuildings),
+        Type = CountryPolicyType.ConnectionBuildings,
+        Name = "施設連携",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.PopularityCountry),
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Recruitment,
         Name = "採用策",
         BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.PopularityCountry),
+        SubjectAppear = list => list.Contains(CountryPolicyType.ConnectionBuildings),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.Secretary,
+            Value = 1,
+          },
+        },
       },
       new CountryPolicyTypeInfo
       {
@@ -438,12 +543,28 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "武官の肇",
         BasePoint = 2000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongCountry),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.BoostWith,
+            Value = (int)CountryPolicyType.IntellectCountry,
+          },
+        },
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Scouter,
         Name = "密偵",
         BasePoint = 4000,
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.ScouterMax,
+            Value = Config.ScouterMax,
+          },
+        },
       },
 
       new CountryPolicyTypeInfo
@@ -451,13 +572,6 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CountryPolicyType.AntiGang,
         Name = "賊の監視",
         BasePoint = 3000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.AttackDefend,
-        Name = "攻防の礎",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.AntiGang),
       },
       new CountryPolicyTypeInfo
       {
@@ -475,57 +589,32 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CountryPolicyTypeInfo
       {
-        Type = CountryPolicyType.JusticeMessage,
-        Name = "檄",
-        BasePoint = 3000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.Justice) && list.Contains(CountryPolicyType.StrongCountry),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.Earthwork,
-        Name = "土塁",
-        BasePoint = 2000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.AttackDefend) && list.Contains(CountryPolicyType.HumanDevelopment),
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.StoneCastle,
-        Name = "石城",
-        BasePoint = 3000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.Earthwork) && list.Contains(CountryPolicyType.StrongCountry),
-      },
-      new CountryPolicyTypeInfo
-      {
         Type = CountryPolicyType.Siege,
         Name = "攻城",
         BasePoint = 4000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.AttackDefend) && list.Contains(CountryPolicyType.StrongCountry),
+        SubjectAppear = list => list.Contains(CountryPolicyType.Justice),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.JusticeMessage,
+        Name = "檄",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Siege),
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.Shosha,
         Name = "衝車常備",
         BasePoint = 4000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.Siege),
+        SubjectAppear = list => list.Contains(CountryPolicyType.JusticeMessage),
       },
 
       new CountryPolicyTypeInfo
       {
-        Type = CountryPolicyType.SoldierDevelopment,
-        Name = "兵種開発",
-        BasePoint = 500_0000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.BattleContinuous,
-        Name = "連戦戦術",
-        BasePoint = 500_0000,
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.BattleRush,
-        Name = "突撃戦術",
-        BasePoint = 500_0000,
+        Type = CountryPolicyType.GetTerrorists,
+        Name = "胡人徴発",
+        BasePoint = 0,
+        SubjectAppear = list => false,
       },
     };
 
@@ -538,13 +627,79 @@ namespace SangokuKmy.Models.Data.Entities
     {
       return infoes;
     }
-  }
 
-  public static class CountryPolicyExtensions
-  {
     public static IEnumerable<CountryPolicyType> GetAvailableTypes(this IEnumerable<CountryPolicy> policies)
     {
       return policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type);
+    }
+
+    private static Optional<CountryPolicyTypeInfo> GetInfo(this CountryPolicy item)
+    {
+      return infoes.FirstOrDefault(i => i.Type == item.Type).ToOptional();
+    }
+
+    private static IEnumerable<CountryPolicyTypeInfo> GetInfos(this IEnumerable<CountryPolicy> items)
+    {
+      return items.Join(infoes, i => i.Type, i => i.Type, (it, inn) => inn);
+    }
+
+    private static IEnumerable<CountryPolicyTypeInfo> GetInfos(this IEnumerable<CountryPolicyType> items)
+    {
+      return items.Join(infoes, i => i, i => i.Type, (it, inn) => inn);
+    }
+
+    public static bool AnySkillEffects(this IEnumerable<CountryPolicy> items, CountryPolicyEffectType type)
+    {
+      return items.GetInfos().SelectMany(i => i.Effects).Any(e => e.Type == type);
+    }
+
+    public static bool AnySkillEffects(this IEnumerable<CountryPolicy> items, CountryPolicyEffectType type, int value)
+    {
+      return items.GetInfos().SelectMany(i => i.Effects).Any(e => e.Type == type && e.Value == value);
+    }
+
+    private static int GetSumOfValues(this IEnumerable<CountryPolicyEffect> effects)
+    {
+      if (!effects.Any())
+      {
+        return 0;
+      }
+
+      var sum = 0;
+      var adds = effects.Where(e => e.CalcType == CountryPolicyEffectCalcType.Add);
+      if (adds.Any())
+      {
+        sum += adds.Sum(e => e.Value);
+      }
+
+      foreach (var effect in effects.Where(e => e.CalcType == CountryPolicyEffectCalcType.Mul))
+      {
+        sum *= effect.Value;
+      }
+
+      return sum;
+    }
+
+    public static int GetSumOfValues(this IEnumerable<CountryPolicyType> items, CountryPolicyEffectType type)
+    {
+      var effects = items.GetInfos().SelectMany(i => i.Effects).Where(e => e.Type == type);
+      return effects.Any() ? effects.Sum(e => e.Value) : 0;
+    }
+
+    public static int GetSumOfValues(this IEnumerable<CountryPolicy> items, CountryPolicyEffectType type)
+    {
+      var effects = items.GetInfos().SelectMany(i => i.Effects).Where(e => e.Type == type);
+      return effects.Any() ? effects.Sum(e => e.Value) : 0;
+    }
+
+    public static int GetSumOfValues(this CountryPolicy item, CountryPolicyEffectType type)
+    {
+      var info = item.GetInfo();
+      if (info.HasData && info.Data.Effects.Any(e => e.Type == type))
+      {
+        return info.Data.Effects.Where(e => e.Type == type).Sum(e => e.Value);
+      }
+      return 0;
     }
   }
 }

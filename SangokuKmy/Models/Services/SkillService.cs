@@ -11,7 +11,7 @@ namespace SangokuKmy.Models.Services
 {
   public static class SkillService
   {
-    public static async Task SetCharacterAsync(MainRepository repo, CharacterSkill item, Character chara)
+    public static async Task SetCharacterAndSaveAsync(MainRepository repo, CharacterSkill item, Character chara)
     {
       var strong = (short)item.GetSumOfValues(CharacterSkillEffectType.Strong);
       var intellect = (short)item.GetSumOfValues(CharacterSkillEffectType.Intellect);
@@ -25,6 +25,9 @@ namespace SangokuKmy.Models.Services
 
       item.CharacterId = chara.Id;
       item.Status = CharacterSkillStatus.Available;
+
+      await repo.Character.AddSkillAsync(item);
+      await repo.SaveChangesAsync();
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(item));

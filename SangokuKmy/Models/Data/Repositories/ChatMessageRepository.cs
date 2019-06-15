@@ -80,7 +80,17 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <returns>個人宛の一覧</returns>
     public async Task<IReadOnlyCollection<ChatMessage>> GetPromotionMessagesAsync(uint characterId, uint sinceId, int count)
     {
-      return await this.GetMessagesAsync(mes => (mes.Type == ChatMessageType.Promotion || mes.Type == ChatMessageType.PromotionRefused || mes.Type == ChatMessageType.PromotionAccepted) && (mes.TypeData == characterId || mes.TypeData2 == characterId), sinceId, count);
+      return await this.GetMessagesAsync(mes => (mes.Type == ChatMessageType.Promotion || mes.Type == ChatMessageType.PromotionRefused || mes.Type == ChatMessageType.PromotionAccepted || mes.Type == ChatMessageType.PromotionDenied) && (mes.TypeData == characterId || mes.TypeData2 == characterId), sinceId, count);
+    }
+
+    /// <summary>
+    /// 登用を取得する
+    /// </summary>
+    /// <param name="countryId">国ID</param>
+    /// <returns>個人宛の一覧</returns>
+    public async Task<IReadOnlyCollection<ChatMessage>> GetPromotionMessagesAsync(uint countryId)
+    {
+      return await this.GetMessagesAsync(mes => (mes.Type == ChatMessageType.Promotion || mes.Type == ChatMessageType.PromotionRefused || mes.Type == ChatMessageType.PromotionAccepted || mes.Type == ChatMessageType.PromotionDenied) && mes.CharacterCountryId == countryId, default, 8191);
     }
 
     /// <summary>
@@ -125,7 +135,7 @@ namespace SangokuKmy.Models.Data.Repositories
 
         // 受信者情報を付加。受信者名以外は参照渡しなので、後で処理結果にマージする必要はない
         var data2 = data
-          .Where(d => d.Message.Type == ChatMessageType.Private || d.Message.Type == ChatMessageType.Promotion || d.Message.Type == ChatMessageType.PromotionAccepted || d.Message.Type == ChatMessageType.PromotionRefused)
+          .Where(d => d.Message.Type == ChatMessageType.Private || d.Message.Type == ChatMessageType.Promotion || d.Message.Type == ChatMessageType.PromotionAccepted || d.Message.Type == ChatMessageType.PromotionRefused || d.Message.Type == ChatMessageType.PromotionDenied)
           .Join(this.container.Context.Characters, d => d.Message.TypeData2, c => c.Id, (d, c) => new { d.Message, d.Character, d.Icon, ReceiverName = c.Name, })
           .ToArray();
         var data3 = data

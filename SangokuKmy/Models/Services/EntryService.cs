@@ -77,8 +77,31 @@ namespace SangokuKmy.Models.Services
         SoldierNumber = 0,
         Proficiency = 0,
         TownId = newChara.TownId,
+        From = newChara.From,
       };
       chara.SetPassword(password);
+
+      // 出身
+      var skills = new List<CharacterSkillType>();
+      if (chara.From == CharacterFrom.Warrior)
+      {
+        skills.Add(CharacterSkillType.Strong1);
+        chara.Strong += 20;
+      }
+      else if (chara.From == CharacterFrom.Civilian)
+      {
+        skills.Add(CharacterSkillType.Intellect1);
+        chara.Intellect += 20;
+      }
+      else if (chara.From == CharacterFrom.Merchant)
+      {
+        skills.Add(CharacterSkillType.Merchant1);
+        chara.Money += 10000;
+      }
+      else
+      {
+        ErrorCode.InvalidParameterError.Throw();
+      }
 
       // 来月の更新がまだ終わってないタイミングで登録したときの、武将更新時刻の調整
       if (chara.LastUpdated - system.CurrentMonthStartDateTime > TimeSpan.FromSeconds(Config.UpdateTime))
@@ -187,6 +210,18 @@ namespace SangokuKmy.Models.Services
             Status = CountryPolicyStatus.Boosted,
             CountryId = country.Id,
           });
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.Storage,
+            Status = CountryPolicyStatus.Boosted,
+            CountryId = country.Id,
+          });
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.UndergroundStorage,
+            Status = CountryPolicyStatus.Boosted,
+            CountryId = country.Id,
+          });
         }
         else if (town.SubType == TownType.Commercial)
         {
@@ -198,10 +233,23 @@ namespace SangokuKmy.Models.Services
           });
           policies.Add(new CountryPolicy
           {
-            Type = CountryPolicyType.Storage,
+            Type = CountryPolicyType.Collection,
             Status = CountryPolicyStatus.Boosted,
             CountryId = country.Id,
           });
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.HumanDevelopment,
+            Status = CountryPolicyStatus.Boosted,
+            CountryId = country.Id,
+          });
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.AntiGang,
+            Status = CountryPolicyStatus.Boosted,
+            CountryId = country.Id,
+          });
+          country.PolicyPoint += 500;
         }
         else if (town.SubType == TownType.Fortress)
         {
@@ -213,11 +261,29 @@ namespace SangokuKmy.Models.Services
           });
           policies.Add(new CountryPolicy
           {
+            Type = CountryPolicyType.UnitOrder,
+            Status = CountryPolicyStatus.Boosted,
+            CountryId = country.Id,
+          });
+          policies.Add(new CountryPolicy
+          {
             Type = CountryPolicyType.AntiGang,
             Status = CountryPolicyStatus.Boosted,
             CountryId = country.Id,
           });
-          country.PolicyPoint += 500;
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.Justice,
+            Status = CountryPolicyStatus.Boosted,
+            CountryId = country.Id,
+          });
+          policies.Add(new CountryPolicy
+          {
+            Type = CountryPolicyType.Siege,
+            Status = CountryPolicyStatus.Boosted,
+            CountryId = country.Id,
+          });
+          country.PolicyPoint -= 1000;
         }
         foreach (var p in policies)
         {
@@ -261,6 +327,17 @@ namespace SangokuKmy.Models.Services
         IpAddress = ipAddress,
       };
       await repo.EntryHost.AddAsync(host);
+
+      var skillItems = skills.Select(s => new CharacterSkill
+      {
+        CharacterId = chara.Id,
+        Type = s,
+        Status = CharacterSkillStatus.Available,
+      });
+      foreach (var si in skillItems)
+      {
+        await SkillService.SetCharacterAndSaveAsync(repo, si, chara);
+      }
 
       await repo.SaveChangesAsync();
 
@@ -343,6 +420,11 @@ namespace SangokuKmy.Models.Services
       else
       {
         ErrorCode.InvalidParameterError.Throw();
+      }
+
+      if (chara.From == CharacterFrom.Unknown)
+      {
+        ErrorCode.LackOfParameterError.Throw();
       }
 
       var attributeMax = GetAttributeMax(current);

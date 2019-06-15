@@ -123,7 +123,39 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
             },
-            NextLevel = 0,
+            NextLevel = 2000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              BaseAttack = 1,
+            },
+            NextLevel = 3000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              BaseAttack = 2,
+            },
+            NextLevel = 6000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              BaseAttack = 4,
+            },
+            NextLevel = 10000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              BaseAttack = 8,
+            },
+            NextLevel = 10000,
           },
         },
         RequiredPoint = 0,

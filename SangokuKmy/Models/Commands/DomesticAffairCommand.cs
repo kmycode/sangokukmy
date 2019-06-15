@@ -42,6 +42,7 @@ namespace SangokuKmy.Models.Commands
         }
 
         this.Policies = await repo.Country.GetPoliciesAsync(character.CountryId);
+        var skills = await repo.Character.GetSkillsAsync(character.Id);
 
         // 内政値に加算する
         // $znouadd = int(($kint+$kprodmg)/20 + rand(($kint+$kprodmg)) / 40);
@@ -52,6 +53,7 @@ namespace SangokuKmy.Models.Commands
         {
           add = 1;
         }
+        add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentage) / 100.0f));
         if (current + add >= max)
         {
           this.SetValue(town, max);

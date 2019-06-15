@@ -68,7 +68,7 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        await repo.AuthenticationData.RemoveCharacterAsync(this.AuthData.CharacterId);
+        await repo.AuthenticationData.RemoveTokenAsync(this.AuthData.AccessToken);
         StatusStreaming.Default.Disconnect(chara);
         await OnlineService.SetAsync(chara, OnlineStatus.Offline);
       }
@@ -462,7 +462,7 @@ namespace SangokuKmy.Controllers
         {
           ErrorCode.InvalidOperationError.Throw();
         }
-        if (info.SubjectAppear != null && info.SubjectAppear(skills))
+        if (info.SubjectAppear != null && !info.SubjectAppear(skills))
         {
           ErrorCode.InvalidOperationError.Throw();
         }
@@ -474,11 +474,8 @@ namespace SangokuKmy.Controllers
           Type = param.Type,
           Status = CharacterSkillStatus.Available,
         };
-        await SkillService.SetCharacterAsync(repo, skill, chara);
-        await repo.SaveChangesAsync();
+        await SkillService.SetCharacterAndSaveAsync(repo, skill, chara);
       }
-      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
-      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(skill), chara.Id);
     }
 
     [HttpGet("characters")]

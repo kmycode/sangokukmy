@@ -91,7 +91,7 @@ namespace SangokuKmy.Models.Services
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var countries = (await repo.Country.GetAllAsync())
         .Where(c => !c.HasOverthrown)
-        .Where(c => c.AiType != CountryAiType.Human && c.AiType != CountryAiType.Managed)
+        .Where(c => c.AiType != CountryAiType.Human && c.AiType != CountryAiType.Managed && c.AiType != CountryAiType.Terrorists)
         .Where(c => !wars.Any(w => w.RequestedCountryId == c.Id || w.InsistedCountryId == c.Id));
 
       var isCreated = false;
@@ -281,44 +281,26 @@ namespace SangokuKmy.Models.Services
       {
         return false;
       }
-      var countryCount = (await repo.Country.GetAllAsync()).Count(c => !c.HasOverthrown);
 
       var charas = new List<CharacterAiType>
       {
         CharacterAiType.TerroristBattler,
+        CharacterAiType.TerroristWallBattler,
+        CharacterAiType.TerroristCivilOfficial,
         CharacterAiType.TerroristPatroller,
       };
-      if (countryCount <= 4)
-      {
-        charas.Add(CharacterAiType.TerroristCivilOfficial);
-      }
-      if (countryCount <= 3)
-      {
-        charas.Add(CharacterAiType.TerroristBattler);
-        charas.Add(CharacterAiType.TerroristWallBattler);
-      }
-      if (countryCount <= 2)
-      {
-        charas.Add(CharacterAiType.TerroristCivilOfficial);
-        charas.Add(CharacterAiType.TerroristPatroller);
-      }
 
-      var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
+      var names = new string[] { "南蛮", "烏丸", "羌", "山越", "匈奴", "羯", "鮮卑", "氐", "奚", "夷", "俚", };
       var name = names[RandomService.Next(0, names.Length)];
       if (RandomService.Next(0, 7) == 0)
       {
         name = "倭";
         charas.Add(CharacterAiType.TerroristRyofu);
         charas.Add(CharacterAiType.TerroristBattler);
+        charas.Add(CharacterAiType.TerroristPatroller);
       }
 
-      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-      var warCountries = wars
-        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
-        .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
-        .Distinct();
-
-      var town = await CreateTownAsync(repo, warCountries);
+      var town = await CreateTownAsync(repo, Enumerable.Empty<uint>());
       if (!town.HasData)
       {
         return false;
@@ -404,12 +386,6 @@ namespace SangokuKmy.Models.Services
         charas.Add(CharacterAiType.ThiefWallBattler);
         charas.Add(CharacterAiType.ThiefPatroller);
       }
-
-      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-      var warCountries = wars
-        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
-        .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
-        .Distinct();
 
       var country = await CreateCountryAsync(repo, system, town, charas.ToArray());
       country.CountryColorId = countryColor;
@@ -710,6 +686,16 @@ namespace SangokuKmy.Models.Services
       }
 
       return await CreateFarmerCountryAsync(repo, towns[RandomService.Next(0, towns.Count)], mapLogAsync);
+    }
+
+    private static async Task<IEnumerable<uint>> GetWaringCountries(MainRepository repo)
+    {
+      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+      var warCountries = wars
+        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
+        .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
+        .Distinct();
+      return warCountries;
     }
   }
 }

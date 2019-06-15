@@ -14,6 +14,7 @@ using SangokuKmy.Streamings;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SangokuKmy.Models.Services;
 using SangokuKmy.Models.Updates.Ai;
+using SangokuKmy.Models.Commands;
 
 namespace SangokuKmy.Models.Updates
 {
@@ -325,17 +326,9 @@ namespace SangokuKmy.Models.Updates
 
             // 徴収
             var policies = country.Policies.GetAvailableTypes();
-            var collectionSize = policies.Contains(CountryPolicyType.Collection) ? 2000 : 0;
+            var collectionSize = policies.GetSumOfValues(CountryPolicyEffectType.CountrySafeCollectionMax);
             if (collectionSize > 0)
             {
-              if (policies.Contains(CountryPolicyType.WallEar))
-              {
-                collectionSize *= 2;
-              }
-              if (policies.Contains(CountryPolicyType.Shoji))
-              {
-                collectionSize *= 2;
-              }
               country.Country.SafeMoney = Math.Min(
                 CountryService.GetCountrySafeMax(
                   country.Policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type)),
@@ -529,7 +522,7 @@ namespace SangokuKmy.Models.Updates
               peopleAdd = Math.Max(80 * (town.Security - 50), 500);
               if (town.TownBuilding == TownBuilding.OpenWall)
               {
-                peopleAdd = (int)((((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.12f + 1.0f) * peopleAdd);
+                peopleAdd = (int)((((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.4f + 1.0f) * peopleAdd);
               }
             }
             else if (town.Security < 50)
@@ -803,6 +796,23 @@ namespace SangokuKmy.Models.Updates
           await repo.SaveChangesAsync();
         }
 
+        // 遅延効果
+        {
+          var delays = await repo.DelayEffect.GetAllAsync();
+          foreach (var delay in delays)
+          {
+            var isRemove = false;
+            if (delay.Type == DelayEffectType.TownInvestment)
+            {
+              isRemove = await TownInvestCommand.ResultAsync(repo, system, delay, AddLogAsync);
+            }
+            if (isRemove)
+            {
+              repo.DelayEffect.Remove(delay);
+            }
+          }
+        }
+
         // AI国家
         {
           // 出現
@@ -826,12 +836,7 @@ namespace SangokuKmy.Models.Updates
 
         // 異民族
         var countryCount = allCountries.Count(c => !c.HasOverthrown);
-        if (system.TerroristCount <= 0 && !system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 &&
-            ((system.GameDateTime.Year >= 180 && RandomService.Next(0, 130) == 0) ||
-              system.GameDateTime.Year >= 220 ||
-              countryCount == 2 ||
-             (countryCount == 3 && RandomService.Next(0, 140) == 0) ||
-             (countryCount == 4 && RandomService.Next(0, 420) == 0)))
+        if (system.TerroristCount < 1)
         {
           var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
           if (isCreated)
@@ -1009,6 +1014,19 @@ namespace SangokuKmy.Models.Updates
         MapLogAndSaveAsync = AddMapLogAndSaveAsync,
         GameDateTime = currentMonth,
       };
+
+      // 技能
+      {
+        var skills = await repo.Character.GetSkillsAsync(character.Id);
+        var skillStrongEx = skills.GetSumOfValues(CharacterSkillEffectType.StrongExRegularly);
+        var skillIntellectEx = skills.GetSumOfValues(CharacterSkillEffectType.IntellectExRegularly);
+        var skillLeadershipEx = skills.GetSumOfValues(CharacterSkillEffectType.LeadershipExRegularly);
+        var skillPopularityEx = skills.GetSumOfValues(CharacterSkillEffectType.PopularityExRegularly);
+        character.AddStrongEx((short)skillStrongEx);
+        character.AddIntellectEx((short)skillIntellectEx);
+        character.AddLeadershipEx((short)skillLeadershipEx);
+        character.AddPopularityEx((short)skillPopularityEx);
+      }
 
       try
       {

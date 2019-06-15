@@ -251,6 +251,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode NotMoreItemsError { get; } = new ErrorCode(403, 45);
 
+    /// <summary>
+    /// 技能がないエラー
+    /// </summary>
+    public static ErrorCode NotSkillError { get; } = new ErrorCode(403, 46);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

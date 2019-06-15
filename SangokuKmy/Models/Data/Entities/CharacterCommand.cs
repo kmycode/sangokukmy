@@ -316,5 +316,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 都市巡回
     /// </summary>
     TownPatrol = 54,
+
+    /// <summary>
+    /// 都市投資
+    /// </summary>
+    TownInvest = 55,
   }
 }

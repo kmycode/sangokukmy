@@ -32,7 +32,7 @@ namespace SangokuKmy.Models.Commands
         var town = townOptional.Data;
         if (town.CountryId != character.CountryId && country.HasData && !country.Data.HasOverthrown)
         {
-          await game.CharacterLogAsync($"<town>{town.Name}</town>で巡回しようとしましたが、自国の都市ではありません");
+          await game.CharacterLogAsync($"<town>{town.Name}</town> で巡回しようとしましたが、自国の都市ではありません");
           return;
         }
         
@@ -72,7 +72,7 @@ namespace SangokuKmy.Models.Commands
         {
           var formations = await repo.Character.GetFormationsAsync(character.Id);
           var allFormations = FormationTypeInfoes.GetAllGettables(formations);
-          var notFormations = allFormations.Where(f => !formations.Any(ff => f.Type == f.Type));
+          var notFormations = allFormations.Where(f => !formations.Any(ff => f.Type == ff.Type));
           if (notFormations.Any())
           {
             var info = RandomService.Next(notFormations);

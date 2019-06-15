@@ -31,7 +31,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       var policies = await repo.Country.GetPoliciesAsync(country.Id);
-      if (!policies.Any(p => p.Type == CountryPolicyType.Scouter))
+      if (policies.GetSumOfValues(CountryPolicyEffectType.ScouterMax) <= 0)
       {
         ErrorCode.InvalidOperationError.Throw();
       }
@@ -70,12 +70,14 @@ namespace SangokuKmy.Models.Commands
         return;
       }
       var country = countryOptional.Data;
+      var policies = (await repo.Country.GetPoliciesAsync(country.Id)).GetAvailableTypes();
 
       var charas = await repo.Country.GetCharactersWithIconsAndCommandsAsync(country.Id);
       var scouters = await repo.Country.GetScoutersAsync(country.Id);
-      if (scouters.Count >= Config.ScouterMax)
+      var scouterMax = policies.GetSumOfValues(CountryPolicyEffectType.ScouterMax);
+      if (scouters.Count >= scouterMax)
       {
-        await game.CharacterLogAsync($"斥候を雇おうとしましたが、すでに斥候の数が上限 <num>{Config.ScouterMax}</num> に達しています");
+        await game.CharacterLogAsync($"斥候を雇おうとしましたが、すでに斥候の数が上限 <num>{scouterMax}</num> に達しています");
         return;
       }
 

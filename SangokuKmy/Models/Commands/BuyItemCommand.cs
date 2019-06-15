@@ -43,7 +43,10 @@ namespace SangokuKmy.Models.Commands
       }
       var info = infoOptional.Data;
 
-      if (info.Money > character.Money)
+      var skills = await repo.Character.GetSkillsAsync(character.Id);
+      var needMoney = (int)(info.Money * (1 - skills.GetSumOfValues(CharacterSkillEffectType.ItemDiscountPercentage) / 100.0f));
+
+      if (needMoney > character.Money)
       {
         await game.CharacterLogAsync("アイテム購入の金が足りません");
         return;
@@ -65,7 +68,7 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      character.Money -= info.Money;
+      character.Money -= needMoney;
       await ItemService.SetCharacterAsync(repo, target, character);
       await game.CharacterLogAsync($"<town>{town.Name}</town> のアイテム {info.Name} を購入しました");
     }

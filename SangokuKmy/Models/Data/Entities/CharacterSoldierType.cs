@@ -175,7 +175,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.Common,
-        Name = "雑兵",
+        Name = "剣兵",
         Data = new CharacterSoldierTypeData
         {
           TypeInfantry = 10,
@@ -203,7 +203,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.LightInfantry,
-        Name = "軽歩兵",
+        Name = "軽戟兵",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 1,
@@ -280,7 +280,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.HeavyInfantry,
-        Name = "重歩兵",
+        Name = "重戟兵",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 5,
@@ -368,6 +368,7 @@ namespace SangokuKmy.Models.Data.Entities
           WallAttack = 20,
           WallDefend = 10,
           StrongEx = 1,
+          TypeAntiWall = 10,
           PowerStrong = 1,
         },
         Money = 30,
@@ -393,8 +394,8 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "守兵A",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 3,
-          BaseDefend = 1,
+          BaseAttack = 2,
+          BaseDefend = 3,
           TypeWall = 10,
           PowerStrong = 1,
         },
@@ -407,8 +408,8 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "守兵B",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 5,
-          BaseDefend = 2,
+          BaseAttack = 4,
+          BaseDefend = 4,
           TypeWall = 10,
           PowerStrong = 1,
         },
@@ -421,8 +422,8 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "守兵C",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 7,
-          BaseDefend = 3,
+          BaseAttack = 6,
+          BaseDefend = 5,
           TypeWall = 10,
           PowerStrong = 1,
         },
@@ -436,7 +437,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 9,
-          BaseDefend = 4,
+          BaseDefend = 6,
           TypeWall = 10,
           PowerStrong = 1,
         },
@@ -455,6 +456,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
+        Money = 5,
         Technology = 32767,
         CanConscript = false,
       },
@@ -471,6 +473,7 @@ namespace SangokuKmy.Models.Data.Entities
           PowerStrong = 1,
           ContinuousProbability = 40,
         },
+        Money = 10,
         Technology = 32767,
         CanConscript = false,
       },
@@ -487,6 +490,7 @@ namespace SangokuKmy.Models.Data.Entities
           PowerStrong = 1,
           ContinuousProbability = 70,
         },
+        Money = 15,
         Technology = 32767,
         CanConscript = false,
       },
@@ -502,6 +506,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
+        Money = 2,
         Technology = 32767,
         CanConscript = false,
       },
@@ -517,6 +522,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
+        Money = 4,
         Technology = 32767,
         CanConscript = false,
       },
@@ -532,6 +538,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
+        Money = 6,
         Technology = 32767,
         CanConscript = false,
       },

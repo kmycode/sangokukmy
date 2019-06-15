@@ -37,22 +37,7 @@ namespace SangokuKmy.Models.Commands
         // 経験値、金の増減
         character.Contribution += 15;
         character.AddLeadershipEx(50);
-
-        var formation = await repo.Character.GetFormationAsync(character.Id, character.FormationType);
-        var info = FormationTypeInfoes.Get(formation.Type);
-        if (info.HasData)
-        {
-          await game.CharacterLogAsync("訓練を <num>+" + add + "</num>、陣形 " + info.Data.Name + " 経験値を <num>" + (add / 2) + "</num> 上げました");
-          formation.Experience += add / 2;
-          if (info.Data.CheckLevelUp(formation))
-          {
-            await game.CharacterLogAsync($"陣形 {info.Data.Name} のレベルが <num>{formation.Level}</num> に上昇しました");
-          }
-        }
-        else
-        {
-          await game.CharacterLogAsync("訓練を <num>+" + add + "</num> 上げました");
-        }
+        await game.CharacterLogAsync("訓練を <num>+" + add + "</num> 上げました");
       }
       else
       {
