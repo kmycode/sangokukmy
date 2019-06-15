@@ -349,7 +349,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.ItemMax,
-            Value = 2,
+            Value = 1,
           },
         },
       },
