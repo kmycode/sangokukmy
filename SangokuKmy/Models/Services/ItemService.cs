@@ -108,7 +108,9 @@ namespace SangokuKmy.Models.Services
       }
 
       var items = await repo.Town.GetItemsAsync(townId);
-      var hiddenItems = items.Where(i => i.Status == CharacterItemStatus.TownHidden);
+      var hiddenItems = items
+        .Where(i => i.Status == CharacterItemStatus.TownHidden)
+        .Where(i => i.GetInfo().Data?.DiscoverFroms?.Any(d => d == chara.From) ?? true);
       if (!hiddenItems.Any())
       {
         return default;

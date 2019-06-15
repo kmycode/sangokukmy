@@ -145,6 +145,7 @@ namespace SangokuKmy.Models.Data.Entities
     public bool CanSell { get; set; } = true;
     public bool CanHandOver { get; set; } = true;
     public IList<CharacterItemEffect> Effects { get; set; }
+    public IList<CharacterFrom> DiscoverFroms { get; set; }
   }
 
   public static class CharacterItemInfoes
@@ -523,6 +524,10 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterItemEffectType.Strong,
             Value = 20,
           },
+        },
+        DiscoverFroms = new List<CharacterFrom>
+        {
+          CharacterFrom.Warrior,
         },
       },
       new CharacterItemInfo
