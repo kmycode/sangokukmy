@@ -36,7 +36,7 @@ namespace SangokuKmy.Models.Commands
           return;
         }
         
-        if (RandomService.Next(0, 330) == 0)
+        if (RandomService.Next(0, 300) == 0)
         {
           var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
           if (info.HasData)
@@ -49,7 +49,7 @@ namespace SangokuKmy.Models.Commands
             character.Money += 5000;
           }
         }
-        else if (RandomService.Next(0, 400) == 0 && country.HasData && !country.Data.HasOverthrown)
+        else if (RandomService.Next(0, 100) == 0 && country.HasData && !country.Data.HasOverthrown)
         {
           var policies = await repo.Country.GetPoliciesAsync(country.Data.Id);
           var allPolicies = CountryPolicyTypeInfoes.GetAll();
@@ -68,7 +68,7 @@ namespace SangokuKmy.Models.Commands
             character.AddIntellectEx(300);
           }
         }
-        else if (RandomService.Next(0, 450) == 0)
+        else if (RandomService.Next(0, 250) == 0)
         {
           var formations = await repo.Character.GetFormationsAsync(character.Id);
           var allFormations = FormationTypeInfoes.GetAllGettables(formations);
@@ -92,7 +92,7 @@ namespace SangokuKmy.Models.Commands
             character.Money += 10000;
           }
         }
-        else if (RandomService.Next(0, 200) == 0)
+        else if (RandomService.Next(0, 100) == 0)
         {
           await game.CharacterLogAsync($"技能ポイントを <num>+1</num> 獲得しました");
           character.SkillPoint += 1;

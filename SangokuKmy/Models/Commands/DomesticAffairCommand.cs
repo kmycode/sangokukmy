@@ -70,7 +70,7 @@ namespace SangokuKmy.Models.Commands
 
         await game.CharacterLogAsync("<town>" + town.Name + "</town> の " + this.GetValueName() + " を <num>+" + add + "</num> " + this.GetValueAddingText() + "しました");
 
-        if (RandomService.Next(0, 500) == 0)
+        if (RandomService.Next(0, 350) == 0)
         {
           var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
           if (info.HasData)

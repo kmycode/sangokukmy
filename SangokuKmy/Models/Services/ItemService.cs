@@ -123,7 +123,7 @@ namespace SangokuKmy.Models.Services
         return default;
       }
 
-      await SetCharacterAsync(repo, item, chara);
+      await SetCharacterPendingAsync(repo, item, chara);
       return info;
     }
 

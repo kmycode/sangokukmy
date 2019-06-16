@@ -489,6 +489,22 @@ namespace SangokuKmy.Models.Updates
           await repo.SaveChangesAsync();
         }
 
+        // アイテム変動
+        if (system.GameDateTime.Year % 4 == 0 && system.GameDateTime.Month == 1)
+        {
+          var items = await repo.CharacterItem.GetAllAsync();
+          var targetItems = items.Where(i => i.Status == CharacterItemStatus.TownHidden);
+          if (system.GameDateTime.Year % 12 == 4)   // 午前5時
+          {
+            targetItems = items.Where(i => i.Status == CharacterItemStatus.TownHidden || i.Status == CharacterItemStatus.TownOnSale);
+          }
+          foreach (var item in targetItems)
+          {
+            item.TownId = RandomService.Next(allTowns).Id;
+          }
+          await StatusStreaming.Default.SendAllAsync(targetItems.Select(i => ApiData.From(i)));
+        }
+
         // 相場・人口変動
         if (system.GameDateTime.Month == 1 || system.GameDateTime.Month == 7)
         {

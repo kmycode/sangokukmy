@@ -538,6 +538,20 @@ namespace SangokuKmy.Models.Commands
               }
             }
           }
+
+          // アイテム
+          if (RandomService.Next(0, 190) == 0)
+          {
+            var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
+            if (info.HasData)
+            {
+              var town = await repo.Town.GetByIdAsync(character.TownId);
+              if (town.HasData)
+              {
+                await game.CharacterLogAsync($"<town>{town.Data.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
+              }
+            }
+          }
         }
       }
 

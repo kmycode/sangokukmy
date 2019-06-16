@@ -29,7 +29,7 @@ namespace SangokuKmy.Models.Commands
           if (CharacterService.GetItemMax(skills) > currentItems.Count)
           {
             var items = await repo.Town.GetItemsAsync(chara.Data.TownId);
-            if (RandomService.Next(0, 10) < items.Count)
+            if (RandomService.Next(0, 12) < items.Count)
             {
               var item = RandomService.Next(items);
               var info = CharacterItemInfoes.Get(item.Type);
