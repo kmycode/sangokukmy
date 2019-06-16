@@ -91,7 +91,7 @@ namespace SangokuKmy.Models.Services
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var countries = (await repo.Country.GetAllAsync())
         .Where(c => !c.HasOverthrown)
-        .Where(c => c.AiType != CountryAiType.Human && c.AiType != CountryAiType.Managed)
+        .Where(c => c.AiType != CountryAiType.Human && c.AiType != CountryAiType.Managed && c.AiType != CountryAiType.Terrorists)
         .Where(c => !wars.Any(w => w.RequestedCountryId == c.Id || w.InsistedCountryId == c.Id));
 
       var isCreated = false;
@@ -111,7 +111,6 @@ namespace SangokuKmy.Models.Services
     {
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       var allTowns = await repo.Town.GetAllAsync();
-      var system = await repo.System.GetAsync();
 
       var allCountries = await repo.Country.GetAllAsync();
       var warCountries = wars
@@ -282,44 +281,26 @@ namespace SangokuKmy.Models.Services
       {
         return false;
       }
-      var countryCount = (await repo.Country.GetAllAsync()).Count(c => !c.HasOverthrown);
 
       var charas = new List<CharacterAiType>
       {
         CharacterAiType.TerroristBattler,
+        CharacterAiType.TerroristWallBattler,
+        CharacterAiType.TerroristCivilOfficial,
         CharacterAiType.TerroristPatroller,
       };
-      if (countryCount <= 4)
-      {
-        charas.Add(CharacterAiType.TerroristCivilOfficial);
-      }
-      if (countryCount <= 3)
-      {
-        charas.Add(CharacterAiType.TerroristBattler);
-        charas.Add(CharacterAiType.TerroristWallBattler);
-      }
-      if (countryCount <= 2)
-      {
-        charas.Add(CharacterAiType.TerroristCivilOfficial);
-        charas.Add(CharacterAiType.TerroristPatroller);
-      }
 
-      var names = new string[] { "南蛮", "烏丸", "羌", "山越", };
+      var names = new string[] { "南蛮", "烏丸", "羌", "山越", "匈奴", "羯", "鮮卑", "氐", "奚", "夷", "俚", };
       var name = names[RandomService.Next(0, names.Length)];
       if (RandomService.Next(0, 7) == 0)
       {
         name = "倭";
         charas.Add(CharacterAiType.TerroristRyofu);
         charas.Add(CharacterAiType.TerroristBattler);
+        charas.Add(CharacterAiType.TerroristPatroller);
       }
 
-      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-      var warCountries = wars
-        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
-        .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
-        .Distinct();
-
-      var town = await CreateTownAsync(repo, warCountries);
+      var town = await CreateTownAsync(repo, Enumerable.Empty<uint>());
       if (!town.HasData)
       {
         return false;
@@ -350,8 +331,8 @@ namespace SangokuKmy.Models.Services
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town.Data)));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
       return true;
     }
@@ -406,12 +387,6 @@ namespace SangokuKmy.Models.Services
         charas.Add(CharacterAiType.ThiefPatroller);
       }
 
-      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-      var warCountries = wars
-        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
-        .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
-        .Distinct();
-
       var country = await CreateCountryAsync(repo, system, town, charas.ToArray());
       country.CountryColorId = countryColor;
       country.Name = name;
@@ -423,8 +398,8 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(town.Id)).Select(c => c.Id));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
       return true;
     }
@@ -604,10 +579,10 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(town.Id)).Select(c => c.Id));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
       await StatusStreaming.Default.SendAllAsync(myCharas.Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.Anonymous))));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
       return true;
     }
@@ -650,8 +625,8 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(town)));
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(town), (await repo.Town.GetCharactersAsync(town.Id)).Select(c => c.Id));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
       if (targetCountryOptional.HasData)
       {
@@ -711,6 +686,16 @@ namespace SangokuKmy.Models.Services
       }
 
       return await CreateFarmerCountryAsync(repo, towns[RandomService.Next(0, towns.Count)], mapLogAsync);
+    }
+
+    private static async Task<IEnumerable<uint>> GetWaringCountries(MainRepository repo)
+    {
+      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+      var warCountries = wars
+        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
+        .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
+        .Distinct();
+      return warCountries;
     }
   }
 }

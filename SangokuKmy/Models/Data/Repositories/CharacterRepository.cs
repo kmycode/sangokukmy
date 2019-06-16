@@ -446,11 +446,49 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
-    public async Task<IReadOnlyList<Formation>> GetCharacterFormationsAsync(uint characterId)
+    public async Task<IReadOnlyList<Formation>> GetFormationsAsync(uint characterId)
     {
       try
       {
         return await this.container.Context.Formations.Where(f => f.CharacterId == characterId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<IReadOnlyList<CharacterItem>> GetItemsAsync(uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.CharacterItems.Where(i => (i.Status == CharacterItemStatus.CharacterHold || i.Status == CharacterItemStatus.CharacterPending) && i.CharacterId == charaId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task AddSkillAsync(CharacterSkill skill)
+    {
+      try
+      {
+        await this.container.Context.CharacterSkills.AddAsync(skill);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public async Task<IReadOnlyList<CharacterSkill>> GetSkillsAsync(uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.CharacterSkills.Where(i => i.Status == CharacterSkillStatus.Available && i.CharacterId == charaId).ToArrayAsync();
       }
       catch (Exception ex)
       {

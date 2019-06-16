@@ -94,6 +94,27 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 武将データを消去する
+    /// </summary>
+    public async Task RemoveTokenAsync(string token)
+    {
+      try
+      {
+        var now = DateTime.Now;
+
+        var removed = this.Cache.Remove(() => this.container.Context.AuthenticationData, a => a.AccessToken == token);
+        if (removed.Any())
+        {
+          await this.container.Context.SaveChangesAsync();
+        }
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
     /// データをトークンから検索する
     /// </summary>
     /// <param name="token">トークン</param>

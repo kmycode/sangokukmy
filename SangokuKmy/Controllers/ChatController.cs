@@ -216,6 +216,13 @@ namespace SangokuKmy.Controllers
         if (message.Type == ChatMessageType.PromotionAccepted)
         {
           var sender = await repo.Character.GetByIdAsync(old.TypeData).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+
+          if (sender.CountryId != message.CharacterCountryId)
+          {
+            // 登用出した人の国が滅亡している
+            ErrorCode.CountryNotFoundError.Throw();
+          }
+
           var senderCountry = await repo.Country.GetAliveByIdAsync(sender.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
           oldTown = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           newTown = await repo.Town.GetByIdAsync(senderCountry.CapitalTownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);

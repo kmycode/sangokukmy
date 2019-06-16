@@ -52,13 +52,13 @@ namespace SangokuKmy.Models.Commands
           return;
         }
 
-        var formations = await repo.Character.GetCharacterFormationsAsync(character.Id);
+        var formations = await repo.Character.GetFormationsAsync(character.Id);
         if (formations.Any(f => f.Type == type))
         {
           await game.CharacterLogAsync($"陣形 {info.Data.Name} は、すでに獲得しています");
           return;
         }
-        if (info.Data.SubjectAppear != null && !info.Data.SubjectAppear(formations.Select(f => f.Type)))
+        if (info.Data.SubjectAppear != null && !info.Data.SubjectAppear(formations))
         {
           await game.CharacterLogAsync($"陣形 {info.Data.Name} の獲得に必要な条件を満たしていません");
           return;

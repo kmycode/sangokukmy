@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20190604100112_AddItem")]
+    partial class AddItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -353,9 +355,6 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("Rice")
                         .HasColumnName("rice");
 
-                    b.Property<int>("SkillPoint")
-                        .HasColumnName("skill_point");
-
                     b.Property<int>("SoldierNumber")
                         .HasColumnName("soldier_number");
 
@@ -489,26 +488,6 @@ namespace SangokuKmy.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("character_logs");
-                });
-
-            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CharacterSkill", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<uint>("CharacterId")
-                        .HasColumnName("character_id");
-
-                    b.Property<short>("Status")
-                        .HasColumnName("status");
-
-                    b.Property<short>("Type")
-                        .HasColumnName("type");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("character_skills");
                 });
 
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CharacterSoldierType", b =>
@@ -980,38 +959,6 @@ namespace SangokuKmy.Migrations
                         new { Id = 98u, FileName = "97.gif" },
                         new { Id = 99u, FileName = "98.gif" }
                     );
-                });
-
-            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.DelayEffect", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<uint>("CharacterId")
-                        .HasColumnName("character_id");
-
-                    b.Property<uint>("CountryId")
-                        .HasColumnName("country_id");
-
-                    b.Property<int>("IntAppearGameDateTime")
-                        .HasColumnName("appear_game_date_time");
-
-                    b.Property<uint>("TownId")
-                        .HasColumnName("town_id");
-
-                    b.Property<short>("Type")
-                        .HasColumnName("type");
-
-                    b.Property<int>("TypeData")
-                        .HasColumnName("type_data");
-
-                    b.Property<int>("TypeData2")
-                        .HasColumnName("type_data2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("delay_effects");
                 });
 
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.EntryHost", b =>

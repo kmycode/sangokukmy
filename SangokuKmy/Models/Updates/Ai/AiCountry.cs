@@ -11,7 +11,7 @@ namespace SangokuKmy.Models.Updates.Ai
   {
     public static async Task<AiCountry> CreateAsync(MainRepository repo, Country country)
     {
-      if (country.AiType != CountryAiType.Managed)
+      if (country.AiType != CountryAiType.Managed && country.AiType != CountryAiType.Puppet)
       {
         return new HumanAiCountry(country);
       }

@@ -68,7 +68,7 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        await repo.AuthenticationData.RemoveCharacterAsync(this.AuthData.CharacterId);
+        await repo.AuthenticationData.RemoveTokenAsync(this.AuthData.AccessToken);
         StatusStreaming.Default.Disconnect(chara);
         await OnlineService.SetAsync(chara, OnlineStatus.Offline);
       }
@@ -384,7 +384,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.InvalidOperationError.Throw();
         }
 
-        var formations = await repo.Character.GetCharacterFormationsAsync(chara.Id);
+        var formations = await repo.Character.GetFormationsAsync(chara.Id);
         if (param.Type != FormationType.Normal && !formations.Any(f => f.Type == param.Type))
         {
           ErrorCode.InvalidOperationError.Throw();
@@ -395,6 +395,87 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
+    }
+
+    [HttpPost("items")]
+    [AuthenticationFilter]
+    public async Task SetItemAsync(
+      [FromBody] CharacterItem param)
+    {
+      Character chara;
+      CharacterItem item;
+      var info = CharacterItemInfoes.Get(param.Type).GetOrError(ErrorCode.InvalidParameterError);
+
+      if (param.Status != CharacterItemStatus.CharacterHold && param.Status != CharacterItemStatus.TownOnSale)
+      {
+        ErrorCode.InvalidParameterError.Throw();
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var items = await repo.Character.GetItemsAsync(chara.Id);
+        item = items.FirstOrDefault(i => i.Status == CharacterItemStatus.CharacterPending && i.Type == param.Type);
+        if (item == null)
+        {
+          ErrorCode.MeaninglessOperationError.Throw();
+        }
+
+        if (param.Status == CharacterItemStatus.CharacterHold)
+        {
+          var skills = await repo.Character.GetSkillsAsync(chara.Id);
+          if (items.Count(i => i.Status == CharacterItemStatus.CharacterHold) >= CharacterService.GetItemMax(skills))
+          {
+            ErrorCode.NotMoreItemsError.Throw();
+          }
+
+          await ItemService.SetCharacterAsync(repo, item, chara);
+        }
+        else if (param.Status == CharacterItemStatus.TownOnSale)
+        {
+          await ItemService.ReleaseCharacterAsync(repo, item, chara);
+        }
+
+        await repo.SaveChangesAsync();
+      }
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), chara.Id);
+    }
+
+    [HttpPost("skills")]
+    [AuthenticationFilter]
+    public async Task AddSkillAsync(
+      [FromBody] CharacterSkill param)
+    {
+      Character chara;
+      CharacterSkill skill;
+      var info = CharacterSkillInfoes.Get(param.Type).GetOrError(ErrorCode.InvalidParameterError);
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var skills = await repo.Character.GetSkillsAsync(chara.Id);
+        if (skills.Any(s => s.Type == info.Type && s.Status == CharacterSkillStatus.Available))
+        {
+          ErrorCode.MeaninglessOperationError.Throw();
+        }
+        if (chara.SkillPoint < info.RequestedPoint)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+        if (info.SubjectAppear != null && !info.SubjectAppear(skills))
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        chara.SkillPoint -= info.RequestedPoint;
+        skill = new CharacterSkill
+        {
+          CharacterId = chara.Id,
+          Type = param.Type,
+          Status = CharacterSkillStatus.Available,
+        };
+        await SkillService.SetCharacterAndSaveAsync(repo, skill, chara);
+      }
     }
 
     [HttpGet("characters")]
@@ -476,6 +557,25 @@ namespace SangokuKmy.Controllers
           .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
+    }
+
+    [AuthenticationFilter]
+    [HttpGet("town/{townId}/items")]
+    public async Task<ApiArrayData<CharacterItem>> GetTownItemsAsync(
+      [FromRoute] uint townId)
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+
+        if (town.CountryId != chara.CountryId && town.Id != chara.TownId)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        return ApiData.From(await repo.Town.GetItemsAsync(townId));
+      }
     }
 
     [AuthenticationFilter]

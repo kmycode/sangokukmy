@@ -71,6 +71,16 @@ namespace SangokuKmy.Models.Data
     public DbSet<CharacterSoldierType> CharacterSoldierTypes { get; set; }
 
     /// <summary>
+    /// アイテム
+    /// </summary>
+    public DbSet<CharacterItem> CharacterItems { get; set; }
+
+    /// <summary>
+    /// 技能
+    /// </summary>
+    public DbSet<CharacterSkill> CharacterSkills { get; set; }
+
+    /// <summary>
     /// 陣形
     /// </summary>
     public DbSet<Formation> Formations { get; set; }
@@ -254,6 +264,11 @@ namespace SangokuKmy.Models.Data
     /// 援軍
     /// </summary>
     public DbSet<Reinforcement> Reinforcements { get; set; }
+
+    /// <summary>
+    /// 遅延して現れる効果
+    /// </summary>
+    public DbSet<DelayEffect> DelayEffects { get; set; }
 
     private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
         new DebugLoggerProvider((category, level)

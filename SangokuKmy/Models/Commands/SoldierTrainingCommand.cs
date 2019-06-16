@@ -37,7 +37,6 @@ namespace SangokuKmy.Models.Commands
         // 経験値、金の増減
         character.Contribution += 15;
         character.AddLeadershipEx(50);
-
         await game.CharacterLogAsync("訓練を <num>+" + add + "</num> 上げました");
       }
       else

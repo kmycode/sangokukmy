@@ -72,6 +72,15 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("typeWall")]
     public short TypeWall { get; set; }
 
+    [JsonProperty("typeAntiWall")]
+    public short TypeAntiWall { get; set; }
+
+    [JsonProperty("typeGuard")]
+    public short TypeGuard { get; set; }
+
+    [JsonProperty("typeGuardDefend")]
+    public short TypeGuardDefend { get; set; }
+
     [JsonProperty("rushProbability")]
     public short RushProbability { get; set; }
     
@@ -147,7 +156,7 @@ namespace SangokuKmy.Models.Data.Entities
       return p;
     }
 
-    public (int AttackCorrection, int DefendCorrection) CalcCorrections(Character chara, CharacterSoldierTypeData enemyType)
+    public (int AttackCorrection, int DefendCorrection) CalcCorrections(Character chara, IEnumerable<CharacterSkill> skills, CharacterSoldierTypeData enemyType)
     {
       var a = (float)this.BaseAttack;
       var d = (float)this.BaseDefend;
@@ -158,8 +167,43 @@ namespace SangokuKmy.Models.Data.Entities
       a += this.IntellectAttack / 1000.0f * chara.Intellect;
       d += this.IntellectDefend / 1000.0f * chara.Intellect;
 
-      a += this.WallAttack * (enemyType.TypeWall / 10.0f);
-      d += this.WallDefend * (enemyType.TypeWall / 10.0f);
+      a += this.WallAttack * (enemyType.TypeWall / 100.0f);
+      d += this.WallDefend * (enemyType.TypeWall / 100.0f);
+
+      d += this.TypeGuardDefend * (this.TypeGuard / 100.0f);
+
+      return ((int)a, (int)d);
+    }
+
+    public (int AttackCorrection, int DefendCorrection) CalcPostCorrections(CountryPostType post)
+    {
+      var a = 0.0f;
+      var d = 0.0f;
+
+      if (post == CountryPostType.Monarch)
+      {
+        a += 20;
+      }
+      else if (post == CountryPostType.GrandGeneral)
+      {
+        a += 10;
+      }
+      else if (post == CountryPostType.General)
+      {
+        a += this.TypeInfantry / 100.0f * 10;
+      }
+      else if (post == CountryPostType.CavalryGeneral)
+      {
+        a += this.TypeCavalry / 100.0f * 10;
+      }
+      else if (post == CountryPostType.BowmanGeneral)
+      {
+        a += this.TypeCrossbow / 100.0f * 10;
+      }
+      else if (post == CountryPostType.GuardGeneral)
+      {
+        a += (this.TypeGuard + this.TypeWall) / 100.0f * 10;
+      }
 
       return ((int)a, (int)d);
     }
@@ -239,7 +283,13 @@ namespace SangokuKmy.Models.Data.Entities
       self.IntellectEx += d.IntellectEx;
       self.LeadershipEx += d.LeadershipEx;
       self.PopularityEx += d.PopularityEx;
+      self.TypeCavalry += d.TypeCavalry;
+      self.TypeCrossbow += d.TypeCrossbow;
+      self.TypeInfantry += d.TypeInfantry;
       self.TypeWall += d.TypeWall;
+      self.TypeAntiWall += d.TypeAntiWall;
+      self.TypeGuard += d.TypeGuard;
+      self.TypeGuardDefend += d.TypeGuardDefend;
       return self;
     }
   }
