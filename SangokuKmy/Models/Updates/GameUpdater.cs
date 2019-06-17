@@ -538,7 +538,7 @@ namespace SangokuKmy.Models.Updates
               peopleAdd = Math.Max(80 * (town.Security - 50), 500);
               if (town.TownBuilding == TownBuilding.OpenWall)
               {
-                peopleAdd = (int)((((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.4f + 1.0f) * peopleAdd);
+                peopleAdd = (int)((((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.3f + 1.0f) * peopleAdd);
               }
             }
             else if (town.Security < 50)
