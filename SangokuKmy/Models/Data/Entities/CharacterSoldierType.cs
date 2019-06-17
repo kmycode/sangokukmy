@@ -355,7 +355,7 @@ namespace SangokuKmy.Models.Data.Entities
           TypeGuard = 10,
           PowerStrong = 1,
         },
-        Money = 22,
+        Money = 14,
         Technology = 999,
         CanConscript = true,
       },
