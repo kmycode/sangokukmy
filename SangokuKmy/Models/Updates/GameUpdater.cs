@@ -1032,6 +1032,7 @@ namespace SangokuKmy.Models.Updates
       };
 
       // 技能
+      if (currentMonth.Year >= Config.UpdateStartYear)
       {
         var skills = await repo.Character.GetSkillsAsync(character.Id);
         var skillStrongEx = skills.GetSumOfValues(CharacterSkillEffectType.StrongExRegularly);
