@@ -532,7 +532,7 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterItemInfo
       {
-        Type = CharacterItemType.Jinryunoken,
+        Type = CharacterItemType.Heibanshishozu,
         Name = "平蛮指掌図",
         Money = 5000,
         InitializeNumber = 8,
