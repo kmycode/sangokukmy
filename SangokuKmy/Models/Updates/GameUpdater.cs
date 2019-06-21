@@ -829,6 +829,16 @@ namespace SangokuKmy.Models.Updates
           }
         }
 
+        // 保留中アイテムの廃棄
+        {
+          var items = await repo.CharacterItem.GetAllAsync();
+          foreach (var item in items.Where(i => i.Status == CharacterItemStatus.CharacterPending && i.IntLastStatusChangedGameDate + 288 <= system.IntGameDateTime))
+          {
+            var chara = allCharacters.FirstOrDefault(c => c.Id == item.Id);
+            await ItemService.ReleaseCharacterAsync(repo, item, chara);
+          }
+        }
+
         // AI国家
         {
           // 出現

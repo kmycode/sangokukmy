@@ -62,9 +62,12 @@ namespace SangokuKmy.Models.Services
         }
       }
 
+      var system = await repo.System.GetAsync();
+
       item.Status = CharacterItemStatus.CharacterPending;
       item.CharacterId = chara.Id;
       item.TownId = 0;
+      item.LastStatusChangedGameDate = system.GameDateTime;
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
       await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
@@ -72,12 +75,12 @@ namespace SangokuKmy.Models.Services
 
     public static async Task ReleaseCharacterAsync(MainRepository repo, CharacterItem item, Character chara)
     {
-      if ((item.Status != CharacterItemStatus.CharacterHold && item.Status != CharacterItemStatus.CharacterPending) || item.CharacterId != chara.Id)
+      if ((item.Status != CharacterItemStatus.CharacterHold && item.Status != CharacterItemStatus.CharacterPending) || (chara != null && item.CharacterId != chara.Id))
       {
         return;
       }
 
-      if (item.Status == CharacterItemStatus.CharacterHold)
+      if (chara != null && item.Status == CharacterItemStatus.CharacterHold)
       {
         var strong = (short)item.GetSumOfValues(CharacterItemEffectType.Strong);
         var intellect = (short)item.GetSumOfValues(CharacterItemEffectType.Intellect);
@@ -92,9 +95,21 @@ namespace SangokuKmy.Models.Services
 
       item.Status = CharacterItemStatus.TownOnSale;
       item.CharacterId = 0;
-      item.TownId = chara.TownId;
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
+      if (chara == null)
+      {
+        var towns = await repo.Town.GetAllAsync();
+        item.TownId = RandomService.Next(towns).Id;
+      }
+      else
+      {
+        item.TownId = chara.TownId;
+      }
+
+      if (chara != null)
+      {
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
+      }
       await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
     }
 
