@@ -122,6 +122,11 @@ namespace SangokuKmy.Models.Services
         return default;
       }
 
+      if (chara.AiType != CharacterAiType.Human)
+      {
+        return default;
+      }
+
       var items = await repo.Town.GetItemsAsync(townId);
       var hiddenItems = items
         .Where(i => i.Status == CharacterItemStatus.TownHidden)
