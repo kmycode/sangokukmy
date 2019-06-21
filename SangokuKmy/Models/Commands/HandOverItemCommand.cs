@@ -38,6 +38,11 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"<character>{targetOptional.Data.Name}</character> にアイテムを譲渡しようとしましたが、その武将はすでに削除されています");
         return;
       }
+      if (targetOptional.Data.AiType != CharacterAiType.Human)
+      {
+        await game.CharacterLogAsync($"<character>{targetOptional.Data.Name}</character> にアイテムを譲渡しようとしましたが、その武将は人間ではありません");
+        return;
+      }
       var target = targetOptional.Data;
 
       var infoOptional = CharacterItemInfoes.Get(itemType);

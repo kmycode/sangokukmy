@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using SangokuKmy.Common;
+using SangokuKmy.Models.Data.ApiEntities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -40,6 +41,18 @@ namespace SangokuKmy.Models.Data.Entities
       get => (short)this.Status;
       set => this.Status = (CharacterItemStatus)value;
     }
+
+    [NotMapped]
+    [JsonProperty("lastStatusChangedGameDate")]
+    public GameDateTime LastStatusChangedGameDate
+    {
+      get => GameDateTime.FromInt(this.IntLastStatusChangedGameDate);
+      set => this.IntLastStatusChangedGameDate = value.ToInt();
+    }
+
+    [Column("last_status_changed_game_date")]
+    [JsonIgnore]
+    public int IntLastStatusChangedGameDate { get; set; }
 
     [Column("town_id")]
     [JsonIgnore]

@@ -139,7 +139,7 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         return await this.container.Context.Characters
-          .AnyAsync(c => c.Name == name || c.AliasId == aliasId);
+          .AnyAsync(c => !c.HasRemoved && (c.Name == name || c.AliasId == aliasId));
       }
       catch (Exception ex)
       {
