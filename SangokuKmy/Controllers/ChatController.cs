@@ -217,7 +217,7 @@ namespace SangokuKmy.Controllers
         {
           var sender = await repo.Character.GetByIdAsync(old.TypeData).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
 
-          if (sender.CountryId != message.CharacterCountryId)
+          if (sender.CountryId != old.CharacterCountryId)
           {
             // 登用出した人の国が滅亡している
             ErrorCode.CountryNotFoundError.Throw();
