@@ -82,7 +82,6 @@ namespace SangokuKmy.Models.Commands
             town.Data.TownBuildingValue = Math.Min(Config.TownBuildingMax, town.Data.TownBuildingValue + add);
           }
 
-          chara.Data.AddIntellectEx(500);
           await logAsync(chara.Data.Id, $"<town>{town.Data.Name}</town> に投資し、{name} の開発に <num>+{add}</num> 貢献し、{string.Join("と", results)}を得ました");
 
           return true;
@@ -131,7 +130,9 @@ namespace SangokuKmy.Models.Commands
         };
         await repo.DelayEffect.AddAsync(delay);
 
-        await game.CharacterLogAsync($"<town>{town.Name}</town> に投資しました。結果は数年後に来ます");
+        character.AddIntellectEx(500);
+        character.Contribution += 200;
+        await game.CharacterLogAsync($"<town>{town.Name}</town> に <num>{money}</num> を投資しました。結果は <num>{game.GameDateTime.Year + 3}</num> 年 <num>{game.GameDateTime.Month}</num> 月に来ます。知力Ex <num>+500</num>");
       }
       else
       {
