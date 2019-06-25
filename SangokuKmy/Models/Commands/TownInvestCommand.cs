@@ -55,7 +55,7 @@ namespace SangokuKmy.Models.Commands
           
           var name = string.Empty;
           var add = RandomService.Next(20, 60);
-          var target = RandomService.Next(0, 6);
+          var target = RandomService.Next(0, 5);
           if (target == 0)
           {
             name = "農業";
