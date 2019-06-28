@@ -18,6 +18,9 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("money")]
     public short Money { get; set; }
 
+    [JsonProperty("fakeMoney")]
+    public short FakeMoney { get; set; }
+
     [JsonProperty("technology")]
     public short Technology { get; set; }
 
@@ -271,6 +274,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Description = string.Join(',', parts.GroupBy(p => p.Name).Select(p => $"{p.Key}{p.Count()}")),
         Money = (short)parts.Sum(p => p.Money),
+        FakeMoney = (short)parts.Sum(p => p.FakeMoney),
         Technology = (short)parts.Max(p => p.Technology),
       };
       foreach (var p in parts)

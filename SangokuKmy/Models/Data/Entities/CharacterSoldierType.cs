@@ -163,6 +163,24 @@ namespace SangokuKmy.Models.Data.Entities
 
     public int Money { get; set; }
 
+    public int FakeMoney
+    {
+      get
+      {
+        if (this._fakeMoney < 0)
+        {
+          return this.Money;
+        }
+        return this._fakeMoney;
+      }
+      set
+      {
+        this._fakeMoney = value;
+      }
+    }
+
+    private int _fakeMoney = -1;
+
     public int Technology { get; set; }
 
     public bool CanConscript { get; set; } = true;
@@ -372,6 +390,7 @@ namespace SangokuKmy.Models.Data.Entities
           PowerStrong = 1,
         },
         Money = 30,
+        FakeMoney = 2,
         Technology = 500,
         CanConscript = true,
       },
