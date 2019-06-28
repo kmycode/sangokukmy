@@ -228,7 +228,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Intellect2,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "文官 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect1),
         Effects = new List<CharacterSkillEffect>
@@ -243,7 +243,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Intellect3,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "文官 Lv.3",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect2),
         Effects = new List<CharacterSkillEffect>
@@ -258,7 +258,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Intellect4,
-        RequestedPoint = 10,
+        RequestedPoint = 12,
         Name = "文官 Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect3),
         Effects = new List<CharacterSkillEffect>
@@ -277,7 +277,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Intellect5,
-        RequestedPoint = 10,
+        RequestedPoint = 12,
         Name = "文官 Lv.5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect4),
         Effects = new List<CharacterSkillEffect>
@@ -307,7 +307,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Merchant2,
-        RequestedPoint = 10,
+        RequestedPoint = 11,
         Name = "商人 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant1),
         Effects = new List<CharacterSkillEffect>
@@ -367,7 +367,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Merchant5,
-        RequestedPoint = 10,
+        RequestedPoint = 9,
         Name = "商人 Lv.5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant4),
         Effects = new List<CharacterSkillEffect>
