@@ -78,6 +78,9 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("typeGuard")]
     public short TypeGuard { get; set; }
 
+    [JsonProperty("typeGuardAttack")]
+    public short TypeGuardAttack { get; set; }
+
     [JsonProperty("typeGuardDefend")]
     public short TypeGuardDefend { get; set; }
 
@@ -98,7 +101,10 @@ namespace SangokuKmy.Models.Data.Entities
     
     [JsonProperty("continuousProbability")]
     public short ContinuousProbability { get; set; }
-    
+
+    [JsonProperty("continuousProbabilityOnSingleTurn")]
+    public short ContinuousProbabilityOnSingleTurn { get; set; }
+
     [JsonProperty("continuousAttack")]
     public short ContinuousAttack { get; set; }
     
@@ -170,6 +176,7 @@ namespace SangokuKmy.Models.Data.Entities
       a += this.WallAttack * (enemyType.TypeWall / 100.0f);
       d += this.WallDefend * (enemyType.TypeWall / 100.0f);
 
+      a += this.TypeGuardAttack * (this.TypeGuard / 100.0f);
       d += this.TypeGuardDefend * (this.TypeGuard / 100.0f);
 
       return ((int)a, (int)d);
@@ -210,13 +217,23 @@ namespace SangokuKmy.Models.Data.Entities
 
     public bool CanContinuous()
     {
-      if (this.ContinuousProbability == 0)
+      return this.CanContinuous(this.ContinuousProbability);
+    }
+
+    public bool CanContinuousOnSingleTurn()
+    {
+      return this.CanContinuous(this.ContinuousProbabilityOnSingleTurn);
+    }
+
+    private bool CanContinuous(short probability)
+    {
+      if (probability == 0)
       {
         return false;
       }
-      else if (this.ContinuousProbability < 10000 - 1)
+      else if (probability < 10000 - 1)
       {
-        return RandomService.Next(0, 10000) < this.ContinuousProbability;
+        return RandomService.Next(0, 10000) < probability;
       }
       else
       {
@@ -277,6 +294,7 @@ namespace SangokuKmy.Models.Data.Entities
       self.WallAttack += d.WallAttack;
       self.WallDefend += d.WallDefend;
       self.ContinuousProbability += d.ContinuousProbability;
+      self.ContinuousProbabilityOnSingleTurn += d.ContinuousProbabilityOnSingleTurn;
       self.RushProbability += d.RushProbability;
       self.RushAttack += d.RushAttack;
       self.StrongEx += d.StrongEx;
@@ -289,6 +307,7 @@ namespace SangokuKmy.Models.Data.Entities
       self.TypeWall += d.TypeWall;
       self.TypeAntiWall += d.TypeAntiWall;
       self.TypeGuard += d.TypeGuard;
+      self.TypeGuardAttack += d.TypeGuardAttack;
       self.TypeGuardDefend += d.TypeGuardDefend;
       return self;
     }

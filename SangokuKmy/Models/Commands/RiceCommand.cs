@@ -29,6 +29,7 @@ namespace SangokuKmy.Models.Commands
       var type = (RiceCommandType)typeParameter.NumberValue;
       var assets = (int)assetsParameter.NumberValue;
       var result = (int)resultParameter.NumberValue;
+      var skills = await repo.Character.GetSkillsAsync(character.Id);
 
       if (type == RiceCommandType.MoneyToRice)
       {
@@ -53,6 +54,7 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"<num>{assets}</num> の米を <num>{result}</num> の金に交換しました");
       }
 
+      character.Contribution += skills.GetSumOfValues(CharacterSkillEffectType.RiceBuyContribution);
       character.AddIntellectEx(50);
     }
 

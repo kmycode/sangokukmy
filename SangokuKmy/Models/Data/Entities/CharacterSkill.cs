@@ -86,8 +86,10 @@ namespace SangokuKmy.Models.Data.Entities
     SoldierCorrection,
     ItemMax,
     ItemDiscountPercentage,
+    ItemAppearOnDomesticAffairThousandth,
     Command,
     RiceBuyMax,
+    RiceBuyContribution,
     DomesticAffairMulPercentage,
     PolicyBoostProbabilityThousandth,
   }
@@ -156,7 +158,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.SoldierDiscountPercentage,
-            Value = 10,
+            Value = 15,
           },
         },
       },
@@ -180,7 +182,7 @@ namespace SangokuKmy.Models.Data.Entities
             {
               BaseAttack = 20,
               RushProbability = 200,
-              RushAttack = 75,
+              RushAttack = 80,
             },
           },
         },
@@ -197,6 +199,14 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.Command,
             Value = (int)CharacterCommandType.TownPatrol,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              ContinuousProbabilityOnSingleTurn = 8000,
+            },
           },
         },
       },
@@ -241,7 +251,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.PolicyBoostProbabilityThousandth,
-            Value = 4,
+            Value = 5,
           },
         },
       },
@@ -258,6 +268,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
+              TypeGuardAttack = 20,
               TypeGuardDefend = 40,
             },
           },
@@ -306,6 +317,11 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.RiceBuyMax,
             Value = 5000,
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.RiceBuyContribution,
+            Value = 15,
+          },
         },
       },
       new CharacterSkillInfo
@@ -319,7 +335,17 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.ItemDiscountPercentage,
-            Value = 10,
+            Value = 20,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.ItemAppearOnDomesticAffairThousandth,
+            Value = 4,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.ItemMax,
+            Value = 2,
           },
         },
       },
@@ -348,8 +374,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.ItemMax,
-            Value = 2,
+            Type = CharacterSkillEffectType.RiceBuyMax,
+            Value = 3000,
           },
         },
       },
