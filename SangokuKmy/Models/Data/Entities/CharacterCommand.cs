@@ -321,5 +321,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 都市投資
     /// </summary>
     TownInvest = 55,
+
+    /// <summary>
+    /// アイテム使用
+    /// </summary>
+    UseItem = 56,
   }
 }

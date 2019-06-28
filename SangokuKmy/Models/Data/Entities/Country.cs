@@ -141,5 +141,6 @@ namespace SangokuKmy.Models.Data.Entities
     Thiefs = 3,
     Managed = 4,
     Puppet = 5,
+    TerroristsEnemy = 6,
   }
 }

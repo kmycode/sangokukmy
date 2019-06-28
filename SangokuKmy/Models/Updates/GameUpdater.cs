@@ -143,19 +143,7 @@ namespace SangokuKmy.Models.Updates
       }
       async Task<MapLog> AddMapLogInnerAsync(bool isImportant, EventType type, string message)
       {
-        var log = new MapLog
-        {
-          ApiGameDateTime = system.GameDateTime,
-          Date = DateTime.Now,
-          EventType = type,
-          IsImportant = isImportant,
-          Message = message,
-        };
-        await repo.MapLog.AddAsync(log);
-        await repo.SaveChangesAsync();
-        await StatusStreaming.Default.SendAllAsync(ApiData.From(log));
-        await AnonymousStreaming.Default.SendAllAsync(ApiData.From(log));
-        return log;
+        return await LogService.AddMapLogAsync(repo, isImportant, type, message);
       }
       async Task AddMapLogAsync(bool isImportant, EventType type, string message)
       {
@@ -822,6 +810,23 @@ namespace SangokuKmy.Models.Updates
             {
               isRemove = await TownInvestCommand.ResultAsync(repo, system, delay, AddLogAsync);
             }
+            if (delay.Type == DelayEffectType.TerroristEnemy)
+            {
+              var targets = allCountries.Where(c => !c.HasOverthrown && c.AiType == CountryAiType.Terrorists);
+              if (!targets.Any())
+              {
+                var target = await AiService.CreateTerroristCountryAsync(repo, async (type, message, isImportant) => await AddMapLogAsync(isImportant, type, message));
+                if (target != null)
+                {
+                  targets = targets.Append(target);
+                }
+              }
+              foreach (var c in targets)
+              {
+                c.AiType = CountryAiType.TerroristsEnemy;
+                isRemove = true;
+              }
+            }
             if (isRemove)
             {
               repo.DelayEffect.Remove(delay);
@@ -864,15 +869,11 @@ namespace SangokuKmy.Models.Updates
         var countryCount = allCountries.Count(c => !c.HasOverthrown);
         if (system.TerroristCount < 1)
         {
-          var isCreated = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
-          if (isCreated)
+          var created = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+          if (created != null)
           {
             system.TerroristCount++;
             await repo.SaveChangesAsync();
-          }
-          else
-          {
-            _logger.LogInformation("異民族出現の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
           }
         }
 
@@ -883,10 +884,6 @@ namespace SangokuKmy.Models.Updates
           if (isCreated)
           {
             await repo.SaveChangesAsync();
-          }
-          else
-          {
-            _logger.LogInformation("農民反乱出現の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
           }
         }
 

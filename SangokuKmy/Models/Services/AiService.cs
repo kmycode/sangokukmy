@@ -273,13 +273,13 @@ namespace SangokuKmy.Models.Services
       return notUsingCountryColors[RandomService.Next(0, notUsingCountryColors.Length)];
     }
 
-    public static async Task<bool> CreateTerroristCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
+    public static async Task<Country> CreateTerroristCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
     {
       var system = await repo.System.GetAsync();
       var countryColor = GetNotUsingCountryColor(await repo.Country.GetAllAsync());
       if (countryColor == 0)
       {
-        return false;
+        return null;
       }
 
       var charas = new List<CharacterAiType>
@@ -303,7 +303,7 @@ namespace SangokuKmy.Models.Services
       var town = await CreateTownAsync(repo, Enumerable.Empty<uint>());
       if (!town.HasData)
       {
-        return false;
+        return null;
       }
       town.Data.Name = name;
       town.Data.TownBuilding = TownBuilding.TerroristHouse;
@@ -334,7 +334,7 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
-      return true;
+      return country;
     }
 
     public static async Task<bool> CreateThiefCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)

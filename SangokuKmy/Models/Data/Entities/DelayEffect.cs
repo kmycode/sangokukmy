@@ -52,5 +52,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 都市投資
     /// </summary>
     TownInvestment = 1,
+
+    /// <summary>
+    /// 異民族を敵性化
+    /// </summary>
+    TerroristEnemy = 2,
   }
 }
