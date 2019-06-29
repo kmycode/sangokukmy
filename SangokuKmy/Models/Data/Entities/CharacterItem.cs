@@ -185,6 +185,8 @@ namespace SangokuKmy.Models.Data.Entities
     public CharacterItemRareType RareType { get; set; }
     public bool CanSell { get; set; } = true;
     public bool CanHandOver { get; set; } = true;
+    public bool CanUse { get; set; } = false;
+    public IList<CharacterItemEffect> Effects { get; set; }
     public IList<CharacterItemEffect> UsingEffects { get; set; }
     public IList<CharacterFrom> DiscoverFroms { get; set; }
   }
@@ -200,7 +202,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 5000,
         InitializeNumber = 0,
         RareType = CharacterItemRareType.NotExists,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -216,7 +218,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 5000,
         InitializeNumber = 0,
         RareType = CharacterItemRareType.NotExists,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -232,7 +234,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 5000,
         InitializeNumber = 0,
         RareType = CharacterItemRareType.NotExists,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -248,7 +250,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 5000,
         InitializeNumber = 3,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -264,7 +266,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 15000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -280,7 +282,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 15000,
         InitializeNumber = 3,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -296,7 +298,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 15000,
         InitializeNumber = 3,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -312,7 +314,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 15000,
         InitializeNumber = 3,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -328,7 +330,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 15000,
         InitializeNumber = 3,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -344,7 +346,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 28000,
         InitializeNumber = 3,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -360,7 +362,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 28000,
         InitializeNumber = 3,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -376,7 +378,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 28000,
         InitializeNumber = 3,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -392,7 +394,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 28000,
         InitializeNumber = 3,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -408,7 +410,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -424,7 +426,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -440,7 +442,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -456,7 +458,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -472,7 +474,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -489,7 +491,7 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -506,7 +508,7 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -523,7 +525,7 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -540,7 +542,7 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -558,7 +560,7 @@ namespace SangokuKmy.Models.Data.Entities
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
         CanHandOver = false,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -578,7 +580,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 5000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -594,7 +596,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 5000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -610,7 +612,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 15000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -626,7 +628,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 15000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -642,7 +644,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 28000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -658,7 +660,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 28000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -674,7 +676,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 28000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -690,7 +692,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 28000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -706,7 +708,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 28000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -722,7 +724,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -738,7 +740,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -754,7 +756,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -770,7 +772,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 3,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -787,7 +789,7 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -804,7 +806,7 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -821,7 +823,7 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -838,7 +840,7 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -855,7 +857,7 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -875,7 +877,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 36000,
         InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -891,7 +893,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -907,7 +909,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -923,7 +925,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -939,7 +941,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -959,7 +961,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 55000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
-        UsingEffects = new List<CharacterItemEffect>
+        Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
           {
@@ -975,6 +977,8 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 10000,
         InitializeNumber = 8,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -991,6 +995,8 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 10000,
         InitializeNumber = 8,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1007,6 +1013,8 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 10000,
         InitializeNumber = 8,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1023,6 +1031,8 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 20000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1039,6 +1049,8 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 20000,
         InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1055,6 +1067,8 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 30000,
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1071,6 +1085,8 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 30000,
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1087,6 +1103,8 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 30000,
         InitializeNumber = 2,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1103,6 +1121,8 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 50000,
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1119,6 +1139,8 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 200000,
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1139,6 +1161,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 5_000_000,
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
         CanSell = false,
         UsingEffects = new List<CharacterItemEffect>
         {
@@ -1176,11 +1199,21 @@ namespace SangokuKmy.Models.Data.Entities
 
     public static int GetSumOfValues(this IEnumerable<CharacterItem> items, CharacterItemEffectType type)
     {
-      var effects = items.GetInfos().SelectMany(i => i.UsingEffects).Where(e => e.Type == type);
+      var effects = items.GetInfos().SelectMany(i => i.Effects).Where(e => e.Type == type);
       return effects.Any() ? effects.Sum(e => e.Value) : 0;
     }
 
     public static int GetSumOfValues(this CharacterItem item, CharacterItemEffectType type)
+    {
+      var info = item.GetInfo();
+      if (info.HasData && info.Data.Effects.Any(e => e.Type == type))
+      {
+        return info.Data.Effects.Where(e => e.Type == type).Sum(e => e.Value);
+      }
+      return 0;
+    }
+
+    public static int GetSumOfUsingValues(this CharacterItem item, CharacterItemEffectType type)
     {
       var info = item.GetInfo();
       if (info.HasData && info.Data.UsingEffects.Any(e => e.Type == type))

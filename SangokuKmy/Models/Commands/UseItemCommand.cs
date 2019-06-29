@@ -58,7 +58,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       var info = CharacterItemInfoes.Get(itemType).GetOrError(ErrorCode.InvalidCommandParameter);
-      if (!info.CanSell)
+      if (!info.CanUse)
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }
