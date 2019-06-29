@@ -35,7 +35,7 @@ namespace SangokuKmy.Models.Commands
               var info = CharacterItemInfoes.Get(item.Type);
               if (info.HasData)
               {
-                await ItemService.SetCharacterAsync(repo, item, chara.Data);
+                await ItemService.SetCharacterPendingAsync(repo, item, chara.Data);
                 results.Add($"アイテム {info.Data.Name}");
               }
             }
@@ -51,38 +51,42 @@ namespace SangokuKmy.Models.Commands
             var policy = RandomService.Next(chara.Data.Intellect * 2, Math.Max(chara.Data.Intellect * 4, 100));
             country.Data.PolicyPoint += policy;
             results.Add($"政策ポイント <num>{policy}</num>");
-          }
-          
-          var name = string.Empty;
-          var add = RandomService.Next(20, 60);
-          var target = RandomService.Next(0, 5);
-          if (target == 0)
-          {
-            name = "農業";
-            town.Data.Agriculture = Math.Min(town.Data.AgricultureMax, town.Data.Agriculture + add);
-          }
-          else if (target == 1)
-          {
-            name = "商業";
-            town.Data.Commercial = Math.Min(town.Data.CommercialMax, town.Data.Commercial + add);
-          }
-          else if (target == 2)
-          {
-            name = "技術";
-            town.Data.Technology = Math.Min(town.Data.TechnologyMax, town.Data.Technology + add);
-          }
-          else if (target == 3)
-          {
-            name = "城壁";
-            town.Data.Wall = Math.Min(town.Data.WallMax, town.Data.Wall + add);
-          }
-          else if (target == 4)
-          {
-            name = "都市施設";
-            town.Data.TownBuildingValue = Math.Min(Config.TownBuildingMax, town.Data.TownBuildingValue + add);
-          }
 
-          await logAsync(chara.Data.Id, $"<town>{town.Data.Name}</town> に投資し、{name} の開発に <num>+{add}</num> 貢献し、{string.Join("と", results)}を得ました");
+            var name = string.Empty;
+            var add = RandomService.Next(20, 60);
+            var target = RandomService.Next(0, 5);
+            if (target == 0)
+            {
+              name = "農業";
+              town.Data.Agriculture = Math.Min(town.Data.AgricultureMax, town.Data.Agriculture + add);
+            }
+            else if (target == 1)
+            {
+              name = "商業";
+              town.Data.Commercial = Math.Min(town.Data.CommercialMax, town.Data.Commercial + add);
+            }
+            else if (target == 2)
+            {
+              name = "技術";
+              town.Data.Technology = Math.Min(town.Data.TechnologyMax, town.Data.Technology + add);
+            }
+            else if (target == 3)
+            {
+              name = "城壁";
+              town.Data.Wall = Math.Min(town.Data.WallMax, town.Data.Wall + add);
+            }
+            else if (target == 4)
+            {
+              name = "都市施設";
+              town.Data.TownBuildingValue = Math.Min(Config.TownBuildingMax, town.Data.TownBuildingValue + add);
+            }
+
+            await logAsync(chara.Data.Id, $"<town>{town.Data.Name}</town> に投資し、{name} の開発に <num>+{add}</num> 貢献し、{string.Join("と", results)}を得ました");
+          }
+          else
+          {
+            await logAsync(chara.Data.Id, $"<town>{town.Data.Name}</town> に投資し、{string.Join("と", results)}を得ました");
+          }
 
           return true;
         }

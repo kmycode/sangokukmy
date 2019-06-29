@@ -50,6 +50,7 @@ namespace SangokuKmy.Models.Commands
       new HandOverItemCommand(),
       new TownPatrolCommand(),
       new TownInvestCommand(),
+      new UseItemCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

@@ -36,7 +36,7 @@ namespace SangokuKmy.Models.Commands
           return;
         }
         
-        if (RandomService.Next(0, 300) == 0)
+        if (RandomService.Next(0, 240) == 0)
         {
           var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
           if (info.HasData)
@@ -109,7 +109,7 @@ namespace SangokuKmy.Models.Commands
               TownPatrolResult.WallMax,
               TownPatrolResult.Policy,
               TownPatrolResult.Money,
-              TownPatrolResult.FormationPoint,
+              TownPatrolResult.FormationExperience,
             };
           }
           else
@@ -227,10 +227,10 @@ namespace SangokuKmy.Models.Commands
           }
           else if (result == TownPatrolResult.Policy)
           {
-            await game.CharacterLogAsync($"政策について討論しました。政策 <num>+4</num>、武力Ex <num>+50</num>");
+            await game.CharacterLogAsync($"政策について討論しました。政策 <num>+12</num>、武力Ex <num>+50</num>");
             if (country.HasData && !country.Data.HasOverthrown)
             {
-              country.Data.PolicyPoint += 4;
+              country.Data.PolicyPoint += 12;
             }
             character.AddStrongEx(50);
           }
@@ -244,6 +244,12 @@ namespace SangokuKmy.Models.Commands
           {
             await game.CharacterLogAsync($"陣形ポイント <num>2</num> を獲得しました");
             character.FormationPoint += 2;
+          }
+          else if (result == TownPatrolResult.FormationExperience)
+          {
+            var formation = await repo.Character.GetFormationAsync(character.Id, character.FormationType);
+            formation.Experience += 50;
+            await game.CharacterLogAsync($"陣形経験値 <num>50</num> を獲得しました");
           }
         }
 
@@ -278,6 +284,7 @@ namespace SangokuKmy.Models.Commands
       Policy,
       Money,
       FormationPoint,
+      FormationExperience,
     }
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)

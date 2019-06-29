@@ -340,14 +340,14 @@ namespace SangokuKmy.Models.Commands
         character.SoldierNumber -= myDamage;
         if (!isWall)
         {
-          myFormationExperience += targetDamage * 0.42f * Math.Max(targetSoldierType.Money / 24.0f, 1.0f);
+          myFormationExperience += targetDamage * 0.42f * Math.Max(targetSoldierType.FakeMoney / 24.0f, 1.0f);
         }
         else
         {
           myFormationExperience += Math.Min((targetDamage * 0.17f), 40.0f);
         }
         targetCharacter.SoldierNumber -= targetDamage;
-        targetFormationExperience += myDamage * 0.39f * Math.Max(mySoldierType.Money / 24.0f, 1.0f);
+        targetFormationExperience += myDamage * 0.39f * Math.Max(mySoldierType.FakeMoney / 24.0f, 1.0f);
 
         myExperience += (int)(targetDamage * 0.32f);
         targetExperience += (int)(myDamage * 0.29f);
@@ -446,7 +446,14 @@ namespace SangokuKmy.Models.Commands
             // 連戦
             if (continuousTurns < 50)
             {
-              canContinuous = mySoldierType.CanContinuous();
+              if (continuousTurns <= 2)
+              {
+                canContinuous = mySoldierType.CanContinuousOnSingleTurn();
+              }
+              else
+              {
+                canContinuous = mySoldierType.CanContinuous();
+              }
             }
 
             if (targetCharacter.AiType == CharacterAiType.TerroristRyofu)
@@ -541,7 +548,7 @@ namespace SangokuKmy.Models.Commands
           }
 
           // アイテム
-          if (RandomService.Next(0, 190) == 0)
+          if (RandomService.Next(0, 120) == 0)
           {
             var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
             if (info.HasData)

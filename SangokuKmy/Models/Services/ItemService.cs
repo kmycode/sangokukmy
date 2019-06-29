@@ -75,6 +75,42 @@ namespace SangokuKmy.Models.Services
 
     public static async Task ReleaseCharacterAsync(MainRepository repo, CharacterItem item, Character chara)
     {
+      await ReleaseCharacterAsync(repo, item, chara, CharacterItemStatus.TownOnSale);
+    }
+
+    public static async Task<string> SpendCharacterAsync(MainRepository repo, CharacterItem item, Character chara)
+    {
+      await ReleaseCharacterAsync(repo, item, chara, CharacterItemStatus.CharacterSpent);
+
+      var info = item.GetInfo();
+      if (info.HasData)
+      {
+        var logs = new List<string>();
+        foreach (var effect in info.Data.UsingEffects)
+        {
+          if (effect.Type == CharacterItemEffectType.Money)
+          {
+            chara.Money += effect.Value;
+            logs.Add($"金 <num>+{effect.Value}</num>");
+          }
+          if (effect.Type == CharacterItemEffectType.TerroristEnemy)
+          {
+            await repo.DelayEffect.AddAsync(new DelayEffect
+            {
+              Type = DelayEffectType.TerroristEnemy,
+            });
+            logs.Add($"異民族敵性化");
+          }
+        }
+
+        return string.Join("と", logs);
+      }
+
+      return string.Empty;
+    }
+
+    private static async Task ReleaseCharacterAsync(MainRepository repo, CharacterItem item, Character chara, CharacterItemStatus newStatus)
+    {
       if ((item.Status != CharacterItemStatus.CharacterHold && item.Status != CharacterItemStatus.CharacterPending) || (chara != null && item.CharacterId != chara.Id))
       {
         return;
@@ -93,17 +129,20 @@ namespace SangokuKmy.Models.Services
         chara.Popularity -= popularity;
       }
 
-      item.Status = CharacterItemStatus.TownOnSale;
+      item.Status = newStatus;
       item.CharacterId = 0;
 
-      if (chara == null)
+      if (newStatus == CharacterItemStatus.TownHidden || newStatus == CharacterItemStatus.TownOnSale)
       {
-        var towns = await repo.Town.GetAllAsync();
-        item.TownId = RandomService.Next(towns).Id;
-      }
-      else
-      {
-        item.TownId = chara.TownId;
+        if (chara == null)
+        {
+          var towns = await repo.Town.GetAllAsync();
+          item.TownId = RandomService.Next(towns).Id;
+        }
+        else
+        {
+          item.TownId = chara.TownId;
+        }
       }
 
       if (chara != null)
