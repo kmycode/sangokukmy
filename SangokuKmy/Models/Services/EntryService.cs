@@ -97,7 +97,7 @@ namespace SangokuKmy.Models.Services
       else if (chara.From == CharacterFrom.Merchant)
       {
         skills.Add(CharacterSkillType.Merchant1);
-        chara.Money += 10000;
+        chara.Money += 20000;
       }
       else
       {
