@@ -242,6 +242,7 @@ namespace SangokuKmy.Models.Services
           TownBuilding.TrainLeadership,
           TownBuilding.TrainPopularity,
           TownBuilding.TrainStrong,
+          TownBuilding.Palace,
         };
         var r = RandomService.Next(0, b.Length);
         town.TownBuilding = b[r];
