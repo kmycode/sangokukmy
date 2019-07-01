@@ -80,6 +80,10 @@ namespace SangokuKmy.Models.Services
         GameDate = system.GameDateTime.Year >= Config.UpdateStartYear ? system.GameDateTime : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, },
       };
       country.PolicyPoint -= info.Data.GetRequestedPoint(oldStatus);
+      if (old != null)
+      {
+        repo.Country.RemovePolicy(old);
+      }
       await repo.Country.AddPolicyAsync(param);
 
       await repo.SaveChangesAsync();

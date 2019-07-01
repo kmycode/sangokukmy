@@ -63,7 +63,11 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
-        await CountryService.SetPolicyAndSaveAsync(repo, country, param.Type);
+        var isSucceed = await CountryService.SetPolicyAndSaveAsync(repo, country, param.Type);
+        if (!isSucceed)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
       }
     }
   }
