@@ -504,7 +504,7 @@ namespace SangokuKmy.Models.Updates
             // 相場
             if (RandomService.Next(0, 2) == 0)
             {
-              town.IntRicePrice += (int)(RandomService.NextDouble() * 0.5 * ricePriceBase / 10);
+              town.IntRicePrice += (int)(RandomService.NextDouble() * 0.5 * ricePriceBase);
               if (town.IntRicePrice > ricePriceMax)
               {
                 town.IntRicePrice = ricePriceMax;
@@ -512,7 +512,7 @@ namespace SangokuKmy.Models.Updates
             }
             else
             {
-              town.IntRicePrice -= (int)(RandomService.NextDouble() * 0.5 * ricePriceBase / 10);
+              town.IntRicePrice -= (int)(RandomService.NextDouble() * 0.5 * ricePriceBase);
               if (town.IntRicePrice < ricePriceMin)
               {
                 town.IntRicePrice = ricePriceMin;
