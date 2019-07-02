@@ -1206,7 +1206,7 @@ namespace SangokuKmy.Models.Data.Entities
     public static int GetSumOfValues(this CharacterItem item, CharacterItemEffectType type)
     {
       var info = item.GetInfo();
-      if (info.HasData && info.Data.Effects.Any(e => e.Type == type))
+      if (info.HasData && info.Data.Effects != null && info.Data.Effects.Any(e => e.Type == type))
       {
         return info.Data.Effects.Where(e => e.Type == type).Sum(e => e.Value);
       }
@@ -1216,7 +1216,7 @@ namespace SangokuKmy.Models.Data.Entities
     public static int GetSumOfUsingValues(this CharacterItem item, CharacterItemEffectType type)
     {
       var info = item.GetInfo();
-      if (info.HasData && info.Data.UsingEffects.Any(e => e.Type == type))
+      if (info.HasData && info.Data.UsingEffects != null && info.Data.UsingEffects.Any(e => e.Type == type))
       {
         return info.Data.UsingEffects.Where(e => e.Type == type).Sum(e => e.Value);
       }
