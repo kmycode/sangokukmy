@@ -28,7 +28,7 @@ namespace SangokuKmy.Filters
 
       if (!(context.Exception is SangokuKmyException exception))
       {
-        exception = new SangokuKmyException(new Exception(), ErrorCode.InternalError);
+        exception = new SangokuKmyException(context.Exception, ErrorCode.InternalError);
       }
 
       this.logger.LogError(exception, $"{context.HttpContext.Request.Method} [{(context.HttpContext.Request.Path.HasValue ? context.HttpContext.Request.Path.Value : "no-path")}]");
