@@ -61,7 +61,7 @@ namespace SangokuKmy.Models.Services
       }
       var oldStatus = old?.Status ?? CountryPolicyStatus.Unadopted;
 
-      if (country.PolicyPoint < info.Data.GetRequestedPoint(oldStatus))
+      if (status == CountryPolicyStatus.Available && country.PolicyPoint < info.Data.GetRequestedPoint(oldStatus))
       {
         return false;
       }
