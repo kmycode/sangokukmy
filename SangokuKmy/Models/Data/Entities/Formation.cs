@@ -123,7 +123,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
             },
-            NextLevel = 2000,
+            NextLevel = 1000,
           },
           new FormationTypeLevelInfo
           {
