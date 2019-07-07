@@ -105,30 +105,15 @@ namespace SangokuKmy.Models.Updates.Ai
         var primary = new List<CountryPolicyType>();
         if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallDefend)
         {
-          primary.Add(CountryPolicyType.StoneCastle);
+          primary.Add(CountryPolicyType.SaveWall);
         }
         else if (this.Management.PolicyTarget == AiCountryPolicyTarget.Money)
         {
-          primary.Add(CountryPolicyType.Earthwork);
+          primary.Add(CountryPolicyType.Shoji);
         }
         else if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallAttack)
         {
-          primary.Add(CountryPolicyType.Earthwork);
-        }
-
-        if (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight)
-        {
-          primary.Remove(CountryPolicyType.StoneCastle);
-          primary.Add(CountryPolicyType.Earthwork);
-        }
-        else if (this.Management.SeiranPolicy == AgainstSeiranPolicy.NotCare || this.Management.SeiranPolicy == AgainstSeiranPolicy.NotCareMuch)
-        {
-          primary.Remove(CountryPolicyType.StoneCastle);
-          primary.Add(CountryPolicyType.Earthwork);
-        }
-        else
-        {
-          primary.Add(CountryPolicyType.StoneCastle);
+          primary.Add(CountryPolicyType.Shosha);
         }
 
         return primary;
@@ -144,15 +129,15 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           if (this.Management.CharacterSize == AiCountryCharacterSize.Small)
           {
-            primary.Add(CountryPolicyType.AttackDefend);
+            primary.Add(CountryPolicyType.SaveWall);
           }
           else if (this.Management.CharacterSize == AiCountryCharacterSize.Medium)
           {
-            primary.Add(CountryPolicyType.Earthwork);
+            primary.Add(CountryPolicyType.SaveWall);
           }
           else if (this.Management.CharacterSize == AiCountryCharacterSize.Large)
           {
-            primary.Add(CountryPolicyType.StoneCastle);
+            primary.Add(CountryPolicyType.SaveWall);
           }
         }
         else if (this.Management.PolicyTarget == AiCountryPolicyTarget.Money)
