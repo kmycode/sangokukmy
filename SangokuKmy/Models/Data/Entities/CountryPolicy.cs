@@ -683,13 +683,13 @@ namespace SangokuKmy.Models.Data.Entities
     public static int GetSumOfValues(this IEnumerable<CountryPolicyType> items, CountryPolicyEffectType type)
     {
       var effects = items.GetInfos().SelectMany(i => i.Effects).Where(e => e.Type == type);
-      return effects.Any() ? effects.Sum(e => e.Value) : 0;
+      return effects.Any() ? effects.GetSumOfValues() : 0;
     }
 
     public static int GetSumOfValues(this IEnumerable<CountryPolicy> items, CountryPolicyEffectType type)
     {
       var effects = items.GetInfos().SelectMany(i => i.Effects).Where(e => e.Type == type);
-      return effects.Any() ? effects.Sum(e => e.Value) : 0;
+      return effects.Any() ? effects.GetSumOfValues() : 0;
     }
 
     public static int GetSumOfValues(this CountryPolicy item, CountryPolicyEffectType type)
