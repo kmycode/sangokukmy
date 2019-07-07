@@ -129,7 +129,7 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Data = new CharacterSoldierTypeData
             {
-              BaseAttack = 1,
+              BaseAttack = 4,
             },
             NextLevel = 3000,
           },
@@ -137,7 +137,7 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Data = new CharacterSoldierTypeData
             {
-              BaseAttack = 2,
+              BaseAttack = 8,
             },
             NextLevel = 6000,
           },
@@ -145,7 +145,7 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Data = new CharacterSoldierTypeData
             {
-              BaseAttack = 4,
+              BaseAttack = 16,
             },
             NextLevel = 10000,
           },
@@ -153,7 +153,7 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Data = new CharacterSoldierTypeData
             {
-              BaseAttack = 8,
+              BaseAttack = 32,
             },
             NextLevel = 10000,
           },
