@@ -46,11 +46,14 @@ namespace SangokuKmy.Models.Commands
           results.Add($"金 <num>{money}</num>");
 
           var country = await repo.Country.GetByIdAsync(chara.Data.CountryId);
-          if (country.HasData && RandomService.Next(0, 3) == 0)
+          if (country.HasData)
           {
-            var policy = RandomService.Next(chara.Data.Intellect * 2, Math.Max(chara.Data.Intellect * 4, 100));
-            country.Data.PolicyPoint += policy;
-            results.Add($"政策ポイント <num>{policy}</num>");
+            if (RandomService.Next(0, 3) == 0)
+            {
+              var policy = RandomService.Next(chara.Data.Intellect * 2, Math.Max(chara.Data.Intellect * 4, 100));
+              country.Data.PolicyPoint += policy;
+              results.Add($"政策ポイント <num>{policy}</num>");
+            }
 
             var name = string.Empty;
             var add = RandomService.Next(20, 60);
