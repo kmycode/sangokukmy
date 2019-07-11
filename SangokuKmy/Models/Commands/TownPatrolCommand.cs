@@ -236,7 +236,7 @@ namespace SangokuKmy.Models.Commands
           }
           else if (result == TownPatrolResult.Money)
           {
-            var m = RandomService.Next(Math.Min(character.Strong, character.Intellect), 2000);
+            var m = RandomService.Next(Math.Max(character.Strong, character.Intellect), 2000);
             await game.CharacterLogAsync($"金 <num>{m}</num> を発見しました");
             character.Money += m;
           }
