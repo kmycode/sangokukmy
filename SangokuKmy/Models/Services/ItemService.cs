@@ -154,13 +154,6 @@ namespace SangokuKmy.Models.Services
 
     public static async Task<Optional<CharacterItemInfo>> PickTownHiddenItemAsync(MainRepository repo, uint townId, Character chara)
     {
-      var skills = await repo.Character.GetSkillsAsync(chara.Id);
-      var holdItems = await repo.Character.GetItemsAsync(chara.Id);
-      if (holdItems.Count(i => i.Status == CharacterItemStatus.CharacterHold) >= CharacterService.GetItemMax(skills))
-      {
-        return default;
-      }
-
       if (chara.AiType != CharacterAiType.Human)
       {
         return default;
