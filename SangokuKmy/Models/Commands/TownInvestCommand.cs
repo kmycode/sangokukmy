@@ -26,18 +26,15 @@ namespace SangokuKmy.Models.Commands
           var results = new List<string>();
           var skills = await repo.Character.GetSkillsAsync(chara.Data.Id);
           var currentItems = await repo.Character.GetItemsAsync(chara.Data.Id);
-          if (CharacterService.GetItemMax(skills) > currentItems.Count)
+          var items = await repo.Town.GetItemsAsync(chara.Data.TownId);
+          if (RandomService.Next(0, 12) < items.Count)
           {
-            var items = await repo.Town.GetItemsAsync(chara.Data.TownId);
-            if (RandomService.Next(0, 12) < items.Count)
+            var item = RandomService.Next(items);
+            var info = CharacterItemInfoes.Get(item.Type);
+            if (info.HasData)
             {
-              var item = RandomService.Next(items);
-              var info = CharacterItemInfoes.Get(item.Type);
-              if (info.HasData)
-              {
-                await ItemService.SetCharacterPendingAsync(repo, item, chara.Data);
-                results.Add($"アイテム {info.Data.Name}");
-              }
+              await ItemService.SetCharacterPendingAsync(repo, item, chara.Data);
+              results.Add($"アイテム {info.Data.Name}");
             }
           }
 
