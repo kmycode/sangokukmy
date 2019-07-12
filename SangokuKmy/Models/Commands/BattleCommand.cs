@@ -446,11 +446,11 @@ namespace SangokuKmy.Models.Commands
             // 連戦
             if (continuousTurns < 50)
             {
-              if (continuousTurns <= 2)
+              if (logLines.Count() <= 1)
               {
                 canContinuous = mySoldierType.CanContinuousOnSingleTurn();
               }
-              else
+              if (!canContinuous)
               {
                 canContinuous = mySoldierType.CanContinuous();
               }
