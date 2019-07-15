@@ -337,20 +337,26 @@ namespace SangokuKmy.Models.Commands
           myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack()), 8), character.SoldierNumber);
         }
 
+        var myFormationExperienceTmp = 0.0f;
+        var targetFormationExperienceTmp = 0.0f;
+
         character.SoldierNumber -= myDamage;
         if (!isWall)
         {
-          myFormationExperience += targetDamage * 0.42f * Math.Max(targetSoldierType.FakeMoney / 24.0f, 1.0f);
+          myFormationExperienceTmp = targetDamage * 0.42f * Math.Max(targetSoldierType.FakeMoney / 24.0f, 1.0f);
         }
         else
         {
-          myFormationExperience += Math.Min((targetDamage * 0.17f), 40.0f);
+          myFormationExperienceTmp = Math.Min((targetDamage * 0.17f), 40.0f);
         }
         targetCharacter.SoldierNumber -= targetDamage;
-        targetFormationExperience += myDamage * 0.39f * Math.Max(mySoldierType.FakeMoney / 24.0f, 1.0f);
+        targetFormationExperienceTmp = myDamage * 0.39f * Math.Max(mySoldierType.FakeMoney / 24.0f, 1.0f);
 
         myExperience += (int)(targetDamage * 0.32f);
         targetExperience += (int)(myDamage * 0.29f);
+
+        myFormationExperience += myFormationExperienceTmp * 0.6f + targetFormationExperienceTmp * 0.4f;
+        targetFormationExperience += targetFormationExperienceTmp * 0.6f + myFormationExperienceTmp * 0.4f;
 
         await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
         if (!isWall)
