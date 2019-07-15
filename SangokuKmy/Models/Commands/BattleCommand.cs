@@ -554,7 +554,7 @@ namespace SangokuKmy.Models.Commands
           }
 
           // アイテム
-          if (RandomService.Next(0, 120) == 0)
+          if (RandomService.Next(0, 128) == 0)
           {
             var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
             if (info.HasData)

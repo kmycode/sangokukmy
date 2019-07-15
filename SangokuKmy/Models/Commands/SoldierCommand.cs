@@ -186,7 +186,9 @@ namespace SangokuKmy.Models.Commands
             await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");
             character.AddLeadershipEx(50);
 
-            if (RandomService.Next(0, 120) <= (int)MathF.Log(needMoney))
+            var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+            if (wars.Any(w => (w.InsistedCountryId == character.CountryId || w.RequestedCountryId == character.CountryId) && (w.Status != CountryWarStatus.None && w.Status != CountryWarStatus.Stoped)) &&
+              RandomService.Next(0, 128) == 0)
             {
               var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
               if (info.HasData)

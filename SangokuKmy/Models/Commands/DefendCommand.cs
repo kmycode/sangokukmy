@@ -49,7 +49,9 @@ namespace SangokuKmy.Models.Commands
           await StatusStreaming.Default.SendCountryAsync(ApiData.From(def), character.CountryId);
           await StatusStreaming.Default.SendCharacterAsync(ApiData.From(def), townCharas.Where(tc => tc.Id != character.Id && tc.CountryId != character.CountryId).Select(tc => tc.Id));
 
-          if (RandomService.Next(0, 360) == 0)
+          var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+          if (wars.Any(w => (w.InsistedCountryId == character.CountryId || w.RequestedCountryId == character.CountryId) && (w.Status != CountryWarStatus.None && w.Status != CountryWarStatus.Stoped)) &&
+            RandomService.Next(0, 128) == 0)
           {
             var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
             if (info.HasData)

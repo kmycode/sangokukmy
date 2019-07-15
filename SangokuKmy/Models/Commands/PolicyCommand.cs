@@ -80,7 +80,7 @@ namespace SangokuKmy.Models.Commands
 
         await game.CharacterLogAsync($"<country>{country.Name}</country> の政策ポイントを <num>+{add}</num> 上げました");
 
-        if (RandomService.Next(0, 280) == 0)
+        if (RandomService.Next(0, 256) == 0)
         {
           var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
           if (info.HasData)
