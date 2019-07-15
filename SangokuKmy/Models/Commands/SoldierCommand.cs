@@ -184,7 +184,7 @@ namespace SangokuKmy.Models.Commands
             town.Security -= (short)(add / 10);
 
             await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");
-            character.AddStrongEx(50);
+            character.AddLeadershipEx(50);
 
             if (RandomService.Next(0, 120) <= (int)MathF.Log(needMoney))
             {
