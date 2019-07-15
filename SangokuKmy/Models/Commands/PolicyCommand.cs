@@ -57,7 +57,7 @@ namespace SangokuKmy.Models.Commands
         {
           var policies = await repo.Country.GetPoliciesAsync(country.Id);
           var allPolicies = CountryPolicyTypeInfoes.GetAll();
-          var notPolicies = allPolicies.Where(pi => !policies.Any(p => p.Status != CountryPolicyStatus.Unadopted && p.Status != CountryPolicyStatus.Boosting && p.Type == pi.Type));
+          var notPolicies = allPolicies.Where(pi => pi.CanBoost && !policies.Any(p => p.Status != CountryPolicyStatus.Unadopted && p.Status != CountryPolicyStatus.Boosting && p.Type == pi.Type));
           if (notPolicies.Any())
           {
             var info = RandomService.Next(notPolicies);
