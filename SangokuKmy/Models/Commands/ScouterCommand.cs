@@ -173,6 +173,8 @@ namespace SangokuKmy.Models.Commands
       }
 
       repo.Country.RemoveScouter(targetScouter);
+      character.Contribution += 30;
+      character.AddLeadershipEx(50);
       await game.CharacterLogAsync($"<town>{town.Name}</town> に派遣していた斥候を解雇しました");
 
       targetScouter.IsRemoved = true;

@@ -337,20 +337,26 @@ namespace SangokuKmy.Models.Commands
           myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack()), 8), character.SoldierNumber);
         }
 
+        var myFormationExperienceTmp = 0.0f;
+        var targetFormationExperienceTmp = 0.0f;
+
         character.SoldierNumber -= myDamage;
         if (!isWall)
         {
-          myFormationExperience += targetDamage * 0.42f * Math.Max(targetSoldierType.FakeMoney / 24.0f, 1.0f);
+          myFormationExperienceTmp = targetDamage * 0.42f * Math.Max(targetSoldierType.FakeMoney / 24.0f, 1.0f);
         }
         else
         {
-          myFormationExperience += Math.Min((targetDamage * 0.17f), 40.0f);
+          myFormationExperienceTmp = Math.Min((targetDamage * 0.17f), 40.0f);
         }
         targetCharacter.SoldierNumber -= targetDamage;
-        targetFormationExperience += myDamage * 0.39f * Math.Max(mySoldierType.FakeMoney / 24.0f, 1.0f);
+        targetFormationExperienceTmp = myDamage * 0.39f * Math.Max(mySoldierType.FakeMoney / 24.0f, 1.0f);
 
         myExperience += (int)(targetDamage * 0.32f);
         targetExperience += (int)(myDamage * 0.29f);
+
+        myFormationExperience += myFormationExperienceTmp * 0.6f + targetFormationExperienceTmp * 0.4f;
+        targetFormationExperience += targetFormationExperienceTmp * 0.6f + myFormationExperienceTmp * 0.4f;
 
         await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
         if (!isWall)
@@ -548,7 +554,7 @@ namespace SangokuKmy.Models.Commands
           }
 
           // アイテム
-          if (RandomService.Next(0, 120) == 0)
+          if (RandomService.Next(0, 128) == 0)
           {
             var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
             if (info.HasData)
@@ -595,7 +601,7 @@ namespace SangokuKmy.Models.Commands
       myContribution += myExperience;
       character.Contribution += (int)(myContribution);
       character.FormationPoint += myFormationPoint;
-      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType) + $" 陣形ex: <num>{myFormationExperience}</num> 陣形P: <num>{myFormationPoint}</num>");
+      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType) + $" 陣形ex: <num>{(int)myFormationExperience}</num> 陣形P: <num>{myFormationPoint}</num>");
       myFormationData.Experience += (int)myFormationExperience;
       if (myFormation.CheckLevelUp(myFormationData))
       {
@@ -608,7 +614,7 @@ namespace SangokuKmy.Models.Commands
         targetContribution += targetExperience;
         targetCharacter.Contribution += (int)(targetContribution);
         targetCharacter.FormationPoint += targetFormationPoint;
-        await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType) + $" 陣形ex: <num>{targetFormationExperience}</num> 陣形P: <num>{targetFormationPoint}</num>");
+        await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType) + $" 陣形ex: <num>{(int)targetFormationExperience}</num> 陣形P: <num>{targetFormationPoint}</num>");
 
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCharacter), targetCharacter.Id);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal

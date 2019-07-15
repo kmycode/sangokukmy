@@ -287,6 +287,8 @@ namespace SangokuKmy.Models.Data.Entities
 
     public int BasePoint { get; set; }
 
+    public bool CanBoost { get; set; } = true;
+
     public List<CountryPolicyEffect> Effects { get; set; } = new List<CountryPolicyEffect>();
 
     public Func<IEnumerable<CountryPolicyType>, bool> SubjectAppear { get; set; }
@@ -615,6 +617,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "胡人徴発",
         BasePoint = 0,
         SubjectAppear = list => false,
+        CanBoost = false,
       },
     };
 

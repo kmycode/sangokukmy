@@ -27,7 +27,7 @@ namespace SangokuKmy.Models.Commands
           var skills = await repo.Character.GetSkillsAsync(chara.Data.Id);
           var currentItems = await repo.Character.GetItemsAsync(chara.Data.Id);
           var items = await repo.Town.GetItemsAsync(chara.Data.TownId);
-          if (RandomService.Next(0, 12) < items.Count)
+          if (RandomService.Next(0, 14) < items.Count)
           {
             var item = RandomService.Next(items);
             var info = CharacterItemInfoes.Get(item.Type);

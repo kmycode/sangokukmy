@@ -54,7 +54,7 @@ namespace SangokuKmy.Models.Commands
       var info = infoOptional.Data;
 
       var charaItems = await repo.Character.GetItemsAsync(character.Id);
-      var item = charaItems.FirstOrDefault(i => i.Type == itemType && i.Status == CharacterItemStatus.CharacterHold);
+      var item = charaItems.FirstOrDefault(i => i.Type == itemType && (i.Status == CharacterItemStatus.CharacterHold || i.Status == CharacterItemStatus.CharacterPending));
       if (item == null)
       {
         await game.CharacterLogAsync($"アイテム {info.Name} を譲渡しようとしましたが、それは現在所持していません");
@@ -85,7 +85,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       var items = await repo.Character.GetItemsAsync(chara.Id);
-      if (!items.Any(i => i.Type == itemType && i.Status == CharacterItemStatus.CharacterHold))
+      if (!items.Any(i => i.Type == itemType && (i.Status == CharacterItemStatus.CharacterHold || i.Status == CharacterItemStatus.CharacterPending)))
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }

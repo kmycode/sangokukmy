@@ -36,7 +36,7 @@ namespace SangokuKmy.Models.Commands
           return;
         }
         
-        if (RandomService.Next(0, 240) == 0)
+        if (RandomService.Next(0, 99) == 0)
         {
           var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
           if (info.HasData)
@@ -53,7 +53,7 @@ namespace SangokuKmy.Models.Commands
         {
           var policies = await repo.Country.GetPoliciesAsync(country.Data.Id);
           var allPolicies = CountryPolicyTypeInfoes.GetAll();
-          var notPolicies = allPolicies.Where(pi => !policies.Any(p => p.Status != CountryPolicyStatus.Unadopted && p.Status != CountryPolicyStatus.Boosting && p.Type == pi.Type));
+          var notPolicies = allPolicies.Where(pi => pi.CanBoost && !policies.Any(p => p.Status != CountryPolicyStatus.Unadopted && p.Status != CountryPolicyStatus.Boosting && p.Type == pi.Type));
           if (notPolicies.Any())
           {
             var info = RandomService.Next(notPolicies);
@@ -255,7 +255,7 @@ namespace SangokuKmy.Models.Commands
 
         if (country.HasData && !country.Data.HasOverthrown)
         {
-          character.Contribution += 20;
+          character.Contribution += 30;
         }
         character.Money -= 50;
       }
