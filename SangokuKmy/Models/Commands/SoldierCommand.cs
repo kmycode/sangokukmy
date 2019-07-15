@@ -8,6 +8,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Common;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -184,6 +185,15 @@ namespace SangokuKmy.Models.Commands
 
             await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");
             character.AddStrongEx(50);
+
+            if (RandomService.Next(0, 120) <= (int)MathF.Log(needMoney))
+            {
+              var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
+              if (info.HasData)
+              {
+                await game.CharacterLogAsync($"<town>{town.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
+              }
+            }
           }
         }
       }

@@ -7,6 +7,7 @@ using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Services;
 using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Commands
@@ -47,6 +48,15 @@ namespace SangokuKmy.Models.Commands
           var townCharas = await repo.Town.GetCharactersAsync(town.Id);
           await StatusStreaming.Default.SendCountryAsync(ApiData.From(def), character.CountryId);
           await StatusStreaming.Default.SendCharacterAsync(ApiData.From(def), townCharas.Where(tc => tc.Id != character.Id && tc.CountryId != character.CountryId).Select(tc => tc.Id));
+
+          if (RandomService.Next(0, 360) == 0)
+          {
+            var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
+            if (info.HasData)
+            {
+              await game.CharacterLogAsync($"<town>{town.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
+            }
+          }
         }
       }
     }

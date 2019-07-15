@@ -66,7 +66,7 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync(name + "経験値 を <num>+100</num> 強化しました");
         }
 
-        if (RandomService.Next(0, 800) == 0)
+        if (RandomService.Next(0, 700) == 0)
         {
           var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
           if (info.HasData)
