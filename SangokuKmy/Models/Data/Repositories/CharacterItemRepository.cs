@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SangokuKmy.Common;
 using SangokuKmy.Models.Data.Entities;
 using System;
 using System.Collections.Generic;
@@ -26,6 +27,33 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         this.container.Error(ex);
         return default;
+      }
+    }
+
+    public async Task<Optional<CharacterItem>> GetByIdAsync(uint id)
+    {
+      try
+      {
+        return await this.container.Context.CharacterItems
+          .FindAsync(id)
+          .ToOptionalAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task AddAsync(CharacterItem item)
+    {
+      try
+      {
+        await this.container.Context.CharacterItems.AddAsync(item);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
       }
     }
 

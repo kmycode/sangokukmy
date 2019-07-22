@@ -52,6 +52,7 @@ namespace SangokuKmy.Models.Updates
           catch (Exception ex)
           {
             logger.LogError(ex, "更新処理中にエラーが発生しました");
+            await Task.Delay(5000);
           }
         }
       });
@@ -810,6 +811,10 @@ namespace SangokuKmy.Models.Updates
             {
               isRemove = await TownInvestCommand.ResultAsync(repo, system, delay, AddLogAsync);
             }
+            if (delay.Type == DelayEffectType.GenerateItem)
+            {
+              isRemove = await GenerateItemCommand.ResultAsync(repo, system, delay, AddLogAsync);
+            }
             if (delay.Type == DelayEffectType.TerroristEnemy)
             {
               var targets = allCountries.Where(c => !c.HasOverthrown && c.AiType == CountryAiType.Terrorists);
@@ -1112,11 +1117,6 @@ namespace SangokuKmy.Models.Updates
           StatusStreaming.Default.Disconnect(character);
         }
 
-        // 古いコマンドの削除
-        character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime);
-        character.LastUpdatedGameDate = currentMonth;
-        repo.CharacterCommand.RemoveOlds(character.Id, character.LastUpdatedGameDate);
-
         // 兵士の兵糧
         var ricePerSoldier = 1;
         if (character.SoldierType == SoldierType.Custom)
@@ -1164,9 +1164,15 @@ namespace SangokuKmy.Models.Updates
       }
       catch (Exception ex)
       {
-         await AddLogAsync($"ID {character.Id} DATE {gameObj.GameDateTime.ToInt()} のコマンド実行中にエラーが発生したため、コマンド実行はスキップされました。<emerge>IDとDATEを添えて、管理者に連絡してください</emerge>");
+        await AddLogAsync($"ID {character.Id} DATE {gameObj.GameDateTime.ToInt()} のコマンド実行中にエラーが発生したため、コマンド実行はスキップされました。<emerge>IDとDATEを添えて、管理者に連絡してください</emerge>");
         _logger.LogError(ex, $"ID {character.Id} DATE {gameObj.GameDateTime.ToInt()} 武将更新処理中にエラーが発生しました");
+        await Task.Delay(3000);
       }
+
+      // 古いコマンドの削除
+      character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime);
+      character.LastUpdatedGameDate = currentMonth;
+      repo.CharacterCommand.RemoveOlds(character.Id, character.LastUpdatedGameDate);
 
       // 更新の記録
       var updateLog = new CharacterUpdateLog

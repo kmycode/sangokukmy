@@ -9,6 +9,7 @@ using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Services;
+using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -26,6 +27,7 @@ namespace SangokuKmy.Models.Commands
       var soldierNumberOptional = options.FirstOrDefault(p => p.Type == 2).ToOptional();
       var isDefaultSoldierTypeOptional = options.FirstOrDefault(p => p.Type == 3).ToOptional();
       var skills = await repo.Character.GetSkillsAsync(character.Id);
+      var items = await repo.Character.GetItemsAsync(character.Id);
 
       if (!townOptional.HasData)
       {
@@ -85,6 +87,13 @@ namespace SangokuKmy.Models.Commands
         }
 
         var moneyPerSoldier = soldierTypeData.Money;
+        var soldierNumber = soldierNumberOptional.Data.NumberValue;
+        var discountMoney = 0;
+        if (soldierNumber == null)
+        {
+          await game.CharacterLogAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
+        }
+
         if (isDefaultSoldierType)
         {
           var policies = (await repo.Country.GetPoliciesAsync(character.CountryId)).GetAvailableTypes();
@@ -104,14 +113,9 @@ namespace SangokuKmy.Models.Commands
           }
         }
 
-        var soldierNumber = soldierNumberOptional.Data.NumberValue;
         if (town.CountryId != character.CountryId)
         {
-          await game.CharacterLogAsync("<town>" + town.Name + "</town>は自国の都市ではありません");
-        }
-        else if (soldierNumber == null)
-        {
-          await game.CharacterLogAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
+          await game.CharacterLogAsync("<town>" + town.Name + "</town> は自国の都市ではありません");
         }
         else if (town.People < soldierNumber * Config.SoldierPeopleCost)
         {
@@ -157,7 +161,33 @@ namespace SangokuKmy.Models.Commands
             character.SoldierNumber = add;
           }
 
-          var needMoney = add * moneyPerSoldier;
+          // 資源による割引
+          var resources = items.GetResources(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), (int)soldierNumber);
+          var needResources = (int)soldierNumber;
+          var onSucceeds = new List<Func<Task>>();
+          foreach (var resource in resources)
+          {
+            discountMoney += (int)(Math.Min(resource.Item.Resource, needResources) * moneyPerSoldier * (resource.Effect.Value / 100.0f));
+
+            var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+            onSucceeds.Add(async () =>
+            {
+              resource.Item.Resource = newResource;
+              if (resource.Item.Resource <= 0)
+              {
+                await ItemService.SpendCharacterAsync(repo, resource.Item, character);
+                await game.CharacterLogAsync($"アイテム {resource.Info.Name} はすべての資源を使い果たし、消滅しました");
+              }
+              else
+              {
+                await StatusStreaming.Default.SendCharacterAsync(ApiData.From(resource.Item), character.Id);
+              }
+            });
+
+            needResources -= resource.Item.Resource;
+          }
+
+          var needMoney = add * moneyPerSoldier - discountMoney;
           var discount = skills.GetSumOfValues(CharacterSkillEffectType.SoldierDiscountPercentage);
           needMoney = (int)(needMoney * (1.0f - discount / 100.0f));
 
@@ -185,6 +215,11 @@ namespace SangokuKmy.Models.Commands
 
             await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");
             character.AddLeadershipEx(50);
+
+            foreach (var onSucceed in onSucceeds)
+            {
+              await onSucceed();
+            }
 
             var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
             if (wars.Any(w => (w.InsistedCountryId == character.CountryId || w.RequestedCountryId == character.CountryId) && (w.Status != CountryWarStatus.None && w.Status != CountryWarStatus.Stoped)) &&

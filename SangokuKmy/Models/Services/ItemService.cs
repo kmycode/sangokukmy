@@ -101,6 +101,10 @@ namespace SangokuKmy.Models.Services
             });
             logs.Add($"異民族敵性化");
           }
+          if (effect.Type == CharacterItemEffectType.DiscountSoldierPercentageWithResource)
+          {
+            logs.Add("特定兵種割引");
+          }
         }
 
         return string.Join("と", logs);
@@ -237,6 +241,13 @@ namespace SangokuKmy.Models.Services
       }
 
       await repo.CharacterItem.AddAsync(items);
+    }
+
+    public static async Task GenerateItemAndSaveAsync(MainRepository repo, CharacterItem item)
+    {
+      await repo.CharacterItem.AddAsync(item);
+      await repo.SaveChangesAsync();
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
     }
   }
 }

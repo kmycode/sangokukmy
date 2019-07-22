@@ -326,5 +326,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// アイテム使用
     /// </summary>
     UseItem = 56,
+
+    /// <summary>
+    /// アイテム生成
+    /// </summary>
+    GenerateItem = 57,
   }
 }

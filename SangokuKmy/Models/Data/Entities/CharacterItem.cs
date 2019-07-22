@@ -75,6 +75,10 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("character_id")]
     [JsonProperty("characterId")]
     public uint CharacterId { get; set; }
+
+    [Column("resource")]
+    [JsonProperty("resource")]
+    public ushort Resource { get; set; }
   }
 
   public enum CharacterItemStatus : short
@@ -149,6 +153,8 @@ namespace SangokuKmy.Models.Data.Entities
     Kyushaku = 56,
     Kashinoheki = 57,
     Chukoetsu = 58,
+    EquippedGeki = 59,
+    EquippedHorse = 60,
   }
 
   public enum CharacterItemEffectType
@@ -159,6 +165,7 @@ namespace SangokuKmy.Models.Data.Entities
     Popularity,
     Money,
     TerroristEnemy,
+    DiscountSoldierPercentageWithResource
   }
 
   public enum CharacterItemRareType
@@ -176,19 +183,38 @@ namespace SangokuKmy.Models.Data.Entities
     public int Value { get; set; }
   }
 
+  public class CharacterResourceItemEffect : CharacterItemEffect
+  {
+    public List<SoldierType> DiscountSoldierTypes { get; set; }
+  }
+
   public class CharacterItemInfo
   {
     public CharacterItemType Type { get; set; }
     public string Name { get; set; }
     public int Money { get; set; }
+    public int MoneyPerResource { get; set; }
     public int InitializeNumber { get; set; }
     public CharacterItemRareType RareType { get; set; }
+    public int DefaultResource { get; set; } = 0;
+    public bool IsResource { get; set; } = false;
+    public int ResourceLevel { get; set; }
     public bool CanSell { get; set; } = true;
     public bool CanHandOver { get; set; } = true;
     public bool CanUse { get; set; } = false;
+    public int GenerateMoney { get; set; } = 0;
     public IList<CharacterItemEffect> Effects { get; set; }
     public IList<CharacterItemEffect> UsingEffects { get; set; }
     public IList<CharacterFrom> DiscoverFroms { get; set; }
+
+    public int GetMoney(CharacterItem item)
+    {
+      if (!this.IsResource)
+      {
+        return this.Money;
+      }
+      return item.Resource * this.MoneyPerResource;
+    }
   }
 
   public static class CharacterItemInfoes
@@ -1175,6 +1201,52 @@ namespace SangokuKmy.Models.Data.Entities
           CharacterFrom.Warrior,
         },
       },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedGeki,
+        Name = "装備戟",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 18,
+        InitializeNumber = 12,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.DiscountSoldierPercentageWithResource,
+            Value = 30,
+            DiscountSoldierTypes = new List<SoldierType>
+            {
+              SoldierType.HeavyInfantry,
+            },
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedHorse,
+        Name = "装備馬",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 18,
+        InitializeNumber = 12,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.DiscountSoldierPercentageWithResource,
+            Value = 30,
+            DiscountSoldierTypes = new List<SoldierType>
+            {
+              SoldierType.HeavyCavalry,
+            },
+          },
+        },
+      },
     };
 
     public static IReadOnlyList<CharacterItemInfo> GetAll()
@@ -1221,6 +1293,26 @@ namespace SangokuKmy.Models.Data.Entities
         return info.Data.UsingEffects.Where(e => e.Type == type).Sum(e => e.Value);
       }
       return 0;
+    }
+
+    public static IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> GetResources(this IEnumerable<CharacterItem> item, CharacterItemEffectType type, Predicate<CharacterResourceItemEffect> subject, int size)
+    {
+      var targets = item
+        .Join(infos, i => i.Type, i => i.Type, (it, inn) => new { Item = it, Info = inn, Effects = inn.UsingEffects?.OfType<CharacterResourceItemEffect>().Where(ie => ie.Type == type && subject(ie)) ?? Enumerable.Empty<CharacterResourceItemEffect>(), })
+        .Where(i => i.Effects.Any())
+        // 並べ替え時は残量よりもレベルを優先する（安定ソート前提）
+        .OrderBy(i => i.Item.Resource)
+        .OrderBy(i => i.Info.ResourceLevel);
+
+      foreach (var target in targets)
+      {
+        yield return (target.Item, target.Info, target.Effects.FirstOrDefault());
+        size -= target.Item.Resource;
+        if (size <= 0)
+        {
+          break;
+        }
+      }
     }
   }
 }
