@@ -77,7 +77,7 @@ namespace SangokuKmy.Models.Services
         Year = Config.StartYear,
         Month = Config.StartMonth,
       };
-      system.CurrentMonthStartDateTime = new DateTime(now.Year, now.Month, now.Day, 21, 0, 0, 0);
+      system.CurrentMonthStartDateTime = new DateTime(now.Year, now.Month, now.Day, 20, 0, 0, 0);
       system.IsWaitingReset = false;
       system.IntResetGameDateTime = 0;
       system.TerroristCount = 0;
@@ -118,8 +118,8 @@ namespace SangokuKmy.Models.Services
       system.IsWaitingReset = true;
 
       var currentMonth = system.CurrentMonthStartDateTime;
-      var todayResetHour = new DateTime(currentMonth.Year, currentMonth.Month, currentMonth.Day, 21, 0, 0, 0);
-      var resetHour = todayResetHour.AddDays(currentMonth.Hour < 21 ? 1 : 2);
+      var todayResetHour = new DateTime(currentMonth.Year, currentMonth.Month, currentMonth.Day, 20, 0, 0, 0);
+      var resetHour = todayResetHour.AddDays(currentMonth.Hour < 20 ? 1 : 2);
       var sinceResetTime = resetHour - currentMonth;
       var resetTurn = (int)Math.Round(sinceResetTime.TotalMinutes / 10.0f);
       system.ResetGameDateTime = GameDateTime.FromInt(system.GameDateTime.ToInt() + resetTurn);
