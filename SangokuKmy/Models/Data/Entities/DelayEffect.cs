@@ -57,5 +57,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 異民族を敵性化
     /// </summary>
     TerroristEnemy = 2,
+
+    /// <summary>
+    /// アイテム生成
+    /// </summary>
+    GenerateItem = 3,
   }
 }

@@ -92,6 +92,7 @@ namespace SangokuKmy.Models.Data.Entities
     RiceBuyContribution,
     DomesticAffairMulPercentage,
     PolicyBoostProbabilityThousandth,
+    GenerateItem,
   }
 
   public class CharacterSkillEffect

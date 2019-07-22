@@ -470,7 +470,7 @@ namespace SangokuKmy.Models.Services
           CharacterAiType.ManagedBattler,
           CharacterAiType.ManagedBattler,
           CharacterAiType.ManagedCivilOfficial,
-          CharacterAiType.ManagedPatroller,
+          // CharacterAiType.ManagedPatroller,
         };
         names = new string[] { "秦", "前秦", "晋", "西晋", "東晋", "斉", "金", "明", "隋", "陳", "楚", "春秋楚", "夏", "商", "北魏", "元", };
       }

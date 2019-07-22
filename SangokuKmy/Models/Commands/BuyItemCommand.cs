@@ -19,7 +19,8 @@ namespace SangokuKmy.Models.Commands
     {
       var itemTypeOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
       var townIdOptional = options.FirstOrDefault(p => p.Type == 2).ToOptional();
-      
+      var itemIdOptional = options.FirstOrDefault(p => p.Type == 3).ToOptional();
+
       if (!itemTypeOptional.HasData || !townIdOptional.HasData)
       {
         await game.CharacterLogAsync("アイテム購入のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
@@ -42,9 +43,29 @@ namespace SangokuKmy.Models.Commands
         return;
       }
       var info = infoOptional.Data;
+      
+      Optional<CharacterItem> itemOptional = default;
+      if (info.IsResource)
+      {
+        if (itemIdOptional.Data?.NumberValue == null)
+        {
+          await game.CharacterLogAsync("アイテム（資源）購入のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
+          return;
+        }
+
+        itemOptional = await repo.CharacterItem.GetByIdAsync((uint)itemIdOptional.Data.NumberValue);
+        if (!itemOptional.HasData)
+        {
+          await game.CharacterLogAsync($"ID: {itemIdOptional.Data.NumberValue} のアイテムは存在しません。<emerge>管理者にお問い合わせください</emerge>");
+          return;
+        }
+      }
 
       var skills = await repo.Character.GetSkillsAsync(character.Id);
-      var needMoney = (int)(info.Money * (1 - skills.GetSumOfValues(CharacterSkillEffectType.ItemDiscountPercentage) / 100.0f));
+      var discountRate = (1 - skills.GetSumOfValues(CharacterSkillEffectType.ItemDiscountPercentage) / 100.0f);
+      var needMoney = !info.IsResource ?
+        (int)(info.Money * discountRate) :
+        (int)(info.MoneyPerResource * discountRate * itemOptional.Data.Resource);
 
       if (needMoney > character.Money)
       {
@@ -60,8 +81,20 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      var allItems = await repo.CharacterItem.GetAllAsync();
-      var target = allItems.FirstOrDefault(i => i.Status == CharacterItemStatus.TownOnSale && i.TownId == townIdOptional.Data.NumberValue && i.Type == itemType);
+      CharacterItem target;
+      if (!info.IsResource)
+      {
+        var allItems = await repo.CharacterItem.GetAllAsync();
+        target = allItems.FirstOrDefault(i => i.Status == CharacterItemStatus.TownOnSale && i.TownId == townIdOptional.Data.NumberValue && i.Type == itemType);
+      }
+      else
+      {
+        target = itemOptional.Data;
+        if (target.Status != CharacterItemStatus.TownOnSale || target.TownId != townIdOptional.Data.NumberValue)
+        {
+          target = null;
+        }
+      }
       if (target == null)
       {
         await game.CharacterLogAsync($"アイテムを購入しようとしましたが、<town>{town.Name}</town> の {info.Name} はすでに売り切れています");
@@ -76,16 +109,17 @@ namespace SangokuKmy.Models.Commands
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
       var itemType = (CharacterItemType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
+      var itemId = options.FirstOrDefault(p => p.Type == 3)?.NumberValue;
       var chara = await repo.Character.GetByIdAsync(characterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
       var town = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { command = "item", townId = chara.TownId, });
 
       var items = await repo.Town.GetItemsAsync(town.Id);
-      if (!items.Any(i => i.Status == CharacterItemStatus.TownOnSale && i.Type == itemType))
+      if (!items.Any(i => i.Status == CharacterItemStatus.TownOnSale && i.Type == itemType && (itemId == null || i.Id == itemId)))
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }
 
-      var optionsWithoutResult = options.Where(o => o.Type == 1);
+      var optionsWithoutResult = options.Where(o => o.Type == 1 || o.Type == 3);
       options = optionsWithoutResult.Append(new CharacterCommandParameter
       {
         Type = 2,
