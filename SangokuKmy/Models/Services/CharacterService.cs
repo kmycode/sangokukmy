@@ -178,7 +178,7 @@ namespace SangokuKmy.Models.Services
 
     public static int GetItemMax(IEnumerable<CharacterSkill> skills)
     {
-      return 3 + skills.GetSumOfValues(CharacterSkillEffectType.ItemMax);
+      return 4 + skills.GetSumOfValues(CharacterSkillEffectType.ItemMax);
     }
   }
 }
