@@ -226,6 +226,7 @@ namespace SangokuKmy.Models.Services
               Type = info.Type,
               Status = CharacterItemStatus.TownHidden,
               TownId = RandomService.Next(towns).Id,
+              Resource = (ushort)info.DefaultResource,
             });
           }
           for (var i = 0; i < saleCount; i++)
@@ -235,6 +236,7 @@ namespace SangokuKmy.Models.Services
               Type = info.Type,
               Status = CharacterItemStatus.TownOnSale,
               TownId = RandomService.Next(towns).Id,
+              Resource = (ushort)info.DefaultResource,
             });
           }
         }
