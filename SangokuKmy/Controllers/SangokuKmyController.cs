@@ -681,6 +681,7 @@ namespace SangokuKmy.Controllers
       [FromBody] CountryMessage param)
     {
       CountryMessage message;
+      ChatMessage chat = null;
 
       if (param.Type == CountryMessageType.Solicitation && param.Message?.Length > 200)
       {
@@ -751,6 +752,14 @@ namespace SangokuKmy.Controllers
         message.WriterIconId = icon.Id;
         message.WriterIcon = icon;
 
+        if (message.Type == CountryMessageType.Commanders)
+        {
+          chat = await ChatService.PostChatMessageAsync(repo, new ChatMessage
+          {
+            Message = $"[r][s]【指令更新】[-s][-r]\n\n{message.Message}",
+          }, chara, ChatMessageType.SelfCountry, chara.CountryId);
+        }
+
         await repo.SaveChangesAsync();
       }
 
@@ -765,6 +774,11 @@ namespace SangokuKmy.Controllers
       if (message.Type == CountryMessageType.Solicitation)
       {
         await AnonymousStreaming.Default.SendAllAsync(ApiData.From(message));
+      }
+
+      if (chat != null && message.Type == CountryMessageType.Commanders)
+      {
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(chat), message.CountryId);
       }
     }
 
