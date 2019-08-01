@@ -499,7 +499,7 @@ namespace SangokuKmy.Models.Commands
                 {
                   myCountry.PolicyPoint += 2000;
                 }
-                if (targetCountry.AiType == CountryAiType.Terrorists)
+                if (targetCountry.AiType == CountryAiType.Terrorists || targetCountry.AiType == CountryAiType.TerroristsEnemy)
                 {
                   await CountryService.SetPolicyAndSaveAsync(repo, myCountry, CountryPolicyType.GetTerrorists, isCheckSubjects: false);
                 }
