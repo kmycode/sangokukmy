@@ -25,6 +25,15 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      var reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(character.Id);
+      var reinforcement = reinforcements.FirstOrDefault(r => r.Status == ReinforcementStatus.Active);
+      if (reinforcement != null && (await repo.Country.GetAliveByIdAsync(reinforcement.RequestedCountryId)).HasData)
+      {
+
+        await game.CharacterLogAsync("援軍は仕官を実行できません");
+        return;
+      }
+
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
       if (!townOptional.HasData)
       {
