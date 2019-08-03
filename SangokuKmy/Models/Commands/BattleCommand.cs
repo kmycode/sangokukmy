@@ -328,13 +328,17 @@ namespace SangokuKmy.Models.Commands
         var myDamage = Math.Min(Math.Max(RandomService.Next(targetAttack + 1), 1), character.SoldierNumber);
 
         // 突撃
+        var isMyRush = false;
+        var isTargetRush = false;
         if (mySoldierType.IsRush())
         {
           targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 14), targetCharacter.SoldierNumber);
+          isMyRush = true;
         }
         else if (targetSoldierType.IsRush())
         {
           myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack()), 8), character.SoldierNumber);
+          isTargetRush = true;
         }
 
         var myFormationExperienceTmp = 0.0f;
@@ -371,6 +375,8 @@ namespace SangokuKmy.Models.Commands
           AttackerDamage = (short)myDamage,
           DefenderNumber = (short)targetCharacter.SoldierNumber,
           DefenderDamage = (short)targetDamage,
+          IsAttackerRush = isMyRush,
+          IsDefenderRush = isTargetRush,
         });
       }
 
