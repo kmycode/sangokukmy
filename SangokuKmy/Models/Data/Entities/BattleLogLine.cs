@@ -54,5 +54,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("defender_number")]
     [JsonProperty("defenderNumber")]
     public short DefenderNumber { get; set; }
+
+    [Column("is_attacker_rush")]
+    [JsonProperty("isAttackerRush")]
+    public bool IsAttackerRush { get; set; }
+
+    [Column("is_defender_rush")]
+    [JsonProperty("isDefenderRush")]
+    public bool IsDefenderRush { get; set; }
   }
 }
