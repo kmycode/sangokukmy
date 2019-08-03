@@ -31,7 +31,7 @@ namespace SangokuKmy.Models.Commands
           {
             var item = RandomService.Next(items);
             var info = CharacterItemInfoes.Get(item.Type);
-            if (info.HasData)
+            if (info.HasData && info.Data.DiscoverFroms.Contains(chara.Data.From))
             {
               await ItemService.SetCharacterPendingAsync(repo, item, chara.Data);
               results.Add($"アイテム {info.Data.Name}");

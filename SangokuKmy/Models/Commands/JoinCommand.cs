@@ -27,9 +27,8 @@ namespace SangokuKmy.Models.Commands
 
       var reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(character.Id);
       var reinforcement = reinforcements.FirstOrDefault(r => r.Status == ReinforcementStatus.Active);
-      if (reinforcement != null && (await repo.Country.GetAliveByIdAsync(reinforcement.RequestedCountryId)).HasData)
+      if (reinforcement != null && (await repo.Country.GetAliveByIdAsync(reinforcement.CharacterCountryId)).HasData)
       {
-
         await game.CharacterLogAsync("援軍は仕官を実行できません");
         return;
       }
