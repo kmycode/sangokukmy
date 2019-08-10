@@ -829,6 +829,7 @@ namespace SangokuKmy.Models.Updates
               foreach (var c in targets)
               {
                 c.AiType = CountryAiType.TerroristsEnemy;
+                await AddMapLogAsync(true, EventType.AppendTerrorists, $"異民族 <country>{c.Name}</country> は敵対化しました");
                 isRemove = true;
               }
             }
