@@ -301,8 +301,8 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "重戟兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 5,
-          BaseDefend = 3,
+          BaseAttack = 6,
+          BaseDefend = 4,
           TypeInfantry = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -351,7 +351,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "連弩兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 9,
+          BaseAttack = 6,
           BaseDefend = 4,
           TypeCrossbow = 10,
           StrongEx = 1,

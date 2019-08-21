@@ -173,11 +173,6 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.SoldierType,
-            Value = (int)SoldierType.RepeatingCrossbow,
-          },
-          new CharacterSkillEffect
-          {
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
