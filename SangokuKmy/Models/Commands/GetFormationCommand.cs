@@ -76,6 +76,7 @@ namespace SangokuKmy.Models.Commands
         {
           Type = type,
           CharacterId = character.Id,
+          Level = 1,
         };
         await repo.Character.AddFormationAsync(formation);
         await repo.SaveChangesAsync();
