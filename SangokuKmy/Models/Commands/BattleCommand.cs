@@ -333,11 +333,13 @@ namespace SangokuKmy.Models.Commands
         if (mySoldierType.IsRush())
         {
           targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 14), targetCharacter.SoldierNumber);
+          targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 3);
           isMyRush = true;
         }
         else if (targetSoldierType.IsRush())
         {
           myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack()), 8), character.SoldierNumber);
+          myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 3);
           isTargetRush = true;
         }
 
