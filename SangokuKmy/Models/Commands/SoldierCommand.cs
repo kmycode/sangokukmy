@@ -271,6 +271,7 @@ namespace SangokuKmy.Models.Commands
             ErrorCode.NotPermissionError.Throw();
           }
         }
+        /*
         else if (soldierType == SoldierType.RepeatingCrossbow)
         {
           var skills = await repo.Character.GetSkillsAsync(chara.Id);
@@ -279,6 +280,7 @@ namespace SangokuKmy.Models.Commands
             ErrorCode.NotSkillError.Throw();
           }
         }
+        */
       }
       else
       {
