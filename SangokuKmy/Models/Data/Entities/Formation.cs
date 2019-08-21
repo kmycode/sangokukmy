@@ -44,6 +44,9 @@ namespace SangokuKmy.Models.Data.Entities
   public enum FormationType : short
   {
     Normal = 0,
+    Gyorin = 1,
+    Hoshi = 2,
+    Suiko = 3,
   }
 
   public class FormationTypeLevelInfo
@@ -159,6 +162,174 @@ namespace SangokuKmy.Models.Data.Entities
           },
         },
         RequiredPoint = 0,
+      },
+      new FormationTypeInfo
+      {
+        Type = FormationType.Gyorin,
+        Name = "魚鱗",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeInfantryAttack = 10,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeInfantryAttack = 19,
+            },
+            NextLevel = 3000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeInfantryAttack = 27,
+              CavalryAttack = 8,
+            },
+            NextLevel = 6000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeInfantryAttack = 34,
+              CavalryAttack = 8,
+              RushProbability = 100,
+              RushAttack = 35,
+            },
+            NextLevel = 10000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeInfantryAttack = 40,
+              CavalryAttack = 20,
+              RushProbability = 300,
+              RushAttack = 85,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
+      },
+      new FormationTypeInfo
+      {
+        Type = FormationType.Hoshi,
+        Name = "蜂矢",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCavalryAttack = 10,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCavalryAttack = 19,
+            },
+            NextLevel = 3000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCavalryAttack = 27,
+              CrossbowAttack = 8,
+            },
+            NextLevel = 6000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCavalryAttack = 34,
+              CrossbowAttack = 8,
+              RushProbability = 100,
+              RushAttack = 35,
+            },
+            NextLevel = 10000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCavalryAttack = 40,
+              CrossbowAttack = 20,
+              RushProbability = 300,
+              RushAttack = 85,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
+      },
+      new FormationTypeInfo
+      {
+        Type = FormationType.Suiko,
+        Name = "錐行",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCrossbowAttack = 10,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCrossbowAttack = 19,
+            },
+            NextLevel = 3000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCrossbowAttack = 27,
+              InfantryAttack = 8,
+            },
+            NextLevel = 6000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCrossbowAttack = 34,
+              InfantryAttack = 8,
+              RushProbability = 100,
+              RushAttack = 35,
+            },
+            NextLevel = 10000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCrossbowAttack = 40,
+              InfantryAttack = 20,
+              RushProbability = 300,
+              RushAttack = 85,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
       },
     };
 
