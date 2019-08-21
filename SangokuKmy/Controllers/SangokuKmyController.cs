@@ -415,7 +415,9 @@ namespace SangokuKmy.Controllers
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var items = await repo.Character.GetItemsAsync(chara.Id);
-        item = items.FirstOrDefault(i => i.Status == CharacterItemStatus.CharacterPending && i.Type == param.Type && (param.Id == default || i.Id == param.Id));
+        item = items
+          .OrderBy(i => i.IntLastStatusChangedGameDate)
+          .FirstOrDefault(i => i.Status == CharacterItemStatus.CharacterPending && i.Type == param.Type && (param.Id == default || i.Id == param.Id));
         if (item == null)
         {
           ErrorCode.MeaninglessOperationError.Throw();
