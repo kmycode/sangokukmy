@@ -424,7 +424,7 @@ namespace SangokuKmy.Controllers
         if (param.Status == CharacterItemStatus.CharacterHold)
         {
           var skills = await repo.Character.GetSkillsAsync(chara.Id);
-          if (items.Count(i => i.Status == CharacterItemStatus.CharacterHold) >= CharacterService.GetItemMax(skills))
+          if (CharacterService.CountLimitedItems(items) >= CharacterService.GetItemMax(skills))
           {
             ErrorCode.NotMoreItemsError.Throw();
           }

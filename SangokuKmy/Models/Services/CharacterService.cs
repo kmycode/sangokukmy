@@ -5,6 +5,7 @@ using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Streamings;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -179,6 +180,11 @@ namespace SangokuKmy.Models.Services
     public static int GetItemMax(IEnumerable<CharacterSkill> skills)
     {
       return 4 + skills.GetSumOfValues(CharacterSkillEffectType.ItemMax);
+    }
+
+    public static int CountLimitedItems(IEnumerable<CharacterItem> items)
+    {
+      return items.Where(i => i.Status == CharacterItemStatus.CharacterHold).GetInfos().Count(i => !i.IsResource);
     }
   }
 }

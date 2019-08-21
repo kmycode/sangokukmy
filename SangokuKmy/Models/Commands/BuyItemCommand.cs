@@ -75,7 +75,7 @@ namespace SangokuKmy.Models.Commands
 
       var items = await repo.Character.GetItemsAsync(character.Id);
       var itemsMax = CharacterService.GetItemMax(await repo.Character.GetSkillsAsync(character.Id));
-      if (items.Count(i => i.Status == CharacterItemStatus.CharacterHold) >= itemsMax)
+      if (CharacterService.CountLimitedItems(items) >= itemsMax)
       {
         await game.CharacterLogAsync($"アイテム購入しようとしましたが、アイテム所持数が上限 <num>{itemsMax}</num> に達しています");
         return;
