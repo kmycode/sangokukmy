@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Services;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace SangokuKmy.Models.Data.Entities
 {
@@ -66,11 +67,20 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("typeInfantry")]
     public short TypeInfantry { get; set; }
 
+    [JsonProperty("typeInfantryAttack")]
+    public short TypeInfantryAttack { get; set; }
+
     [JsonProperty("typeCavalry")]
     public short TypeCavalry { get; set; }
 
+    [JsonProperty("typeCavalryAttack")]
+    public short TypeCavalryAttack { get; set; }
+
     [JsonProperty("typeCrossbow")]
     public short TypeCrossbow { get; set; }
+
+    [JsonProperty("typeCrossbowAttack")]
+    public short TypeCrossbowAttack { get; set; }
 
     [JsonProperty("typeWall")]
     public short TypeWall { get; set; }
@@ -113,7 +123,16 @@ namespace SangokuKmy.Models.Data.Entities
     
     [JsonProperty("continuousDefend")]
     public short ContinuousDefend { get; set; }
-    
+
+    [JsonProperty("infantryAttack")]
+    public short InfantryAttack { get; set; }
+
+    [JsonProperty("cavalryAttack")]
+    public short CavalryAttack { get; set; }
+
+    [JsonProperty("crossbowAttack")]
+    public short CrossbowAttack { get; set; }
+
     [JsonProperty("wallAttack")]
     public short WallAttack { get; set; }
     
@@ -176,8 +195,16 @@ namespace SangokuKmy.Models.Data.Entities
       a += this.IntellectAttack / 1000.0f * chara.Intellect;
       d += this.IntellectDefend / 1000.0f * chara.Intellect;
 
+      a += this.InfantryAttack * (enemyType.TypeInfantry / 100.0f);
+      a += this.CavalryAttack * (enemyType.TypeCavalry / 100.0f);
+      a += this.CrossbowAttack * (enemyType.TypeCrossbow / 100.0f);
+
       a += this.WallAttack * (enemyType.TypeWall / 100.0f);
       d += this.WallDefend * (enemyType.TypeWall / 100.0f);
+
+      a += this.TypeInfantryAttack * (this.TypeInfantry / 100.0f);
+      a += this.TypeCavalryAttack * (this.TypeCavalry / 100.0f);
+      a += this.TypeCrossbowAttack * (this.TypeCrossbow / 100.0f);
 
       a += this.TypeGuardAttack * (this.TypeGuard / 100.0f);
       d += this.TypeGuardDefend * (this.TypeGuard / 100.0f);

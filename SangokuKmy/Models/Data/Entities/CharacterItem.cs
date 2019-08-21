@@ -155,6 +155,8 @@ namespace SangokuKmy.Models.Data.Entities
     Chukoetsu = 58,
     EquippedGeki = 59,
     EquippedHorse = 60,
+    Shimingetsurei = 61,
+    Rongo = 62,
   }
 
   public enum CharacterItemEffectType
@@ -585,7 +587,6 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
-        CanHandOver = false,
         Effects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1244,6 +1245,40 @@ namespace SangokuKmy.Models.Data.Entities
             {
               SoldierType.HeavyCavalry,
             },
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.Shimingetsurei,
+        Name = "四民月令",
+        Money = 100000,
+        InitializeNumber = 2,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanSell = false,
+        Effects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.Leadership,
+            Value = 20,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.Rongo,
+        Name = "論語",
+        Money = 100000,
+        InitializeNumber = 2,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanSell = false,
+        Effects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.Popularity,
+            Value = 20,
           },
         },
       },
