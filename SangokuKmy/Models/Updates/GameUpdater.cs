@@ -845,7 +845,7 @@ namespace SangokuKmy.Models.Updates
           var items = await repo.CharacterItem.GetAllAsync();
           foreach (var item in items.Where(i => i.Status == CharacterItemStatus.CharacterPending && i.IntLastStatusChangedGameDate + 288 <= system.IntGameDateTime))
           {
-            var chara = allCharacters.FirstOrDefault(c => c.Id == item.Id);
+            var chara = allCharacters.FirstOrDefault(c => c.Id == item.CharacterId);
             await ItemService.ReleaseCharacterAsync(repo, item, chara);
           }
         }
