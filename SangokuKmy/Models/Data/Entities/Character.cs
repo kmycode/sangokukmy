@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 using SangokuKmy.Common;
+using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Entities
@@ -235,6 +236,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("class")]
     [JsonProperty("classValue")]
     public int Class { get; set; }
+
+    /// <summary>
+    /// 階級
+    /// </summary>
+    [NotMapped]
+    [JsonIgnore]
+    public int Lank => Math.Min(Config.LankCount - 1, this.Class / Config.NextLank);
 
     /// <summary>
     /// 削除ターン
