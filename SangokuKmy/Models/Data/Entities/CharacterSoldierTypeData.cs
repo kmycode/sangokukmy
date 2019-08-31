@@ -333,8 +333,14 @@ namespace SangokuKmy.Models.Data.Entities
       self.LeadershipEx += d.LeadershipEx;
       self.PopularityEx += d.PopularityEx;
       self.TypeCavalry += d.TypeCavalry;
+      self.TypeCavalryAttack += d.TypeCavalryAttack;
+      self.CavalryAttack += d.CavalryAttack;
       self.TypeCrossbow += d.TypeCrossbow;
+      self.TypeCrossbowAttack += d.TypeCrossbowAttack;
+      self.CrossbowAttack += d.CrossbowAttack;
       self.TypeInfantry += d.TypeInfantry;
+      self.TypeInfantryAttack += d.TypeInfantryAttack;
+      self.InfantryAttack += d.InfantryAttack;
       self.TypeWall += d.TypeWall;
       self.TypeAntiWall += d.TypeAntiWall;
       self.TypeGuard += d.TypeGuard;
