@@ -250,15 +250,34 @@ namespace SangokuKmy.Models.Updates
               }
             }
 
-            // 収入を武将に配る
+            // すべての武将に必要な収入の合計を計算する
             var lankSalary = country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.AddSalary) ? 250 : 200;
+            var neededAllSalaries = 0;
             foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary()))
             {
-              var currentLank = Math.Min(Config.LankCount - 1, character.Class / Config.NextLank);
+              var currentLank = character.Lank;
+              var addMax = 1000 + currentLank * lankSalary;
+              neededAllSalaries += addMax;
+            }
+            var isAllCharactersGetAddMax = neededAllSalaries <= salary.AllSalary;
+
+            // 収入を武将に配る
+            foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary()))
+            {
+              var currentLank = character.Lank;
               var add = salary.AllContributions > 0 ?
                 (int)(salary.AllSalary * (float)character.Contribution / salary.AllContributions + character.Contribution * 1.3f) : 0;
               var addMax = 1000 + currentLank * lankSalary;
-              add = Math.Min(Math.Max(add, 0), addMax);
+
+              if (isAllCharactersGetAddMax)
+              {
+                // すべての武将が最大数を受け取れる
+                add = addMax;
+              }
+              else
+              {
+                add = Math.Min(Math.Max(add, 0), addMax);
+              }
               salary.PaidSalary += add;
 
               if (system.GameDateTime.Month == 1)
