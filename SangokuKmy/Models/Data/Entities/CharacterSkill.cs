@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using SangokuKmy.Common;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -427,6 +428,14 @@ namespace SangokuKmy.Models.Data.Entities
         correction.Append(e.SoldierTypeData);
       }
       return correction;
+    }
+
+    public static IReadOnlyList<CharacterSkillInfo> GetNextSkills(this IEnumerable<CharacterSkill> skills)
+    {
+      return infos
+        .Where(i => !skills.Any(s => s.Type == i.Type))
+        .Where(i => i.SubjectAppear == null || i.SubjectAppear(skills))
+        .ToArray();
     }
   }
 }

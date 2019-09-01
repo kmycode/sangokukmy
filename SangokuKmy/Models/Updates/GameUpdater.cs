@@ -1015,6 +1015,7 @@ namespace SangokuKmy.Models.Updates
       var oldLeadership = character.Leadership;
       var oldPopularity = character.Popularity;
       var oldTownId = character.TownId;
+      var skills = await repo.Character.GetSkillsAsync(character.Id);
 
       // ログを追加する関数
       async Task AddLogByIdAsync(uint id, string message)
@@ -1066,7 +1067,6 @@ namespace SangokuKmy.Models.Updates
       // 技能
       if (currentMonth.Year >= Config.UpdateStartYear)
       {
-        var skills = await repo.Character.GetSkillsAsync(character.Id);
         var skillStrongEx = skills.GetSumOfValues(CharacterSkillEffectType.StrongExRegularly);
         var skillIntellectEx = skills.GetSumOfValues(CharacterSkillEffectType.IntellectExRegularly);
         var skillLeadershipEx = skills.GetSumOfValues(CharacterSkillEffectType.LeadershipExRegularly);
@@ -1075,6 +1075,21 @@ namespace SangokuKmy.Models.Updates
         character.AddIntellectEx((short)skillIntellectEx);
         character.AddLeadershipEx((short)skillLeadershipEx);
         character.AddPopularityEx((short)skillPopularityEx);
+      }
+
+      // 技能ポイントが十分にあるときは自動で技能獲得
+      {
+        var nextInfos = skills.GetNextSkills();
+        if (nextInfos.Count == 1 && nextInfos[0].RequestedPoint <= character.SkillPoint)
+        {
+          await SkillService.SetCharacterAndSaveAsync(repo, new CharacterSkill
+          {
+            CharacterId = character.Id,
+            Status = CharacterSkillStatus.Available,
+            Type = nextInfos[0].Type,
+          }, character);
+          await AddLogAsync($"技能ポイントが一定まで到達したので、技能 {nextInfos[0].Name} を獲得しました");
+        }
       }
 
       try

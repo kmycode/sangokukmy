@@ -29,8 +29,8 @@ namespace SangokuKmy.Models.Services
       await repo.Character.AddSkillAsync(item);
       await repo.SaveChangesAsync();
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), chara.Id);
     }
 
     public static async Task ReleaseCharacterAsync(MainRepository repo, CharacterSkill item, Character chara)
@@ -47,8 +47,8 @@ namespace SangokuKmy.Models.Services
 
       item.Status = CharacterSkillStatus.Undefined;
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), chara.Id);
     }
   }
 }
