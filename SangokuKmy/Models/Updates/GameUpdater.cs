@@ -1088,6 +1088,7 @@ namespace SangokuKmy.Models.Updates
             Status = CharacterSkillStatus.Available,
             Type = nextInfos[0].Type,
           }, character);
+          character.SkillPoint -= nextInfos[0].RequestedPoint;
           await AddLogAsync($"技能ポイントが一定まで到達したので、技能 {nextInfos[0].Name} を獲得しました");
         }
       }
