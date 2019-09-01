@@ -253,7 +253,7 @@ namespace SangokuKmy.Models.Updates
             // すべての武将に必要な収入の合計を計算する
             var lankSalary = country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.AddSalary) ? 250 : 200;
             var neededAllSalaries = 0;
-            foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary()))
+            foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary() && c.Contribution > 0))
             {
               var currentLank = character.Lank;
               var addMax = 1000 + currentLank * lankSalary;
@@ -269,7 +269,7 @@ namespace SangokuKmy.Models.Updates
                 (int)(salary.AllSalary * (float)character.Contribution / salary.AllContributions + character.Contribution * 1.3f) : 0;
               var addMax = 1000 + currentLank * lankSalary;
 
-              if (isAllCharactersGetAddMax)
+              if (isAllCharactersGetAddMax && character.Contribution > 0)
               {
                 // すべての武将が最大数を受け取れる
                 add = addMax;
