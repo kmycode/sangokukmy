@@ -184,6 +184,8 @@ namespace SangokuKmy.Models.Data.Entities
     public int Technology { get; set; }
 
     public bool CanConscript { get; set; } = true;
+
+    public bool CanConscriptWithoutResource { get; set; } = true;
   }
 
   public static class DefaultCharacterSoldierTypeParts
@@ -364,6 +366,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 20,
         Technology = 800,
         CanConscript = true,
+        CanConscriptWithoutResource = false,
       },
       new CharacterSoldierTypePart
       {

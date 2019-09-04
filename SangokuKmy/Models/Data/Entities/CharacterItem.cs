@@ -157,6 +157,7 @@ namespace SangokuKmy.Models.Data.Entities
     EquippedHorse = 60,
     Shimingetsurei = 61,
     Rongo = 62,
+    EquippedRepeatingCrossbow = 63,
   }
 
   public enum CharacterItemEffectType
@@ -167,7 +168,8 @@ namespace SangokuKmy.Models.Data.Entities
     Popularity,
     Money,
     TerroristEnemy,
-    DiscountSoldierPercentageWithResource
+    DiscountSoldierPercentageWithResource,
+    AddSoldierType,
   }
 
   public enum CharacterItemRareType
@@ -1279,6 +1281,25 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterItemEffectType.Popularity,
             Value = 20,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedRepeatingCrossbow,
+        Name = "装備連弩",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 14,
+        InitializeNumber = 18,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.RepeatingCrossbow,
           },
         },
       },

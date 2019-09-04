@@ -10,6 +10,7 @@ using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Services;
 using SangokuKmy.Streamings;
+using System.Collections;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -28,6 +29,7 @@ namespace SangokuKmy.Models.Commands
       var isDefaultSoldierTypeOptional = options.FirstOrDefault(p => p.Type == 3).ToOptional();
       var skills = await repo.Character.GetSkillsAsync(character.Id);
       var items = await repo.Character.GetItemsAsync(character.Id);
+      var onSucceeds = new List<Func<Task>>();
 
       if (!townOptional.HasData)
       {
@@ -47,6 +49,7 @@ namespace SangokuKmy.Models.Commands
         var soldierTypeName = string.Empty;
         var soldierType = (SoldierType)soldierTypeOptional.Data.NumberValue;
         var isDefaultSoldierType = isDefaultSoldierTypeOptional.Data.NumberValue == 0;
+        var soldierNumber = soldierNumberOptional.Data.NumberValue;
 
         CharacterSoldierTypeData soldierTypeData = null;
         if (isDefaultSoldierType)
@@ -59,8 +62,30 @@ namespace SangokuKmy.Models.Commands
           }
           if (!type.CanConscript && character.AiType == CharacterAiType.Human)
           {
-            await game.CharacterLogAsync($"{type.Name} を徴兵しようとしましたが、現在徴兵することはできません");
+            await game.CharacterLogAsync($"{type.Name} を徴兵しようとしましたが、その兵種を人間が徴兵することはできません");
             return;
+          }
+          if (!type.CanConscriptWithoutResource && character.AiType == CharacterAiType.Human)
+          {
+            // 資源による徴兵可能判定
+            var resources = items.GetResources(CharacterItemEffectType.AddSoldierType, ef => ef.Value == (int)soldierType, (int)soldierNumber);
+            var needResources = (int)soldierNumber;
+            foreach (var resource in resources)
+            {
+              var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+              onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
+
+              needResources -= resource.Item.Resource;
+            }
+
+            if (needResources == soldierNumber)
+            {
+              await game.CharacterLogAsync($"{type.Name} を徴兵しようとしましたが、資源が必要なため徴兵できませんでした");
+              return;
+            }
+
+            // needResourcesは負になることもある。資源が足りなかった時は徴兵数を資源にそろえる
+            soldierNumber -= Math.Max(needResources, 0);
           }
           soldierTypeName = type.Name;
           soldierTypeData = DefaultCharacterSoldierTypeParts.GetDataByDefault(soldierType);
@@ -87,7 +112,6 @@ namespace SangokuKmy.Models.Commands
         }
 
         var moneyPerSoldier = soldierTypeData.Money;
-        var soldierNumber = soldierNumberOptional.Data.NumberValue;
         var discountMoney = 0;
         if (soldierNumber == null)
         {
@@ -164,25 +188,12 @@ namespace SangokuKmy.Models.Commands
           // 資源による割引
           var resources = items.GetResources(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), (int)soldierNumber);
           var needResources = (int)soldierNumber;
-          var onSucceeds = new List<Func<Task>>();
           foreach (var resource in resources)
           {
             discountMoney += (int)(Math.Min(resource.Item.Resource, needResources) * moneyPerSoldier * (resource.Effect.Value / 100.0f));
 
             var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
-            onSucceeds.Add(async () =>
-            {
-              resource.Item.Resource = newResource;
-              if (resource.Item.Resource <= 0)
-              {
-                await ItemService.SpendCharacterAsync(repo, resource.Item, character);
-                await game.CharacterLogAsync($"アイテム {resource.Info.Name} はすべての資源を使い果たし、消滅しました");
-              }
-              else
-              {
-                await StatusStreaming.Default.SendCharacterAsync(ApiData.From(resource.Item), character.Id);
-              }
-            });
+            onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
 
             needResources -= resource.Item.Resource;
           }
@@ -232,6 +243,21 @@ namespace SangokuKmy.Models.Commands
               }
             }
           }
+        }
+      }
+
+
+      async Task SpendResourceAsync(CharacterItem item, CharacterItemInfo info, ushort newResource)
+      {
+        item.Resource = newResource;
+        if (item.Resource <= 0)
+        {
+          await ItemService.SpendCharacterAsync(repo, item, character);
+          await game.CharacterLogAsync($"アイテム {info.Name} はすべての資源を使い果たし、消滅しました");
+        }
+        else
+        {
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), character.Id);
         }
       }
     }
