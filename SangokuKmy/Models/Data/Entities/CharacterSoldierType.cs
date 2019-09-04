@@ -240,7 +240,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "弓兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 3,
+          BaseAttack = 0,
           BaseDefend = 1,
           TypeCrossbow = 10,
           StrongEx = 1,
