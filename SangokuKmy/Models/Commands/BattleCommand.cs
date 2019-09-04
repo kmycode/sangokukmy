@@ -327,8 +327,8 @@ namespace SangokuKmy.Models.Commands
       {
         continuousTurns = i;
 
-        var targetDamage = Math.Min(Math.Max(RandomService.Next(myAttack + 1), 1), targetCharacter.SoldierNumber);
-        var myDamage = Math.Min(Math.Max(RandomService.Next(targetAttack + 1), 1), character.SoldierNumber);
+        var targetDamage = Math.Max(RandomService.Next(myAttack + 1), 1);
+        var myDamage = Math.Max(RandomService.Next(targetAttack + 1), 1);
 
         // 突撃
         var isMyRush = false;
@@ -345,6 +345,10 @@ namespace SangokuKmy.Models.Commands
           myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 3);
           isTargetRush = true;
         }
+
+        // 兵士数がマイナスにならないようにする
+        targetDamage = Math.Min(targetDamage, targetCharacter.SoldierNumber);
+        myDamage = Math.Min(myDamage, character.SoldierNumber);
 
         var myFormationExperienceTmp = 0.0f;
         var targetFormationExperienceTmp = 0.0f;
