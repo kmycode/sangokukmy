@@ -70,6 +70,11 @@ namespace SangokuKmy.Models.Data.Entities
     Merchant3 = 13,
     Merchant4 = 14,
     Merchant5 = 15,
+    Engineer1 = 16,
+    Engineer2 = 17,
+    Engineer3 = 18,
+    Engineer4 = 19,
+    Engineer5 = 20,
   }
 
   public enum CharacterSkillEffectType
@@ -373,6 +378,89 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.RiceBuyMax,
             Value = 3000,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Engineer1,
+        RequestedPoint = 0,
+        Name = "技師 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 30,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Engineer2,
+        RequestedPoint = 8,
+        Name = "技師 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EquippedGoodGeki,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EquippedGoodHorse,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Engineer3,
+        RequestedPoint = 9,
+        Name = "技師 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EquippedRepeatingCrossbow,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Engineer4,
+        RequestedPoint = 11,
+        Name = "技師 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.ItemMax,
+            Value = 3,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Engineer5,
+        RequestedPoint = 12,
+        Name = "技師 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EquippedSeishuYari,
           },
         },
       },
