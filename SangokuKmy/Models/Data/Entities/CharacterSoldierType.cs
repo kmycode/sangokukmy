@@ -370,6 +370,26 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterSoldierTypePart
       {
+        Preset = SoldierType.Seishu,
+        Name = "青洲兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 9,
+          BaseDefend = 7,
+          TypeInfantry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+          RushProbability = 100,
+          RushAttack = 50,
+          ContinuousProbability = 40,
+        },
+        Money = 25,
+        Technology = 900,
+        CanConscript = true,
+        CanConscriptWithoutResource = false,
+      },
+      new CharacterSoldierTypePart
+      {
         Preset = SoldierType.StrongGuards,
         Name = "壁守兵",
         Data = new CharacterSoldierTypeData

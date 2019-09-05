@@ -573,6 +573,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     Military = 25,
 
+    /// <summary>
+    /// 青洲兵
+    /// </summary>
+    Seishu = 26,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,
