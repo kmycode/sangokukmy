@@ -424,6 +424,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 商人
     /// </summary>
     Merchant = 3,
+
+    /// <summary>
+    /// 技師
+    /// </summary>
+    Engineer = 4,
   }
 
   public enum CharacterType

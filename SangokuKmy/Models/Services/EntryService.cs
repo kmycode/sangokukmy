@@ -99,6 +99,12 @@ namespace SangokuKmy.Models.Services
         skills.Add(CharacterSkillType.Merchant1);
         chara.Money += 20000;
       }
+      else if (chara.From == CharacterFrom.Engineer)
+      {
+        skills.Add(CharacterSkillType.Engineer1);
+        chara.Strong += 10;
+        chara.Money += 10000;
+      }
       else
       {
         ErrorCode.InvalidParameterError.Throw();
