@@ -109,5 +109,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<CharacterItem> From(CharacterItem data) => From(36, data);
     public static ApiArrayData<CharacterItem> From(IEnumerable<CharacterItem> data) => From(36, data);
     public static ApiData<CharacterSkill> From(CharacterSkill data) => From(37, data);
+    public static ApiData<CommandMessage> From(CommandMessage data) => From(38, data);
+    public static ApiArrayData<CommandMessage> From(IEnumerable<CommandMessage> data) => From(38, data);
   }
 }

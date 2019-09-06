@@ -177,6 +177,46 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("commands/comments")]
+    public async Task SetCommandCommentsAsync(
+      [FromBody] IReadOnlyList<CommandMessage> comments)
+    {
+      if (!comments.Any())
+      {
+        ErrorCode.LackOfParameterError.Throw();
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var system = await repo.System.GetAsync();
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(chara.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
+        if (myPost == null || !myPost.Type.CanCommandComment())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        foreach (var comment in comments)
+        {
+          comment.CountryId = chara.CountryId;
+        }
+
+        await repo.CharacterCommand.SetMessagesAsync(comments);
+        await repo.SaveChangesAsync();
+      }
+
+      foreach (var comment in comments)
+      {
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(comment), comment.CountryId);
+      }
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(new ApiSignal
+      {
+        Type = SignalType.CommandCommentUpdated,
+      }), comments[0].CountryId);
+    }
+
+    [AuthenticationFilter]
     [HttpGet("icons")]
     public async Task<ApiArrayData<CharacterIcon>> GetCharacterAllIconsAsync()
     {
