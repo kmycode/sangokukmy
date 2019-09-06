@@ -203,6 +203,18 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public void RemoveOldMessages(GameDateTime before)
+    {
+      try
+      {
+        this.container.Context.CommandMessages.RemoveRange(this.container.Context.CommandMessages.Where(m => m.IntGameDateTime <= before.ToInt()));
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     public async Task SetMessagesAsync(IEnumerable<CommandMessage> messages)
     {
       try

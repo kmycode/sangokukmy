@@ -202,6 +202,7 @@ namespace SangokuKmy.Controllers
           comment.CountryId = chara.CountryId;
         }
 
+        repo.CharacterCommand.RemoveOldMessages(system.GameDateTime);
         await repo.CharacterCommand.SetMessagesAsync(comments);
         await repo.SaveChangesAsync();
       }
