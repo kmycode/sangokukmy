@@ -1120,6 +1120,16 @@ namespace SangokuKmy.Controllers
             }
           }
         }
+        else
+        {
+          // 他国同士の戦争には介入できない
+          var wars = (await repo.CountryDiplomacies.GetAllWarsAsync())
+            .Where(w => w.RequestedCountryId == targetCountry.Id || w.InsistedCountryId == targetCountry.Id);
+          if (wars.Any(w => w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting))
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+        }
 
         var olds = (await repo.CountryDiplomacies.GetAllTownWarsAsync())
           .Where(o => o.RequestedCountryId == country.Id);
