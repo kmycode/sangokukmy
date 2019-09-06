@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
 using SangokuKmy.Common;
+using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Entities
@@ -68,6 +69,24 @@ namespace SangokuKmy.Models.Data.Entities
     {
       get => (short)this.AiType;
       set => this.AiType = (CharacterAiType)value;
+    }
+
+    /// <summary>
+    /// 出身
+    /// </summary>
+    [Column("from")]
+    [JsonIgnore]
+    public CharacterFrom From { get; set; }
+
+    /// <summary>
+    /// 出身（API用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("from")]
+    public short ApiFrom
+    {
+      get => (short)this.From;
+      set => this.From = (CharacterFrom)value;
     }
 
     /// <summary>
@@ -219,6 +238,13 @@ namespace SangokuKmy.Models.Data.Entities
     public int Class { get; set; }
 
     /// <summary>
+    /// 階級
+    /// </summary>
+    [NotMapped]
+    [JsonIgnore]
+    public int Lank => Math.Min(Config.LankCount - 1, this.Class / Config.NextLank);
+
+    /// <summary>
     /// 削除ターン
     /// </summary>
     [Column("delete_turn")]
@@ -285,6 +311,10 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("formation_point")]
     [JsonProperty("formationPoint")]
     public int FormationPoint { get; set; }
+
+    [Column("skill_point")]
+    [JsonProperty("skillPoint")]
+    public int SkillPoint { get; set; }
 
     #endregion
 
@@ -374,6 +404,31 @@ namespace SangokuKmy.Models.Data.Entities
 
       return hashText;
     }
+  }
+
+  public enum CharacterFrom
+  {
+    Unknown = 0,
+
+    /// <summary>
+    /// 武家
+    /// </summary>
+    Warrior = 1,
+
+    /// <summary>
+    /// 文官
+    /// </summary>
+    Civilian = 2,
+
+    /// <summary>
+    /// 商人
+    /// </summary>
+    Merchant = 3,
+
+    /// <summary>
+    /// 技師
+    /// </summary>
+    Engineer = 4,
   }
 
   public enum CharacterType
@@ -522,6 +577,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 義勇兵
     /// </summary>
     Military = 25,
+
+    /// <summary>
+    /// 青洲兵
+    /// </summary>
+    Seishu = 26,
 
     Guard_Step1 = 100,
 

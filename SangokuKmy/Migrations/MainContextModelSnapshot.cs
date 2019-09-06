@@ -14,7 +14,7 @@ namespace SangokuKmy.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.1.8-servicing-32085")
+                .HasAnnotation("ProductVersion", "2.1.11-servicing-32099")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.AiActionHistory", b =>
@@ -214,11 +214,17 @@ namespace SangokuKmy.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id");
 
+                    b.Property<int>("AttackerAttackPower")
+                        .HasColumnName("attacker_attack_power");
+
                     b.Property<uint>("AttackerCacheId")
                         .HasColumnName("attacker_cache_id");
 
                     b.Property<uint>("AttackerCharacterId")
                         .HasColumnName("attacker_character_id");
+
+                    b.Property<int>("DefenderAttackPower")
+                        .HasColumnName("defender_attack_power");
 
                     b.Property<uint>("DefenderCacheId")
                         .HasColumnName("defender_cache_id");
@@ -261,6 +267,12 @@ namespace SangokuKmy.Migrations
                     b.Property<short>("DefenderNumber")
                         .HasColumnName("defender_number");
 
+                    b.Property<bool>("IsAttackerRush")
+                        .HasColumnName("is_attacker_rush");
+
+                    b.Property<bool>("IsDefenderRush")
+                        .HasColumnName("is_defender_rush");
+
                     b.Property<short>("Turn")
                         .HasColumnName("turn");
 
@@ -302,6 +314,9 @@ namespace SangokuKmy.Migrations
 
                     b.Property<short>("FormationType")
                         .HasColumnName("formation_type");
+
+                    b.Property<int>("From")
+                        .HasColumnName("from");
 
                     b.Property<bool>("HasRemoved")
                         .HasColumnName("has_removed");
@@ -349,6 +364,9 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("Rice")
                         .HasColumnName("rice");
+
+                    b.Property<int>("SkillPoint")
+                        .HasColumnName("skill_point");
 
                     b.Property<int>("SoldierNumber")
                         .HasColumnName("soldier_number");
@@ -439,6 +457,35 @@ namespace SangokuKmy.Migrations
                     b.ToTable("character_icons");
                 });
 
+            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CharacterItem", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id");
+
+                    b.Property<uint>("CharacterId")
+                        .HasColumnName("character_id");
+
+                    b.Property<int>("IntLastStatusChangedGameDate")
+                        .HasColumnName("last_status_changed_game_date");
+
+                    b.Property<ushort>("Resource")
+                        .HasColumnName("resource");
+
+                    b.Property<short>("Status")
+                        .HasColumnName("status");
+
+                    b.Property<uint>("TownId")
+                        .HasColumnName("town_id");
+
+                    b.Property<short>("Type")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("character_items");
+                });
+
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CharacterLog", b =>
                 {
                     b.Property<uint>("Id")
@@ -460,6 +507,26 @@ namespace SangokuKmy.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("character_logs");
+                });
+
+            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CharacterSkill", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id");
+
+                    b.Property<uint>("CharacterId")
+                        .HasColumnName("character_id");
+
+                    b.Property<short>("Status")
+                        .HasColumnName("status");
+
+                    b.Property<short>("Type")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("character_skills");
                 });
 
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CharacterSoldierType", b =>
@@ -634,6 +701,9 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("SafeMoney")
                         .HasColumnName("safe_money");
+
+                    b.Property<uint>("SuzerainCountryId")
+                        .HasColumnName("suzerain_country_id");
 
                     b.HasKey("Id");
 
@@ -930,6 +1000,38 @@ namespace SangokuKmy.Migrations
                     );
                 });
 
+            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.DelayEffect", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id");
+
+                    b.Property<uint>("CharacterId")
+                        .HasColumnName("character_id");
+
+                    b.Property<uint>("CountryId")
+                        .HasColumnName("country_id");
+
+                    b.Property<int>("IntAppearGameDateTime")
+                        .HasColumnName("appear_game_date_time");
+
+                    b.Property<uint>("TownId")
+                        .HasColumnName("town_id");
+
+                    b.Property<short>("Type")
+                        .HasColumnName("type");
+
+                    b.Property<int>("TypeData")
+                        .HasColumnName("type_data");
+
+                    b.Property<int>("TypeData2")
+                        .HasColumnName("type_data2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("delay_effects");
+                });
+
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.EntryHost", b =>
                 {
                     b.Property<uint>("Id")
@@ -1212,6 +1314,9 @@ namespace SangokuKmy.Migrations
 
                     b.Property<short>("FormationType")
                         .HasColumnName("formation_type");
+
+                    b.Property<int>("From")
+                        .HasColumnName("from");
 
                     b.Property<uint>("IconId")
                         .HasColumnName("icon_id");

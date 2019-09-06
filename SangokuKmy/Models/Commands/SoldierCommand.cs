@@ -8,6 +8,9 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Common;
+using SangokuKmy.Models.Services;
+using SangokuKmy.Streamings;
+using System.Collections;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -24,6 +27,9 @@ namespace SangokuKmy.Models.Commands
       var soldierTypeOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
       var soldierNumberOptional = options.FirstOrDefault(p => p.Type == 2).ToOptional();
       var isDefaultSoldierTypeOptional = options.FirstOrDefault(p => p.Type == 3).ToOptional();
+      var skills = await repo.Character.GetSkillsAsync(character.Id);
+      var items = await repo.Character.GetItemsAsync(character.Id);
+      var onSucceeds = new List<Func<Task>>();
 
       if (!townOptional.HasData)
       {
@@ -43,6 +49,7 @@ namespace SangokuKmy.Models.Commands
         var soldierTypeName = string.Empty;
         var soldierType = (SoldierType)soldierTypeOptional.Data.NumberValue;
         var isDefaultSoldierType = isDefaultSoldierTypeOptional.Data.NumberValue == 0;
+        var soldierNumber = soldierNumberOptional.Data.NumberValue;
 
         CharacterSoldierTypeData soldierTypeData = null;
         if (isDefaultSoldierType)
@@ -55,8 +62,30 @@ namespace SangokuKmy.Models.Commands
           }
           if (!type.CanConscript && character.AiType == CharacterAiType.Human)
           {
-            await game.CharacterLogAsync($"{type.Name} を徴兵しようとしましたが、現在徴兵することはできません");
+            await game.CharacterLogAsync($"{type.Name} を徴兵しようとしましたが、その兵種を人間が徴兵することはできません");
             return;
+          }
+          if (!type.CanConscriptWithoutResource && character.AiType == CharacterAiType.Human)
+          {
+            // 資源による徴兵可能判定
+            var resources = items.GetResources(CharacterItemEffectType.AddSoldierType, ef => ef.Value == (int)soldierType, (int)soldierNumber);
+            var needResources = (int)soldierNumber;
+            foreach (var resource in resources)
+            {
+              var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+              onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
+
+              needResources -= resource.Item.Resource;
+            }
+
+            if (needResources == soldierNumber)
+            {
+              await game.CharacterLogAsync($"{type.Name} を徴兵しようとしましたが、資源が必要なため徴兵できませんでした");
+              return;
+            }
+
+            // needResourcesは負になることもある。資源が足りなかった時は徴兵数を資源にそろえる
+            soldierNumber -= Math.Max(needResources, 0);
           }
           soldierTypeName = type.Name;
           soldierTypeData = DefaultCharacterSoldierTypeParts.GetDataByDefault(soldierType);
@@ -83,27 +112,34 @@ namespace SangokuKmy.Models.Commands
         }
 
         var moneyPerSoldier = soldierTypeData.Money;
-        if (isDefaultSoldierType && soldierType == SoldierType.Seiran)
-        {
-          var policies = await repo.Country.GetPoliciesAsync(character.CountryId);
-          if (policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.Siege))
-          {
-            moneyPerSoldier -= 50;
-          }
-        }
-
-        var soldierNumber = soldierNumberOptional.Data.NumberValue;
-        if (town.CountryId != character.CountryId)
-        {
-          await game.CharacterLogAsync("<town>" + town.Name + "</town>は自国の都市ではありません");
-        }
-        else if (soldierNumber == null)
+        var discountMoney = 0;
+        if (soldierNumber == null)
         {
           await game.CharacterLogAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
         }
-        else if (character.Money < moneyPerSoldier * soldierNumber)
+
+        if (isDefaultSoldierType)
         {
-          await game.CharacterLogAsync("所持金が足りません。");
+          var policies = (await repo.Country.GetPoliciesAsync(character.CountryId)).GetAvailableTypes();
+          if (soldierType == SoldierType.Seiran)
+          {
+            if (policies.Contains(CountryPolicyType.Siege))
+            {
+              moneyPerSoldier -= 50;
+            }
+          }
+          else if (soldierType == SoldierType.HeavyCavalry)
+          {
+            if (policies.Contains(CountryPolicyType.GetTerrorists))
+            {
+              moneyPerSoldier /= 2;
+            }
+          }
+        }
+
+        if (town.CountryId != character.CountryId)
+        {
+          await game.CharacterLogAsync("<town>" + town.Name + "</town> は自国の都市ではありません");
         }
         else if (town.People < soldierNumber * Config.SoldierPeopleCost)
         {
@@ -149,24 +185,79 @@ namespace SangokuKmy.Models.Commands
             character.SoldierNumber = add;
           }
 
-          character.Proficiency -= (short)add;
-          if (character.Proficiency < 0)
+          // 資源による割引
+          var resources = items.GetResources(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), (int)soldierNumber);
+          var needResources = (int)soldierNumber;
+          foreach (var resource in resources)
           {
-            character.Proficiency = 0;
-          }
-          character.SoldierType = soldierType;
-          if (!isDefaultSoldierType)
-          {
-            character.SoldierType = SoldierType.Custom;
-            character.CharacterSoldierTypeId = (uint)soldierType;
-          }
-          character.Contribution += 10;
-          character.Money -= add * moneyPerSoldier;
-          town.People -= (int)(add * Config.SoldierPeopleCost);
-          town.Security -= (short)(add / 10);
+            discountMoney += (int)(Math.Min(resource.Item.Resource, needResources) * moneyPerSoldier * (resource.Effect.Value / 100.0f));
 
-          await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");
-          character.AddStrongEx(50);
+            var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+            onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
+
+            needResources -= resource.Item.Resource;
+          }
+
+          var needMoney = add * moneyPerSoldier - discountMoney;
+          var discount = skills.GetSumOfValues(CharacterSkillEffectType.SoldierDiscountPercentage);
+          needMoney = (int)(needMoney * (1.0f - discount / 100.0f));
+
+          if (character.Money < needMoney)
+          {
+            await game.CharacterLogAsync("所持金が足りません。");
+          }
+          else
+          {
+            character.Proficiency -= (short)add;
+            if (character.Proficiency < 0)
+            {
+              character.Proficiency = 0;
+            }
+            character.SoldierType = soldierType;
+            if (!isDefaultSoldierType)
+            {
+              character.SoldierType = SoldierType.Custom;
+              character.CharacterSoldierTypeId = (uint)soldierType;
+            }
+            character.Contribution += 10;
+            character.Money -= (short)needMoney;
+            town.People -= (int)(add * Config.SoldierPeopleCost);
+            town.Security -= (short)(add / 10);
+
+            await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");
+            character.AddLeadershipEx(50);
+
+            foreach (var onSucceed in onSucceeds)
+            {
+              await onSucceed();
+            }
+
+            var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+            if (wars.Any(w => (w.InsistedCountryId == character.CountryId || w.RequestedCountryId == character.CountryId) && (w.Status != CountryWarStatus.None && w.Status != CountryWarStatus.Stoped)) &&
+              RandomService.Next(0, 128) == 0)
+            {
+              var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
+              if (info.HasData)
+              {
+                await game.CharacterLogAsync($"<town>{town.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
+              }
+            }
+          }
+        }
+      }
+
+
+      async Task SpendResourceAsync(CharacterItem item, CharacterItemInfo info, ushort newResource)
+      {
+        item.Resource = newResource;
+        if (item.Resource <= 0)
+        {
+          await ItemService.SpendCharacterAsync(repo, item, character);
+          await game.CharacterLogAsync($"アイテム {info.Name} はすべての資源を使い果たし、消滅しました");
+        }
+        else
+        {
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), character.Id);
         }
       }
     }
@@ -186,7 +277,7 @@ namespace SangokuKmy.Models.Commands
           .ToParts()
           .ToData();
 
-      if (soldierNumber.NumberValue <= 0)
+      if (soldierNumber.NumberValue == null || soldierNumber.NumberValue <= 0)
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }
@@ -206,6 +297,16 @@ namespace SangokuKmy.Models.Commands
             ErrorCode.NotPermissionError.Throw();
           }
         }
+        /*
+        else if (soldierType == SoldierType.RepeatingCrossbow)
+        {
+          var skills = await repo.Character.GetSkillsAsync(chara.Id);
+          if (!CharacterSkillInfoes.AnySkillEffects(skills, CharacterSkillEffectType.SoldierType, (int)SoldierType.RepeatingCrossbow))
+          {
+            ErrorCode.NotSkillError.Throw();
+          }
+        }
+        */
       }
       else
       {

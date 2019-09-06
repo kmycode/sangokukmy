@@ -39,6 +39,7 @@ namespace SangokuKmy.Models.Services
 
       await repo.AuthenticationData.ResetAsync();
       await repo.BattleLog.ResetAsync();
+      await repo.CharacterItem.ResetAsync();
       await repo.CharacterCommand.ResetAsync();
       await repo.CharacterSoldierType.ResetAsync();
       await repo.Character.ResetAsync();
@@ -54,6 +55,7 @@ namespace SangokuKmy.Models.Services
       await repo.Town.ResetAsync();
       await repo.Unit.ResetAsync();
       await repo.Reinforcement.ResetAsync();
+      await repo.DelayEffect.ResetAsync();
 
       // ファイル削除
       try
@@ -68,14 +70,14 @@ namespace SangokuKmy.Models.Services
         // Loggerがない！
       }
 
-      await ResetTownsAsync(repo);
+      await ResetTownsAndSaveAsync(repo);
 
       system.GameDateTime = new GameDateTime
       {
         Year = Config.StartYear,
         Month = Config.StartMonth,
       };
-      system.CurrentMonthStartDateTime = new DateTime(now.Year, now.Month, now.Day, 21, 0, 0, 0);
+      system.CurrentMonthStartDateTime = new DateTime(now.Year, now.Month, now.Day, 20, 0, 0, 0);
       system.IsWaitingReset = false;
       system.IntResetGameDateTime = 0;
       system.TerroristCount = 0;
@@ -116,8 +118,8 @@ namespace SangokuKmy.Models.Services
       system.IsWaitingReset = true;
 
       var currentMonth = system.CurrentMonthStartDateTime;
-      var todayResetHour = new DateTime(currentMonth.Year, currentMonth.Month, currentMonth.Day, 21, 0, 0, 0);
-      var resetHour = todayResetHour.AddDays(currentMonth.Hour < 21 ? 1 : 2);
+      var todayResetHour = new DateTime(currentMonth.Year, currentMonth.Month, currentMonth.Day, 20, 0, 0, 0);
+      var resetHour = todayResetHour.AddDays(currentMonth.Hour < 20 ? 1 : 2);
       var sinceResetTime = resetHour - currentMonth;
       var resetTurn = (int)Math.Round(sinceResetTime.TotalMinutes / 10.0f);
       system.ResetGameDateTime = GameDateTime.FromInt(system.GameDateTime.ToInt() + resetTurn);
@@ -194,9 +196,9 @@ namespace SangokuKmy.Models.Services
       await repo.History.RecordAndSaveAsync(history);
     }
 
-    private static async Task ResetTownsAsync(MainRepository repo)
+    private static async Task ResetTownsAndSaveAsync(MainRepository repo)
     {
-      var initialTowns = MapService.CreateMap(7);
+      var initialTowns = MapService.CreateMap(RandomService.Next(8, 11));
       var towns = new List<Town>();
       foreach (var itown in initialTowns)
       {
@@ -209,6 +211,10 @@ namespace SangokuKmy.Models.Services
       }
 
       await repo.Town.AddTownsAsync(towns);
+      await repo.SaveChangesAsync();
+
+      await ItemService.InitializeItemOnTownsAsync(repo, towns);
+      await repo.SaveChangesAsync();
     }
   }
 }

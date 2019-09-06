@@ -114,25 +114,6 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
-    /// すべての国が指定した国に支配されてるか調べる
-    /// </summary>
-    /// <returns>支配されているか</returns>
-    /// <param name="countryId">国ID</param>
-    public async Task<bool> IsUnifiedAsync(uint countryId)
-    {
-      try
-      {
-        var a = await this.container.Context.Towns.CountAsync(t => t.CountryId == countryId);
-        return await this.container.Context.Towns.AllAsync(t => t.CountryId == countryId);
-      }
-      catch (Exception ex)
-      {
-        this.container.Error(ex);
-        return default;
-      }
-    }
-
-    /// <summary>
     /// 都市IDから武将を取得
     /// </summary>
     /// <param name="townId">都市ID</param>
@@ -312,6 +293,19 @@ namespace SangokuKmy.Models.Data.Repositories
           .ToArrayAsync();
         this.container.Context.TownDefenders.RemoveRange(old);
         return old;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<IReadOnlyList<CharacterItem>> GetItemsAsync(uint townId)
+    {
+      try
+      {
+        return await this.container.Context.CharacterItems.Where(i => (i.Status == CharacterItemStatus.TownOnSale || i.Status == CharacterItemStatus.TownHidden) && i.TownId == townId).ToArrayAsync();
       }
       catch (Exception ex)
       {

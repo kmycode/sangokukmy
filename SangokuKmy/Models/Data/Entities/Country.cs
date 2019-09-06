@@ -124,6 +124,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("policy_point")]
     [JsonProperty("policyPoint")]
     public int PolicyPoint { get; set; }
+
+    /// <summary>
+    /// 宗主国
+    /// </summary>
+    [Column("suzerain_country_id")]
+    [JsonProperty("suzerainCountryId")]
+    public uint SuzerainCountryId { get; set; }
   }
 
   public enum CountryAiType : short
@@ -133,5 +140,7 @@ namespace SangokuKmy.Models.Data.Entities
     Terrorists = 2,
     Thiefs = 3,
     Managed = 4,
+    Puppet = 5,
+    TerroristsEnemy = 6,
   }
 }

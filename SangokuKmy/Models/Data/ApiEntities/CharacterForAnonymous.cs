@@ -65,6 +65,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("reinforcement")]
     public Reinforcement Reinforcement { get; set; }
 
+    [JsonProperty("from")]
+    public CharacterFrom From { get; set; }
+
     [JsonIgnore]
     public DateTime LastUpdated { get; set; }
 
@@ -115,6 +118,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.Leadership = character.Leadership;
       this.Popularity = character.Popularity;
       this.Reinforcement = reinforcement;
+      this.From = character.From;
       this.HasRemoved = character.HasRemoved;
       if (level == CharacterShareLevel.SameCountry || level == CharacterShareLevel.SameTown || level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountryTownOtherCountry)
       {

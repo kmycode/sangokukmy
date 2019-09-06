@@ -49,7 +49,7 @@ namespace SangokuKmy.Models.Commands
           return;
         }
 
-        var formations = await repo.Character.GetCharacterFormationsAsync(character.Id);
+        var formations = await repo.Character.GetFormationsAsync(character.Id);
         if (type != FormationType.Normal && !formations.Any(f => f.Type == type))
         {
           await game.CharacterLogAsync($"陣形 {info.Data.Name} はまだ獲得していません");

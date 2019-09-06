@@ -53,6 +53,8 @@ namespace SangokuKmy.Controllers
       IEnumerable<CountryMessage> countryMessages;
       IEnumerable<CharacterSoldierType> solidierTypes;
       IEnumerable<Formation> formations;
+      IEnumerable<CharacterItem> items;
+      IEnumerable<CharacterSkill> skills;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -70,7 +72,7 @@ namespace SangokuKmy.Controllers
           .Concat(await repo.CountryDiplomacies.GetCountryAllAlliancesAsync(chara.CountryId));
         wars = await repo.CountryDiplomacies.GetAllWarsAsync();
         townWars = await repo.CountryDiplomacies.GetAllTownWarsAsync();
-        policies = await repo.Country.GetPoliciesAsync();
+        policies = await repo.Country.GetPoliciesAsync(country?.Id ?? 0);
         scouters = await repo.Country.GetScoutersAsync(country?.Id ?? 0);
         countryBbsItems = await repo.ThreadBbs.GetCountryBbsByCountryIdAsync(chara.CountryId);
         globalBbsItems = await repo.ThreadBbs.GetGlobalBbsAsync();
@@ -78,7 +80,9 @@ namespace SangokuKmy.Controllers
         countryMessages = await repo.Country.GetMessagesAsync(chara.CountryId);
         solidierTypes = await repo.CharacterSoldierType.GetByCharacterIdAsync(chara.Id);
         defenders = await repo.Town.GetAllDefendersAsync();
-        formations = await repo.Character.GetCharacterFormationsAsync(chara.Id);
+        formations = await repo.Character.GetFormationsAsync(chara.Id);
+        items = await repo.CharacterItem.GetAllAsync();
+        skills = await repo.Character.GetSkillsAsync(chara.Id);
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
@@ -137,6 +141,8 @@ namespace SangokuKmy.Controllers
         .Concat(onlines.Select(o => ApiData.From(o)))
         .Concat(countryMessages.Select(c => ApiData.From(c)))
         .Concat(formations.Select(f => ApiData.From(f)))
+        .Concat(items.Select(i => ApiData.From(i)))
+        .Concat(skills.Select(s => ApiData.From(s)))
         .ToList();
       sendData.Add(ApiData.From(new ApiSignal
       {

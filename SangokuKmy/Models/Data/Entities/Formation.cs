@@ -44,6 +44,16 @@ namespace SangokuKmy.Models.Data.Entities
   public enum FormationType : short
   {
     Normal = 0,
+    Gyorin = 1,
+    Hoshi = 2,
+    Suiko = 3,
+  }
+
+  public class FormationTypeLevelInfo
+  {
+    public CharacterSoldierTypeData Data { get; set; }
+
+    public int NextLevel { get; set; }
   }
 
   public class FormationTypeInfo
@@ -52,25 +62,23 @@ namespace SangokuKmy.Models.Data.Entities
 
     public string Name { get; set; }
 
-    public List<CharacterSoldierTypeData> Data { get; set; }
+    public List<FormationTypeLevelInfo> Levels { get; set; }
 
     public int RequiredPoint { get; set; }
 
-    public int NextLevel { get; set; }
-
-    public Func<IEnumerable<FormationType>, bool> SubjectAppear { get; set; }
+    public Func<IEnumerable<Formation>, bool> SubjectAppear { get; set; }
 
     public bool CanGetByCommand { get; set; } = true;
 
     public CharacterSoldierTypeData GetDataFromLevel(int level)
     {
-      if (this.Data.Count > level - 1)
+      if (this.Levels.Count > level - 1)
       {
-        return this.Data[level - 1];
+        return this.Levels[level - 1].Data;
       }
       else
       {
-        return this.Data[this.Data.Count - 1];
+        return this.Levels[this.Levels.Count - 1].Data;
       }
     }
 
@@ -81,19 +89,20 @@ namespace SangokuKmy.Models.Data.Entities
         return false;
       }
 
-      if (formation.Level >= this.Data.Count)
+      if (formation.Level >= this.Levels.Count)
       {
-        formation.Experience = this.NextLevel;
+        formation.Experience = 0;
         return false;
       }
 
-      if (formation.Experience >= this.NextLevel)
+      var nextLevel = this.Levels[formation.Level - 1].NextLevel;
+      if (formation.Experience >= nextLevel)
       {
-        formation.Experience -= this.NextLevel;
+        formation.Experience -= nextLevel;
         formation.Level++;
-        if (formation.Level >= this.Data.Count)
+        if (formation.Level >= this.Levels.Count)
         {
-          formation.Experience = this.NextLevel;
+          formation.Experience = 0;
         }
         return true;
       }
@@ -110,20 +119,235 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = FormationType.Normal,
         Name = "通常",
-        Data = new List<CharacterSoldierTypeData>
+        Levels = new List<FormationTypeLevelInfo>
         {
-          new CharacterSoldierTypeData
+          new FormationTypeLevelInfo
           {
+            Data = new CharacterSoldierTypeData
+            {
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              BaseAttack = 4,
+            },
+            NextLevel = 3000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              BaseAttack = 8,
+            },
+            NextLevel = 6000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              BaseAttack = 16,
+            },
+            NextLevel = 10000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              BaseAttack = 32,
+            },
+            NextLevel = 10000,
           },
         },
         RequiredPoint = 0,
-        NextLevel = 1000,
       },
+      /*
+      new FormationTypeInfo
+      {
+        Type = FormationType.Gyorin,
+        Name = "魚鱗",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeInfantryAttack = 10,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeInfantryAttack = 19,
+            },
+            NextLevel = 3000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeInfantryAttack = 27,
+              CavalryAttack = 8,
+            },
+            NextLevel = 6000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeInfantryAttack = 34,
+              CavalryAttack = 8,
+              RushProbability = 100,
+              RushAttack = 35,
+            },
+            NextLevel = 10000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeInfantryAttack = 40,
+              CavalryAttack = 20,
+              RushProbability = 300,
+              RushAttack = 85,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
+      },
+      new FormationTypeInfo
+      {
+        Type = FormationType.Hoshi,
+        Name = "蜂矢",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCavalryAttack = 10,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCavalryAttack = 19,
+            },
+            NextLevel = 3000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCavalryAttack = 27,
+              CrossbowAttack = 8,
+            },
+            NextLevel = 6000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCavalryAttack = 34,
+              CrossbowAttack = 8,
+              RushProbability = 100,
+              RushAttack = 35,
+            },
+            NextLevel = 10000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCavalryAttack = 40,
+              CrossbowAttack = 20,
+              RushProbability = 300,
+              RushAttack = 85,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
+      },
+      new FormationTypeInfo
+      {
+        Type = FormationType.Suiko,
+        Name = "錐行",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCrossbowAttack = 10,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCrossbowAttack = 19,
+            },
+            NextLevel = 3000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCrossbowAttack = 27,
+              InfantryAttack = 8,
+            },
+            NextLevel = 6000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCrossbowAttack = 34,
+              InfantryAttack = 8,
+              RushProbability = 100,
+              RushAttack = 35,
+            },
+            NextLevel = 10000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              TypeCrossbowAttack = 40,
+              InfantryAttack = 20,
+              RushProbability = 300,
+              RushAttack = 85,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
+      },
+      */
     };
 
     public static Optional<FormationTypeInfo> Get(FormationType type)
     {
       return items.FirstOrDefault(t => t.Type == type).ToOptional();
+    }
+
+    public static IEnumerable<FormationTypeInfo> GetAll()
+    {
+      return items;
+    }
+
+    public static IEnumerable<FormationTypeInfo> GetAllGettables(IEnumerable<Formation> alreadys)
+    {
+      return items.Where(t => t.SubjectAppear == null || t.SubjectAppear(alreadys));
     }
   }
 }

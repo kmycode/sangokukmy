@@ -6,6 +6,7 @@ using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Services
 {
@@ -43,7 +44,7 @@ namespace SangokuKmy.Models.Services
         message.CharacterIcon = icon;
       }
 
-      if (message.Type == ChatMessageType.Private || message.Type == ChatMessageType.Promotion || message.Type == ChatMessageType.PromotionRefused || message.Type == ChatMessageType.PromotionAccepted)
+      if (message.Type == ChatMessageType.Private || message.Type == ChatMessageType.Promotion || message.Type == ChatMessageType.PromotionRefused || message.Type == ChatMessageType.PromotionAccepted || message.Type == ChatMessageType.PromotionDenied)
       {
         var receiver = await repo.Character.GetByIdAsync(message.TypeData2).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
         message.ReceiverName = receiver.Name;
@@ -56,6 +57,17 @@ namespace SangokuKmy.Models.Services
 
       await repo.ChatMessage.AddMessageAsync(message);
       return message;
+    }
+
+    public static async Task DenyCountryPromotions(MainRepository repo, Country country)
+    {
+      var promotions = (await repo.ChatMessage.GetPromotionMessagesAsync(country.Id)).Where(p => p.Type == ChatMessageType.Promotion);
+      foreach (var p in promotions)
+      {
+        p.Type = ChatMessageType.PromotionDenied;
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(p), p.TypeData);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(p), p.TypeData2);
+      }
     }
   }
 }

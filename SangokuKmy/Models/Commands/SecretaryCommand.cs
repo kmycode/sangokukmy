@@ -121,6 +121,7 @@ namespace SangokuKmy.Models.Commands
         }, ai.Character.Id);
       }
 
+      ai.Character.Name += ai.Character.Id;
       character.Contribution += 30;
       character.AddLeadershipEx(50);
       await game.CharacterLogAsync($"政務官 <character>{ai.Character.Name}</character> を雇いました");

@@ -178,7 +178,6 @@ namespace SangokuKmy.Models.Commands
         myFormation = FormationTypeInfoes.Get(FormationType.Normal).Data;
       }
       var myFormationData = await repo.Character.GetFormationAsync(character.Id, character.FormationType);
-      mySoldierType.Append(myFormation.GetDataFromLevel(myFormationData.Level));
       var attackerCache = character.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(character.Id)).GetMainOrFirst().Data ?? new CharacterIcon(), myFormationData);
       CharacterSoldierTypeData targetSoldierType = null;
       var canContinuous = false;
@@ -187,13 +186,17 @@ namespace SangokuKmy.Models.Commands
       var myAttackSoldierTypeCorrection = 0;
       var myDefenceSoldierTypeCorrection = 0;
       var myExperience = 50;
+      var myFormationExperience = 0.0f;
       var myContribution = 20;
+      var mySkills = await repo.Character.GetSkillsAsync(character.Id);
       var targetAttackCorrection = 0;
       var targetDefenceCorrection = 0;
       var targetAttackSoldierTypeCorrection = 0;
       var targetDefenceSoldierTypeCorrection = 0;
       var targetExperience = 50;
+      var targetFormationExperience = 0.0f;
       var targetContribution = 0;
+      IReadOnlyList<CharacterSkill> targetSkills = Enumerable.Empty<CharacterSkill>().ToArray();
       character.Rice -= character.SoldierNumber * myRicePerSoldier;
       var aiLog = new AiBattleHistory
       {
@@ -205,58 +208,24 @@ namespace SangokuKmy.Models.Commands
         AttackerSoldiersMoney = mySoldierType.Money * character.SoldierNumber,
       };
 
+      mySoldierType
+        .Append(myFormation.GetDataFromLevel(myFormationData.Level))
+        .Append(mySkills.GetSoldierTypeData());
+
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
       {
         var myPost = myPostOptional.Data;
-        if (myPost.Type == CountryPostType.BowmanGeneral)
-        {
-          if (character.SoldierType == SoldierType.Archer ||
-              character.SoldierType == SoldierType.StrongCrossbow ||
-              character.SoldierType == SoldierType.RepeatingCrossbow)
-          {
-            myAttackCorrection += 10;
-          }
-        }
-        else if (myPost.Type == CountryPostType.CavalryGeneral)
-        {
-          if (character.SoldierType == SoldierType.HeavyCavalry ||
-              character.SoldierType == SoldierType.LightCavalry)
-          {
-            myAttackCorrection += 10;
-          }
-        }
-        else if (myPost.Type == CountryPostType.GuardGeneral)
-        {
-          if (character.SoldierType == SoldierType.Guard)
-          {
-            myAttackCorrection += 10;
-          }
-        }
-        else if (myPost.Type == CountryPostType.GrandGeneral)
-        {
-          myAttackCorrection += 10;
-        }
-        else if (myPost.Type == CountryPostType.General)
-        {
-          if (character.SoldierType == SoldierType.Common ||
-              character.SoldierType == SoldierType.LightInfantry ||
-              character.SoldierType == SoldierType.HeavyInfantry)
-          {
-            myAttackCorrection += 10;
-          }
-        }
-        else if (myPost.Type == CountryPostType.Monarch)
-        {
-          myAttackCorrection += 20;
-        }
+        var postCorrections = mySoldierType.CalcPostCorrections(myPost.Type);
+        myAttackCorrection += postCorrections.AttackCorrection;
+        myDefenceCorrection += postCorrections.DefendCorrection;
       }
 
       Character targetCharacter;
       Formation targetFormationData;
       FormationTypeInfo targetFormation;
       bool isWall;
-      var trendStrong = (short)Math.Max((int)((game.GameDateTime.ToInt() - Config.StartYear * 12 - Config.CountryBattleStopDuring) * 0.67f / 12), 20);
+      var trendStrong = (short)Math.Max((int)((game.GameDateTime.ToInt() - Config.StartYear * 12 - Config.CountryBattleStopDuring) * 0.94f / 12), 20);
       var defenders = await repo.Town.GetDefendersAsync(targetTown.Id);
       LogCharacterCache defenderCache = null;
       if (defenders.Any())
@@ -293,6 +262,9 @@ namespace SangokuKmy.Models.Commands
         targetSoldierType.Append(targetFormation.GetDataFromLevel(targetFormationData.Level));
         defenderCache = targetCharacter.ToLogCache((await repo.Character.GetCharacterAllIconsAsync(targetCharacter.Id)).GetMainOrFirst().Data ?? new CharacterIcon(), targetFormationData);
 
+        targetSkills = await repo.Character.GetSkillsAsync(targetCharacter.Id);
+        targetSoldierType.Append(targetSkills.GetSoldierTypeData());
+
         isWall = false;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
       }
@@ -307,10 +279,10 @@ namespace SangokuKmy.Models.Commands
 
         var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).GetAvailableTypes();
 
-        targetCharacter.SoldierType = policies.Contains(CountryPolicyType.StoneCastle) ? SoldierType.Guard_Step4 :
-                            policies.Contains(CountryPolicyType.Earthwork) ? SoldierType.Guard_Step3 :
-                            policies.Contains(CountryPolicyType.AttackDefend) ? SoldierType.Guard_Step2 :
-                            SoldierType.Guard_Step1;
+        targetCharacter.SoldierType = targetTown.Technology >= 999 ? SoldierType.Guard_Step4 :
+          targetTown.Technology >= 600 ? SoldierType.Guard_Step3 :
+          targetTown.Technology >= 300 ? SoldierType.Guard_Step2 :
+          SoldierType.Guard_Step1;
         targetCharacter.Strong = trendStrong;
         targetCharacter.Proficiency = 100;
 
@@ -328,17 +300,17 @@ namespace SangokuKmy.Models.Commands
         var myPolicies = (await repo.Country.GetPoliciesAsync(character.CountryId)).GetAvailableTypes();
         if (myPolicies.Contains(CountryPolicyType.Shosha))
         {
-          myAttackCorrection += 60;
+          myAttackCorrection += Math.Max((int)(60 * ((100 - mySoldierType.TypeAntiWall) / 100.0f)), 0);
         }
       }
 
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");
 
-      var (ka, kd) = mySoldierType.CalcCorrections(character, targetSoldierType);
+      var (ka, kd) = mySoldierType.CalcCorrections(character, mySkills, targetSoldierType);
       myAttackSoldierTypeCorrection = ka;
       myDefenceSoldierTypeCorrection = kd;
 
-      var (ea, ed) = targetSoldierType.CalcCorrections(targetCharacter, mySoldierType);
+      var (ea, ed) = targetSoldierType.CalcCorrections(targetCharacter, targetSkills, mySoldierType);
       targetAttackSoldierTypeCorrection = ea;
       targetDefenceSoldierTypeCorrection = ed;
 
@@ -348,37 +320,56 @@ namespace SangokuKmy.Models.Commands
       var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetCharacter.Proficiency / 2.5f) / 8), 0);
       var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
 
+      log.AttackerAttackPower = myAttack;
+      log.DefenderAttackPower = targetAttack;
+
       for (var i = continuousTurns; i <= 50 && targetCharacter.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
       {
         continuousTurns = i;
 
-        var targetDamage = Math.Min(Math.Max(RandomService.Next(myAttack + 1), 1), targetCharacter.SoldierNumber);
-        var myDamage = Math.Min(Math.Max(RandomService.Next(targetAttack + 1), 1), character.SoldierNumber);
+        var targetDamage = Math.Max(RandomService.Next(myAttack + 1), 1);
+        var myDamage = Math.Max(RandomService.Next(targetAttack + 1), 1);
 
         // 突撃
+        var isMyRush = false;
+        var isTargetRush = false;
         if (mySoldierType.IsRush())
         {
           targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 14), targetCharacter.SoldierNumber);
+          targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 3);
+          isMyRush = true;
         }
         else if (targetSoldierType.IsRush())
         {
           myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack()), 8), character.SoldierNumber);
+          myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 3);
+          isTargetRush = true;
         }
+
+        // 兵士数がマイナスにならないようにする
+        targetDamage = Math.Min(targetDamage, targetCharacter.SoldierNumber);
+        myDamage = Math.Min(myDamage, character.SoldierNumber);
+
+        var myFormationExperienceTmp = 0.0f;
+        var targetFormationExperienceTmp = 0.0f;
 
         character.SoldierNumber -= myDamage;
         if (!isWall)
         {
-          myFormationData.Experience += (int)(targetDamage * 0.42f);
+          myFormationExperienceTmp = targetDamage * 0.42f * Math.Max(targetSoldierType.FakeMoney / 24.0f, 1.0f);
         }
         else
         {
-          myFormationData.Experience += Math.Min((int)(targetDamage * 0.22f), 40);
+          myFormationExperienceTmp = Math.Min((targetDamage * 0.17f), 40.0f);
         }
         targetCharacter.SoldierNumber -= targetDamage;
-        targetFormationData.Experience += (int)(myDamage * 0.39f);
+        targetFormationExperienceTmp = myDamage * 0.39f * Math.Max(mySoldierType.FakeMoney / 24.0f, 1.0f);
 
-        myExperience += (int)(targetDamage * 0.42f);
-        targetExperience += (int)(myDamage * 0.39f);
+        myExperience += (int)(targetDamage * 0.32f);
+        targetExperience += (int)(myDamage * 0.29f);
+
+        myFormationExperience += myFormationExperienceTmp * 0.6f + targetFormationExperienceTmp * 0.4f;
+        targetFormationExperience += targetFormationExperienceTmp * 0.6f + myFormationExperienceTmp * 0.4f;
 
         await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
         if (!isWall)
@@ -393,6 +384,8 @@ namespace SangokuKmy.Models.Commands
           AttackerDamage = (short)myDamage,
           DefenderNumber = (short)targetCharacter.SoldierNumber,
           DefenderDamage = (short)targetDamage,
+          IsAttackerRush = isMyRush,
+          IsDefenderRush = isTargetRush,
         });
       }
 
@@ -474,7 +467,14 @@ namespace SangokuKmy.Models.Commands
             // 連戦
             if (continuousTurns < 50)
             {
-              canContinuous = mySoldierType.CanContinuous();
+              if (logLines.Count() <= 1)
+              {
+                canContinuous = mySoldierType.CanContinuousOnSingleTurn();
+              }
+              if (!canContinuous)
+              {
+                canContinuous = mySoldierType.CanContinuous();
+              }
             }
 
             if (targetCharacter.AiType == CharacterAiType.TerroristRyofu)
@@ -514,6 +514,10 @@ namespace SangokuKmy.Models.Commands
                 {
                   myCountry.PolicyPoint += 2000;
                 }
+                if (targetCountry.AiType == CountryAiType.Terrorists || targetCountry.AiType == CountryAiType.TerroristsEnemy)
+                {
+                  await CountryService.SetPolicyAndSaveAsync(repo, myCountry, CountryPolicyType.GetTerrorists, isCheckSubjects: false);
+                }
                 targetCountry.HasOverthrown = true;
                 targetCountry.OverthrownGameDate = game.GameDateTime;
                 await StatusStreaming.Default.SendAllAsync(ApiData.From(targetCountry));
@@ -540,18 +544,40 @@ namespace SangokuKmy.Models.Commands
                   await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), targetCountryCharacter.Character.Id);
                 }
 
+                // 登用分を無効化
+                await ChatService.DenyCountryPromotions(repo, targetCountry);
+
                 await StatusStreaming.Default.SendCountryAsync(ApiData.From(myCountry), myCountry.Id);
                 StatusStreaming.Default.UpdateCache(targetCountryCharacters);
               }
             }
 
-            if (await repo.Town.IsUnifiedAsync(character.CountryId))
+            var allTowns = await repo.Town.GetAllAsync();
+            var allCountries = await repo.Country.GetAllAsync();
+            var townAiMap = allTowns.Join(allCountries, t => t.CountryId, c => c.Id, (t, c) => new { CountryId = c.Id, c.AiType, });
+            var humanCountry = townAiMap.FirstOrDefault(t => t.AiType != CountryAiType.Terrorists);
+            if (allTowns.All(t => t.CountryId > 0) &&
+              townAiMap.All(t => t.CountryId == humanCountry.CountryId || t.AiType == CountryAiType.Terrorists))
             {
               var system = await repo.System.GetAsync();
               if (!system.IsWaitingReset)
               {
                 await game.MapLogAsync(EventType.Unified, "大陸は、<country>" + myCountry.Name + "</country> によって統一されました", true);
                 await ResetService.RequestResetAsync(repo);
+              }
+            }
+          }
+
+          // アイテム
+          if (RandomService.Next(0, 128) == 0)
+          {
+            var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
+            if (info.HasData)
+            {
+              var town = await repo.Town.GetByIdAsync(character.TownId);
+              if (town.HasData)
+              {
+                await game.CharacterLogAsync($"<town>{town.Data.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
               }
             }
           }
@@ -585,9 +611,13 @@ namespace SangokuKmy.Models.Commands
       }
 
       // 貢献、経験値の設定
+      var myFormationPoint = Math.Max(1, (int)myFormationExperience / 10);
+      myFormationExperience = Math.Max(1, (int)myFormationExperience);
       myContribution += myExperience;
       character.Contribution += (int)(myContribution);
-      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType));
+      character.FormationPoint += myFormationPoint;
+      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType) + $" 陣形ex: <num>{(int)myFormationExperience}</num> 陣形P: <num>{myFormationPoint}</num>");
+      myFormationData.Experience += (int)myFormationExperience;
       if (myFormation.CheckLevelUp(myFormationData))
       {
         await game.CharacterLogAsync($"陣形 {myFormation.Name} のレベルが <num>{myFormationData.Level}</num> に上昇しました");
@@ -595,9 +625,11 @@ namespace SangokuKmy.Models.Commands
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(myFormationData), character.Id);
       if (!isWall)
       {
+        var targetFormationPoint = (int)targetFormationExperience / 10;
         targetContribution += targetExperience;
         targetCharacter.Contribution += (int)(targetContribution);
-        await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType));
+        targetCharacter.FormationPoint += targetFormationPoint;
+        await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType) + $" 陣形ex: <num>{(int)targetFormationExperience}</num> 陣形P: <num>{targetFormationPoint}</num>");
 
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCharacter), targetCharacter.Id);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
@@ -606,6 +638,7 @@ namespace SangokuKmy.Models.Commands
           Data = new { townName = targetTown.Name, targetName = character.Name, isWin = targetCharacter.SoldierNumber > 0, },
         }), targetCharacter.Id);
 
+        targetFormationData.Experience += (int)targetFormationExperience;
         if (targetFormation.CheckLevelUp(targetFormationData))
         {
           await game.CharacterLogByIdAsync(targetCharacter.Id, $"陣形 {targetFormation.Name} のレベルが <num>{targetFormationData.Level}</num> に上昇しました");

@@ -29,6 +29,7 @@ namespace SangokuKmy.Models.Commands
       var type = (RiceCommandType)typeParameter.NumberValue;
       var assets = (int)assetsParameter.NumberValue;
       var result = (int)resultParameter.NumberValue;
+      var skills = await repo.Character.GetSkillsAsync(character.Id);
 
       if (type == RiceCommandType.MoneyToRice)
       {
@@ -53,6 +54,7 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"<num>{assets}</num> の米を <num>{result}</num> の金に交換しました");
       }
 
+      character.Contribution += skills.GetSumOfValues(CharacterSkillEffectType.RiceBuyContribution);
       character.AddIntellectEx(50);
     }
 
@@ -62,8 +64,9 @@ namespace SangokuKmy.Models.Commands
       var town = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { command = "rice", townId = chara.TownId, });
       var type = (RiceCommandType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var assets = (int)options.FirstOrDefault(p => p.Type == 2).Or(ErrorCode.LackOfCommandParameter).NumberValue;
-      
-      if (assets <= 0 || assets > Config.RiceBuyMax)
+      var skills = await repo.Character.GetSkillsAsync(chara.Id);
+
+      if (assets <= 0 || assets > Config.RiceBuyMax + skills.GetSumOfValues(CharacterSkillEffectType.RiceBuyMax))
       {
         ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("assets", assets, 1, Config.RiceBuyMax));
       }

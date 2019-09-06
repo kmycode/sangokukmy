@@ -405,6 +405,22 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 政策を削除する
+    /// </summary>
+    /// <param name="policy">政策</param>
+    public void RemovePolicy(CountryPolicy policy)
+    {
+      try
+      {
+        this.container.Context.CountryPolicies.Remove(policy);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
     /// 政策を取得する
     /// </summary>
     public async Task<IReadOnlyList<CountryPolicy>> GetPoliciesAsync()

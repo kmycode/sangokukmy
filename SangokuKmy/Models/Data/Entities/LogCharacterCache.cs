@@ -117,6 +117,24 @@ namespace SangokuKmy.Models.Data.Entities
     public short FormationLevel { get; set; }
 
     /// <summary>
+    /// 出身
+    /// </summary>
+    [Column("from")]
+    [JsonIgnore]
+    public CharacterFrom From { get; set; }
+
+    /// <summary>
+    /// 出身（API用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("from")]
+    public short ApiFrom
+    {
+      get => (short)this.From;
+      set => this.From = (CharacterFrom)value;
+    }
+
+    /// <summary>
     /// 兵士数
     /// </summary>
     [Column("soldier_number")]
@@ -151,6 +169,7 @@ namespace SangokuKmy.Models.Data.Entities
         FormationType = c.FormationType,
         FormationLevel = formation.Level,
         IconId = icon.Id,
+        From = c.From,
       };
     }
   }

@@ -73,6 +73,10 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("attackerCache")]
     public LogCharacterCache AttackerCache { get; set; }
 
+    [Column("attacker_attack_power")]
+    [JsonProperty("attackerAttackPower")]
+    public int AttackerAttackPower { get; set; }
+
     /// <summary>
     /// 防御側武将データのキャッシュ
     /// </summary>
@@ -83,6 +87,10 @@ namespace SangokuKmy.Models.Data.Entities
     [NotMapped]
     [JsonProperty("defenderCache")]
     public LogCharacterCache DefenderCache { get; set; }
+
+    [Column("defender_attack_power")]
+    [JsonProperty("defenderAttackPower")]
+    public int DefenderAttackPower { get; set; }
 
     /// <summary>
     /// 関連するマップログ

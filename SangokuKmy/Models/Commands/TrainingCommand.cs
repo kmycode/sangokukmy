@@ -7,6 +7,7 @@ using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -63,6 +64,19 @@ namespace SangokuKmy.Models.Commands
         {
           character.Money -= 50;
           await game.CharacterLogAsync(name + "経験値 を <num>+100</num> 強化しました");
+        }
+
+        if (RandomService.Next(0, 700) == 0)
+        {
+          var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
+          if (info.HasData)
+          {
+            var town = await repo.Town.GetByIdAsync(character.TownId);
+            if (town.HasData)
+            {
+              await game.CharacterLogAsync($"<town>{town.Data.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
+            }
+          }
         }
       }
     }

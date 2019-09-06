@@ -61,7 +61,7 @@ namespace SangokuKmy.Models.Services
       }
       var oldStatus = old?.Status ?? CountryPolicyStatus.Unadopted;
 
-      if (country.PolicyPoint < info.Data.GetRequestedPoint(oldStatus))
+      if (status == CountryPolicyStatus.Available && country.PolicyPoint < info.Data.GetRequestedPoint(oldStatus))
       {
         return false;
       }
@@ -79,34 +79,28 @@ namespace SangokuKmy.Models.Services
         Type = type,
         GameDate = system.GameDateTime.Year >= Config.UpdateStartYear ? system.GameDateTime : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, },
       };
-      country.PolicyPoint -= info.Data.GetRequestedPoint(oldStatus);
-      await repo.Country.AddPolicyAsync(param);
-
       if (status == CountryPolicyStatus.Available)
       {
-        var maplog = new MapLog
-        {
-          EventType = EventType.Policy,
-          ApiGameDateTime = system.GameDateTime,
-          Date = DateTime.Now,
-          IsImportant = false,
-          Message = $"<country>{country.Name}</country> は、政策 {info.Data.Name} を採用しました",
-        };
-        await repo.MapLog.AddAsync(maplog);
-        await StatusStreaming.Default.SendAllAsync(ApiData.From(maplog));
-        await AnonymousStreaming.Default.SendAllAsync(ApiData.From(maplog));
+        country.PolicyPoint -= info.Data.GetRequestedPoint(oldStatus);
       }
+      if (old != null)
+      {
+        repo.Country.RemovePolicy(old);
+      }
+      await repo.Country.AddPolicyAsync(param);
 
       await repo.SaveChangesAsync();
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(param));
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(param), country.Id);
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
 
-      if (type == CountryPolicyType.StrongStart &&
-        status == CountryPolicyStatus.Available &&
-        !policies.Any(p => p.Type == CountryPolicyType.IntellectCountry && (p.Status == CountryPolicyStatus.Available || p.Status == CountryPolicyStatus.Boosted)))
+      foreach (CountryPolicyType boostType in info.Data.Effects.Where(e => e.Type == CountryPolicyEffectType.BoostWith).Select(e => e.Value))
       {
-        await SetPolicyAndSaveAsync(repo, country, CountryPolicyType.IntellectCountry, CountryPolicyStatus.Boosted);
+        var boostInfo = CountryPolicyTypeInfoes.Get(boostType);
+        if (boostInfo.HasData)
+        {
+          await SetPolicyAndSaveAsync(repo, country, boostType, CountryPolicyStatus.Boosted);
+        }
       }
 
       return true;
@@ -114,14 +108,12 @@ namespace SangokuKmy.Models.Services
 
     public static int GetSecretaryMax(IEnumerable<CountryPolicyType> policies)
     {
-      return policies.Count(p => p == CountryPolicyType.HumanDevelopment || p == CountryPolicyType.Recruitment);
+      return policies.GetSumOfValues(CountryPolicyEffectType.Secretary);
     }
 
     public static int GetCountrySafeMax(IEnumerable<CountryPolicyType> policies)
     {
-      var count = policies.Count(p => p == CountryPolicyType.Storage || p == CountryPolicyType.UndergroundStorage ||
-                                      p == CountryPolicyType.StomachStorage || p == CountryPolicyType.BloodVesselsStorage);
-      return Config.CountrySafeMax * count;
+      return policies.GetSumOfValues(CountryPolicyEffectType.CountrySafeMax);
     }
   }
 }
