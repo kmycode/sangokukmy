@@ -184,6 +184,8 @@ namespace SangokuKmy.Models.Data.Entities
     public int Technology { get; set; }
 
     public bool CanConscript { get; set; } = true;
+
+    public bool CanConscriptWithoutResource { get; set; } = true;
   }
 
   public static class DefaultCharacterSoldierTypeParts
@@ -224,8 +226,8 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "軽戟兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 3,
-          BaseDefend = 1,
+          BaseAttack = 1,
+          BaseDefend = 0,
           TypeInfantry = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -240,7 +242,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "弓兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 3,
+          BaseAttack = 0,
           BaseDefend = 1,
           TypeCrossbow = 10,
           StrongEx = 1,
@@ -273,8 +275,8 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "強弩兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 4,
-          BaseDefend = 1,
+          BaseAttack = 1,
+          BaseDefend = 3,
           TypeCrossbow = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -304,8 +306,8 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "重戟兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 6,
-          BaseDefend = 4,
+          BaseAttack = 5,
+          BaseDefend = 3,
           TypeInfantry = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -354,7 +356,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "連弩兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 6,
+          BaseAttack = 9,
           BaseDefend = 4,
           TypeCrossbow = 10,
           StrongEx = 1,
@@ -364,6 +366,27 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 20,
         Technology = 800,
         CanConscript = true,
+        CanConscriptWithoutResource = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Seishu,
+        Name = "青洲兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 9,
+          BaseDefend = 7,
+          TypeInfantry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+          RushProbability = 100,
+          RushAttack = 50,
+          ContinuousProbability = 40,
+        },
+        Money = 25,
+        Technology = 900,
+        CanConscript = true,
+        CanConscriptWithoutResource = false,
       },
       new CharacterSoldierTypePart
       {

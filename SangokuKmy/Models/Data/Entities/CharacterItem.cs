@@ -157,6 +157,10 @@ namespace SangokuKmy.Models.Data.Entities
     EquippedHorse = 60,
     Shimingetsurei = 61,
     Rongo = 62,
+    EquippedRepeatingCrossbow = 63,
+    EquippedSeishuYari = 64,
+    EquippedGoodGeki = 65,
+    EquippedGoodHorse = 66,
   }
 
   public enum CharacterItemEffectType
@@ -167,7 +171,8 @@ namespace SangokuKmy.Models.Data.Entities
     Popularity,
     Money,
     TerroristEnemy,
-    DiscountSoldierPercentageWithResource
+    DiscountSoldierPercentageWithResource,
+    AddSoldierType,
   }
 
   public enum CharacterItemRareType
@@ -1227,6 +1232,29 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterItemInfo
       {
+        Type = CharacterItemType.EquippedGoodGeki,
+        Name = "装備良戟",
+        IsResource = true,
+        ResourceLevel = 2,
+        MoneyPerResource = 22,
+        InitializeNumber = 12,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.DiscountSoldierPercentageWithResource,
+            Value = 60,
+            DiscountSoldierTypes = new List<SoldierType>
+            {
+              SoldierType.HeavyInfantry,
+            },
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
         Type = CharacterItemType.EquippedHorse,
         Name = "装備馬",
         IsResource = true,
@@ -1245,6 +1273,67 @@ namespace SangokuKmy.Models.Data.Entities
             {
               SoldierType.HeavyCavalry,
             },
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedGoodHorse,
+        Name = "装備良馬",
+        IsResource = true,
+        ResourceLevel = 2,
+        MoneyPerResource = 22,
+        InitializeNumber = 12,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.DiscountSoldierPercentageWithResource,
+            Value = 60,
+            DiscountSoldierTypes = new List<SoldierType>
+            {
+              SoldierType.HeavyCavalry,
+            },
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedRepeatingCrossbow,
+        Name = "装備連弩",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 20,
+        InitializeNumber = 6,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.RepeatingCrossbow,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedSeishuYari,
+        Name = "青洲槍",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 24,
+        InitializeNumber = 6,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.Seishu,
           },
         },
       },

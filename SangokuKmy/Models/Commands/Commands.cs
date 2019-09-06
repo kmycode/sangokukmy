@@ -51,6 +51,7 @@ namespace SangokuKmy.Models.Commands
       new TownPatrolCommand(),
       new TownInvestCommand(),
       new UseItemCommand(),
+      new GenerateItemCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

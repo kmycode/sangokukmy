@@ -76,5 +76,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 守備で戦闘があった
     /// </summary>
     DefenderBattled = 8,
+
+    /// <summary>
+    /// コマンドコメントが更新された
+    /// </summary>
+    CommandCommentUpdated = 9,
   }
 }

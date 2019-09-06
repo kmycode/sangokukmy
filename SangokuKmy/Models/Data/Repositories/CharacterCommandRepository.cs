@@ -8,6 +8,7 @@ using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Commands;
 using SangokuKmy.Common;
+using System.Collections;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -189,6 +190,52 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<CommandMessage>> GetMessagesAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.CommandMessages.Where(m => m.CountryId == countryId && m.Message != "").ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public void RemoveOldMessages(GameDateTime before)
+    {
+      try
+      {
+        this.container.Context.CommandMessages.RemoveRange(this.container.Context.CommandMessages.Where(m => m.IntGameDateTime <= before.ToInt()));
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public async Task SetMessagesAsync(IEnumerable<CommandMessage> messages)
+    {
+      try
+      {
+        var countryIds = messages.GroupBy(m => m.CountryId).Select(m => m.Key);
+        foreach (var countryId in countryIds)
+        {
+          var mes = await this.container.Context.CommandMessages.Where(m => m.CountryId == countryId).ToArrayAsync();
+
+          // 年月の重複するコメントを消す
+          this.container.Context.CommandMessages.RemoveRange(mes.Where(m => messages.Any(mm => mm.IntGameDateTime == m.IntGameDateTime)));
+        }
+
+        await this.container.Context.CommandMessages.AddRangeAsync(messages);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     /// <summary>
     /// 内容をすべてリセットする
     /// </summary>
@@ -198,6 +245,7 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         await this.container.RemoveAllRowsAsync(typeof(CharacterCommand));
         await this.container.RemoveAllRowsAsync(typeof(CharacterCommandParameter));
+        await this.container.RemoveAllRowsAsync(typeof(CommandMessage));
       }
       catch (Exception ex)
       {

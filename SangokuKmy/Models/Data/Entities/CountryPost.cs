@@ -162,6 +162,10 @@ namespace SangokuKmy.Models.Data.Entities
     {
       return type == CountryPostType.Monarch;
     }
+    public static bool CanCommandComment(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+    }
 
     /// <summary>
     /// 政策権限があるか確認する

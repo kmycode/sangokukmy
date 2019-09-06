@@ -71,8 +71,8 @@ namespace SangokuKmy.Models.Services
         LastUpdated = DateTime.Now,
         LastUpdatedGameDate = system.GameDateTime,
         Message = newChara.Message,
-        Money = 1000,
-        Rice = 500,
+        Money = 1000 + Math.Max(system.GameDateTime.ToInt() - (Config.StartYear + Config.UpdateStartYear) * 12 - Config.StartMonth, 0) * 100,
+        Rice = 500 + Math.Max(system.GameDateTime.ToInt() - (Config.StartYear + Config.UpdateStartYear) * 12 - Config.StartMonth, 0) * 50,
         SoldierType = SoldierType.Common,
         SoldierNumber = 0,
         Proficiency = 0,
@@ -98,6 +98,12 @@ namespace SangokuKmy.Models.Services
       {
         skills.Add(CharacterSkillType.Merchant1);
         chara.Money += 20000;
+      }
+      else if (chara.From == CharacterFrom.Engineer)
+      {
+        skills.Add(CharacterSkillType.Engineer1);
+        chara.Strong += 10;
+        chara.Money += 10000;
       }
       else
       {

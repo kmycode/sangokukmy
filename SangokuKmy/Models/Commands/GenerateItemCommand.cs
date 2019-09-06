@@ -33,7 +33,7 @@ namespace SangokuKmy.Models.Commands
 
           if (info.Data.IsResource)
           {
-            item.Resource = (ushort)RandomService.Next((int)(info.Data.DefaultResource * 0.8f), (int)(info.Data.DefaultResource * 1.2f));
+            item.Resource = (ushort)(chara.Data.Strong * 7.6 + RandomService.Next(chara.Data.Strong * 4));
           }
 
           await ItemService.GenerateItemAndSaveAsync(repo, item);
@@ -73,7 +73,7 @@ namespace SangokuKmy.Models.Commands
       }
       var info = infoOptional.Data;
 
-      var money = game.GameDateTime.Year * 200 + 10000;
+      var money = info.MoneyPerResource * info.DefaultResource / 2;
       if (character.Money < money)
       {
         await game.CharacterLogAsync("アイテム生成しようとしましたが、金が足りません。<num>" + money + "</num> 必要です");
@@ -110,9 +110,9 @@ namespace SangokuKmy.Models.Commands
         };
         await repo.DelayEffect.AddAsync(delay);
 
-        character.AddStrongEx(500);
-        character.Contribution += 200;
-        await game.CharacterLogAsync($"<town>{town.Name}</town> で <num>{money}</num> を投し、{info.Name} の生成を開始しました。結果は <num>{game.GameDateTime.Year + 1}</num> 年 <num>{game.GameDateTime.Month}</num> 月に来ます。武力Ex <num>+500</num>");
+        character.AddStrongEx(200);
+        character.Contribution += 80;
+        await game.CharacterLogAsync($"<town>{town.Name}</town> で <num>{money}</num> を投し、{info.Name} の生成を開始しました。結果は <num>{game.GameDateTime.Year + 1}</num> 年 <num>{game.GameDateTime.Month}</num> 月に来ます。武力Ex <num>+200</num>");
       }
       else
       {

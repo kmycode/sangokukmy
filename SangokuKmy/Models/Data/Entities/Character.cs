@@ -424,6 +424,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 商人
     /// </summary>
     Merchant = 3,
+
+    /// <summary>
+    /// 技師
+    /// </summary>
+    Engineer = 4,
   }
 
   public enum CharacterType
@@ -572,6 +577,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 義勇兵
     /// </summary>
     Military = 25,
+
+    /// <summary>
+    /// 青洲兵
+    /// </summary>
+    Seishu = 26,
 
     Guard_Step1 = 100,
 

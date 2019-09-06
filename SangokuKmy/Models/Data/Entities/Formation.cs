@@ -163,6 +163,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         RequiredPoint = 0,
       },
+      /*
       new FormationTypeInfo
       {
         Type = FormationType.Gyorin,
@@ -331,6 +332,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         RequiredPoint = 500,
       },
+      */
     };
 
     public static Optional<FormationTypeInfo> Get(FormationType type)
