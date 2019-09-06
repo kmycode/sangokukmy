@@ -62,53 +62,61 @@ namespace SangokuKmy.Models.Updates
     {
       while (true)
       {
-        var current = DateTime.Now;
-
-        // 月を更新
-        if (current >= nextMonthStartDateTime)
+        try
         {
-          using (var repo = MainRepository.WithReadAndWrite())
+          var current = DateTime.Now;
+
+          // 月を更新
+          if (current >= nextMonthStartDateTime)
           {
-            var sys = await repo.System.GetAsync();
-            if (sys.IsDebug)
+            using (var repo = MainRepository.WithReadAndWrite())
             {
-              var debug = await repo.System.GetDebugDataAsync();
-              var updatableTime = debug.UpdatableLastDateTime;
-              if (nextMonthStartDateTime <= updatableTime)
+              var sys = await repo.System.GetAsync();
+              if (sys.IsDebug)
+              {
+                var debug = await repo.System.GetDebugDataAsync();
+                var updatableTime = debug.UpdatableLastDateTime;
+                if (nextMonthStartDateTime <= updatableTime)
+                {
+                  await UpdateMonthAsync(repo);
+                }
+              }
+              else
               {
                 await UpdateMonthAsync(repo);
               }
             }
-            else
-            {
-              await UpdateMonthAsync(repo);
-            }
           }
-        }
 
-        // 武将を更新
-        var updateCharacters = EntityCaches.Characters
-          .Where(ch => (current - ch.LastUpdated).TotalSeconds >= Config.UpdateTime);
-        if (updateCharacters.Any())
-        {
-          using (var repo = MainRepository.WithReadAndWrite())
+          // 武将を更新
+          var updateCharacters = EntityCaches.Characters
+            .Where(ch => (current - ch.LastUpdated).TotalSeconds >= Config.UpdateTime);
+          if (updateCharacters.Any())
           {
-            var updates = updateCharacters;
-            var sys = await repo.System.GetAsync();
-            if (sys.IsDebug)
+            using (var repo = MainRepository.WithReadAndWrite())
             {
-              var debug = await repo.System.GetDebugDataAsync();
-              var updatableTime = debug.UpdatableLastDateTime.AddSeconds(-Config.UpdateTime);
-              updates = updates.Where(ch => ch.LastUpdated < updatableTime);
+              var updates = updateCharacters;
+              var sys = await repo.System.GetAsync();
+              if (sys.IsDebug)
+              {
+                var debug = await repo.System.GetDebugDataAsync();
+                var updatableTime = debug.UpdatableLastDateTime.AddSeconds(-Config.UpdateTime);
+                updates = updates.Where(ch => ch.LastUpdated < updatableTime);
+              }
+
+              updates = updates.Where(ch => ch.LastUpdatedGameDate.ToInt() <= sys.IntGameDateTime);
+              await UpdateCharactersAsync(repo, updates.OrderBy(ch => ch.LastUpdated).Select(ch => ch.Id).ToArray());
             }
-
-            updates = updates.Where(ch => ch.LastUpdatedGameDate.ToInt() <= sys.IntGameDateTime);
-            await UpdateCharactersAsync(repo, updates.OrderBy(ch => ch.LastUpdated).Select(ch => ch.Id).ToArray());
           }
-        }
 
-        // 待機
-        await Task.Delay(1000);
+          // 待機
+          await Task.Delay(1000);
+        }
+        catch (Exception ex)
+        {
+          _logger.LogError(ex, "武将更新処理中にエラーが発生しました");
+          await Task.Delay(5000);
+        }
       }
     }
 
