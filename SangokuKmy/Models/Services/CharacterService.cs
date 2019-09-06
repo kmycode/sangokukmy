@@ -1,4 +1,5 @@
 ﻿using SangokuKmy.Common;
+using SangokuKmy.Models.Commands;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
@@ -55,6 +56,8 @@ namespace SangokuKmy.Models.Services
       var towns = await repo.Town.GetAllAsync();
       var characters = (await repo.Character.GetAllAliveWithIconAsync()).Where(c => !charas.Any(cc => cc.Id != c.Character.Id));
       var defenders = await repo.Town.GetAllDefendersAsync();
+      var policies = await repo.Country.GetPoliciesAsync(newId);
+      var commandComments = await repo.CharacterCommand.GetMessagesAsync(newId);
       await StatusStreaming.Default.SendCharacterAsync(towns.Where(t => t.CountryId == newId).Select(t => ApiData.From(t)), charas.Select(c => c.Id));
       await StatusStreaming.Default.SendCharacterAsync(towns.Where(t => t.CountryId != newId).Select(t => ApiData.From(new TownForAnonymous(t))), charas.Select(c => c.Id));
       await StatusStreaming.Default.SendCharacterAsync(defenders.Where(d => towns.Any(t => t.Id == d.TownId && t.CountryId == newId)).Select(d => ApiData.From(d)), charas.Select(c => c.Id));
@@ -86,6 +89,9 @@ namespace SangokuKmy.Models.Services
         await StatusStreaming.Default.SendCharacterAsync(characters.Where(c => c.Character.CountryId != newId && c.Character.TownId != townId && towns.Any(ct => c.Character.TownId == ct.Id && ct.CountryId == newId)).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.SameCountryTownOtherCountry))), townCharas);
         await StatusStreaming.Default.SendCharacterAsync(characters.Where(c => c.Character.CountryId != newId && c.Character.TownId != townId && !towns.Any(ct => c.Character.TownId == ct.Id && ct.CountryId == newId)).Select(c => ApiData.From(new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.Anonymous))), townCharas);
       }
+
+      await StatusStreaming.Default.SendCharacterAsync(policies.Select(p => ApiData.From(p)), charas.Select(c => c.Id));
+      await StatusStreaming.Default.SendCharacterAsync(commandComments.Select(c => ApiData.From(c)), charas.Select(c => c.Id));
     }
 
     public static async Task ChangeTownAsync(MainRepository repo, uint newId, Character chara)
