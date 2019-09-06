@@ -110,9 +110,9 @@ namespace SangokuKmy.Models.Commands
         };
         await repo.DelayEffect.AddAsync(delay);
 
-        character.AddStrongEx(500);
-        character.Contribution += 200;
-        await game.CharacterLogAsync($"<town>{town.Name}</town> で <num>{money}</num> を投し、{info.Name} の生成を開始しました。結果は <num>{game.GameDateTime.Year + 1}</num> 年 <num>{game.GameDateTime.Month}</num> 月に来ます。武力Ex <num>+500</num>");
+        character.AddStrongEx(200);
+        character.Contribution += 80;
+        await game.CharacterLogAsync($"<town>{town.Name}</town> で <num>{money}</num> を投し、{info.Name} の生成を開始しました。結果は <num>{game.GameDateTime.Year + 1}</num> 年 <num>{game.GameDateTime.Month}</num> 月に来ます。武力Ex <num>+200</num>");
       }
       else
       {
