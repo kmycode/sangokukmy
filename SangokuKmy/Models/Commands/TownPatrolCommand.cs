@@ -112,6 +112,18 @@ namespace SangokuKmy.Models.Commands
               TownPatrolResult.FormationExperience,
             };
           }
+          else if (character.From == CharacterFrom.Civilian)
+          {
+            targets = new List<TownPatrolResult>
+            {
+              TownPatrolResult.Intellect,
+              TownPatrolResult.Commercial,
+              TownPatrolResult.CommercialMax,
+              TownPatrolResult.Policy,
+              TownPatrolResult.Money,
+              TownPatrolResult.CountrySafe,
+            };
+          }
           else
           {
             targets = new List<TownPatrolResult>
@@ -209,9 +221,9 @@ namespace SangokuKmy.Models.Commands
           }
           else if (result == TownPatrolResult.CommercialMax)
           {
-            await game.CharacterLogAsync($"市場用の用地を確保しました。商業最大 <num>+4</num>、武力Ex <num>+50</num>");
+            await game.CharacterLogAsync($"市場用の用地を確保しました。商業最大 <num>+4</num>、知力Ex <num>+50</num>");
             town.CommercialMax += 4;
-            character.AddStrongEx(50);
+            character.AddIntellectEx(50);
           }
           else if (result == TownPatrolResult.TechnologyMax)
           {
@@ -227,12 +239,20 @@ namespace SangokuKmy.Models.Commands
           }
           else if (result == TownPatrolResult.Policy)
           {
-            await game.CharacterLogAsync($"政策について討論しました。政策 <num>+12</num>、武力Ex <num>+50</num>");
             if (country.HasData && !country.Data.HasOverthrown)
             {
               country.Data.PolicyPoint += 12;
             }
-            character.AddStrongEx(50);
+            if (character.From == CharacterFrom.Warrior)
+            {
+              await game.CharacterLogAsync($"政策について討論しました。政策 <num>+12</num>、武力Ex <num>+50</num>");
+              character.AddStrongEx(50);
+            }
+            else
+            {
+              await game.CharacterLogAsync($"政策について討論しました。政策 <num>+12</num>、知力Ex <num>+50</num>");
+              character.AddIntellectEx(50);
+            }
           }
           else if (result == TownPatrolResult.Money)
           {
@@ -250,6 +270,24 @@ namespace SangokuKmy.Models.Commands
             var formation = await repo.Character.GetFormationAsync(character.Id, character.FormationType);
             formation.Experience += 50;
             await game.CharacterLogAsync($"陣形経験値 <num>50</num> を獲得しました");
+          }
+          else if (result == TownPatrolResult.CountrySafe)
+          {
+            if (country.HasData && !country.Data.HasOverthrown)
+            {
+              var policies = await repo.Country.GetPoliciesAsync(country.Data.Id);
+              var max = CountryService.GetCountrySafeMax(policies.GetAvailableTypes());
+              if (country.Data.SafeMoney < max)
+              {
+                country.Data.SafeMoney = Math.Min(max, country.Data.SafeMoney + 900);
+                await game.CharacterLogAsync($"金 <num>900</num> を発見し、国庫におさめました");
+              }
+              else
+              {
+                character.Money += 500;
+                await game.CharacterLogAsync($"金 <num>500</num> を発見しました");
+              }
+            }
           }
         }
 
@@ -285,6 +323,7 @@ namespace SangokuKmy.Models.Commands
       Money,
       FormationPoint,
       FormationExperience,
+      CountrySafe,
     }
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
