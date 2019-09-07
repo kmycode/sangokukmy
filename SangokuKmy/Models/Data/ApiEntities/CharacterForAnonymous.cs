@@ -124,7 +124,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       {
         this.TownId = character.TownId;
       }
-      if (level == CharacterShareLevel.SameTown || level == CharacterShareLevel.SameTownAndSameCountry)
+      if (level == CharacterShareLevel.SameTown || level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountry)
       {
         this.SoldierNumber = character.SoldierNumber;
         this.SoldierType = character.ApiSoldierType;
