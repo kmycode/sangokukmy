@@ -258,8 +258,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.PolicyBoostProbabilityThousandth,
-            Value = 5,
+            Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
+            Value = 40,
           },
         },
       },
@@ -292,8 +292,13 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
-            Value = 40,
+            Type = CharacterSkillEffectType.PolicyBoostProbabilityThousandth,
+            Value = 50,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.TownPatrol,
           },
         },
       },
