@@ -1093,6 +1093,14 @@ namespace SangokuKmy.Models.Updates
           var skillIntellectEx = skills.GetSumOfValues(CharacterSkillEffectType.IntellectExRegularly);
           var skillLeadershipEx = skills.GetSumOfValues(CharacterSkillEffectType.LeadershipExRegularly);
           var skillPopularityEx = skills.GetSumOfValues(CharacterSkillEffectType.PopularityExRegularly);
+          if (character.GetCharacterType() == CharacterType.Strong)
+          {
+            skillStrongEx += skills.GetSumOfValues(CharacterSkillEffectType.StrongOrIntellectExRegularly);
+          }
+          else
+          {
+            skillIntellectEx += skills.GetSumOfValues(CharacterSkillEffectType.StrongOrIntellectExRegularly);
+          }
           character.AddStrongEx((short)skillStrongEx);
           character.AddIntellectEx((short)skillIntellectEx);
           character.AddLeadershipEx((short)skillLeadershipEx);

@@ -429,6 +429,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 技師
     /// </summary>
     Engineer = 4,
+
+    /// <summary>
+    /// AI
+    /// </summary>
+    Ai = 5,
   }
 
   public enum CharacterType
