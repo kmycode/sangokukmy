@@ -75,6 +75,11 @@ namespace SangokuKmy.Models.Data.Entities
     Engineer3 = 18,
     Engineer4 = 19,
     Engineer5 = 20,
+    Ai1 = 21,
+    Ai2 = 22,
+    Ai3 = 23,
+    Ai4 = 24,
+    Ai5 = 25,
   }
 
   public enum CharacterSkillEffectType
@@ -87,6 +92,7 @@ namespace SangokuKmy.Models.Data.Entities
     IntellectExRegularly,
     LeadershipExRegularly,
     PopularityExRegularly,
+    StrongOrIntellectExRegularly,
     SoldierDiscountPercentage,
     SoldierType,
     SoldierCorrection,
@@ -461,6 +467,91 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.GenerateItem,
             Value = (int)CharacterItemType.EquippedSeishuYari,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Ai1,
+        RequestedPoint = 0,
+        Name = "AI Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.StrongOrIntellectExRegularly,
+            Value = 9,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Ai2,
+        RequestedPoint = 10,
+        Name = "AI Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 40,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Ai3,
+        RequestedPoint = 10,
+        Name = "AI Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              RushProbability = 300,
+              RushAttack = 50,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Ai4,
+        RequestedPoint = 10,
+        Name = "AI Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              ContinuousProbability = 30,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Ai5,
+        RequestedPoint = 10,
+        Name = "AI Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.StrongOrIntellectExRegularly,
+            Value = 4,
           },
         },
       },

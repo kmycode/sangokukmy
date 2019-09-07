@@ -57,6 +57,7 @@ namespace SangokuKmy.Models.Services
           LastUpdatedGameDate = system.GameDateTime,
         };
         var ai = AiCharacterFactory.Create(chara);
+        ai.Character.From = CharacterFrom.Ai;
         ai.Initialize(system.GameDateTime);
         await repo.Character.AddAsync(chara);
 
@@ -68,6 +69,16 @@ namespace SangokuKmy.Models.Services
       foreach (var chara in charas)
       {
         await SetIconAsync(repo, chara);
+
+        if (chara.From == CharacterFrom.Ai)
+        {
+          await repo.Character.AddSkillAsync(new CharacterSkill
+          {
+            CharacterId = chara.Id,
+            Type = CharacterSkillType.Ai1,
+            Status = CharacterSkillStatus.Available,
+          });
+        }
       }
 
       return country;
@@ -470,7 +481,7 @@ namespace SangokuKmy.Models.Services
           CharacterAiType.ManagedBattler,
           CharacterAiType.ManagedBattler,
           CharacterAiType.ManagedCivilOfficial,
-          // CharacterAiType.ManagedPatroller,
+          CharacterAiType.ManagedPatroller,
         };
         names = new string[] { "秦", "前秦", "晋", "西晋", "東晋", "斉", "金", "明", "隋", "陳", "楚", "春秋楚", "夏", "商", "北魏", "元", };
       }
