@@ -53,7 +53,7 @@ namespace SangokuKmy.Models.Common
     /// </summary>
     public static int CountryJoinMaxOnLimited { get; } = 4;
 
-    public static int CountryColorMax { get; } = 14;
+    public static int CountryColorMax { get; } = 18;
 
     public static int DeleteTurns { get; } = 500;
 
