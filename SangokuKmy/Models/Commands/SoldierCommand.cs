@@ -205,6 +205,7 @@ namespace SangokuKmy.Models.Commands
           if (character.Money < needMoney)
           {
             await game.CharacterLogAsync("所持金が足りません。");
+            character.SoldierNumber -= add;
           }
           else
           {
