@@ -48,7 +48,7 @@ namespace SangokuKmy.Models.Services
 
     public static async Task SetCharacterPendingAsync(MainRepository repo, CharacterItem item, Character chara)
     {
-      if (item.Status == CharacterItemStatus.CharacterHold)
+      if (item.Status == CharacterItemStatus.CharacterHold || item.Status == CharacterItemStatus.CharacterPending)
       {
         if (item.CharacterId == chara.Id)
         {
