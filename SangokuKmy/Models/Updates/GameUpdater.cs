@@ -474,7 +474,7 @@ namespace SangokuKmy.Models.Updates
                 await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺の市場が賑わっています");
                 SetEvents(1.30f, 1.15f, 1.50f, 1.30f, CountryPolicyType.Economy, null, (town, val, ps, c) =>
                 {
-                  town.Agriculture = Math.Min((int)(town.Agriculture * val), town.AgricultureMax);
+                  town.Commercial = Math.Min((int)(town.Commercial * val), town.CommercialMax);
                 });
                 break;
               case 6:

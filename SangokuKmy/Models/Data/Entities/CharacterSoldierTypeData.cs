@@ -13,148 +13,84 @@ namespace SangokuKmy.Models.Data.Entities
 {
   public class CharacterSoldierTypeData
   {
-    [JsonProperty("description")]
-    public string Description { get; set; }
-
-    [JsonProperty("money")]
     public short Money { get; set; }
 
-    [JsonProperty("fakeMoney")]
     public short FakeMoney { get; set; }
 
-    [JsonProperty("technology")]
     public short Technology { get; set; }
 
-    [JsonProperty("powerStrong")]
     public short PowerStrong { get; set; }
 
-    [JsonProperty("powerIntellect")]
     public short PowerIntellect { get; set; }
 
-    [JsonProperty("powerPopularity")]
     public short PowerPopularity { get; set; }
 
-    [JsonProperty("baseAttack")]
     public short BaseAttack { get; set; }
     
-    [JsonProperty("baseDefend")]
     public short BaseDefend { get; set; }
     
-    [JsonProperty("strongAttack")]
     public short StrongAttack { get; set; }
     
-    [JsonProperty("strongDefend")]
     public short StrongDefend { get; set; }
     
-    [JsonProperty("intellectAttack")]
     public short IntellectAttack { get; set; }
     
-    [JsonProperty("intellectDefend")]
     public short IntellectDefend { get; set; }
     
-    [JsonProperty("leadershipAttack")]
-    public short LeadershipAttack { get; set; }
-    
-    [JsonProperty("leadershipDefend")]
-    public short LeadershipDefend { get; set; }
-    
-    [JsonProperty("popularityAttack")]
     public short PopularityAttack { get; set; }
     
-    [JsonProperty("popularityDefend")]
     public short PopularityDefend { get; set; }
 
-    [JsonProperty("typeInfantry")]
     public short TypeInfantry { get; set; }
 
-    [JsonProperty("typeInfantryAttack")]
-    public short TypeInfantryAttack { get; set; }
-
-    [JsonProperty("typeCavalry")]
     public short TypeCavalry { get; set; }
 
-    [JsonProperty("typeCavalryAttack")]
-    public short TypeCavalryAttack { get; set; }
-
-    [JsonProperty("typeCrossbow")]
     public short TypeCrossbow { get; set; }
 
-    [JsonProperty("typeCrossbowAttack")]
-    public short TypeCrossbowAttack { get; set; }
-
-    [JsonProperty("typeWall")]
     public short TypeWall { get; set; }
 
-    [JsonProperty("typeAntiWall")]
     public short TypeAntiWall { get; set; }
 
-    [JsonProperty("typeGuard")]
     public short TypeGuard { get; set; }
 
-    [JsonProperty("typeGuardAttack")]
     public short TypeGuardAttack { get; set; }
 
-    [JsonProperty("typeGuardDefend")]
     public short TypeGuardDefend { get; set; }
 
-    [JsonProperty("rushProbability")]
+    public short GogyoFire { get; set; }
+
+    public short GogyoTree { get; set; }
+
+    public short GogyoSoil { get; set; }
+
+    public short GogyoMetal { get; set; }
+
+    public short GogyoWater { get; set; }
+
+    public short GogyoAttack { get; set; }
+
+    public short GogyoDefend { get; set; }
+
     public short RushProbability { get; set; }
     
-    [JsonProperty("rushAttack")]
     public ushort RushAttack { get; set; }
     
-    [JsonProperty("rushDefend")]
     public ushort RushDefend { get; set; }
     
-    [JsonProperty("rushAgainstAttack")]
-    public short RushAgainstAttack { get; set; }
-    
-    [JsonProperty("rushAgainstDefend")]
-    public short RushAgainstDefend { get; set; }
-    
-    [JsonProperty("continuousProbability")]
     public short ContinuousProbability { get; set; }
 
-    [JsonProperty("continuousProbabilityOnSingleTurn")]
     public short ContinuousProbabilityOnSingleTurn { get; set; }
 
-    [JsonProperty("continuousAttack")]
-    public short ContinuousAttack { get; set; }
-    
-    [JsonProperty("continuousDefend")]
-    public short ContinuousDefend { get; set; }
-
-    [JsonProperty("infantryAttack")]
-    public short InfantryAttack { get; set; }
-
-    [JsonProperty("cavalryAttack")]
-    public short CavalryAttack { get; set; }
-
-    [JsonProperty("crossbowAttack")]
-    public short CrossbowAttack { get; set; }
-
-    [JsonProperty("wallAttack")]
     public short WallAttack { get; set; }
     
-    [JsonProperty("wallDefend")]
     public short WallDefend { get; set; }
-    
-    [JsonProperty("throughDefendersProbability")]
-    public short ThroughDefendersToWallProbability { get; set; }
-    
-    [JsonProperty("recovery")]
-    public short Recovery { get; set; }
 
-    [JsonProperty("strongEx")]
     public short StrongEx { get; set; }
 
-    [JsonProperty("intellectEx")]
     public short IntellectEx { get; set; }
 
-    [JsonProperty("leadershipEx")]
     public short LeadershipEx { get; set; }
 
-    [JsonProperty("popularityEx")]
     public short PopularityEx { get; set; }
 
     [JsonIgnore]
@@ -195,21 +131,38 @@ namespace SangokuKmy.Models.Data.Entities
       a += this.IntellectAttack / 1000.0f * chara.Intellect;
       d += this.IntellectDefend / 1000.0f * chara.Intellect;
 
-      a += this.InfantryAttack * (enemyType.TypeInfantry / 100.0f);
-      a += this.CavalryAttack * (enemyType.TypeCavalry / 100.0f);
-      a += this.CrossbowAttack * (enemyType.TypeCrossbow / 100.0f);
-
       a += this.WallAttack * (enemyType.TypeWall / 100.0f);
       d += this.WallDefend * (enemyType.TypeWall / 100.0f);
-
-      a += this.TypeInfantryAttack * (this.TypeInfantry / 100.0f);
-      a += this.TypeCavalryAttack * (this.TypeCavalry / 100.0f);
-      a += this.TypeCrossbowAttack * (this.TypeCrossbow / 100.0f);
 
       a += this.TypeGuardAttack * (this.TypeGuard / 100.0f);
       d += this.TypeGuardDefend * (this.TypeGuard / 100.0f);
 
+      var g = this.CalcGogyoPower(enemyType);
+      a += this.GogyoAttack * g;
+      d += this.GogyoDefend * g;
+
       return ((int)a, (int)d);
+    }
+
+    private float CalcGogyoPower(CharacterSoldierTypeData target)
+    {
+      float GetSize(short stronger, short weaker)
+      {
+        // 0 <= size <= 1
+        if (stronger == 0 || weaker == 0)
+        {
+          return 0;
+        }
+        var size = (stronger + weaker) / (float)stronger / 2 * (stronger + weaker) / 200.0f;
+        return size;
+      }
+
+      // 基準値: 1
+      return GetSize(this.GogyoTree, target.GogyoWater) + GetSize(this.GogyoTree, target.GogyoSoil) +
+        GetSize(this.GogyoFire, target.GogyoTree) + GetSize(this.GogyoFire, target.GogyoMetal) +
+        GetSize(this.GogyoSoil, target.GogyoFire) + GetSize(this.GogyoSoil, target.GogyoWater) +
+        GetSize(this.GogyoMetal, target.GogyoSoil) + GetSize(this.GogyoMetal, target.GogyoTree) +
+        GetSize(this.GogyoWater, target.GogyoMetal) + GetSize(this.GogyoWater, target.GogyoFire);
     }
 
     public (int AttackCorrection, int DefendCorrection) CalcPostCorrections(CountryPostType post)
@@ -287,9 +240,9 @@ namespace SangokuKmy.Models.Data.Entities
       }
     }
 
-    public float CalcRushAttack()
+    public float CalcRushAttack(CharacterSoldierTypeData enemyType)
     {
-      return this.RushAttack / 10.0f;
+      return Math.Max(this.RushAttack - enemyType.RushDefend, 0) / 10.0f;
     }
   }
 
@@ -299,7 +252,6 @@ namespace SangokuKmy.Models.Data.Entities
     {
       var d = new CharacterSoldierTypeData
       {
-        Description = string.Join(',', parts.GroupBy(p => p.Name).Select(p => $"{p.Key}{p.Count()}")),
         Money = (short)parts.Sum(p => p.Money),
         FakeMoney = (short)parts.Sum(p => p.FakeMoney),
         Technology = (short)parts.Max(p => p.Technology),
@@ -328,24 +280,26 @@ namespace SangokuKmy.Models.Data.Entities
       self.ContinuousProbabilityOnSingleTurn += d.ContinuousProbabilityOnSingleTurn;
       self.RushProbability += d.RushProbability;
       self.RushAttack += d.RushAttack;
+      self.RushDefend += d.RushDefend;
       self.StrongEx += d.StrongEx;
       self.IntellectEx += d.IntellectEx;
       self.LeadershipEx += d.LeadershipEx;
       self.PopularityEx += d.PopularityEx;
       self.TypeCavalry += d.TypeCavalry;
-      self.TypeCavalryAttack += d.TypeCavalryAttack;
-      self.CavalryAttack += d.CavalryAttack;
       self.TypeCrossbow += d.TypeCrossbow;
-      self.TypeCrossbowAttack += d.TypeCrossbowAttack;
-      self.CrossbowAttack += d.CrossbowAttack;
       self.TypeInfantry += d.TypeInfantry;
-      self.TypeInfantryAttack += d.TypeInfantryAttack;
-      self.InfantryAttack += d.InfantryAttack;
       self.TypeWall += d.TypeWall;
       self.TypeAntiWall += d.TypeAntiWall;
       self.TypeGuard += d.TypeGuard;
       self.TypeGuardAttack += d.TypeGuardAttack;
       self.TypeGuardDefend += d.TypeGuardDefend;
+      self.GogyoFire += d.GogyoFire;
+      self.GogyoMetal += d.GogyoMetal;
+      self.GogyoSoil += d.GogyoSoil;
+      self.GogyoTree += d.GogyoTree;
+      self.GogyoWater += d.GogyoWater;
+      self.GogyoAttack += d.GogyoAttack;
+      self.GogyoDefend += d.GogyoDefend;
       return self;
     }
   }
