@@ -53,7 +53,13 @@ namespace SangokuKmy.Models.Commands
         {
           add = 1;
         }
+
         add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentage) / 100.0f));
+        if (this is SecurityCommand || this is SuperSecurityCommand)
+        {
+          add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.SecurityCommandMulPercentage) / 100.0f));
+        }
+
         if (!this.IsMinus())
         {
           if (current + add >= max)
