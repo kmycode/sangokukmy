@@ -54,6 +54,7 @@ namespace SangokuKmy.Models.Commands
       new GenerateItemCommand(),
       new PeopleIncreaseCommand(),
       new PeopleDecreaseCommand(),
+      new SoldierTrainingAllCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

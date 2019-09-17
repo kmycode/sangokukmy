@@ -341,5 +341,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 農民避難
     /// </summary>
     PeopleDecrease = 59,
+
+    /// <summary>
+    /// 合同訓練
+    /// </summary>
+    SOldierTrainingAll = 60,
   }
 }
