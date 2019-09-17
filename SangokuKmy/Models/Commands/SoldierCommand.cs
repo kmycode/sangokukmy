@@ -295,7 +295,11 @@ namespace SangokuKmy.Models.Commands
           var policies = await repo.Country.GetPoliciesAsync(chara.CountryId);
           if (!policies.GetAvailableTypes().Contains(CountryPolicyType.JusticeMessage))
           {
-            ErrorCode.NotPermissionError.Throw();
+            var skills = await repo.Character.GetSkillsAsync(chara.Id);
+            if (!skills.AnySkillEffects(CharacterSkillEffectType.SoldierType, (int)SoldierType.Military))
+            {
+              ErrorCode.NotPermissionError.Throw();
+            }
           }
         }
         /*
