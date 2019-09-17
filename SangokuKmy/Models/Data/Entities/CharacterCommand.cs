@@ -346,5 +346,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 合同訓練
     /// </summary>
     SOldierTrainingAll = 60,
+
+    /// <summary>
+    /// 偵察
+    /// </summary>
+    Spy = 61,
   }
 }
