@@ -1426,7 +1426,7 @@ namespace SangokuKmy.Models.Data.Entities
         .Where(i => i.Effects.Any())
         // 並べ替え時は残量よりもレベルを優先する（安定ソート前提）
         .OrderBy(i => i.Item.Resource)
-        .OrderBy(i => i.Info.ResourceLevel);
+        .OrderByDescending(i => i.Info.ResourceLevel);
 
       foreach (var target in targets)
       {
