@@ -54,19 +54,33 @@ namespace SangokuKmy.Models.Commands
           add = 1;
         }
         add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentage) / 100.0f));
-        if (current + add >= max)
+        if (!this.IsMinus())
         {
-          this.SetValue(town, max);
+          if (current + add >= max)
+          {
+            this.SetValue(town, max);
+          }
+          else
+          {
+            this.SetValue(town, current + add);
+          }
         }
         else
         {
-          this.SetValue(town, current + add);
+          if (current - add < 0)
+          {
+            this.SetValue(town, 0);
+          }
+          else
+          {
+            this.SetValue(town, current - add);
+          }
         }
 
         // 経験値、金の増減
         this.SetCharacterAssets(character, this.GetCharacterAssets(character) - this.UseAssetsLength());
         character.Contribution += this.Contributes();
-        this.AddCharacterAttributeEx(character, 50);
+        this.AddCharacterAttributeEx(character, this.Experiences());
 
         await game.CharacterLogAsync("<town>" + town.Name + "</town> の " + this.GetValueName() + " を <num>+" + add + "</num> " + this.GetValueAddingText() + "しました");
 
@@ -94,6 +108,7 @@ namespace SangokuKmy.Models.Commands
     protected abstract int GetCurrentValue(Town town);
     protected abstract int GetMaxValue(Town town);
     protected abstract void SetValue(Town town, int value);
+    protected virtual bool IsMinus() => false;
     protected virtual string GetValueAddingText() => "開発";
     protected virtual int GetCharacterAttribute(Character character) => !this.IsStrongStartAvailable ? character.Intellect : Math.Max(character.Intellect, character.Strong);
     protected virtual void AddCharacterAttributeEx(Character character, short ex)
@@ -119,6 +134,7 @@ namespace SangokuKmy.Models.Commands
     protected virtual string GetCharacterAssetName() => "金";
     protected virtual int UseAssetsLength() => 50;
     protected virtual int Contributes() => 30;
+    protected virtual short Experiences() => 50;
   }
 
   /// <summary>
@@ -296,5 +312,66 @@ namespace SangokuKmy.Models.Commands
     protected override int GetCurrentValue(Town town) => town.TownBuildingValue;
     protected override int GetMaxValue(Town town) => Config.TownBuildingMax;
     protected override void SetValue(Town town, int value) => town.TownBuildingValue = value;
+  }
+
+  /// <summary>
+  /// 農民呼寄
+  /// </summary>
+  public class PeopleIncreaseCommand : DomesticAffairCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.PeopleIncrease;
+    protected override string GetValueName() => "農民";
+    protected override int GetCurrentValue(Town town) => town.People;
+    protected override int GetMaxValue(Town town) => town.PeopleMax;
+    protected override void SetValue(Town town, int value) => town.People = (short)value;
+    protected override string GetValueAddingText() => "回復";
+    protected override int GetCharacterAssets(Character character) => character.Rice;
+    protected override string GetCharacterAssetName() => "米";
+    protected override void SetCharacterAssets(Character character, int value) => character.Rice = value;
+    protected override int UseAssetsLength() => 1000;
+    protected override int GetCharacterAttribute(Character character) => 100 * (character.From == CharacterFrom.People ? character.Popularity : character.Strong);
+    protected override void AddCharacterAttributeEx(Character character, short ex)
+    {
+      if (character.From == CharacterFrom.People)
+      {
+        character.AddPopularityEx(ex);
+      }
+      else
+      {
+        character.AddStrongEx(ex);
+      }
+    }
+    protected override int Contributes() => 60;
+    protected override short Experiences() => 100;
+  }
+
+  /// <summary>
+  /// 農民避難
+  /// </summary>
+  public class PeopleDecreaseCommand : DomesticAffairCommand
+  {
+    public override CharacterCommandType Type => CharacterCommandType.PeopleDecrease;
+    protected override string GetValueName() => "農民";
+    protected override int GetCurrentValue(Town town) => town.People;
+    protected override int GetMaxValue(Town town) => town.PeopleMax;
+    protected override void SetValue(Town town, int value) => town.People = value;
+    protected override string GetValueAddingText() => "避難";
+    protected override int GetCharacterAssets(Character character) => character.Rice;
+    protected override string GetCharacterAssetName() => "米";
+    protected override void SetCharacterAssets(Character character, int value) => character.Rice = value;
+    protected override int UseAssetsLength() => 100;
+    protected override int GetCharacterAttribute(Character character) => 100 * (character.From == CharacterFrom.People ? character.Popularity : character.Strong);
+    protected override void AddCharacterAttributeEx(Character character, short ex)
+    {
+      if (character.From == CharacterFrom.People)
+      {
+        character.AddPopularityEx(ex);
+      }
+      else
+      {
+        character.AddStrongEx(ex);
+      }
+    }
+    protected override bool IsMinus() => true;
   }
 }

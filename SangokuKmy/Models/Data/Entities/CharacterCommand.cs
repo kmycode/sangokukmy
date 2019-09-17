@@ -331,5 +331,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// アイテム生成
     /// </summary>
     GenerateItem = 57,
+
+    /// <summary>
+    /// 農民呼寄
+    /// </summary>
+    PeopleIncrease = 58,
+
+    /// <summary>
+    /// 農民避難
+    /// </summary>
+    PeopleDecrease = 59,
   }
 }

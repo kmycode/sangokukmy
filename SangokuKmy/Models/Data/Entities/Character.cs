@@ -434,6 +434,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// AI
     /// </summary>
     Ai = 5,
+
+    /// <summary>
+    /// 胡人
+    /// </summary>
+    Terrorist = 6,
+
+    /// <summary>
+    /// 農民
+    /// </summary>
+    People = 7,
   }
 
   public enum CharacterType
