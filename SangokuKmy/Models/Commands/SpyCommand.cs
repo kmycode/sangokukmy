@@ -70,6 +70,12 @@ namespace SangokuKmy.Models.Commands
       var townId = (uint)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.InternalDataNotFoundError, new { command = "spy", townId, });
 
+      var skills = await repo.Character.GetSkillsAsync(characterId);
+      if (!skills.AnySkillEffects(CharacterSkillEffectType.Command, (int)this.Type))
+      {
+        ErrorCode.NotSkillError.Throw();
+      }
+
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates, options);
     }
   }

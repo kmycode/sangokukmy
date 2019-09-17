@@ -7,6 +7,7 @@ using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Services;
 using System.Linq;
+using SangokuKmy.Models.Common.Definitions;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -349,6 +350,17 @@ namespace SangokuKmy.Models.Commands
     }
     protected override int Contributes() => 60;
     protected override short Experiences() => 100;
+
+    public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
+    {
+      var skills = await repo.Character.GetSkillsAsync(characterId);
+      if (!skills.AnySkillEffects(CharacterSkillEffectType.Command, (int)this.Type))
+      {
+        ErrorCode.NotSkillError.Throw();
+      }
+
+      await base.InputAsync(repo, characterId, gameDates, options);
+    }
   }
 
   /// <summary>
@@ -379,5 +391,16 @@ namespace SangokuKmy.Models.Commands
       }
     }
     protected override bool IsMinus() => true;
+
+    public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
+    {
+      var skills = await repo.Character.GetSkillsAsync(characterId);
+      if (!skills.AnySkillEffects(CharacterSkillEffectType.Command, (int)this.Type))
+      {
+        ErrorCode.NotSkillError.Throw();
+      }
+
+      await base.InputAsync(repo, characterId, gameDates, options);
+    }
   }
 }
