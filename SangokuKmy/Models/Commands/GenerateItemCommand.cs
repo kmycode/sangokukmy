@@ -57,6 +57,24 @@ namespace SangokuKmy.Models.Commands
           Length = 12,
           Contribution = 80,
         },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Terrorist,
+          ItemType = CharacterItemType.Elephant,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Terrorist,
+          ItemType = CharacterItemType.Toko,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
       };
 
       public CharacterFrom From { get; set; }

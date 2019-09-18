@@ -80,6 +80,26 @@ namespace SangokuKmy.Models.Data.Entities
     Ai3 = 23,
     Ai4 = 24,
     Ai5 = 25,
+    Terrorist1 = 26,
+    Terrorist2 = 27,
+    Terrorist3 = 28,
+    Terrorist4 = 29,
+    Terrorist5 = 30,
+    People1 = 31,
+    People2 = 32,
+    People3 = 33,
+    People4 = 34,
+    People5 = 35,
+    Tactician1 = 36,
+    Tactician2 = 37,
+    Tactician3 = 38,
+    Tactician4 = 39,
+    Tactician5 = 40,
+    Scholar1 = 41,
+    Scholar2 = 42,
+    Scholar3 = 43,
+    Scholar4 = 44,
+    Scholar5 = 45,
   }
 
   public enum CharacterSkillEffectType
@@ -558,6 +578,89 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.StrongOrIntellectExRegularly,
             Value = 4,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist1,
+        RequestedPoint = 0,
+        Name = "胡人 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.StrongExRegularly,
+            Value = 7,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist2,
+        RequestedPoint = 6,
+        Name = "胡人 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 30,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist3,
+        RequestedPoint = 9,
+        Name = "胡人 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist2),
+        Effects = new List<CharacterSkillEffect>
+        {
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist4,
+        RequestedPoint = 12,
+        Name = "胡人 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleDecrease,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleIncrease,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist5,
+        RequestedPoint = 8,
+        Name = "胡人 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.Elephant,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.Toko,
           },
         },
       },

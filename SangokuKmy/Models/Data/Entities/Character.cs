@@ -444,6 +444,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// 農民
     /// </summary>
     People = 7,
+
+    /// <summary>
+    /// 兵家
+    /// </summary>
+    Tactician = 8,
+
+    /// <summary>
+    /// 学者
+    /// </summary>
+    Scholar = 9,
   }
 
   public enum CharacterType
@@ -598,6 +608,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     Seishu = 26,
 
+    /// <summary>
+    /// 象兵
+    /// </summary>
+    Elephant = 27,
+
+    /// <summary>
+    /// 藤甲兵
+    /// </summary>
+    Toko = 28,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,
@@ -655,6 +675,16 @@ namespace SangokuKmy.Models.Data.Entities
         type == CharacterAiType.SecretaryUnitGather ||
         type == CharacterAiType.SecretaryPioneer ||
         type == CharacterAiType.SecretaryUnitLeader;
+    }
+
+    public static bool IsTerrorist(this CharacterAiType type)
+    {
+      return type == CharacterAiType.TerroristBattler ||
+        type == CharacterAiType.TerroristCivilOfficial ||
+        type == CharacterAiType.TerroristMainPatroller ||
+        type == CharacterAiType.TerroristPatroller ||
+        type == CharacterAiType.TerroristRyofu ||
+        type == CharacterAiType.TerroristWallBattler;
     }
 
     public static bool IsManaged(this CharacterAiType type)

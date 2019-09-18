@@ -390,6 +390,40 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterSoldierTypePart
       {
+        Preset = SoldierType.Elephant,
+        Name = "象兵",
+        Data = new CharacterSoldierTypeData
+        {
+          TypeCavalry = 10,
+          RushProbability = 6000,
+          RushAttack = 250,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 5,
+        Technology = 999,
+        CanConscript = true,
+        CanConscriptWithoutResource = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Toko,
+        Name = "藤甲兵",
+        Data = new CharacterSoldierTypeData
+        {
+          TypeInfantry = 10,
+          BaseDefend = 140,
+          ContinuousProbability = 60,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 5,
+        Technology = 999,
+        CanConscript = true,
+        CanConscriptWithoutResource = false,
+      },
+      new CharacterSoldierTypePart
+      {
         Preset = SoldierType.StrongGuards,
         Name = "壁守兵",
         Data = new CharacterSoldierTypeData

@@ -161,6 +161,8 @@ namespace SangokuKmy.Models.Data.Entities
     EquippedSeishuYari = 64,
     EquippedGoodGeki = 65,
     EquippedGoodHorse = 66,
+    Elephant = 67,
+    Toko = 68,
   }
 
   public enum CharacterItemEffectType
@@ -1334,6 +1336,44 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterItemEffectType.AddSoldierType,
             Value = (int)SoldierType.Seishu,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.Elephant,
+        Name = "象",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 22,
+        InitializeNumber = 2,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.Elephant,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.Toko,
+        Name = "藤甲",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 26,
+        InitializeNumber = 2,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.Toko,
           },
         },
       },
