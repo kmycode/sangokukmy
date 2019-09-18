@@ -75,6 +75,33 @@ namespace SangokuKmy.Models.Commands
           Length = 12,
           Contribution = 80,
         },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.People,
+          ItemType = CharacterItemType.SuperSoldier,
+          ResourceAttribute = c => c.Popularity,
+          AddExAttribute = c => c.AddPopularityEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.People,
+          ItemType = CharacterItemType.EliteSoldier,
+          ResourceAttribute = c => c.Popularity,
+          AddExAttribute = c => c.AddPopularityEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Tactician,
+          ItemType = CharacterItemType.MartialArtsBook,
+          ResourceAttribute = c => c.Leadership,
+          AddExAttribute = c => c.AddLeadershipEx(280),
+          Length = 24,
+          Contribution = 120,
+        },
       };
 
       public CharacterFrom From { get; set; }

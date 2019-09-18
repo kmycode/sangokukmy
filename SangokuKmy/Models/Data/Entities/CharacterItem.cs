@@ -165,6 +165,9 @@ namespace SangokuKmy.Models.Data.Entities
     Toko = 68,
     SuperSoldier = 69,
     EliteSoldier = 70,
+    MartialArtsBook = 71,
+    PrivateBook = 72,
+    AnnotationBook = 73,
   }
 
   public enum CharacterItemEffectType
@@ -173,6 +176,8 @@ namespace SangokuKmy.Models.Data.Entities
     Intellect,
     Leadership,
     Popularity,
+    IntellectEx,
+    FormationEx,
     Money,
     TerroristEnemy,
     DiscountSoldierPercentageWithResource,
@@ -820,6 +825,22 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterItemInfo
       {
+        Type = CharacterItemType.PrivateBook,
+        Name = "私撰書",
+        Money = 55000,
+        InitializeNumber = 0,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        Effects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.Intellect,
+            Value = 10,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
         Type = CharacterItemType.Heihonijuyompen,
         Name = "兵法二十四編",
         Money = 78000,
@@ -1004,6 +1025,40 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterItemEffectType.Leadership,
             Value = 10,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.AnnotationBook,
+        Name = "注釈書",
+        Money = 48000,
+        InitializeNumber = 8,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.IntellectEx,
+            Value = 2222,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.MartialArtsBook,
+        Name = "兵法書",
+        Money = 48000,
+        InitializeNumber = 8,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.FormationEx,
+            Value = 500,
           },
         },
       },
@@ -1380,6 +1435,11 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterItemEffectType.AddSoldierType,
             Value = (int)SoldierType.Toko,
           },
+        },
+        DiscoverFroms = new List<CharacterFrom>
+        {
+          CharacterFrom.Civilian,
+          CharacterFrom.Scholar,
         },
       },
       new CharacterItemInfo

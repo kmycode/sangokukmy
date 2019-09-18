@@ -1105,6 +1105,17 @@ namespace SangokuKmy.Models.Updates
           character.AddIntellectEx((short)skillIntellectEx);
           character.AddLeadershipEx((short)skillLeadershipEx);
           character.AddPopularityEx((short)skillPopularityEx);
+
+          var skillFormationEx = skills.GetSumOfValues(CharacterSkillEffectType.FormationExRegularly);
+          if (skillFormationEx > 0)
+          {
+            var formation = await repo.Character.GetFormationAsync(character.Id, character.FormationType);
+            if (formation != null)
+            {
+              formation.Experience += skillFormationEx;
+              await repo.SaveChangesAsync();
+            }
+          }
         }
 
         // 技能ポイントが十分にあるときは自動で技能獲得
