@@ -828,6 +828,81 @@ namespace SangokuKmy.Models.Data.Entities
           },
         },
       },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Scholar1,
+        RequestedPoint = 0,
+        Name = "学者 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.IntellectExRegularly,
+            Value = 7,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Scholar2,
+        RequestedPoint = 6,
+        Name = "学者 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Scholar1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
+            Value = 40,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Scholar3,
+        RequestedPoint = 12,
+        Name = "学者 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Scholar2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.AnnotationBook,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Scholar4,
+        RequestedPoint = 10,
+        Name = "学者 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Scholar3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.PrivateBook,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Scholar5,
+        RequestedPoint = 7,
+        Name = "学者 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Scholar4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.Spy,
+          },
+        },
+      },
     };
 
     public static Optional<CharacterSkillInfo> Get(CharacterSkillType type)

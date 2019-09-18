@@ -102,6 +102,24 @@ namespace SangokuKmy.Models.Commands
           Length = 24,
           Contribution = 120,
         },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Scholar,
+          ItemType = CharacterItemType.AnnotationBook,
+          ResourceAttribute = c => c.Intellect,
+          AddExAttribute = c => c.AddIntellectEx(2000),
+          Length = 120,
+          Contribution = 800,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Scholar,
+          ItemType = CharacterItemType.PrivateBook,
+          ResourceAttribute = c => c.Intellect,
+          AddExAttribute = c => c.AddIntellectEx(2000),
+          Length = 120,
+          Contribution = 800,
+        },
       };
 
       public CharacterFrom From { get; set; }
@@ -232,9 +250,10 @@ namespace SangokuKmy.Models.Commands
         };
         await repo.DelayEffect.AddAsync(delay);
 
+        var finish = GameDateTime.FromInt(game.GameDateTime.ToInt() + generateInfo.Length);
         generateInfo.AddExAttribute(character);
         character.Contribution += generateInfo.Contribution;
-        await game.CharacterLogAsync($"<town>{town.Name}</town> で <num>{money}</num> を投し、{info.Name} の生産を開始しました。結果は <num>{game.GameDateTime.Year + 1}</num> 年 <num>{game.GameDateTime.Month}</num> 月に来ます");
+        await game.CharacterLogAsync($"<town>{town.Name}</town> で <num>{money}</num> を投し、{info.Name} の生産を開始しました。結果は <num>{finish.Year}</num> 年 <num>{finish.Month}</num> 月に来ます");
       }
       else
       {
