@@ -1274,6 +1274,7 @@ namespace SangokuKmy.Models.Data.Entities
             DiscountSoldierTypes = new List<SoldierType>
             {
               SoldierType.HeavyCavalry,
+              SoldierType.IntellectHeavyCavalry,
             },
           },
         },
@@ -1297,6 +1298,7 @@ namespace SangokuKmy.Models.Data.Entities
             DiscountSoldierTypes = new List<SoldierType>
             {
               SoldierType.HeavyCavalry,
+              SoldierType.IntellectHeavyCavalry,
             },
           },
         },
