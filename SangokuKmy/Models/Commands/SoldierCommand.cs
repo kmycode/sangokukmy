@@ -209,10 +209,27 @@ namespace SangokuKmy.Models.Commands
           }
           else
           {
-            character.Proficiency -= (short)add;
-            if (character.Proficiency < 0)
+            // 資源による訓練値下限
+            var minProficiency = (short)0;
+            resources = items.GetResources(CharacterItemEffectType.ProficiencyMinimum, ef => true, (int)soldierNumber);
+            needResources = (int)soldierNumber;
+            foreach (var resource in resources)
             {
-              character.Proficiency = 0;
+              var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+              onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
+
+              needResources -= resource.Item.Resource;
+
+              if (resource.Effect.Type == CharacterItemEffectType.ProficiencyMinimum && minProficiency < resource.Effect.Value)
+              {
+                minProficiency = (short)resource.Effect.Value;
+              }
+            }
+
+            character.Proficiency -= (short)add;
+            if (character.Proficiency < minProficiency)
+            {
+              character.Proficiency = minProficiency;
             }
             character.SoldierType = soldierType;
             if (!isDefaultSoldierType)

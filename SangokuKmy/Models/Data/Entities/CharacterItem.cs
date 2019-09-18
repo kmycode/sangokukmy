@@ -163,6 +163,8 @@ namespace SangokuKmy.Models.Data.Entities
     EquippedGoodHorse = 66,
     Elephant = 67,
     Toko = 68,
+    SuperSoldier = 69,
+    EliteSoldier = 70,
   }
 
   public enum CharacterItemEffectType
@@ -175,6 +177,7 @@ namespace SangokuKmy.Models.Data.Entities
     TerroristEnemy,
     DiscountSoldierPercentageWithResource,
     AddSoldierType,
+    ProficiencyMinimum,
   }
 
   public enum CharacterItemRareType
@@ -1377,6 +1380,48 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterItemEffectType.AddSoldierType,
             Value = (int)SoldierType.Toko,
           },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.SuperSoldier,
+        Name = "練兵",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 8,
+        InitializeNumber = 10,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.ProficiencyMinimum,
+            Value = 60,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EliteSoldier,
+        Name = "精鋭兵",
+        IsResource = true,
+        ResourceLevel = 2,
+        MoneyPerResource = 11,
+        InitializeNumber = 5,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.ProficiencyMinimum,
+            Value = 100,
+          },
+        },
+        DiscoverFroms = new List<CharacterFrom>
+        {
+          CharacterFrom.Warrior,
         },
       },
       new CharacterItemInfo

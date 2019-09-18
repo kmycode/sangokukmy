@@ -664,6 +664,86 @@ namespace SangokuKmy.Models.Data.Entities
           },
         },
       },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People1,
+        RequestedPoint = 0,
+        Name = "農民 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.Military,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People2,
+        RequestedPoint = 8,
+        Name = "農民 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.SuperSoldier,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People3,
+        RequestedPoint = 8,
+        Name = "農民 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SecurityCommandMulPercentage,
+            Value = 80,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People4,
+        RequestedPoint = 7,
+        Name = "農民 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleDecrease,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleIncrease,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People5,
+        RequestedPoint = 12,
+        Name = "農民 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EliteSoldier,
+          },
+        },
+      },
     };
 
     public static Optional<CharacterSkillInfo> Get(CharacterSkillType type)
