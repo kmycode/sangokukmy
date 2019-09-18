@@ -105,6 +105,25 @@ namespace SangokuKmy.Models.Services
         chara.Strong += 10;
         chara.Money += 10000;
       }
+      else if (chara.From == CharacterFrom.Terrorist)
+      {
+        chara.Strong += 15;
+        chara.Rice += 5000;
+      }
+      else if (chara.From == CharacterFrom.People)
+      {
+        chara.Popularity += 15;
+        chara.Rice += 5000;
+      }
+      else if (chara.From == CharacterFrom.Tactician)
+      {
+        chara.Strong += 5;
+        chara.Leadership += 15;
+      }
+      else if (chara.From == CharacterFrom.Scholar)
+      {
+        chara.Intellect += 10;
+      }
       else
       {
         ErrorCode.InvalidParameterError.Throw();
@@ -344,6 +363,17 @@ namespace SangokuKmy.Models.Services
       foreach (var si in skillItems)
       {
         await SkillService.SetCharacterAndSaveAsync(repo, si, chara);
+      }
+
+      if (chara.From == CharacterFrom.Scholar)
+      {
+        var item = new CharacterItem
+        {
+          Type = CharacterItemType.PrivateBook,
+          Status = CharacterItemStatus.TownHidden,
+        };
+        await ItemService.GenerateItemAndSaveAsync(repo, item);
+        await ItemService.SetCharacterAsync(repo, item, chara);
       }
 
       await repo.SaveChangesAsync();
