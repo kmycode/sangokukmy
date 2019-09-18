@@ -771,7 +771,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.SOldierTrainingAll,
+            Value = (int)CharacterCommandType.SoldierTrainingAll,
           },
         },
       },

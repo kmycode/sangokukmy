@@ -345,7 +345,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 合同訓練
     /// </summary>
-    SOldierTrainingAll = 60,
+    SoldierTrainingAll = 60,
 
     /// <summary>
     /// 偵察
