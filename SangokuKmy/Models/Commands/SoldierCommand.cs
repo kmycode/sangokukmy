@@ -245,7 +245,7 @@ namespace SangokuKmy.Models.Commands
             town.People -= (int)(add * Config.SoldierPeopleCost);
             town.Security -= (short)(add / 10);
 
-            await game.CharacterLogAsync(soldierTypeName + " を <num>+" + add + "</num> 徴兵しました");
+            await game.CharacterLogAsync($"金 <num>{needMoney}</num> を費やして、{soldierTypeName} を <num>+{add}</num> 徴兵しました");
             character.AddLeadershipEx(50);
 
             foreach (var onSucceed in onSucceeds)
