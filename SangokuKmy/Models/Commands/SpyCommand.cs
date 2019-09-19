@@ -58,7 +58,7 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync($"都市 {town.Name} を偵察しました");
 
           character.Money -= 200;
-          character.Contribution += 60;
+          character.Contribution += 40;
           character.AddIntellectEx(50);
         }
       }
