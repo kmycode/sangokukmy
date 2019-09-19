@@ -51,6 +51,34 @@ namespace SangokuKmy.Models.Commands
         var isDefaultSoldierType = isDefaultSoldierTypeOptional.Data.NumberValue == 0;
         var soldierNumber = soldierNumberOptional.Data.NumberValue;
 
+        if (soldierNumber == null)
+        {
+          await game.CharacterLogAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
+          return;
+        }
+
+        // 実際に徴兵する数を計算する
+        // soldierNumber: 入力値、add: 実際に徴兵する数
+        var add = soldierNumber.Value;
+        if ((isDefaultSoldierType && character.SoldierType == soldierType) || (!isDefaultSoldierType && character.SoldierType == SoldierType.Custom && character.CharacterSoldierTypeId == (uint)soldierType))
+        {
+          // 兵種は変えない
+          if (character.SoldierNumber + add > character.Leadership)
+          {
+            add = character.Leadership - character.SoldierNumber;
+          }
+          character.SoldierNumber += add;
+        }
+        else
+        {
+          // 兵種を変える
+          if (add > character.Leadership)
+          {
+            add = character.Leadership;
+          }
+          character.SoldierNumber = add;
+        }
+
         CharacterSoldierTypeData soldierTypeData = null;
         if (isDefaultSoldierType)
         {
@@ -69,7 +97,7 @@ namespace SangokuKmy.Models.Commands
           {
             // 資源による徴兵可能判定
             var resources = items.GetResources(CharacterItemEffectType.AddSoldierType, ef => ef.Value == (int)soldierType, (int)soldierNumber);
-            var needResources = (int)soldierNumber;
+            var needResources = add;
             foreach (var resource in resources)
             {
               var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
@@ -78,14 +106,14 @@ namespace SangokuKmy.Models.Commands
               needResources -= resource.Item.Resource;
             }
 
-            if (needResources == soldierNumber)
+            if (needResources == add)
             {
               await game.CharacterLogAsync($"{type.Name} を徴兵しようとしましたが、資源が必要なため徴兵できませんでした");
               return;
             }
 
             // needResourcesは負になることもある。資源が足りなかった時は徴兵数を資源にそろえる
-            soldierNumber -= Math.Max(needResources, 0);
+            add -= Math.Max(needResources, 0);
           }
           soldierTypeName = type.Name;
           soldierTypeData = DefaultCharacterSoldierTypeParts.GetDataByDefault(soldierType);
@@ -113,10 +141,6 @@ namespace SangokuKmy.Models.Commands
 
         var moneyPerSoldier = soldierTypeData.Money;
         var discountMoney = 0;
-        if (soldierNumber == null)
-        {
-          await game.CharacterLogAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
-        }
 
         if (isDefaultSoldierType)
         {
@@ -141,18 +165,16 @@ namespace SangokuKmy.Models.Commands
         {
           await game.CharacterLogAsync("<town>" + town.Name + "</town> は自国の都市ではありません");
         }
-        else if (town.People < soldierNumber * Config.SoldierPeopleCost)
+        else if (town.People < add * Config.SoldierPeopleCost)
         {
           await game.CharacterLogAsync("農民が足りません。");
         }
-        else if (town.Security < soldierNumber / 10)
+        else if (town.Security < add / 10)
         {
           await game.CharacterLogAsync("農民が拒否しました。");
         }
         else
         {
-          var add = soldierNumber.Value;
-
           // 首都なら雑兵ではなく禁兵
           if (isDefaultSoldierType && soldierType == SoldierType.Common)
           {
@@ -166,28 +188,9 @@ namespace SangokuKmy.Models.Commands
             });
           }
 
-          if ((isDefaultSoldierType && character.SoldierType == soldierType) || (!isDefaultSoldierType && character.SoldierType == SoldierType.Custom && character.CharacterSoldierTypeId == (uint)soldierType))
-          {
-            // 兵種は変えない
-            if (character.SoldierNumber + add > character.Leadership)
-            {
-              add = character.Leadership - character.SoldierNumber;
-            }
-            character.SoldierNumber += add;
-          }
-          else
-          {
-            // 兵種を変える
-            if (add > character.Leadership)
-            {
-              add = character.Leadership;
-            }
-            character.SoldierNumber = add;
-          }
-
           // 資源による割引
           var resources = items.GetResources(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), (int)soldierNumber);
-          var needResources = (int)soldierNumber;
+          var needResources = add;
           foreach (var resource in resources)
           {
             discountMoney += (int)(Math.Min(resource.Item.Resource, needResources) * moneyPerSoldier * (resource.Effect.Value / 100.0f));
@@ -211,8 +214,8 @@ namespace SangokuKmy.Models.Commands
           {
             // 資源による訓練値下限
             var minProficiency = (short)0;
-            resources = items.GetResources(CharacterItemEffectType.ProficiencyMinimum, ef => true, (int)soldierNumber);
-            needResources = (int)soldierNumber;
+            resources = items.GetResources(CharacterItemEffectType.ProficiencyMinimum, ef => true, add);
+            needResources = add;
             foreach (var resource in resources)
             {
               var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
