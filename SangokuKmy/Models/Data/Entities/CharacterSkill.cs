@@ -212,7 +212,7 @@ namespace SangokuKmy.Models.Data.Entities
             {
               BaseAttack = 20,
               RushProbability = 200,
-              RushAttack = 80,
+              RushAttack = 240,
             },
           },
         },
@@ -790,7 +790,7 @@ namespace SangokuKmy.Models.Data.Entities
             {
               BaseAttack = 40,
               RushProbability = 1200,
-              RushAttack = 60,
+              RushAttack = 360,
             },
           },
         },
