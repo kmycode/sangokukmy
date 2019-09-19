@@ -335,8 +335,8 @@ namespace SangokuKmy.Models.Commands
     protected override int GetCharacterAssets(Character character) => character.Rice;
     protected override string GetCharacterAssetName() => "米";
     protected override void SetCharacterAssets(Character character, int value) => character.Rice = value;
-    protected override int UseAssetsLength() => 1000;
-    protected override int GetCharacterAttribute(Character character) => 100 * (character.From == CharacterFrom.People ? character.Popularity : character.Strong);
+    protected override int UseAssetsLength() => 2000;
+    protected override int GetCharacterAttribute(Character character) => 40 * (character.From == CharacterFrom.People ? character.Popularity : character.Strong);
     protected override void AddCharacterAttributeEx(Character character, short ex)
     {
       if (character.From == CharacterFrom.People)
