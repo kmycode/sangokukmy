@@ -506,7 +506,7 @@ namespace SangokuKmy.Models.Commands
             targetTown.People = (int)(targetTown.People * 0.8f);
             targetTown.Security = (short)(targetTown.Security * 0.8f);
             myExperience += 50;
-            myContribution += myExperience;
+            myContribution += 50;
             character.TownId = targetTown.Id;
             newDefender = await repo.Town.SetDefenderAsync(character.Id, targetTown.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.TakeAway, "<country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <town>" + targetTown.Name + "</town> を支配しました", true);
