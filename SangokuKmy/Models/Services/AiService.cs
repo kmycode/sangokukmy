@@ -45,14 +45,21 @@ namespace SangokuKmy.Models.Services
 
       town.CountryId = country.Id;
 
+      await CreateCharacterAsync(repo, types, country.Id, town.Id, system);
+
+      return country;
+    }
+
+    private static async Task CreateCharacterAsync(MainRepository repo, IEnumerable<CharacterAiType> types, uint countryId, uint townId, SystemData system)
+    {
       var charas = new List<Character>();
       foreach (var type in types)
       {
         var chara = new Character
         {
           AiType = type,
-          CountryId = country.Id,
-          TownId = town.Id,
+          CountryId = countryId,
+          TownId = townId,
           LastUpdated = system.CurrentMonthStartDateTime.AddSeconds(RandomService.Next(0, Config.UpdateTime)),
           LastUpdatedGameDate = system.GameDateTime,
         };
@@ -80,8 +87,6 @@ namespace SangokuKmy.Models.Services
           });
         }
       }
-
-      return country;
     }
 
     public static async Task SetIconAsync(MainRepository repo, Character chara)
