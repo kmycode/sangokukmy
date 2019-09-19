@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
@@ -40,7 +41,7 @@ namespace SangokuKmy.Models.Commands
         }
 
         var charas = await repo.Town.GetCharactersAsync(town.Id);
-        foreach (var chara in charas)
+        foreach (var chara in charas.Where(c => c.CountryId == character.CountryId))
         {
           chara.Proficiency = (short)Math.Min(100, character.Proficiency + add);
         }
