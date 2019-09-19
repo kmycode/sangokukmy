@@ -167,7 +167,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Strong2,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "武家 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Strong1),
         Effects = new List<CharacterSkillEffect>
@@ -200,7 +200,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Strong4,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "武家 Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Strong3),
         Effects = new List<CharacterSkillEffect>
@@ -220,7 +220,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Strong5,
-        RequestedPoint = 10,
+        RequestedPoint = 9,
         Name = "武家 Lv.5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Strong4),
         Effects = new List<CharacterSkillEffect>
@@ -258,7 +258,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Intellect2,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "官吏 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect1),
         Effects = new List<CharacterSkillEffect>
@@ -273,7 +273,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Intellect3,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "官吏 Lv.3",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect2),
         Effects = new List<CharacterSkillEffect>
@@ -288,7 +288,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Intellect4,
-        RequestedPoint = 10,
+        RequestedPoint = 9,
         Name = "官吏 Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect3),
         Effects = new List<CharacterSkillEffect>
@@ -342,7 +342,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Merchant2,
-        RequestedPoint = 11,
+        RequestedPoint = 7,
         Name = "商人 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant1),
         Effects = new List<CharacterSkillEffect>
@@ -362,7 +362,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Merchant3,
-        RequestedPoint = 10,
+        RequestedPoint = 9,
         Name = "商人 Lv.3",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant2),
         Effects = new List<CharacterSkillEffect>
@@ -410,7 +410,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.RiceBuyMax,
-            Value = 3000,
+            Value = 8000,
           },
         },
       },
@@ -435,7 +435,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Engineer2,
-        RequestedPoint = 8,
+        RequestedPoint = 5,
         Name = "技師 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer1),
         Effects = new List<CharacterSkillEffect>
@@ -455,7 +455,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Engineer3,
-        RequestedPoint = 9,
+        RequestedPoint = 8,
         Name = "技師 Lv.3",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer2),
         Effects = new List<CharacterSkillEffect>
@@ -470,7 +470,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Engineer4,
-        RequestedPoint = 11,
+        RequestedPoint = 10,
         Name = "技師 Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer3),
         Effects = new List<CharacterSkillEffect>
