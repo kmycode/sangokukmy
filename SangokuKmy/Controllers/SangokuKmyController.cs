@@ -1410,6 +1410,55 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("unit/{id}/leader")]
+    public async Task ChangeUnitLeaderAsync(
+      [FromRoute] uint id,
+      [FromBody] UnitMember newLeader)
+    {
+      if (newLeader == null)
+      {
+        ErrorCode.LackOfParameterError.Throw();
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var member = await repo.Unit.GetByMemberIdAsync(this.AuthData.CharacterId);
+        var oldUnit = member.Unit.Data;
+        if (member.Unit.HasData && member.Member.HasData)
+        {
+          var unitMember = member.Member.Data;
+          if (unitMember.Post != UnitMemberPostType.Leader)
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+          if (oldUnit.Id != id)
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+        }
+        else
+        {
+          ErrorCode.UnitNotFoundError.Throw();
+        }
+
+        var members = await repo.Unit.GetMembersAsync(id);
+        var targetMember = members.FirstOrDefault(m => m.CharacterId == newLeader.CharacterId);
+        if (targetMember == null)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+        if (targetMember.Post == UnitMemberPostType.Leader)
+        {
+          ErrorCode.MeaninglessOperationError.Throw();
+        }
+        targetMember.Post = UnitMemberPostType.Leader;
+        member.Member.Data.Post = UnitMemberPostType.Normal;
+
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpDelete("unit/{id}")]
     public async Task RemoveUnitAsync(
       [FromRoute] uint id)
