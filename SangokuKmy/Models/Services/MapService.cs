@@ -417,7 +417,7 @@ namespace SangokuKmy.Models.Services
 
         public override int Wall => 300;
 
-        public override int WallMax => RandomService.Next(14, 25) * 100;
+        public override int WallMax => RandomService.Next(16, 25) * 100;
 
         public override int PeopleMax => 60000;
 
