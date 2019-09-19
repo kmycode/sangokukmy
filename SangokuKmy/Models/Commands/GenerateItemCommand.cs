@@ -162,6 +162,7 @@ namespace SangokuKmy.Models.Commands
             Type = type,
             Status = CharacterItemStatus.CharacterPending,
             CharacterId = chara.Data.Id,
+            IntLastStatusChangedGameDate = system.IntGameDateTime,
           };
 
           if (info.Data.IsResource)
