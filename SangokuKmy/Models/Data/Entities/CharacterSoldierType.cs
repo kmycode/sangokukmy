@@ -380,7 +380,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
           RushProbability = 100,
-          RushAttack = 120,
+          RushAttack = 12,
           ContinuousProbability = 40,
         },
         Money = 5,
