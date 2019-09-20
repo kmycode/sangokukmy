@@ -483,7 +483,7 @@ namespace SangokuKmy.Models.Services
       {
         ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("attribute", 0, 5, attributeMax));
       }
-      if (chara.Strong + chara.Intellect + chara.Leadership + chara.Popularity < attributeSumMax)
+      if (chara.Strong + chara.Intellect + chara.Leadership + chara.Popularity < attributeSumMax - 2)   // -2は新規登録情報入力途中に変動した場合の対応
       {
         ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("sumOfAttribute", 0, attributeSumMax, attributeSumMax));
       }
