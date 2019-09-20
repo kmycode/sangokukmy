@@ -78,7 +78,7 @@ namespace SangokuKmy.Models.Services
         Proficiency = 0,
         TownId = newChara.TownId,
         From = newChara.From,
-        FormationPoint = 300,
+        FormationPoint = 500,
       };
       chara.SetPassword(password);
 
