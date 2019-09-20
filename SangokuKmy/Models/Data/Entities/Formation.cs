@@ -181,7 +181,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoFire = 100,
-              BaseAttack = 10,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -190,7 +190,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoFire = 100,
-              BaseAttack = 30,
+              BaseAttack = 16,
             },
             NextLevel = 2000,
           },
@@ -199,10 +199,9 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoFire = 100,
-              BaseAttack = 50,
-              GogyoAttack = 20,
-              RushProbability = 200,
-              RushAttack = 80,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
             NextLevel = 5000,
           },
@@ -211,11 +210,12 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoFire = 100,
-              BaseAttack = 70,
-              GogyoAttack = 50,
-              RushProbability = 300,
-              RushAttack = 80,
-              ContinuousProbability = 20,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 1600,
+              RushAttack = 40,
             },
             NextLevel = 8000,
           },
@@ -224,11 +224,13 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoFire = 100,
-              BaseAttack = 100,
-              GogyoAttack = 80,
-              RushProbability = 500,
-              RushAttack = 100,
-              ContinuousProbability = 50,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
             },
             NextLevel = 10000,
           },
@@ -246,7 +248,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoWater = 100,
-              BaseAttack = 10,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -255,7 +257,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoWater = 100,
-              BaseAttack = 30,
+              BaseAttack = 16,
             },
             NextLevel = 2000,
           },
@@ -264,10 +266,9 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoWater = 100,
-              BaseAttack = 50,
-              GogyoAttack = 20,
-              RushProbability = 200,
-              RushAttack = 80,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
             NextLevel = 5000,
           },
@@ -276,10 +277,12 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoWater = 100,
-              BaseAttack = 70,
-              GogyoAttack = 50,
-              RushProbability = 500,
-              RushAttack = 80,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 1600,
+              RushAttack = 40,
             },
             NextLevel = 8000,
           },
@@ -288,10 +291,13 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoWater = 100,
-              BaseAttack = 100,
-              GogyoAttack = 80,
-              RushProbability = 800,
-              RushAttack = 160,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
             },
             NextLevel = 10000,
           },
@@ -309,7 +315,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoTree = 100,
-              BaseAttack = 10,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -318,7 +324,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoTree = 100,
-              BaseAttack = 30,
+              BaseAttack = 16,
             },
             NextLevel = 2000,
           },
@@ -327,9 +333,9 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoTree = 100,
-              BaseAttack = 50,
-              BaseDefend = 40,
-              GogyoDefend = 20,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
             NextLevel = 5000,
           },
@@ -338,10 +344,12 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoTree = 100,
-              BaseAttack = 70,
-              BaseDefend = 60,
-              GogyoDefend = 50,
-              WallDefend = 40,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 48,
+              RushProbability = 200,
+              RushAttack = 40,
             },
             NextLevel = 8000,
           },
@@ -350,10 +358,13 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoTree = 100,
-              BaseAttack = 100,
-              BaseDefend = 80,
-              GogyoDefend = 80,
-              WallDefend = 120,
+              BaseAttack = 16,
+              BaseDefend = 32,
+              GogyoAttack = 48,
+              GogyoDefend = 48,
+              RushProbability = 800,
+              RushAttack = 40,
+              ContinuousProbability = 200,
             },
             NextLevel = 10000,
           },
@@ -371,7 +382,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoSoil = 100,
-              BaseAttack = 10,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -380,7 +391,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoSoil = 100,
-              BaseAttack = 30,
+              BaseAttack = 16,
             },
             NextLevel = 2000,
           },
@@ -389,8 +400,9 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoSoil = 100,
-              BaseAttack = 50,
-              GogyoAttack = 40,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
             NextLevel = 5000,
           },
@@ -399,8 +411,12 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoSoil = 100,
-              BaseAttack = 70,
-              GogyoAttack = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 1600,
+              RushAttack = 40,
             },
             NextLevel = 8000,
           },
@@ -409,8 +425,13 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoSoil = 100,
-              BaseAttack = 100,
-              GogyoAttack = 160,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
             },
             NextLevel = 10000,
           },
@@ -428,7 +449,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoFire = 100,
-              BaseAttack = 10,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -437,7 +458,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoFire = 100,
-              BaseAttack = 30,
+              BaseAttack = 16,
             },
             NextLevel = 2000,
           },
@@ -446,10 +467,9 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoFire = 100,
-              BaseAttack = 50,
-              GogyoAttack = 10,
-              RushProbability = 300,
-              RushAttack = 60,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
             NextLevel = 5000,
           },
@@ -458,10 +478,12 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoFire = 100,
-              BaseAttack = 70,
-              GogyoAttack = 25,
-              RushProbability = 700,
-              RushAttack = 120,
+              BaseAttack = 32,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 16,
+              RushProbability = 800,
+              RushAttack = 80,
             },
             NextLevel = 8000,
           },
@@ -470,10 +492,12 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoFire = 100,
-              BaseAttack = 100,
-              GogyoAttack = 40,
-              RushProbability = 1100,
-              RushAttack = 180,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 60,
+              GogyoDefend = 16,
+              RushProbability = 1200,
+              RushAttack = 120,
             },
             NextLevel = 10000,
           },
@@ -491,7 +515,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoWater = 100,
-              BaseAttack = 10,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -500,7 +524,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoWater = 100,
-              BaseAttack = 30,
+              BaseAttack = 16,
             },
             NextLevel = 2000,
           },
@@ -509,9 +533,9 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoWater = 100,
-              BaseAttack = 50,
-              GogyoAttack = 40,
-              ContinuousProbability = 20,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
             NextLevel = 5000,
           },
@@ -520,9 +544,12 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoWater = 100,
-              BaseAttack = 70,
-              GogyoAttack = 80,
-              ContinuousProbability = 50,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
+              GogyoDefend = 8,
+              RushProbability = 3200,
+              RushAttack = 60,
             },
             NextLevel = 8000,
           },
@@ -531,9 +558,13 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoWater = 100,
-              BaseAttack = 100,
-              GogyoAttack = 120,
-              ContinuousProbability = 80,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 4000,
+              RushAttack = 100,
+              ContinuousProbability = 400,
             },
             NextLevel = 10000,
           },
@@ -551,7 +582,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoTree = 100,
-              BaseAttack = 10,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -560,7 +591,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoTree = 100,
-              BaseAttack = 30,
+              BaseAttack = 16,
             },
             NextLevel = 2000,
           },
@@ -569,10 +600,9 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoTree = 100,
-              BaseAttack = 50,
-              BaseDefend = 40,
-              GogyoAttack = 10,
-              GogyoDefend = 10,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
             NextLevel = 5000,
           },
@@ -581,11 +611,11 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoTree = 100,
-              BaseAttack = 70,
-              BaseDefend = 60,
-              GogyoAttack = 20,
-              GogyoDefend = 20,
-              RushProbability = 200,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 1600,
               RushAttack = 40,
             },
             NextLevel = 8000,
@@ -595,13 +625,13 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoTree = 100,
-              BaseAttack = 100,
-              BaseDefend = 80,
-              GogyoAttack = 40,
-              GogyoDefend = 40,
-              RushProbability = 300,
-              RushAttack = 80,
-              RushDefend = 40,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
             },
             NextLevel = 10000,
           },
@@ -619,7 +649,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoSoil = 100,
-              BaseAttack = 10,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -628,7 +658,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoSoil = 100,
-              BaseAttack = 30,
+              BaseAttack = 16,
             },
             NextLevel = 2000,
           },
@@ -637,10 +667,9 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoSoil = 100,
-              BaseAttack = 50,
-              GogyoAttack = 20,
-              RushProbability = 200,
-              RushAttack = 60,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
             NextLevel = 5000,
           },
@@ -649,10 +678,13 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoSoil = 100,
-              BaseAttack = 70,
-              GogyoAttack = 50,
-              RushProbability = 400,
-              RushAttack = 120,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
+              GogyoDefend = 16,
+              RushProbability = 800,
+              RushAttack = 40,
+              ContinuousProbability = 400,
             },
             NextLevel = 8000,
           },
@@ -661,10 +693,13 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoSoil = 100,
-              BaseAttack = 100,
-              GogyoAttack = 100,
-              RushProbability = 600,
-              RushAttack = 180,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 1200,
             },
             NextLevel = 10000,
           },
@@ -682,7 +717,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoMetal = 100,
-              BaseAttack = 10,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -691,7 +726,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoMetal = 100,
-              BaseAttack = 30,
+              BaseAttack = 16,
             },
             NextLevel = 2000,
           },
@@ -700,8 +735,9 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoMetal = 100,
-              BaseAttack = 50,
-              ContinuousProbability = 350,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
             NextLevel = 5000,
           },
@@ -710,8 +746,12 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoMetal = 100,
-              BaseAttack = 70,
-              ContinuousProbability = 700,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 1600,
+              RushAttack = 40,
             },
             NextLevel = 8000,
           },
@@ -720,8 +760,13 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoMetal = 100,
-              BaseAttack = 100,
-              ContinuousProbability = 950,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
             },
             NextLevel = 10000,
           },
@@ -739,7 +784,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoMetal = 100,
-              BaseAttack = 10,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -748,7 +793,7 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoMetal = 100,
-              BaseAttack = 30,
+              BaseAttack = 16,
             },
             NextLevel = 2000,
           },
@@ -757,9 +802,9 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoMetal = 100,
-              BaseAttack = 50,
-              WallAttack = 30,
-              WallDefend = 30,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              WallAttack = 32,
             },
             NextLevel = 5000,
           },
@@ -768,9 +813,12 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoMetal = 100,
-              BaseAttack = 70,
-              WallAttack = 60,
-              WallDefend = 60,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              WallAttack = 72,
+              WallDefend = 24,
+              RushProbability = 1600,
+              RushAttack = 40,
             },
             NextLevel = 8000,
           },
@@ -779,9 +827,13 @@ namespace SangokuKmy.Models.Data.Entities
             Data = new CharacterSoldierTypeData
             {
               GogyoMetal = 100,
-              BaseAttack = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
               WallAttack = 120,
-              WallDefend = 120,
+              WallDefend = 60,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
             },
             NextLevel = 10000,
           },
