@@ -38,6 +38,24 @@ namespace SangokuKmy.Models.Data.Entities
     public HistoricalCharacterIcon Icon { get; set; }
 
     /// <summary>
+    /// 出身
+    /// </summary>
+    [Column("from")]
+    [JsonIgnore]
+    public CharacterFrom From { get; set; }
+
+    /// <summary>
+    /// 出身（API用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("from")]
+    public int ApiFron
+    {
+      get => (int)this.From;
+      set => this.From = (CharacterFrom)value;
+    }
+
+    /// <summary>
     /// 国のID
     /// </summary>
     [Column("country_id")]
@@ -90,16 +108,32 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("popularity")]
     public short Popularity { get; set; }
 
+    /// <summary>
+    /// AIの種類
+    /// </summary>
+    [Column("ai_type")]
+    [JsonIgnore]
+    public CharacterAiType AiType { get; set; }
+
+    /// <summary>
+    /// AIの種類（API出力用）
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("aiType")]
+    public int ApiAiType { get; set; }
+
     public static HistoricalCharacter FromCharacter(Character chara)
     {
       return new HistoricalCharacter
       {
         CountryId = chara.CountryId,
         Name = chara.Name,
+        From = chara.From,
         Strong = chara.Strong,
         Intellect = chara.Intellect,
         Leadership = chara.Leadership,
         Popularity = chara.Popularity,
+        AiType = chara.AiType,
       };
     }
   }
