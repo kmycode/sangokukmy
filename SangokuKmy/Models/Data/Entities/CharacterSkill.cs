@@ -212,7 +212,7 @@ namespace SangokuKmy.Models.Data.Entities
             {
               BaseAttack = 20,
               RushProbability = 200,
-              RushAttack = 240,
+              RushAttack = 120,
             },
           },
         },
@@ -266,7 +266,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
-            Value = 40,
+            Value = 50,
           },
         },
       },
@@ -281,7 +281,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
-            Value = 40,
+            Value = 50,
           },
         },
       },
@@ -299,7 +299,7 @@ namespace SangokuKmy.Models.Data.Entities
             SoldierTypeData = new CharacterSoldierTypeData
             {
               TypeGuardAttack = 20,
-              TypeGuardDefend = 40,
+              TypeGuardDefend = 50,
             },
           },
         },
@@ -885,6 +885,11 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.GenerateItem,
             Value = (int)CharacterItemType.PrivateBook,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.ItemMax,
+            Value = 3,
           },
         },
       },
