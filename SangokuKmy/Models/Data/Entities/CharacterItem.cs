@@ -1455,7 +1455,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "藤甲",
         IsResource = true,
         ResourceLevel = 1,
-        MoneyPerResource = 26,
+        MoneyPerResource = 22,
         InitializeNumber = 2,
         DefaultResource = 1000,
         RareType = CharacterItemRareType.TownHiddenOnly,
