@@ -1060,7 +1060,7 @@ namespace SangokuKmy.Controllers
             // 開戦が早すぎる
             ErrorCode.InvalidParameterError.Throw();
           }
-          else if (param.StartGameDate.ToInt() > system.IntGameDateTime + 12 * 48)
+          else if (param.StartGameDate.ToInt() > system.IntGameDateTime + 12 * 24)
           {
             // 開戦が遅すぎる
             ErrorCode.InvalidParameterError.Throw();
