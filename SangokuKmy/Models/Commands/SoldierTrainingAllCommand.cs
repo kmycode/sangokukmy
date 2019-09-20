@@ -8,8 +8,6 @@ using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Services;
 
-#nullable enable
-
 namespace SangokuKmy.Models.Commands
 {
   public class SoldierTrainingAllCommand : Command

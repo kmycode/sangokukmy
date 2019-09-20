@@ -9,8 +9,6 @@ using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Services;
 
-#nullable enable
-
 namespace SangokuKmy.Models.Commands
 {
   public class GenerateItemCommand : Command
@@ -131,7 +129,7 @@ namespace SangokuKmy.Models.Commands
 
       private GenerateItemInfo() { }
 
-      public static GenerateItemInfo? GetInfo(Character chara, CharacterItemType type)
+      public static GenerateItemInfo GetInfo(Character chara, CharacterItemType type)
       {
         return infos.FirstOrDefault(i => i.From == chara.From && i.ItemType == type);
       }
@@ -264,7 +262,7 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
-      var itemType = (CharacterItemType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue!;
+      var itemType = (CharacterItemType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
 
       var skills = await repo.Character.GetSkillsAsync(characterId);
       if (!skills.AnySkillEffects(CharacterSkillEffectType.GenerateItem, (int)itemType))
