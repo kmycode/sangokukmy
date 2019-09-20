@@ -126,7 +126,7 @@ namespace SangokuKmy.Models.Services
       else if (chara.From == CharacterFrom.Scholar)
       {
         skills.Add(CharacterSkillType.Scholar1);
-        chara.Intellect += 10;
+        chara.Intellect += 20;
       }
       else if (chara.From == CharacterFrom.Staff)
       {
@@ -372,17 +372,6 @@ namespace SangokuKmy.Models.Services
       foreach (var si in skillItems)
       {
         await SkillService.SetCharacterAndSaveAsync(repo, si, chara);
-      }
-
-      if (chara.From == CharacterFrom.Scholar)
-      {
-        var item = new CharacterItem
-        {
-          Type = CharacterItemType.PrivateBook,
-          Status = CharacterItemStatus.TownHidden,
-        };
-        await ItemService.GenerateItemAndSaveAsync(repo, item);
-        await ItemService.SetCharacterAsync(repo, item, chara);
       }
 
       await repo.SaveChangesAsync();
