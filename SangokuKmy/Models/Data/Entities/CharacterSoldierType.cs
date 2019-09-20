@@ -382,7 +382,7 @@ namespace SangokuKmy.Models.Data.Entities
           TypeInfantry = 10,
           StrongEx = 1,
           PowerStrong = 1,
-          RushProbability = 100,
+          RushProbability = 10,
           RushAttack = 6,
           ContinuousProbability = 40,
         },
@@ -399,7 +399,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           TypeCavalry = 10,
-          RushProbability = 4000,
+          RushProbability = 400,
           RushAttack = 12,
           StrongEx = 1,
           PowerStrong = 1,
