@@ -1458,6 +1458,15 @@ namespace SangokuKmy.Controllers
         {
           ErrorCode.MeaninglessOperationError.Throw();
         }
+        var targetChara = await repo.Character.GetByIdAsync(targetMember.CharacterId);
+        if (!targetChara.HasData)
+        {
+          ErrorCode.CharacterNotFoundError.Throw();
+        }
+        if (targetChara.Data.AiType != CharacterAiType.Human)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
         targetMember.Post = UnitMemberPostType.Leader;
         member.Member.Data.Post = UnitMemberPostType.Normal;
 
