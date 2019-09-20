@@ -802,7 +802,7 @@ namespace SangokuKmy.Models.Data.Entities
             {
               BaseAttack = 40,
               RushProbability = 1200,
-              RushAttack = 360,
+              RushAttack = 160,
             },
           },
         },
