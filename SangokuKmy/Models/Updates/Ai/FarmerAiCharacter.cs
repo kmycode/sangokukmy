@@ -172,7 +172,7 @@ namespace SangokuKmy.Models.Updates.Ai
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "農民_武将";
-      this.Character.Strong = (short)Math.Max(current.ToInt() * 0.7f / 12 + 100, 100);
+      this.Character.Strong = (short)Math.Max(current.ToInt() * 0.9f / 12 + 100, 100);
       this.Character.Leadership = 100;
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;
@@ -192,7 +192,7 @@ namespace SangokuKmy.Models.Updates.Ai
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "農民_文官";
-      this.Character.Intellect = (short)Math.Max(current.ToInt() * 0.7f / 12 + 100, 100);
+      this.Character.Intellect = (short)Math.Max(current.ToInt() * 0.9f / 12 + 100, 100);
       this.Character.Leadership = 100;
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;

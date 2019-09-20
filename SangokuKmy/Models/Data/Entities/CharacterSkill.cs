@@ -525,7 +525,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Ai2,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "AI Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai1),
         Effects = new List<CharacterSkillEffect>
@@ -543,7 +543,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Ai3,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "AI Lv.3",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai2),
         Effects = new List<CharacterSkillEffect>
@@ -553,16 +553,23 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
+              BaseAttack = 20,
+              BaseDefend = 20,
               RushProbability = 300,
               RushAttack = 50,
             },
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.StrongOrIntellectExRegularly,
+            Value = 2,
           },
         },
       },
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Ai4,
-        RequestedPoint = 10,
+        RequestedPoint = 9,
         Name = "AI Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai3),
         Effects = new List<CharacterSkillEffect>
@@ -572,7 +579,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              ContinuousProbability = 30,
+              ContinuousProbability = 300,
             },
           },
         },
@@ -580,7 +587,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Ai5,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "AI Lv.5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai4),
         Effects = new List<CharacterSkillEffect>
