@@ -168,6 +168,7 @@ namespace SangokuKmy.Models.Data.Entities
     MartialArtsBook = 71,
     PrivateBook = 72,
     AnnotationBook = 73,
+    Kojinnoakashi = 74,
   }
 
   public enum CharacterItemEffectType
@@ -183,6 +184,7 @@ namespace SangokuKmy.Models.Data.Entities
     DiscountSoldierPercentageWithResource,
     AddSoldierType,
     ProficiencyMinimum,
+    JoinableAiCountry,
   }
 
   public enum CharacterItemRareType
@@ -1255,6 +1257,7 @@ namespace SangokuKmy.Models.Data.Entities
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
         CanSell = false,
+        CanHandOver = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1265,6 +1268,34 @@ namespace SangokuKmy.Models.Data.Entities
         DiscoverFroms = new List<CharacterFrom>
         {
           CharacterFrom.Warrior,
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.Kojinnoakashi,
+        Name = "胡人の証",
+        Money = 5_000_000,
+        InitializeNumber = 1,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = false,
+        CanSell = false,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.JoinableAiCountry,
+            Value = (int)CountryAiType.Managed,
+          },
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.JoinableAiCountry,
+            Value = (int)CountryAiType.Terrorists,
+          },
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.JoinableAiCountry,
+            Value = (int)CountryAiType.TerroristsEnemy,
+          },
         },
       },
       new CharacterItemInfo
