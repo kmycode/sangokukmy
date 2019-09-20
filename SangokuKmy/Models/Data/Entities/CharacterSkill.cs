@@ -535,7 +535,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              BaseAttack = 40,
+              BaseAttack = 20,
             },
           },
         },
@@ -553,6 +553,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
+              BaseAttack = 10,
               RushProbability = 300,
               RushAttack = 50,
             },
@@ -572,6 +573,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
+              BaseAttack = 10,
               ContinuousProbability = 30,
             },
           },
