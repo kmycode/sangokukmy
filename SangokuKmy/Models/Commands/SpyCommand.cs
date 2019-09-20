@@ -55,7 +55,11 @@ namespace SangokuKmy.Models.Commands
             await StatusStreaming.Default.SendCountryAsync(ApiData.From(savedScoutedTown), character.CountryId);
           }
 
+          var items = await repo.CharacterItem.GetByTownIdAsync(town.Id);
+          var itemInfos = items.GetInfos();
+
           await game.CharacterLogAsync($"都市 {town.Name} を偵察しました");
+          await game.CharacterLogAsync($"都市 {town.Name} のアイテム: {string.Join(", ", itemInfos.Select(i => i.Name))}");
 
           character.Money -= 200;
           character.Contribution += 40;
