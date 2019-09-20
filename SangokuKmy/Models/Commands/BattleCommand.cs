@@ -265,6 +265,18 @@ namespace SangokuKmy.Models.Commands
         targetSkills = await repo.Character.GetSkillsAsync(targetCharacter.Id);
         targetSoldierType.Append(targetSkills.GetSoldierTypeData());
 
+        // 特殊なスキル判定
+        if (targetCharacter.AiType.IsTerrorist() && mySkills.Any(s => s.Type == CharacterSkillType.Terrorist3))
+        {
+          mySoldierType.BaseAttack += 100;
+          mySoldierType.BaseDefend += 50;
+        }
+        if (character.AiType.IsTerrorist() && targetSkills.Any(s => s.Type == CharacterSkillType.Terrorist3))
+        {
+          targetSoldierType.BaseAttack += 100;
+          targetSoldierType.BaseDefend += 50;
+        }
+
         isWall = false;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
       }
@@ -335,14 +347,14 @@ namespace SangokuKmy.Models.Commands
         var isTargetRush = false;
         if (mySoldierType.IsRush())
         {
-          targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack()), 14), targetCharacter.SoldierNumber);
-          targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 3);
+          targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack(targetSoldierType)), 14), targetCharacter.SoldierNumber);
+          targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 2);
           isMyRush = true;
         }
         else if (targetSoldierType.IsRush())
         {
-          myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack()), 8), character.SoldierNumber);
-          myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 3);
+          myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack(mySoldierType)), 8), character.SoldierNumber);
+          myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 2);
           isTargetRush = true;
         }
 
@@ -496,7 +508,7 @@ namespace SangokuKmy.Models.Commands
             targetTown.People = (int)(targetTown.People * 0.8f);
             targetTown.Security = (short)(targetTown.Security * 0.8f);
             myExperience += 50;
-            myContribution += myExperience;
+            myContribution += 50;
             character.TownId = targetTown.Id;
             newDefender = await repo.Town.SetDefenderAsync(character.Id, targetTown.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.TakeAway, "<country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <town>" + targetTown.Name + "</town> を支配しました", true);

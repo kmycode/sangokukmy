@@ -474,7 +474,7 @@ namespace SangokuKmy.Models.Updates
                 await AddMapLogAsync(true, EventType.Event, "<town>" + targetTown.Name + "</town> 周辺の市場が賑わっています");
                 SetEvents(1.30f, 1.15f, 1.50f, 1.30f, CountryPolicyType.Economy, null, (town, val, ps, c) =>
                 {
-                  town.Agriculture = Math.Min((int)(town.Agriculture * val), town.AgricultureMax);
+                  town.Commercial = Math.Min((int)(town.Commercial * val), town.CommercialMax);
                 });
                 break;
               case 6:
@@ -1105,6 +1105,17 @@ namespace SangokuKmy.Models.Updates
           character.AddIntellectEx((short)skillIntellectEx);
           character.AddLeadershipEx((short)skillLeadershipEx);
           character.AddPopularityEx((short)skillPopularityEx);
+
+          var skillFormationEx = skills.GetSumOfValues(CharacterSkillEffectType.FormationExRegularly);
+          if (skillFormationEx > 0)
+          {
+            var formation = await repo.Character.GetFormationAsync(character.Id, character.FormationType);
+            if (formation != null)
+            {
+              formation.Experience += skillFormationEx;
+              await repo.SaveChangesAsync();
+            }
+          }
         }
 
         // 技能ポイントが十分にあるときは自動で技能獲得

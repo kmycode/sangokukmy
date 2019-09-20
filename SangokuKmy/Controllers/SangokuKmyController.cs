@@ -256,6 +256,7 @@ namespace SangokuKmy.Controllers
       [FromRoute] uint id = 0)
     {
       Character chara;
+      CharacterIcon mainIcon = null;
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
@@ -271,6 +272,7 @@ namespace SangokuKmy.Controllers
           else
           {
             icon.IsMain = true;
+            mainIcon = icon;
             isHit = true;
           }
         }
@@ -282,6 +284,11 @@ namespace SangokuKmy.Controllers
       }
 
       await OnlineService.SetAsync(chara, OnlineStatus.Active);
+      if (mainIcon != null)
+      {
+        var ac = new CharacterForAnonymous(chara, mainIcon, CharacterShareLevel.Anonymous);
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(ac));
+      }
     }
 
     [AuthenticationFilter]
@@ -1029,7 +1036,7 @@ namespace SangokuKmy.Controllers
               // 開戦が早すぎる
               ErrorCode.InvalidParameterError.Throw();
             }
-            else if (param.StartGameDate.ToInt() > system.IntGameDateTime + 12 * 48)
+            else if (param.StartGameDate.ToInt() > system.IntGameDateTime + 12 * 24)
             {
               // 開戦が遅すぎる
               ErrorCode.InvalidParameterError.Throw();
@@ -1060,7 +1067,7 @@ namespace SangokuKmy.Controllers
             // 開戦が早すぎる
             ErrorCode.InvalidParameterError.Throw();
           }
-          else if (param.StartGameDate.ToInt() > system.IntGameDateTime + 12 * 48)
+          else if (param.StartGameDate.ToInt() > system.IntGameDateTime + 12 * 24)
           {
             // 開戦が遅すぎる
             ErrorCode.InvalidParameterError.Throw();
@@ -1405,6 +1412,55 @@ namespace SangokuKmy.Controllers
         oldUnit.Message = unit.Message;
         oldUnit.Name = unit.Name;
         oldUnit.IsLimited = unit.IsLimited;
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("unit/{id}/leader")]
+    public async Task ChangeUnitLeaderAsync(
+      [FromRoute] uint id,
+      [FromBody] UnitMember newLeader)
+    {
+      if (newLeader == null)
+      {
+        ErrorCode.LackOfParameterError.Throw();
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var member = await repo.Unit.GetByMemberIdAsync(this.AuthData.CharacterId);
+        var oldUnit = member.Unit.Data;
+        if (member.Unit.HasData && member.Member.HasData)
+        {
+          var unitMember = member.Member.Data;
+          if (unitMember.Post != UnitMemberPostType.Leader)
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+          if (oldUnit.Id != id)
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
+        }
+        else
+        {
+          ErrorCode.UnitNotFoundError.Throw();
+        }
+
+        var members = await repo.Unit.GetMembersAsync(id);
+        var targetMember = members.FirstOrDefault(m => m.CharacterId == newLeader.CharacterId);
+        if (targetMember == null)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+        if (targetMember.Post == UnitMemberPostType.Leader)
+        {
+          ErrorCode.MeaninglessOperationError.Throw();
+        }
+        targetMember.Post = UnitMemberPostType.Leader;
+        member.Member.Data.Post = UnitMemberPostType.Normal;
+
         await repo.SaveChangesAsync();
       }
     }

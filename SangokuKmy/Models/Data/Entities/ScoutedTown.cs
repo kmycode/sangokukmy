@@ -126,5 +126,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 密偵
     /// </summary>
     Scouter = 2,
+
+    /// <summary>
+    /// 偵察コマンド
+    /// </summary>
+    SpyCommand = 3,
   }
 }

@@ -48,7 +48,7 @@ namespace SangokuKmy.Models.Services
 
     public static async Task SetCharacterPendingAsync(MainRepository repo, CharacterItem item, Character chara)
     {
-      if (item.Status == CharacterItemStatus.CharacterHold)
+      if (item.Status == CharacterItemStatus.CharacterHold || item.Status == CharacterItemStatus.CharacterPending)
       {
         if (item.CharacterId == chara.Id)
         {
@@ -104,6 +104,26 @@ namespace SangokuKmy.Models.Services
           if (effect.Type == CharacterItemEffectType.DiscountSoldierPercentageWithResource)
           {
             logs.Add("特定兵種割引");
+          }
+          if (effect.Type == CharacterItemEffectType.FormationEx)
+          {
+            var formation = await repo.Character.GetFormationAsync(chara.Id, chara.FormationType);
+            if (formation != null)
+            {
+              var i = FormationTypeInfoes.Get(chara.FormationType);
+              if (i.HasData)
+              {
+                formation.Experience += effect.Value;
+                i.Data.CheckLevelUp(formation);
+                await StatusStreaming.Default.SendCharacterAsync(ApiData.From(formation), chara.Id);
+                logs.Add($"陣形経験値 <num>{effect.Value}</num>");
+              }
+            }
+          }
+          if (effect.Type == CharacterItemEffectType.IntellectEx)
+          {
+            chara.AddIntellectEx((short)effect.Value);
+            logs.Add($"知力経験値 <num>{effect.Value}</num>");
           }
         }
 

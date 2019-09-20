@@ -78,7 +78,7 @@ namespace SangokuKmy.Models.Services
         Proficiency = 0,
         TownId = newChara.TownId,
         From = newChara.From,
-        FormationPoint = 300,
+        FormationPoint = 500,
       };
       chara.SetPassword(password);
 
@@ -104,6 +104,34 @@ namespace SangokuKmy.Models.Services
         skills.Add(CharacterSkillType.Engineer1);
         chara.Strong += 10;
         chara.Money += 10000;
+      }
+      else if (chara.From == CharacterFrom.Terrorist)
+      {
+        skills.Add(CharacterSkillType.Terrorist1);
+        chara.Strong += 15;
+        chara.Rice += 5000;
+      }
+      else if (chara.From == CharacterFrom.People)
+      {
+        skills.Add(CharacterSkillType.People1);
+        chara.Popularity += 15;
+        chara.Rice += 5000;
+      }
+      else if (chara.From == CharacterFrom.Tactician)
+      {
+        skills.Add(CharacterSkillType.Tactician1);
+        chara.Strong += 5;
+        chara.Leadership += 15;
+      }
+      else if (chara.From == CharacterFrom.Scholar)
+      {
+        skills.Add(CharacterSkillType.Scholar1);
+        chara.Intellect += 20;
+      }
+      else if (chara.From == CharacterFrom.Staff)
+      {
+        skills.Add(CharacterSkillType.Staff1);
+        chara.Intellect += 20;
       }
       else
       {
@@ -444,7 +472,7 @@ namespace SangokuKmy.Models.Services
       {
         ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("attribute", 0, 5, attributeMax));
       }
-      if (chara.Strong + chara.Intellect + chara.Leadership + chara.Popularity < attributeSumMax)
+      if (chara.Strong + chara.Intellect + chara.Leadership + chara.Popularity < attributeSumMax - 2)   // -2は新規登録情報入力途中に変動した場合の対応
       {
         ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("sumOfAttribute", 0, attributeSumMax, attributeSumMax));
       }

@@ -80,6 +80,31 @@ namespace SangokuKmy.Models.Data.Entities
     Ai3 = 23,
     Ai4 = 24,
     Ai5 = 25,
+    Terrorist1 = 26,
+    Terrorist2 = 27,
+    Terrorist3 = 28,
+    Terrorist4 = 29,
+    Terrorist5 = 30,
+    People1 = 31,
+    People2 = 32,
+    People3 = 33,
+    People4 = 34,
+    People5 = 35,
+    Tactician1 = 36,
+    Tactician2 = 37,
+    Tactician3 = 38,
+    Tactician4 = 39,
+    Tactician5 = 40,
+    Scholar1 = 41,
+    Scholar2 = 42,
+    Scholar3 = 43,
+    Scholar4 = 44,
+    Scholar5 = 45,
+    Staff1 = 46,
+    Staff2 = 47,
+    Staff3 = 48,
+    Staff4 = 49,
+    Staff5 = 50,
   }
 
   public enum CharacterSkillEffectType
@@ -93,6 +118,7 @@ namespace SangokuKmy.Models.Data.Entities
     LeadershipExRegularly,
     PopularityExRegularly,
     StrongOrIntellectExRegularly,
+    FormationExRegularly,
     SoldierDiscountPercentage,
     SoldierType,
     SoldierCorrection,
@@ -103,6 +129,7 @@ namespace SangokuKmy.Models.Data.Entities
     RiceBuyMax,
     RiceBuyContribution,
     DomesticAffairMulPercentage,
+    SecurityCommandMulPercentage,
     PolicyBoostProbabilityThousandth,
     GenerateItem,
   }
@@ -145,7 +172,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Strong2,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "武家 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Strong1),
         Effects = new List<CharacterSkillEffect>
@@ -157,6 +184,11 @@ namespace SangokuKmy.Models.Data.Entities
             {
               BaseAttack = 20,
             },
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.TownPatrol,
           },
         },
       },
@@ -178,7 +210,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Strong4,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "武家 Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Strong3),
         Effects = new List<CharacterSkillEffect>
@@ -190,7 +222,7 @@ namespace SangokuKmy.Models.Data.Entities
             {
               BaseAttack = 20,
               RushProbability = 200,
-              RushAttack = 80,
+              RushAttack = 120,
             },
           },
         },
@@ -198,16 +230,11 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Strong5,
-        RequestedPoint = 10,
+        RequestedPoint = 9,
         Name = "武家 Lv.5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Strong4),
         Effects = new List<CharacterSkillEffect>
         {
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.TownPatrol,
-          },
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.SoldierCorrection,
@@ -236,7 +263,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Intellect2,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "官吏 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect1),
         Effects = new List<CharacterSkillEffect>
@@ -244,14 +271,19 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
-            Value = 40,
+            Value = 50,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.TownPatrol,
           },
         },
       },
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Intellect3,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "官吏 Lv.3",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect2),
         Effects = new List<CharacterSkillEffect>
@@ -259,14 +291,14 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
-            Value = 40,
+            Value = 50,
           },
         },
       },
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Intellect4,
-        RequestedPoint = 10,
+        RequestedPoint = 9,
         Name = "官吏 Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect3),
         Effects = new List<CharacterSkillEffect>
@@ -277,7 +309,7 @@ namespace SangokuKmy.Models.Data.Entities
             SoldierTypeData = new CharacterSoldierTypeData
             {
               TypeGuardAttack = 20,
-              TypeGuardDefend = 40,
+              TypeGuardDefend = 50,
             },
           },
         },
@@ -297,9 +329,9 @@ namespace SangokuKmy.Models.Data.Entities
           },
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.TownPatrol,
-          },
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.IntellectCommon,
+          }
         },
       },
       new CharacterSkillInfo
@@ -320,7 +352,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Merchant2,
-        RequestedPoint = 11,
+        RequestedPoint = 7,
         Name = "商人 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant1),
         Effects = new List<CharacterSkillEffect>
@@ -340,7 +372,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Merchant3,
-        RequestedPoint = 10,
+        RequestedPoint = 9,
         Name = "商人 Lv.3",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant2),
         Effects = new List<CharacterSkillEffect>
@@ -388,7 +420,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.RiceBuyMax,
-            Value = 3000,
+            Value = 8000,
           },
         },
       },
@@ -413,7 +445,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Engineer2,
-        RequestedPoint = 8,
+        RequestedPoint = 9,
         Name = "技師 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer1),
         Effects = new List<CharacterSkillEffect>
@@ -448,7 +480,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Engineer4,
-        RequestedPoint = 11,
+        RequestedPoint = 9,
         Name = "技師 Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer3),
         Effects = new List<CharacterSkillEffect>
@@ -463,7 +495,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Engineer5,
-        RequestedPoint = 12,
+        RequestedPoint = 8,
         Name = "技師 Lv.5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer4),
         Effects = new List<CharacterSkillEffect>
@@ -493,7 +525,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Ai2,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "AI Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai1),
         Effects = new List<CharacterSkillEffect>
@@ -503,7 +535,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              BaseAttack = 40,
+              BaseAttack = 20,
             },
           },
         },
@@ -511,7 +543,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Ai3,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "AI Lv.3",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai2),
         Effects = new List<CharacterSkillEffect>
@@ -521,6 +553,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
+              BaseAttack = 10,
               RushProbability = 300,
               RushAttack = 50,
             },
@@ -530,7 +563,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Ai4,
-        RequestedPoint = 10,
+        RequestedPoint = 9,
         Name = "AI Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai3),
         Effects = new List<CharacterSkillEffect>
@@ -540,7 +573,8 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              ContinuousProbability = 30,
+              BaseAttack = 10,
+              ContinuousProbability = 300,
             },
           },
         },
@@ -548,7 +582,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Ai5,
-        RequestedPoint = 10,
+        RequestedPoint = 8,
         Name = "AI Lv.5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Ai4),
         Effects = new List<CharacterSkillEffect>
@@ -558,6 +592,427 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.StrongOrIntellectExRegularly,
             Value = 4,
           },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist1,
+        RequestedPoint = 0,
+        Name = "胡人 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.StrongExRegularly,
+            Value = 7,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist2,
+        RequestedPoint = 6,
+        Name = "胡人 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 30,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist3,
+        RequestedPoint = 9,
+        Name = "胡人 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist2),
+        Effects = new List<CharacterSkillEffect>
+        {
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist4,
+        RequestedPoint = 8,
+        Name = "胡人 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.Elephant,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.Toko,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist5,
+        RequestedPoint = 12,
+        Name = "胡人 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleDecrease,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleIncrease,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People1,
+        RequestedPoint = 0,
+        Name = "農民 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.Military,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People2,
+        RequestedPoint = 8,
+        Name = "農民 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.SuperSoldier,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People3,
+        RequestedPoint = 8,
+        Name = "農民 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SecurityCommandMulPercentage,
+            Value = 80,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People4,
+        RequestedPoint = 7,
+        Name = "農民 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleDecrease,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleIncrease,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People5,
+        RequestedPoint = 12,
+        Name = "農民 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EliteSoldier,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Tactician1,
+        RequestedPoint = 0,
+        Name = "兵家 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.FormationExRegularly,
+            Value = 4,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Tactician2,
+        RequestedPoint = 10,
+        Name = "兵家 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Tactician1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.SoldierTrainingAll,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Tactician3,
+        RequestedPoint = 8,
+        Name = "兵家 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Tactician2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 40,
+              RushProbability = 1200,
+              RushAttack = 160,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Tactician4,
+        RequestedPoint = 7,
+        Name = "兵家 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Tactician3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.MartialArtsBook,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Tactician5,
+        RequestedPoint = 10,
+        Name = "兵家 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Tactician4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              ContinuousProbability = 600,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Scholar1,
+        RequestedPoint = 0,
+        Name = "学者 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.IntellectExRegularly,
+            Value = 7,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Scholar2,
+        RequestedPoint = 6,
+        Name = "学者 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Scholar1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
+            Value = 40,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Scholar3,
+        RequestedPoint = 12,
+        Name = "学者 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Scholar2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.AnnotationBook,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Scholar4,
+        RequestedPoint = 10,
+        Name = "学者 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Scholar3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.PrivateBook,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.ItemMax,
+            Value = 3,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Scholar5,
+        RequestedPoint = 7,
+        Name = "学者 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Scholar4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.Spy,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Staff1,
+        RequestedPoint = 0,
+        Name = "参謀 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.IntellectExRegularly,
+            Value = 7,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Staff2,
+        RequestedPoint = 8,
+        Name = "参謀 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Staff1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 20,
+            },
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.Spy,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Staff3,
+        RequestedPoint = 10,
+        Name = "参謀 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Staff2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.IntellectCommon,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Staff4,
+        RequestedPoint = 8,
+        Name = "参謀 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Staff3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              RushProbability = 200,
+              RushAttack = 60,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Staff5,
+        RequestedPoint = 9,
+        Name = "参謀 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Staff4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              ContinuousProbabilityOnSingleTurn = 5000,
+            },
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.IntellectRepeatingCrossbow,
+          }
         },
       },
     };

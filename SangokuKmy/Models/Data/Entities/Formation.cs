@@ -47,6 +47,13 @@ namespace SangokuKmy.Models.Data.Entities
     Gyorin = 1,
     Hoshi = 2,
     Suiko = 3,
+    Kakuyoku = 4,
+    Hoen = 5,
+    Koyaku = 6,
+    Engetsu = 7,
+    Ganko = 8,
+    Choda = 9,
+    Kojo = 10,
   }
 
   public class FormationTypeLevelInfo
@@ -163,7 +170,73 @@ namespace SangokuKmy.Models.Data.Entities
         },
         RequiredPoint = 0,
       },
-      /*
+      new FormationTypeInfo
+      {
+        Type = FormationType.Kakuyoku,
+        Name = "鶴翼",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoFire = 100,
+              BaseAttack = 8,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoFire = 100,
+              BaseAttack = 16,
+            },
+            NextLevel = 2000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoFire = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
+            },
+            NextLevel = 5000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoFire = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 1600,
+              RushAttack = 40,
+            },
+            NextLevel = 8000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoFire = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
+      },
       new FormationTypeInfo
       {
         Type = FormationType.Gyorin,
@@ -174,7 +247,8 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeInfantryAttack = 10,
+              GogyoWater = 100,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -182,38 +256,182 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeInfantryAttack = 19,
+              GogyoWater = 100,
+              BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeInfantryAttack = 27,
-              CavalryAttack = 8,
+              GogyoWater = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeInfantryAttack = 34,
-              CavalryAttack = 8,
-              RushProbability = 100,
-              RushAttack = 35,
+              GogyoWater = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 1600,
+              RushAttack = 40,
+            },
+            NextLevel = 8000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoWater = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
             },
             NextLevel = 10000,
           },
+        },
+        RequiredPoint = 500,
+      },
+      new FormationTypeInfo
+      {
+        Type = FormationType.Hoen,
+        Name = "方円",
+        Levels = new List<FormationTypeLevelInfo>
+        {
           new FormationTypeLevelInfo
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeInfantryAttack = 40,
-              CavalryAttack = 20,
-              RushProbability = 300,
-              RushAttack = 85,
+              GogyoTree = 100,
+              BaseAttack = 8,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoTree = 100,
+              BaseAttack = 16,
+            },
+            NextLevel = 2000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoTree = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
+            },
+            NextLevel = 5000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoTree = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 48,
+              RushProbability = 200,
+              RushAttack = 40,
+            },
+            NextLevel = 8000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoTree = 100,
+              BaseAttack = 16,
+              BaseDefend = 32,
+              GogyoAttack = 48,
+              GogyoDefend = 48,
+              RushProbability = 800,
+              RushAttack = 40,
+              ContinuousProbability = 200,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
+      },
+      new FormationTypeInfo
+      {
+        Type = FormationType.Koyaku,
+        Name = "衡軛",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoSoil = 100,
+              BaseAttack = 8,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoSoil = 100,
+              BaseAttack = 16,
+            },
+            NextLevel = 2000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoSoil = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
+            },
+            NextLevel = 5000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoSoil = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 1600,
+              RushAttack = 40,
+            },
+            NextLevel = 8000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoSoil = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
             },
             NextLevel = 10000,
           },
@@ -223,14 +441,15 @@ namespace SangokuKmy.Models.Data.Entities
       new FormationTypeInfo
       {
         Type = FormationType.Hoshi,
-        Name = "蜂矢",
+        Name = "鋒矢",
         Levels = new List<FormationTypeLevelInfo>
         {
           new FormationTypeLevelInfo
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeCavalryAttack = 10,
+              GogyoFire = 100,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -238,38 +457,249 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeCavalryAttack = 19,
+              GogyoFire = 100,
+              BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeCavalryAttack = 27,
-              CrossbowAttack = 8,
+              GogyoFire = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeCavalryAttack = 34,
-              CrossbowAttack = 8,
-              RushProbability = 100,
-              RushAttack = 35,
+              GogyoFire = 100,
+              BaseAttack = 32,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 16,
+              RushProbability = 800,
+              RushAttack = 80,
+            },
+            NextLevel = 8000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoFire = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 60,
+              GogyoDefend = 16,
+              RushProbability = 1200,
+              RushAttack = 120,
             },
             NextLevel = 10000,
           },
+        },
+        RequiredPoint = 500,
+      },
+      new FormationTypeInfo
+      {
+        Type = FormationType.Engetsu,
+        Name = "偃月",
+        Levels = new List<FormationTypeLevelInfo>
+        {
           new FormationTypeLevelInfo
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeCavalryAttack = 40,
-              CrossbowAttack = 20,
-              RushProbability = 300,
-              RushAttack = 85,
+              GogyoWater = 100,
+              BaseAttack = 8,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoWater = 100,
+              BaseAttack = 16,
+            },
+            NextLevel = 2000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoWater = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
+            },
+            NextLevel = 5000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoWater = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
+              GogyoDefend = 8,
+              RushProbability = 3200,
+              RushAttack = 60,
+            },
+            NextLevel = 8000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoWater = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 4000,
+              RushAttack = 100,
+              ContinuousProbability = 400,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
+      },
+      new FormationTypeInfo
+      {
+        Type = FormationType.Ganko,
+        Name = "雁行",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoTree = 100,
+              BaseAttack = 8,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoTree = 100,
+              BaseAttack = 16,
+            },
+            NextLevel = 2000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoTree = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
+            },
+            NextLevel = 5000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoTree = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 1600,
+              RushAttack = 40,
+            },
+            NextLevel = 8000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoTree = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
+      },
+      new FormationTypeInfo
+      {
+        Type = FormationType.Choda,
+        Name = "長蛇",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoSoil = 100,
+              BaseAttack = 8,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoSoil = 100,
+              BaseAttack = 16,
+            },
+            NextLevel = 2000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoSoil = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
+            },
+            NextLevel = 5000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoSoil = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
+              GogyoDefend = 16,
+              RushProbability = 800,
+              RushAttack = 40,
+              ContinuousProbability = 400,
+            },
+            NextLevel = 8000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoSoil = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 1200,
             },
             NextLevel = 10000,
           },
@@ -286,7 +716,8 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeCrossbowAttack = 10,
+              GogyoMetal = 100,
+              BaseAttack = 8,
             },
             NextLevel = 1000,
           },
@@ -294,45 +725,121 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeCrossbowAttack = 19,
+              GogyoMetal = 100,
+              BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeCrossbowAttack = 27,
-              InfantryAttack = 8,
+              GogyoMetal = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeCrossbowAttack = 34,
-              InfantryAttack = 8,
-              RushProbability = 100,
-              RushAttack = 35,
+              GogyoMetal = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 32,
+              GogyoDefend = 16,
+              RushProbability = 1600,
+              RushAttack = 40,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
             Data = new CharacterSoldierTypeData
             {
-              TypeCrossbowAttack = 40,
-              InfantryAttack = 20,
-              RushProbability = 300,
-              RushAttack = 85,
+              GogyoMetal = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              GogyoAttack = 48,
+              GogyoDefend = 32,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
             },
             NextLevel = 10000,
           },
         },
         RequiredPoint = 500,
       },
-      */
+      new FormationTypeInfo
+      {
+        Type = FormationType.Kojo,
+        Name = "攻城",
+        Levels = new List<FormationTypeLevelInfo>
+        {
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoMetal = 100,
+              BaseAttack = 8,
+            },
+            NextLevel = 1000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoMetal = 100,
+              BaseAttack = 16,
+            },
+            NextLevel = 2000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoMetal = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              WallAttack = 32,
+            },
+            NextLevel = 5000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoMetal = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              WallAttack = 72,
+              WallDefend = 24,
+              RushProbability = 1600,
+              RushAttack = 40,
+            },
+            NextLevel = 8000,
+          },
+          new FormationTypeLevelInfo
+          {
+            Data = new CharacterSoldierTypeData
+            {
+              GogyoMetal = 100,
+              BaseAttack = 16,
+              BaseDefend = 16,
+              WallAttack = 120,
+              WallDefend = 60,
+              RushProbability = 1600,
+              RushAttack = 40,
+              ContinuousProbability = 400,
+            },
+            NextLevel = 10000,
+          },
+        },
+        RequiredPoint = 500,
+      },
     };
 
     public static Optional<FormationTypeInfo> Get(FormationType type)

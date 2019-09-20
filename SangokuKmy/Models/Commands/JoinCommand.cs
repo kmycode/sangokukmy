@@ -57,8 +57,19 @@ namespace SangokuKmy.Models.Commands
 
       if (country.AiType != CountryAiType.Human && character.AiType == CharacterAiType.Human)
       {
-        await game.CharacterLogAsync($"<country>{country.Name}</country> に仕官しようとしましたが、AIの統治する特別な国のため人間は仕官できません");
-        return;
+        var items = await repo.Character.GetItemsAsync(character.Id);
+        var itemInfo = items.GetInfos().FirstOrDefault(i => i.UsingEffects != null && i.UsingEffects.Any(u => u.Type == CharacterItemEffectType.JoinableAiCountry && u.Value == (int)country.AiType));
+        var item = items.FirstOrDefault(i => i.Type == itemInfo.Type);
+        if (item == null || itemInfo == null)
+        {
+          await game.CharacterLogAsync($"<country>{country.Name}</country> に仕官しようとしましたが、AIの統治する特別な国のため人間は仕官できません");
+          return;
+        }
+        else
+        {
+          await ItemService.SpendCharacterAsync(repo, item, character);
+          await game.CharacterLogAsync($"対象国はAIの統治する特別な国のため、仕官のさいにアイテム {itemInfo.Name} を使用しました");
+        }
       }
 
       await CharacterService.ChangeCountryAsync(repo, country.Id, new Character[] { character, });

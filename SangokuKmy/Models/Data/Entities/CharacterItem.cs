@@ -161,6 +161,14 @@ namespace SangokuKmy.Models.Data.Entities
     EquippedSeishuYari = 64,
     EquippedGoodGeki = 65,
     EquippedGoodHorse = 66,
+    Elephant = 67,
+    Toko = 68,
+    SuperSoldier = 69,
+    EliteSoldier = 70,
+    MartialArtsBook = 71,
+    PrivateBook = 72,
+    AnnotationBook = 73,
+    Kojinnoakashi = 74,
   }
 
   public enum CharacterItemEffectType
@@ -169,10 +177,14 @@ namespace SangokuKmy.Models.Data.Entities
     Intellect,
     Leadership,
     Popularity,
+    IntellectEx,
+    FormationEx,
     Money,
     TerroristEnemy,
     DiscountSoldierPercentageWithResource,
     AddSoldierType,
+    ProficiencyMinimum,
+    JoinableAiCountry,
   }
 
   public enum CharacterItemRareType
@@ -815,6 +827,22 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterItemInfo
       {
+        Type = CharacterItemType.PrivateBook,
+        Name = "私撰書",
+        Money = 55000,
+        InitializeNumber = 0,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        Effects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.Intellect,
+            Value = 10,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
         Type = CharacterItemType.Heihonijuyompen,
         Name = "兵法二十四編",
         Money = 78000,
@@ -999,6 +1027,40 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterItemEffectType.Leadership,
             Value = 10,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.AnnotationBook,
+        Name = "注釈書",
+        Money = 48000,
+        InitializeNumber = 8,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.IntellectEx,
+            Value = 2222,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.MartialArtsBook,
+        Name = "兵法書",
+        Money = 48000,
+        InitializeNumber = 8,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.FormationEx,
+            Value = 500,
           },
         },
       },
@@ -1195,6 +1257,7 @@ namespace SangokuKmy.Models.Data.Entities
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
         CanSell = false,
+        CanHandOver = false,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterItemEffect
@@ -1205,6 +1268,34 @@ namespace SangokuKmy.Models.Data.Entities
         DiscoverFroms = new List<CharacterFrom>
         {
           CharacterFrom.Warrior,
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.Kojinnoakashi,
+        Name = "胡人の証",
+        Money = 5_000_000,
+        InitializeNumber = 1,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = false,
+        CanSell = false,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.JoinableAiCountry,
+            Value = (int)CountryAiType.Managed,
+          },
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.JoinableAiCountry,
+            Value = (int)CountryAiType.Terrorists,
+          },
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.JoinableAiCountry,
+            Value = (int)CountryAiType.TerroristsEnemy,
+          },
         },
       },
       new CharacterItemInfo
@@ -1272,6 +1363,7 @@ namespace SangokuKmy.Models.Data.Entities
             DiscountSoldierTypes = new List<SoldierType>
             {
               SoldierType.HeavyCavalry,
+              SoldierType.IntellectHeavyCavalry,
             },
           },
         },
@@ -1295,6 +1387,7 @@ namespace SangokuKmy.Models.Data.Entities
             DiscountSoldierTypes = new List<SoldierType>
             {
               SoldierType.HeavyCavalry,
+              SoldierType.IntellectHeavyCavalry,
             },
           },
         },
@@ -1335,6 +1428,91 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterItemEffectType.AddSoldierType,
             Value = (int)SoldierType.Seishu,
           },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.Elephant,
+        Name = "象",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 22,
+        InitializeNumber = 2,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.Elephant,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.Toko,
+        Name = "藤甲",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 22,
+        InitializeNumber = 2,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.Toko,
+          },
+        },
+        DiscoverFroms = new List<CharacterFrom>
+        {
+          CharacterFrom.Civilian,
+          CharacterFrom.Scholar,
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.SuperSoldier,
+        Name = "練兵",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 8,
+        InitializeNumber = 10,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.ProficiencyMinimum,
+            Value = 60,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EliteSoldier,
+        Name = "精鋭兵",
+        IsResource = true,
+        ResourceLevel = 2,
+        MoneyPerResource = 11,
+        InitializeNumber = 5,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.ProficiencyMinimum,
+            Value = 100,
+          },
+        },
+        DiscoverFroms = new List<CharacterFrom>
+        {
+          CharacterFrom.Warrior,
         },
       },
       new CharacterItemInfo
@@ -1426,7 +1604,7 @@ namespace SangokuKmy.Models.Data.Entities
         .Where(i => i.Effects.Any())
         // 並べ替え時は残量よりもレベルを優先する（安定ソート前提）
         .OrderBy(i => i.Item.Resource)
-        .OrderBy(i => i.Info.ResourceLevel);
+        .OrderByDescending(i => i.Info.ResourceLevel);
 
       foreach (var target in targets)
       {

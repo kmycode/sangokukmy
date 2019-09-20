@@ -15,25 +15,157 @@ namespace SangokuKmy.Models.Commands
   {
     public override CharacterCommandType Type => CharacterCommandType.GenerateItem;
 
+    private class GenerateItemInfo
+    {
+      private static readonly List<GenerateItemInfo> infos = new List<GenerateItemInfo>
+      {
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Engineer,
+          ItemType = CharacterItemType.EquippedGoodGeki,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Engineer,
+          ItemType = CharacterItemType.EquippedGoodHorse,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Engineer,
+          ItemType = CharacterItemType.EquippedRepeatingCrossbow,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Engineer,
+          ItemType = CharacterItemType.EquippedSeishuYari,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Terrorist,
+          ItemType = CharacterItemType.Elephant,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Terrorist,
+          ItemType = CharacterItemType.Toko,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.People,
+          ItemType = CharacterItemType.SuperSoldier,
+          ResourceAttribute = c => c.Popularity,
+          AddExAttribute = c => c.AddPopularityEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.People,
+          ItemType = CharacterItemType.EliteSoldier,
+          ResourceAttribute = c => c.Popularity,
+          AddExAttribute = c => c.AddPopularityEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Tactician,
+          ItemType = CharacterItemType.MartialArtsBook,
+          ResourceAttribute = c => c.Leadership,
+          AddExAttribute = c => c.AddLeadershipEx(280),
+          Length = 24,
+          Contribution = 120,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Scholar,
+          ItemType = CharacterItemType.AnnotationBook,
+          ResourceAttribute = c => c.Intellect,
+          AddExAttribute = c => c.AddIntellectEx(2000),
+          Length = 120,
+          Contribution = 800,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Scholar,
+          ItemType = CharacterItemType.PrivateBook,
+          ResourceAttribute = c => c.Intellect,
+          AddExAttribute = c => c.AddIntellectEx(2000),
+          Length = 120,
+          Contribution = 800,
+        },
+      };
+
+      public CharacterFrom From { get; set; }
+      public CharacterItemType ItemType { get; set; }
+      public Func<Character, int> ResourceAttribute { get; set; } = c => 0;
+      public Action<Character> AddExAttribute { get; set; } = c => { };
+      public int Length { get; set; }
+      public int Contribution { get; set; }
+
+      private GenerateItemInfo() { }
+
+      public static GenerateItemInfo GetInfo(Character chara, CharacterItemType type)
+      {
+        return infos.FirstOrDefault(i => i.From == chara.From && i.ItemType == type);
+      }
+    }
+
     public static async Task<bool> ResultAsync(MainRepository repo, SystemData system, DelayEffect delay, Func<uint, string, Task> logAsync)
     {
-      if (delay.IntAppearGameDateTime + 12 <= system.IntGameDateTime)
+      var chara = await repo.Character.GetByIdAsync(delay.CharacterId);
+      var type = (CharacterItemType)delay.TypeData;
+      if (!chara.HasData)
       {
-        var chara = await repo.Character.GetByIdAsync(delay.CharacterId);
-        var type = (CharacterItemType)delay.TypeData;
+        return false;
+      }
+
+      var generateInfo = GenerateItemInfo.GetInfo(chara.Data, type);
+      if (generateInfo == null)
+      {
+        return false;
+      }
+
+      if (delay.IntAppearGameDateTime + generateInfo.Length <= system.IntGameDateTime)
+      {
         var info = CharacterItemInfoes.Get(type);
-        if (chara.HasData && info.HasData)
+        if (info.HasData)
         {
           var item = new CharacterItem
           {
             Type = type,
-            Status = CharacterItemStatus.CharacterHold,
+            Status = CharacterItemStatus.CharacterPending,
             CharacterId = chara.Data.Id,
+            IntLastStatusChangedGameDate = system.IntGameDateTime,
           };
 
           if (info.Data.IsResource)
           {
-            item.Resource = (ushort)(chara.Data.Strong * 7.6 + RandomService.Next(chara.Data.Strong * 4));
+            item.Resource = (ushort)(info.Data.DefaultResource + RandomService.Next((int)(generateInfo.ResourceAttribute(chara.Data) * 1.4f)));
           }
 
           await ItemService.GenerateItemAndSaveAsync(repo, item);
@@ -41,11 +173,11 @@ namespace SangokuKmy.Models.Commands
 
           if (info.Data.IsResource)
           {
-            await logAsync(chara.Data.Id, $"アイテム {info.Data.Name} を生成しました。資源量: <num>{item.Resource}</num>");
+            await logAsync(chara.Data.Id, $"アイテム {info.Data.Name} を生産しました。資源量: <num>{item.Resource}</num>");
           }
           else
           {
-            await logAsync(chara.Data.Id, $"アイテム {info.Data.Name} を生成しました");
+            await logAsync(chara.Data.Id, $"アイテム {info.Data.Name} を生産しました");
           }
 
           return true;
@@ -57,13 +189,13 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
-      var itemTypeOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
-      if (!itemTypeOptional.HasData)
+      var itemTypeOptional = options.FirstOrDefault(p => p.Type == 1);
+      if (itemTypeOptional == null || itemTypeOptional.NumberValue == null)
       {
-        await game.CharacterLogAsync("アイテム生成のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
+        await game.CharacterLogAsync("アイテム生産のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
         return;
       }
-      var itemType = (CharacterItemType)itemTypeOptional.Data.NumberValue;
+      var itemType = (CharacterItemType)itemTypeOptional.NumberValue;
 
       var infoOptional = CharacterItemInfoes.Get(itemType);
       if (!infoOptional.HasData)
@@ -73,10 +205,17 @@ namespace SangokuKmy.Models.Commands
       }
       var info = infoOptional.Data;
 
-      var money = info.MoneyPerResource * info.DefaultResource / 2;
+      var generateInfo = GenerateItemInfo.GetInfo(character, itemType);
+      if (generateInfo == null)
+      {
+        await game.CharacterLogAsync("アイテム生産の情報が不正です。<emerge>管理者にお問い合わせください</emerge>");
+        return;
+      }
+
+      var money = info.IsResource ? info.MoneyPerResource * info.DefaultResource / 20 : info.Money / 20;
       if (character.Money < money)
       {
-        await game.CharacterLogAsync("アイテム生成しようとしましたが、金が足りません。<num>" + money + "</num> 必要です");
+        await game.CharacterLogAsync("アイテム生産しようとしましたが、金が足りません。<num>" + money + "</num> 必要です");
         return;
       }
 
@@ -88,14 +227,14 @@ namespace SangokuKmy.Models.Commands
         var town = townOptional.Data;
         if (town.CountryId != character.CountryId && country.HasData && !country.Data.HasOverthrown)
         {
-          await game.CharacterLogAsync($"<town>{town.Name}</town> でアイテム生成しようとしましたが、自国の都市ではありません");
+          await game.CharacterLogAsync($"<town>{town.Name}</town> でアイテム生産しようとしましたが、自国の都市ではありません");
           return;
         }
 
         var delays = await repo.DelayEffect.GetAllAsync();
         if (delays.Any(d => d.CharacterId == character.Id && d.Type == DelayEffectType.GenerateItem))
         {
-          await game.CharacterLogAsync($"アイテム生成しようとしましたが、複数のアイテムを同時に生成することはできません");
+          await game.CharacterLogAsync($"アイテム生産しようとしましたが、複数のアイテムを同時に生産することはできません");
           return;
         }
 
@@ -110,9 +249,10 @@ namespace SangokuKmy.Models.Commands
         };
         await repo.DelayEffect.AddAsync(delay);
 
-        character.AddStrongEx(200);
-        character.Contribution += 80;
-        await game.CharacterLogAsync($"<town>{town.Name}</town> で <num>{money}</num> を投し、{info.Name} の生成を開始しました。結果は <num>{game.GameDateTime.Year + 1}</num> 年 <num>{game.GameDateTime.Month}</num> 月に来ます。武力Ex <num>+200</num>");
+        var finish = GameDateTime.FromInt(game.GameDateTime.ToInt() + generateInfo.Length);
+        generateInfo.AddExAttribute(character);
+        character.Contribution += generateInfo.Contribution;
+        await game.CharacterLogAsync($"<town>{town.Name}</town> で <num>{money}</num> を投し、{info.Name} の生産を開始しました。結果は <num>{finish.Year}</num> 年 <num>{finish.Month}</num> 月に来ます");
       }
       else
       {
@@ -128,6 +268,13 @@ namespace SangokuKmy.Models.Commands
       if (!skills.AnySkillEffects(CharacterSkillEffectType.GenerateItem, (int)itemType))
       {
         ErrorCode.NotSkillError.Throw();
+      }
+
+      var character = await repo.Character.GetByIdAsync(characterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+      var info = GenerateItemInfo.GetInfo(character, itemType);
+      if (info == null)
+      {
+        ErrorCode.InvalidCommandParameter.Throw();
       }
 
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates, options);
