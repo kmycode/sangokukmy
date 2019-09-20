@@ -100,6 +100,11 @@ namespace SangokuKmy.Models.Data.Entities
     Scholar3 = 43,
     Scholar4 = 44,
     Scholar5 = 45,
+    Staff1 = 46,
+    Staff2 = 47,
+    Staff3 = 48,
+    Staff4 = 49,
+    Staff5 = 50,
   }
 
   public enum CharacterSkillEffectType
@@ -828,7 +833,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              ContinuousProbability = 60,
+              ContinuousProbability = 600,
             },
           },
         },
@@ -911,6 +916,101 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.Command,
             Value = (int)CharacterCommandType.Spy,
           },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Staff1,
+        RequestedPoint = 0,
+        Name = "参謀 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.IntellectExRegularly,
+            Value = 7,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Staff2,
+        RequestedPoint = 8,
+        Name = "参謀 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Staff1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 20,
+            },
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.Spy,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Staff3,
+        RequestedPoint = 10,
+        Name = "参謀 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Staff2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.IntellectCommon,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Staff4,
+        RequestedPoint = 8,
+        Name = "参謀 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Staff3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              RushProbability = 200,
+              RushAttack = 60,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Staff5,
+        RequestedPoint = 9,
+        Name = "参謀 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Staff4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              ContinuousProbabilityOnSingleTurn = 5000,
+            },
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.IntellectRepeatingCrossbow,
+          }
         },
       },
     };

@@ -454,6 +454,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 学者
     /// </summary>
     Scholar = 9,
+
+    /// <summary>
+    /// 参謀
+    /// </summary>
+    Staff = 10,
   }
 
   public enum CharacterType

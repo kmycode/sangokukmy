@@ -128,6 +128,11 @@ namespace SangokuKmy.Models.Services
         skills.Add(CharacterSkillType.Scholar1);
         chara.Intellect += 10;
       }
+      else if (chara.From == CharacterFrom.Staff)
+      {
+        skills.Add(CharacterSkillType.Staff1);
+        chara.Intellect += 20;
+      }
       else
       {
         ErrorCode.InvalidParameterError.Throw();
