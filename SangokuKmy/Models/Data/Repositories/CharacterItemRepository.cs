@@ -45,6 +45,21 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IEnumerable<CharacterItem>> GetByTownIdAsync(uint id)
+    {
+      try
+      {
+        return await this.container.Context.CharacterItems
+          .Where(i => i.TownId == id && i.Status == CharacterItemStatus.TownOnSale)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     public async Task AddAsync(CharacterItem item)
     {
       try
