@@ -186,6 +186,8 @@ namespace SangokuKmy.Models.Data.Entities
     public bool CanConscript { get; set; } = true;
 
     public bool CanConscriptWithoutResource { get; set; } = true;
+
+    public bool CanConscriptWithoutSkill { get; set; } = true;
   }
 
   public static class DefaultCharacterSoldierTypeParts
@@ -624,21 +626,22 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.IntellectCommon,
-        Name = "文官雑兵",
+        Name = "梓叡兵",
         Data = new CharacterSoldierTypeData
         {
           TypeInfantry = 10,
           IntellectEx = 1,
           PowerIntellect = 1,
         },
-        Money = 2,
+        Money = 3,
         Technology = 200,
-        CanConscript = false,
+        CanConscript = true,
+        CanConscriptWithoutSkill = false,
       },
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.IntellectHeavyCavalry,
-        Name = "文官重騎兵",
+        Name = "梓馬兵",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 6,
@@ -651,6 +654,23 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 18,
         Technology = 900,
         CanConscript = true,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.IntellectRepeatingCrossbow,
+        Name = "梓琴兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 9,
+          BaseDefend = 4,
+          TypeCrossbow = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 22,
+        Technology = 900,
+        CanConscript = true,
+        CanConscriptWithoutSkill = false,
       },
       new CharacterSoldierTypePart
       {

@@ -618,6 +618,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     Toko = 28,
 
+    /// <summary>
+    /// 文官連弩兵
+    /// </summary>
+    IntellectRepeatingCrossbow = 29,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,

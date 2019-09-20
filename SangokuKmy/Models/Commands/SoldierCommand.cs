@@ -322,16 +322,22 @@ namespace SangokuKmy.Models.Commands
             }
           }
         }
-        /*
-        else if (soldierType == SoldierType.RepeatingCrossbow)
+        else
         {
-          var skills = await repo.Character.GetSkillsAsync(chara.Id);
-          if (!CharacterSkillInfoes.AnySkillEffects(skills, CharacterSkillEffectType.SoldierType, (int)SoldierType.RepeatingCrossbow))
+          var info = DefaultCharacterSoldierTypeParts.Get(soldierType);
+          if (!info.HasData)
           {
-            ErrorCode.NotSkillError.Throw();
+            ErrorCode.InternalDataNotFoundError.Throw();
+          }
+          if (info.Data.CanConscriptWithoutResource && !info.Data.CanConscriptWithoutSkill)
+          {
+            var skills = await repo.Character.GetSkillsAsync(chara.Id);
+            if (!CharacterSkillInfoes.AnySkillEffects(skills, CharacterSkillEffectType.SoldierType, (int)soldierType))
+            {
+              ErrorCode.NotSkillError.Throw();
+            }
           }
         }
-        */
       }
       else
       {
