@@ -36,7 +36,7 @@ namespace SangokuKmy.Models.Commands
           return;
         }
         
-        if (RandomService.Next(0, 99) == 0)
+        if (RandomService.Next(0, 150) == 0)
         {
           var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
           if (info.HasData)
@@ -49,7 +49,7 @@ namespace SangokuKmy.Models.Commands
             character.Money += 5000;
           }
         }
-        else if (RandomService.Next(0, 100) == 0 && country.HasData && !country.Data.HasOverthrown)
+        else if (RandomService.Next(0, 200) == 0 && country.HasData && !country.Data.HasOverthrown)
         {
           var policies = await repo.Country.GetPoliciesAsync(country.Data.Id);
           var allPolicies = CountryPolicyTypeInfoes.GetAll();
@@ -68,7 +68,7 @@ namespace SangokuKmy.Models.Commands
             character.AddIntellectEx(300);
           }
         }
-        else if (RandomService.Next(0, 250) == 0)
+        else if (RandomService.Next(0, 1000) == 0)
         {
           var formations = await repo.Character.GetFormationsAsync(character.Id);
           var allFormations = FormationTypeInfoes.GetAllGettables(formations);
@@ -92,11 +92,6 @@ namespace SangokuKmy.Models.Commands
             character.Money += 10000;
           }
         }
-        else if (RandomService.Next(0, 100) == 0)
-        {
-          await game.CharacterLogAsync($"技能ポイントを <num>+1</num> 獲得しました");
-          character.SkillPoint += 1;
-        }
         else
         {
           var targets = default(List<TownPatrolResult>);
@@ -118,7 +113,7 @@ namespace SangokuKmy.Models.Commands
             {
               TownPatrolResult.Intellect,
               TownPatrolResult.Commercial,
-              TownPatrolResult.CommercialMax,
+              TownPatrolResult.WallMaxForIntellect,
               TownPatrolResult.Policy,
               TownPatrolResult.Money,
               TownPatrolResult.CountrySafe,
@@ -237,6 +232,12 @@ namespace SangokuKmy.Models.Commands
             town.WallMax += 4;
             character.AddStrongEx(50);
           }
+          else if (result == TownPatrolResult.WallMaxForIntellect)
+          {
+            await game.CharacterLogAsync($"城壁を拡張しました。城壁最大 <num>+4</num>、知力Ex <num>+50</num>");
+            town.WallMax += 4;
+            character.AddIntellectEx(50);
+          }
           else if (result == TownPatrolResult.Policy)
           {
             if (country.HasData && !country.Data.HasOverthrown)
@@ -256,7 +257,7 @@ namespace SangokuKmy.Models.Commands
           }
           else if (result == TownPatrolResult.Money)
           {
-            var m = RandomService.Next(Math.Max(character.Strong, character.Intellect), 2000);
+            var m = RandomService.Next(Math.Max(character.Strong, character.Intellect), 1500);
             await game.CharacterLogAsync($"金 <num>{m}</num> を発見しました");
             character.Money += m;
           }
@@ -319,6 +320,7 @@ namespace SangokuKmy.Models.Commands
       CommercialMax,
       TechnologyMax,
       WallMax,
+      WallMaxForIntellect,
       Policy,
       Money,
       FormationPoint,
