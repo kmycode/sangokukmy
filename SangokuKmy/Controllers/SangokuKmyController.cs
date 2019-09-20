@@ -256,6 +256,7 @@ namespace SangokuKmy.Controllers
       [FromRoute] uint id = 0)
     {
       Character chara;
+      CharacterIcon mainIcon = null;
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
@@ -271,6 +272,7 @@ namespace SangokuKmy.Controllers
           else
           {
             icon.IsMain = true;
+            mainIcon = icon;
             isHit = true;
           }
         }
@@ -282,6 +284,11 @@ namespace SangokuKmy.Controllers
       }
 
       await OnlineService.SetAsync(chara, OnlineStatus.Active);
+      if (mainIcon != null)
+      {
+        var ac = new CharacterForAnonymous(chara, mainIcon, CharacterShareLevel.Anonymous);
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(ac));
+      }
     }
 
     [AuthenticationFilter]
