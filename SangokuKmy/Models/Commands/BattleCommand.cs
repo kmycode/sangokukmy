@@ -269,10 +269,12 @@ namespace SangokuKmy.Models.Commands
         if (targetCharacter.AiType.IsTerrorist() && mySkills.Any(s => s.Type == CharacterSkillType.Terrorist3))
         {
           mySoldierType.BaseAttack += 100;
+          mySoldierType.BaseDefend += 50;
         }
         if (character.AiType.IsTerrorist() && targetSkills.Any(s => s.Type == CharacterSkillType.Terrorist3))
         {
           targetSoldierType.BaseAttack += 100;
+          targetSoldierType.BaseDefend += 50;
         }
 
         isWall = false;

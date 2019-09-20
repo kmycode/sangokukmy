@@ -645,29 +645,9 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSkillInfo
       {
         Type = CharacterSkillType.Terrorist4,
-        RequestedPoint = 12,
+        RequestedPoint = 8,
         Name = "胡人 Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist3),
-        Effects = new List<CharacterSkillEffect>
-        {
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.PeopleDecrease,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.PeopleIncrease,
-          },
-        },
-      },
-      new CharacterSkillInfo
-      {
-        Type = CharacterSkillType.Terrorist5,
-        RequestedPoint = 8,
-        Name = "胡人 Lv.5",
-        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist4),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
@@ -679,6 +659,26 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.GenerateItem,
             Value = (int)CharacterItemType.Toko,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Terrorist5,
+        RequestedPoint = 12,
+        Name = "胡人 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleDecrease,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleIncrease,
           },
         },
       },
