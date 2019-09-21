@@ -57,6 +57,19 @@ namespace SangokuKmy.Models.Commands
           return;
         }
 
+        // 首都なら雑兵ではなく禁兵
+        if (isDefaultSoldierType && soldierType == SoldierType.Common)
+        {
+          var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
+          countryOptional.Some((country) =>
+          {
+            if (country.CapitalTownId == character.TownId)
+            {
+              soldierType = SoldierType.Guard;
+            }
+          });
+        }
+
         // 実際に徴兵する数を計算する
         // soldierNumber: 入力値、add: 実際に徴兵する数
         var add = soldierNumber.Value;
@@ -67,7 +80,7 @@ namespace SangokuKmy.Models.Commands
           {
             add = character.Leadership - character.SoldierNumber;
           }
-          character.SoldierNumber += add;
+          onSucceeds.Add(async () => character.SoldierNumber += add);
         }
         else
         {
@@ -76,7 +89,7 @@ namespace SangokuKmy.Models.Commands
           {
             add = character.Leadership;
           }
-          character.SoldierNumber = add;
+          onSucceeds.Add(async () => character.SoldierNumber = add);
         }
 
         CharacterSoldierTypeData soldierTypeData = null;
@@ -175,19 +188,6 @@ namespace SangokuKmy.Models.Commands
         }
         else
         {
-          // 首都なら雑兵ではなく禁兵
-          if (isDefaultSoldierType && soldierType == SoldierType.Common)
-          {
-            var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
-            countryOptional.Some((country) =>
-            {
-              if (country.CapitalTownId == character.TownId)
-              {
-                soldierType = SoldierType.Guard;
-              }
-            });
-          }
-
           // 資源による割引
           var resources = items.GetResources(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), (int)soldierNumber);
           var needResources = add;
@@ -208,7 +208,6 @@ namespace SangokuKmy.Models.Commands
           if (character.Money < needMoney)
           {
             await game.CharacterLogAsync("所持金が足りません。");
-            character.SoldierNumber -= add;
           }
           else
           {
