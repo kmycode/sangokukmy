@@ -189,7 +189,7 @@ namespace SangokuKmy.Models.Commands
         else
         {
           // 資源による割引
-          var resources = items.GetResources(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), (int)soldierNumber);
+          var resources = items.GetResources(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), add);
           var needResources = add;
           foreach (var resource in resources)
           {
@@ -240,7 +240,7 @@ namespace SangokuKmy.Models.Commands
               character.CharacterSoldierTypeId = (uint)soldierType;
             }
             character.Contribution += 10;
-            character.Money -= (short)needMoney;
+            character.Money -= needMoney;
             town.People -= (int)(add * Config.SoldierPeopleCost);
             town.Security -= (short)(add / 10);
 
