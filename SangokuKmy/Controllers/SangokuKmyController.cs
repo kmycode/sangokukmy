@@ -288,6 +288,7 @@ namespace SangokuKmy.Controllers
       {
         var ac = new CharacterForAnonymous(chara, mainIcon, CharacterShareLevel.Anonymous);
         await StatusStreaming.Default.SendAllAsync(ApiData.From(ac));
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
       }
     }
 
