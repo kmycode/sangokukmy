@@ -26,10 +26,10 @@ namespace SangokuKmy.Models.Commands
       {
         await game.CharacterLogAsync("陣形獲得のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
       }
-      else if (character.Money < 1000)
-      {
-        await game.CharacterLogAsync("陣形獲得の金が足りません");
-      }
+      //else if (character.Money < 1000)
+      //{
+      //  await game.CharacterLogAsync("陣形獲得の金が足りません");
+      //}
       else
       {
         var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
@@ -69,7 +69,7 @@ namespace SangokuKmy.Models.Commands
           character.Contribution += 30;
         }
         character.AddLeadershipEx(50);
-        character.Money -= 1000;
+        //character.Money -= 1000;
         character.FormationPoint -= info.Data.RequiredPoint;
 
         var formation = new Formation
