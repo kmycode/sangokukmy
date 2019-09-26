@@ -414,6 +414,31 @@ namespace SangokuKmy.Controllers
       return icon;
     }
 
+    [AuthenticationFilter]
+    [HttpPut("character/message")]
+    public async Task SetMessageAsync(
+      [FromBody] Character param)
+    {
+      Character chara;
+      if (param.Message == null)
+      {
+        ErrorCode.LackOfParameterError.Throw();
+      }
+      if (param.Message.Length > 128)
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("message", param.Message.Length, 0, 128));
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        chara.Message = param.Message;
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
+    }
+
     [HttpPut("formations")]
     [AuthenticationFilter]
     public async Task SetFormationAsync(

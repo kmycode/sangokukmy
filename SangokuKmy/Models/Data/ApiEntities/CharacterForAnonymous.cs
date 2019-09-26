@@ -78,6 +78,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
       set => this.LastUpdated = value.ToDateTime();
     }
 
+    [JsonProperty("message")]
+    public string Message { get; set; }
+
     [JsonIgnore]
     public GameDateTime LastUpdatedGameDate
     {
@@ -154,6 +157,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       {
         this.DeleteTurn = character.DeleteTurn;
         this.Class = character.Class;
+        this.Message = character.Message;
       }
     }
   }
