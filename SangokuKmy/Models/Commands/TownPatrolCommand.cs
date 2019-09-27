@@ -271,6 +271,7 @@ namespace SangokuKmy.Models.Commands
             var formation = await repo.Character.GetFormationAsync(character.Id, character.FormationType);
             formation.Experience += 50;
             await game.CharacterLogAsync($"陣形経験値 <num>50</num> を獲得しました");
+						await StatusStreaming.Default.SendCharacterAsync(ApiData.From(formation), character.Id);
           }
           else if (result == TownPatrolResult.CountrySafe)
           {
