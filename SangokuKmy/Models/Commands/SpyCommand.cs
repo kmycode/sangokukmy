@@ -49,11 +49,7 @@ namespace SangokuKmy.Models.Commands
           await repo.ScoutedTown.AddScoutAsync(scoutedTown);
           await repo.SaveChangesAsync();
 
-          var savedScoutedTown = (await repo.ScoutedTown.GetByTownIdAsync(townOptional.Data.Id, character.CountryId)).Data;
-          if (savedScoutedTown != null)
-          {
-            await StatusStreaming.Default.SendCountryAsync(ApiData.From(savedScoutedTown), character.CountryId);
-          }
+          await StatusStreaming.Default.SendCountryAsync(ApiData.From(scoutedTown), character.CountryId);
 
           var items = await repo.CharacterItem.GetByTownIdAsync(town.Id);
           var itemInfos = items.GetInfos();
