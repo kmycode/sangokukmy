@@ -131,5 +131,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 偵察コマンド
     /// </summary>
     SpyCommand = 3,
+
+    /// <summary>
+    /// 戦争で支配された時
+    /// </summary>
+    InBattle = 4,
   }
 }

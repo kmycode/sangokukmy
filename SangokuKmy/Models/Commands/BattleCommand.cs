@@ -562,6 +562,18 @@ namespace SangokuKmy.Models.Commands
                 await StatusStreaming.Default.SendCountryAsync(ApiData.From(myCountry), myCountry.Id);
                 StatusStreaming.Default.UpdateCache(targetCountryCharacters);
               }
+              else
+              {
+                // 都市を取られた国に、都市の最新情報を配信
+                var scoutedTown = ScoutedTown.From(targetTown);
+                scoutedTown.ScoutedDateTime = game.GameDateTime;
+                scoutedTown.ScoutedCountryId = targetCountry.Id;
+                scoutedTown.ScoutMethod = ScoutMethod.InBattle;
+
+                await repo.ScoutedTown.AddScoutAsync(scoutedTown);
+                await repo.SaveChangesAsync();
+                await StatusStreaming.Default.SendCountryAsync(ApiData.From(scoutedTown), targetCountry.Id);
+              }
             }
 
             var allTowns = await repo.Town.GetAllAsync();
