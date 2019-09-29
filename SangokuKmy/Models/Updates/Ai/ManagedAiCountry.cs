@@ -786,6 +786,7 @@ namespace SangokuKmy.Models.Updates.Ai
       }
       if (wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24)
       {
+        var developTownOptional = await repo.Town.GetByIdAsync(storategy.DevelopTownId);
         foreach (var c in charas.Where(c => c.CountryId == this.Country.Id && (c.Money >= Config.RiceBuyMax || c.Rice >= Config.RiceBuyMax)))
         {
           if (c.AiType == CharacterAiType.ManagedBattler && c.Money + c.Rice < 18_0000)
@@ -794,7 +795,11 @@ namespace SangokuKmy.Models.Updates.Ai
           }
           else if (c.AiType == CharacterAiType.ManagedPatroller)
           {
-            c.AiType = CharacterAiType.ManagedMoneyInflatingPatroller;
+            // 米転がし＜民忠
+            if (developTownOptional.HasData && developTownOptional.Data.Security >= 100)
+            {
+              c.AiType = CharacterAiType.ManagedMoneyInflatingPatroller;
+            }
           }
         }
       }
