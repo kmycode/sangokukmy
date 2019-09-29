@@ -7,6 +7,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Services;
+using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -43,6 +44,7 @@ namespace SangokuKmy.Models.Commands
         {
           chara.Proficiency = (short)Math.Min(100, chara.Proficiency + add);
           await game.CharacterLogByIdAsync(chara.Id, $"<character>{character.Name}</character> による合同訓練で、訓練が <num>+{add}</num> 上がりました");
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
         }
 
         // 経験値、金の増減
