@@ -1579,6 +1579,10 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
+      if ((this.Town.Security < 60 && this.Character.Popularity < 50) || (this.Town.Security < 100 && this.Character.Popularity >= 50))
+      {
+        command.Type = CharacterCommandType.Security;
+      }
       return true;
     }
 

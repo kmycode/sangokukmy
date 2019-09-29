@@ -890,7 +890,12 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (await this.InputMoveToBorderTownAsync(repo))
+      if (await this.InputMoveToBorderTownInWarAsync(repo))
+      {
+        return;
+      }
+
+      if (await this.InputMoveToDevelopTownAsync(repo))
       {
         return;
       }
