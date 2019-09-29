@@ -41,7 +41,7 @@ namespace SangokuKmy.Models.Commands
         var charas = await repo.Town.GetCharactersAsync(town.Id);
         foreach (var chara in charas.Where(c => c.CountryId == character.CountryId))
         {
-          chara.Proficiency = (short)Math.Min(100, character.Proficiency + add);
+          chara.Proficiency = (short)Math.Min(100, chara.Proficiency + add);
         }
 
         // 経験値、金の増減
