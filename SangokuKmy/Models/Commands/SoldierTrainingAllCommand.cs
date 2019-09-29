@@ -42,6 +42,7 @@ namespace SangokuKmy.Models.Commands
         foreach (var chara in charas.Where(c => c.CountryId == character.CountryId))
         {
           chara.Proficiency = (short)Math.Min(100, chara.Proficiency + add);
+          await game.CharacterLogByIdAsync(chara.Id, $"<character>{character.Name}</character> による合同訓練で、訓練が <num>+{add}</num> 上がりました");
         }
 
         // 経験値、金の増減
