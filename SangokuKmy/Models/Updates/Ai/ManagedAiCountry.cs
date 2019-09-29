@@ -796,7 +796,7 @@ namespace SangokuKmy.Models.Updates.Ai
           else if (c.AiType == CharacterAiType.ManagedPatroller)
           {
             // 米転がし＜民忠
-            if (developTownOptional.HasData && developTownOptional.Data.Security >= 100)
+            if (!developTownOptional.HasData || developTownOptional.Data.Security >= 100)
             {
               c.AiType = CharacterAiType.ManagedMoneyInflatingPatroller;
             }
