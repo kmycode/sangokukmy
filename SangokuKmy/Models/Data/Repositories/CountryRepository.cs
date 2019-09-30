@@ -64,10 +64,14 @@ namespace SangokuKmy.Models.Data.Repositories
         return (await this.container.Context.Countries
           .Where(subject)
           .GroupJoin(this.container.Context.CountryPosts
-            .Join(this.container.Context.Characters,
+            .Join(this.container.Context.Characters
+              .GroupJoin(this.container.Context.CharacterIcons,
+                cc => cc.Id,
+                ci => ci.CharacterId,
+                (cc, cis) => new { Character = cc, Icon = cis.GetMainOrFirst().Data, }),
               cp => cp.CharacterId,
-              c => c.Id,
-              (cp, c) => new { Post = cp, Character = c, }),
+              c => c.Character.Id,
+              (cp, c) => new { Post = cp, c.Character, c.Icon, }),
             c => c.Id,
             cpds => cpds.Post.CountryId,
             (c, cps) => new { Country = c, PostData = cps, })
@@ -78,7 +82,7 @@ namespace SangokuKmy.Models.Data.Repositories
             {
               Posts = data.PostData.Select(pd =>
               {
-                pd.Post.Character = new CharacterForAnonymous(pd.Character, null, CharacterShareLevel.Anonymous);
+                pd.Post.Character = new CharacterForAnonymous(pd.Character, pd.Icon, CharacterShareLevel.Anonymous);
                 return pd.Post;
               })
               .OrderBy(p => p.ApiType),
