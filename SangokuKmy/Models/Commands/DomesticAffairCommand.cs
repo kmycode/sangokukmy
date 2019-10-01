@@ -330,7 +330,7 @@ namespace SangokuKmy.Models.Commands
     protected override string GetValueName() => "農民";
     protected override int GetCurrentValue(Town town) => town.People;
     protected override int GetMaxValue(Town town) => town.PeopleMax;
-    protected override void SetValue(Town town, int value) => town.People = (short)value;
+    protected override void SetValue(Town town, int value) => town.People = value;
     protected override string GetValueAddingText() => "回復";
     protected override int GetCharacterAssets(Character character) => character.Rice;
     protected override string GetCharacterAssetName() => "米";
