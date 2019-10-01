@@ -351,5 +351,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 偵察
     /// </summary>
     Spy = 61,
+
+    /// <summary>
+    /// 探索
+    /// </summary>
+    Examine = 62,
   }
 }

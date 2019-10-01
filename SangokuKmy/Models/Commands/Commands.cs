@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using SangokuKmy.Models.Data.Entities;
 using System.Linq;
 using SangokuKmy.Common;
+using SangokuKmy.Models.Data;
+using System.Threading.Tasks;
+
 namespace SangokuKmy.Models.Commands
 {
   public static class Commands
@@ -56,11 +59,23 @@ namespace SangokuKmy.Models.Commands
       new PeopleDecreaseCommand(),
       new SoldierTrainingAllCommand(),
       new SpyCommand(),
+      new ExamineCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)
     {
       return commands.SingleOrDefault(c => c.Type == type).ToOptional();
+    }
+
+    public static async Task<bool> ExecuteAsync(CharacterCommandType type, MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> parameters, CommandSystemData game)
+    {
+      var cmd = Get(type);
+      if (cmd.HasData)
+      {
+        await cmd.Data.ExecuteAsync(repo, character, parameters, game);
+        return true;
+      }
+      return false;
     }
   }
 }

@@ -36,6 +36,26 @@ namespace SangokuKmy.Models.Commands
         var name = string.Empty;
         var isError = false;
 
+        if (trainingType == TrainingType.Any)
+        {
+          if (character.Strong > character.Intellect && character.Strong > character.Leadership && character.Strong > character.Popularity)
+          {
+            trainingType = TrainingType.Strong;
+          }
+          else if (character.Intellect > character.Leadership && character.Intellect > character.Popularity)
+          {
+            trainingType = TrainingType.Intellect;
+          }
+          else if (character.Leadership > character.Popularity)
+          {
+            trainingType = TrainingType.Leadership;
+          }
+          else
+          {
+            trainingType = TrainingType.Popularity;
+          }
+        }
+
         switch (trainingType)
         {
           case TrainingType.Strong:
@@ -92,8 +112,9 @@ namespace SangokuKmy.Models.Commands
     }
   }
 
-  public enum TrainingType : int
+  public enum TrainingType
   {
+    Any = 0,
     Strong = 1,
     Intellect = 2,
     Leadership = 3,
