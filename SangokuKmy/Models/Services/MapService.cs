@@ -63,76 +63,18 @@ namespace SangokuKmy.Models.Services
 
         if (townCount >= 5)
         {
-          // 拠点化されやすい都市がないか確認
-          var nearToSingleTown = 0;
-          var aroundsSeparated = 0;
           var errors = 0;
           foreach (var t in towns)
           {
             var arounds = towns.GetOrderedAroundTowns(t).ToArray();
-            if (arounds.Count() == 1)
-            {
-              nearToSingleTown++;
-            }
-            else if (!arounds.Any())
+            if (!arounds.Any())
             {
               errors++;
             }
-            else
-            {
-              // 隣接都市がお互い隣接してるか確認する
-              var blocks = new List<List<TownBase>>
-              {
-                new List<TownBase>
-                {
-                  arounds[0],
-                },
-              };
-              for (var i = 0; i < arounds.Length - 1; i++)
-              {
-                var aa = arounds[i];
-                var bb = arounds[i + 1];
-                if (aa.IsNextToTown(bb))
-                {
-                  blocks.Last().Add(bb);
-                }
-                else
-                {
-                  blocks.Add(new List<TownBase>
-                  {
-                    bb,
-                  });
-                }
-              }
-              if (blocks.Count >= 2 && blocks.First().First().IsNextToTown(blocks.Last().Last()))
-              {
-                blocks.First().AddRange(blocks.Last());
-                blocks.RemoveAt(blocks.Count - 1);
-              }
-
-              if (blocks.Count != 1)
-              {
-                if (blocks.Count == 2)
-                {
-                  // 隣接していなくても、隣接都市が共通の隣接都市を持っていればセーフ
-                  var others = towns.Where(tt => t.Id != tt.Id);
-                  var aroundsGroup = blocks.Select(b => b.SelectMany(a => others.GetAroundTowns(a)).Distinct()).ToArray();
-                  if (!aroundsGroup[0].Intersect(aroundsGroup[1]).Any())
-                  {
-                    aroundsSeparated++;
-                  }
-                }
-                else
-                {
-                  aroundsSeparated++;
-                }
-              }
-            }
           }
-          isVerify = !towns.Any(t => towns.GetAroundTowns(t).Count() >= 7) &&
-            nearToSingleTown <= townCount / 3 &&
-            errors == 0 &&
-            aroundsSeparated <= townCount / 3;
+          isVerify = towns.Count(t => towns.GetAroundTowns(t).Count() >= 6) <= townCount / 6 &&
+            towns.Count(t => towns.GetAroundTowns(t).Count() >= 8) <= townCount / 12 &&
+            errors == 0;
 
           // 少都市数に応じた条件
           if (isVerify && townCount <= 9 && townCount > 5)

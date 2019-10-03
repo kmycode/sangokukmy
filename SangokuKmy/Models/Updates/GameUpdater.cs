@@ -1162,6 +1162,12 @@ namespace SangokuKmy.Models.Updates
           }
         }
 
+        // 管理人だけの特別処理
+        if (character.AiType == CharacterAiType.Administrator)
+        {
+          character.DeleteTurn = 0;
+        }
+
         // 政務官の削除
         if (character.AiType.IsSecretary() && (character.Money <= 0 || character.Rice <= 0))
         {

@@ -675,6 +675,7 @@ namespace SangokuKmy.Models.Data.Entities
     ManagedMoneyInflatingCivilOfficial = 25,
     ManagedMoneyInflatingPatroller = 26,
     SecretaryUnitLeader = 27,
+    Administrator = 28,
   }
 
   public static class CharacterAiTypeExtensions
