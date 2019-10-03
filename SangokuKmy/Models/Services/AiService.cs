@@ -85,6 +85,16 @@ namespace SangokuKmy.Models.Services
             Type = CharacterSkillType.Ai1,
             Status = CharacterSkillStatus.Available,
           });
+
+          var formation = new Formation
+          {
+            CharacterId = chara.Id,
+            Level = 1,
+            Experience = 0,
+            Type = RandomService.Next(new FormationType[] { FormationType.Choda, FormationType.Engetsu, FormationType.Ganko, FormationType.Gyorin, FormationType.Hoen, FormationType.Hoshi, FormationType.Kakuyoku, FormationType.Kojo, FormationType.Koyaku, FormationType.Suiko, }),
+          };
+          await repo.Character.AddFormationAsync(formation);
+          chara.FormationType = formation.Type;
         }
       }
     }
