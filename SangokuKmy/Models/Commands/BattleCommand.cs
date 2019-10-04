@@ -635,7 +635,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       // 貢献、経験値の設定
-      var myFormationPoint = Math.Max(1, (int)myFormationExperience / 10);
+      var myFormationPoint = Math.Max(1, (int)myFormationExperience / 22);
       myFormationExperience = Math.Max(1, (int)myFormationExperience);
       myContribution += myExperience;
       character.Contribution += (int)(myContribution);
@@ -649,7 +649,7 @@ namespace SangokuKmy.Models.Commands
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(myFormationData), character.Id);
       if (!isWall)
       {
-        var targetFormationPoint = (int)targetFormationExperience / 10;
+        var targetFormationPoint = (int)targetFormationExperience / 22;
         targetContribution += targetExperience;
         targetCharacter.Contribution += (int)(targetContribution);
         targetCharacter.FormationPoint += targetFormationPoint;
