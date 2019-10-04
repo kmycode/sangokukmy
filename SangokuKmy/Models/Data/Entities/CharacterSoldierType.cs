@@ -417,7 +417,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           TypeInfantry = 10,
-          BaseDefend = 140,
+          BaseDefend = 14,
           ContinuousProbability = 60,
           StrongEx = 1,
           PowerStrong = 1,
