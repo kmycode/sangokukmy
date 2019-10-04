@@ -572,7 +572,12 @@ namespace SangokuKmy.Models.Commands
 
                 await repo.ScoutedTown.AddScoutAsync(scoutedTown);
                 await repo.SaveChangesAsync();
-                await StatusStreaming.Default.SendCountryAsync(ApiData.From(scoutedTown), targetCountry.Id);
+
+                var savedScoutedTown = (await repo.ScoutedTown.GetByTownIdAsync(targetTown.Id, targetCountry.Id)).Data;
+                if (savedScoutedTown != null)
+                {
+                  await StatusStreaming.Default.SendCountryAsync(ApiData.From(savedScoutedTown), targetCountry.Id);
+                }
               }
             }
 
