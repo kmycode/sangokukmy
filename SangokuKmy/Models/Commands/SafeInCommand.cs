@@ -60,7 +60,7 @@ namespace SangokuKmy.Models.Commands
       }
       country.SafeMoney += money;
       character.Money -= money;
-      character.Contribution += money / 1000;
+      character.Contribution += 30;
 
       await game.CharacterLogAsync($"国庫に金 <num>{money}</num> を納入しました");
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
