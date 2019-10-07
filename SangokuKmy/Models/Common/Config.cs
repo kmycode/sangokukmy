@@ -12,6 +12,17 @@ namespace SangokuKmy.Models.Common
       public static string MySqlConnectionString { get; set; }
     }
 
+    public static class Admin
+    {
+      public static string Name { get; set; }
+
+      public static string AliasId { get; set; }
+
+      public static string Password { get; set; }
+
+      public static string GravatarMailAddressMD5 { get; set; }
+    }
+
     public static class Game
     {
       public static string SecretKey { get; set; }

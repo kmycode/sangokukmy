@@ -293,6 +293,11 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
             Value = 50,
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.PolicyBoostProbabilityThousandth,
+            Value = 50,
+          },
         },
       },
       new CharacterSkillInfo
@@ -324,14 +329,14 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.PolicyBoostProbabilityThousandth,
-            Value = 50,
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.IntellectCommon,
           },
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.SoldierType,
-            Value = (int)SoldierType.IntellectCommon,
-          }
+            Type = CharacterSkillEffectType.IntellectExRegularly,
+            Value = 11,
+          },
         },
       },
       new CharacterSkillInfo
@@ -635,6 +640,15 @@ namespace SangokuKmy.Models.Data.Entities
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Terrorist2),
         Effects = new List<CharacterSkillEffect>
         {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              WallAttack = 60,
+              WallDefend = 30,
+            },
+          },
         },
       },
       new CharacterSkillInfo
@@ -801,8 +815,8 @@ namespace SangokuKmy.Models.Data.Entities
             SoldierTypeData = new CharacterSoldierTypeData
             {
               BaseAttack = 40,
-              RushProbability = 1200,
-              RushAttack = 160,
+              RushProbability = 800,
+              RushAttack = 140,
             },
           },
         },

@@ -41,6 +41,12 @@ namespace SangokuKmy
       // データベースの設定
       Config.Database.MySqlConnectionString = this.Configuration.GetConnectionString("MySql");
 
+      // 管理人の設定
+      Config.Admin.Name = this.Configuration.GetSection("AdminSettings")["Name"];
+      Config.Admin.AliasId = this.Configuration.GetSection("AdminSettings")["AliasId"];
+      Config.Admin.Password = this.Configuration.GetSection("AdminSettings")["Password"];
+      Config.Admin.GravatarMailAddressMD5 = this.Configuration.GetSection("AdminSettings")["GravatarMailAddressMD5"];
+
       // ゲームの設定
       Config.Game.SecretKey = this.Configuration.GetSection("GameSettings")["SecretKey"];
       Config.Game.UploadedIconDirectory = this.Configuration.GetSection("GameSettings")["UploadedIconDirectory"];

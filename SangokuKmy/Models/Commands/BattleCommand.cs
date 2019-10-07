@@ -265,18 +265,6 @@ namespace SangokuKmy.Models.Commands
         targetSkills = await repo.Character.GetSkillsAsync(targetCharacter.Id);
         targetSoldierType.Append(targetSkills.GetSoldierTypeData());
 
-        // 特殊なスキル判定
-        if (targetCharacter.AiType.IsTerrorist() && mySkills.Any(s => s.Type == CharacterSkillType.Terrorist3))
-        {
-          mySoldierType.BaseAttack += 100;
-          mySoldierType.BaseDefend += 50;
-        }
-        if (character.AiType.IsTerrorist() && targetSkills.Any(s => s.Type == CharacterSkillType.Terrorist3))
-        {
-          targetSoldierType.BaseAttack += 100;
-          targetSoldierType.BaseDefend += 50;
-        }
-
         isWall = false;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
       }
@@ -572,7 +560,12 @@ namespace SangokuKmy.Models.Commands
 
                 await repo.ScoutedTown.AddScoutAsync(scoutedTown);
                 await repo.SaveChangesAsync();
-                await StatusStreaming.Default.SendCountryAsync(ApiData.From(scoutedTown), targetCountry.Id);
+
+                var savedScoutedTown = (await repo.ScoutedTown.GetByTownIdAsync(targetTown.Id, targetCountry.Id)).Data;
+                if (savedScoutedTown != null)
+                {
+                  await StatusStreaming.Default.SendCountryAsync(ApiData.From(savedScoutedTown), targetCountry.Id);
+                }
               }
             }
 
@@ -635,7 +628,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       // 貢献、経験値の設定
-      var myFormationPoint = Math.Max(1, (int)myFormationExperience / 10);
+      var myFormationPoint = Math.Max(1, (int)myFormationExperience / 22);
       myFormationExperience = Math.Max(1, (int)myFormationExperience);
       myContribution += myExperience;
       character.Contribution += (int)(myContribution);
@@ -649,7 +642,7 @@ namespace SangokuKmy.Models.Commands
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(myFormationData), character.Id);
       if (!isWall)
       {
-        var targetFormationPoint = (int)targetFormationExperience / 10;
+        var targetFormationPoint = (int)targetFormationExperience / 22;
         targetContribution += targetExperience;
         targetCharacter.Contribution += (int)(targetContribution);
         targetCharacter.FormationPoint += targetFormationPoint;

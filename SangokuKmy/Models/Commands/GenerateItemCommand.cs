@@ -212,7 +212,7 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      var money = info.IsResource ? info.MoneyPerResource * info.DefaultResource / 20 : info.Money / 20;
+      var money = info.IsResource ? info.MoneyPerResource * info.DefaultResource / 17 : info.Money / 17;
       if (character.Money < money)
       {
         await game.CharacterLogAsync("アイテム生産しようとしましたが、金が足りません。<num>" + money + "</num> 必要です");
