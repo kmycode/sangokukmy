@@ -1600,6 +1600,7 @@ namespace SangokuKmy.Models.Data.Entities
     public static IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> GetResources(this IEnumerable<CharacterItem> item, CharacterItemEffectType type, Predicate<CharacterResourceItemEffect> subject, int size)
     {
       var targets = item
+        .Where(i => i.Status == CharacterItemStatus.CharacterHold)
         .Join(infos, i => i.Type, i => i.Type, (it, inn) => new { Item = it, Info = inn, Effects = inn.UsingEffects?.OfType<CharacterResourceItemEffect>().Where(ie => ie.Type == type && subject(ie)) ?? Enumerable.Empty<CharacterResourceItemEffect>(), })
         .Where(i => i.Effects.Any())
         // 並べ替え時は残量よりもレベルを優先する（安定ソート前提）
