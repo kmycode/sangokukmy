@@ -445,6 +445,7 @@ namespace SangokuKmy.Controllers
       [FromBody] Formation param)
     {
       Character chara;
+      CharacterLog log;
       var info = FormationTypeInfoes.Get(param.Type).GetOrError(ErrorCode.InvalidParameterError);
       using (var repo = MainRepository.WithReadAndWrite())
       {
@@ -466,9 +467,20 @@ namespace SangokuKmy.Controllers
 
         chara.FormationPoint -= 50;
         chara.FormationType = param.Type;
+
+        log = new CharacterLog
+        {
+          DateTime = DateTime.Now,
+          GameDateTime = (await repo.System.GetAsync()).GameDateTime,
+          CharacterId = chara.Id,
+          Message = $"陣形ポイント <num>50</num> を消費して、陣形を {info.Name} に変更しました",
+        };
+        await repo.Character.AddCharacterLogAsync(log);
+
         await repo.SaveChangesAsync();
       }
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(log), chara.Id);
     }
 
     [HttpPost("items")]
