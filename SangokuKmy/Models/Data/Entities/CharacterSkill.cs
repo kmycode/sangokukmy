@@ -695,7 +695,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.People1,
         RequestedPoint = 0,
-        Name = "農民 Lv.1",
+        Name = "農家 Lv.1",
         SubjectAppear = skills => false,
         Effects = new List<CharacterSkillEffect>
         {
@@ -710,7 +710,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.People2,
         RequestedPoint = 8,
-        Name = "農民 Lv.2",
+        Name = "農家 Lv.2",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People1),
         Effects = new List<CharacterSkillEffect>
         {
@@ -725,7 +725,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.People3,
         RequestedPoint = 8,
-        Name = "農民 Lv.3",
+        Name = "農家 Lv.3",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People2),
         Effects = new List<CharacterSkillEffect>
         {
@@ -740,7 +740,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.People4,
         RequestedPoint = 7,
-        Name = "農民 Lv.4",
+        Name = "農家 Lv.4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People3),
         Effects = new List<CharacterSkillEffect>
         {
@@ -760,7 +760,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.People5,
         RequestedPoint = 12,
-        Name = "農民 Lv.5",
+        Name = "農家 Lv.5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People4),
         Effects = new List<CharacterSkillEffect>
         {
