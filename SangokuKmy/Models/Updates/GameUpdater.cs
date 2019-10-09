@@ -888,7 +888,7 @@ namespace SangokuKmy.Models.Updates
             if (allTowns.Any(t => t.CountryId == 0) &&
               system.ManagementCountryCount < 1)
             {
-              var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message), 2);
+              var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
               if (isCreated)
               {
                 system.ManagementCountryCount++;

@@ -432,7 +432,7 @@ namespace SangokuKmy.Models.Services
       return true;
     }
 
-    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync, int size = -1)
+    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
     {
       var towns = await repo.Town.GetAllAsync();
       var targetTowns = towns.Where(t => t.CountryId == 0).ToArray();
@@ -441,10 +441,10 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      return await CreateManagedCountryAsync(repo, targetTowns[RandomService.Next(0, targetTowns.Length)], mapLogAsync, size);
+      return await CreateManagedCountryAsync(repo, targetTowns[RandomService.Next(0, targetTowns.Length)], mapLogAsync);
     }
 
-    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync, int size = -1)
+    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync)
     {
       if (town.CountryId != 0)
       {
@@ -459,66 +459,24 @@ namespace SangokuKmy.Models.Services
       }
 
       var countries = await repo.Country.GetAllAsync();
-      if (size < 0)
-      {
-        size = RandomService.Next(0, 4);
-      }
-      List<CharacterAiType> charas = null;
 
-      string[] names = null;
-      if (size == 0)
+      var charas = new List<CharacterAiType>
       {
-        charas = new List<CharacterAiType>
-        {
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedCivilOfficial,
-        };
-        names = new string[] { "冉魏", "成漢", "北燕", "翟魏", "代", "張楚", "仲", "後秦", "西秦", "五胡夏",
-          "西涼", "南斉", "蕭梁", "西魏", "北周", "後晋", "五代後漢", "後周", "前蜀", "後蜀", "荊南", "閩",
-          "北漢", "岐", "五代十国燕", "呉越", "曹", "蔡", "春秋陳", "鄭", "衛", "春秋宋", "魯", "中山", "杞",
-          "曾", "邾", "滕", "春秋唐", "栄", "単", "沈", "莱", "英", "六", "庸", "邢", "古蜀", "新末梁", "梁", };
-      }
-      if (size == 1)
-      {
-        charas = new List<CharacterAiType>
-        {
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedCivilOfficial,
-        };
-        names = new string[] { "新", "戦国趙", "前趙（五胡漢）", "後趙", "前涼", "後涼", "韓", "戦国魏", "春秋燕",
-          "前燕", "後燕", "越", "春秋呉", "十国呉", "東周", "北涼", "南涼", "劉宋", "東魏", "北斉", "後梁", "後唐",
-          "武周", "南唐", "十国楚", "南漢", "成家（公孫述）", };
-      }
-      if (size == 2)
-      {
-        charas = new List<CharacterAiType>
-        {
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedCivilOfficial,
-          CharacterAiType.ManagedPatroller,
-        };
-        names = new string[] { "秦", "前秦", "晋", "西晋", "東晋", "斉", "金", "明", "隋", "陳", "楚", "春秋楚", "夏", "商", "北魏", "元", };
-      }
-      if (size == 3)
-      {
-        charas = new List<CharacterAiType>
-        {
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedCivilOfficial,
-          CharacterAiType.ManagedCivilOfficial,
-          CharacterAiType.ManagedPatroller,
-        };
-        names = new string[] { "魏", "蜀漢", "呉", "漢", "唐", "宋", "清", "西周", };
-      }
-      if (names == null || charas == null)
-      {
-        return false;
-      }
+        CharacterAiType.ManagedBattler,
+        CharacterAiType.ManagedBattler,
+        CharacterAiType.ManagedBattler,
+        CharacterAiType.ManagedCivilOfficial,
+        CharacterAiType.ManagedPatroller,
+      };
+      var names = new string[] { "冉魏", "成漢", "北燕", "翟魏", "代", "張楚", "仲", "後秦", "西秦", "五胡夏",
+        "西涼", "南斉", "蕭梁", "西魏", "北周", "後晋", "五代後漢", "後周", "前蜀", "後蜀", "荊南", "閩",
+        "北漢", "岐", "五代十国燕", "呉越", "曹", "蔡", "春秋陳", "鄭", "衛", "春秋宋", "魯", "中山", "杞",
+        "曾", "邾", "滕", "春秋唐", "栄", "単", "沈", "莱", "英", "六", "庸", "邢", "古蜀", "新末梁", "梁",
+        "新", "戦国趙", "前趙（五胡漢）", "後趙", "前涼", "後涼", "韓", "戦国魏", "春秋燕",
+        "前燕", "後燕", "越", "春秋呉", "十国呉", "東周", "北涼", "南涼", "劉宋", "東魏", "北斉", "後梁", "後唐",
+        "武周", "南唐", "十国楚", "南漢", "成家（公孫述）",
+        "秦", "前秦", "晋", "西晋", "東晋", "斉", "金", "明", "隋", "陳", "楚", "春秋楚", "夏", "商", "北魏", "元",
+        "魏", "蜀漢", "呉", "漢", "唐", "宋", "清", "西周", };
 
       var availableNames = names.Where(n => !countries.Any(c => c.Name == n)).ToArray();
       if (!availableNames.Any())
