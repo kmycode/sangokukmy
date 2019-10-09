@@ -111,6 +111,15 @@ namespace SangokuKmy.Models.Services
       return policies.GetSumOfValues(CountryPolicyEffectType.Secretary);
     }
 
+    public static int GetCurrentSecretaryPoint(IEnumerable<CharacterAiType> currentSecretaries)
+    {
+      return currentSecretaries
+        .Sum(c => c == CharacterAiType.SecretaryPatroller ? 1 :
+                  c == CharacterAiType.SecretaryPioneer ? 1 :
+                  c == CharacterAiType.SecretaryUnitGather ? 1 :
+                  c == CharacterAiType.SecretaryUnitLeader ? 1 : 0);
+    }
+
     public static int GetCountrySafeMax(IEnumerable<CountryPolicyType> policies)
     {
       return policies.GetSumOfValues(CountryPolicyEffectType.CountrySafeMax);

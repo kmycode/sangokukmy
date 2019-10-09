@@ -65,12 +65,20 @@ namespace SangokuKmy.Models.Commands
       }
       var country = countryOptional.Data;
 
-      var charas = await repo.Country.GetCharactersWithIconsAndCommandsAsync(country.Id);
+      var secretaries = (await repo.Country.GetCharactersAsync(country.Id)).Where(c => c.AiType.IsSecretary());
       var policies = await repo.Country.GetPoliciesAsync(country.Id);
       var secretaryMax = CountryService.GetSecretaryMax(policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type));
-      if (charas.Count(c => c.Character.AiType.IsSecretary()) >= secretaryMax)
+      var currentSecretaryPoint = CountryService.GetCurrentSecretaryPoint(secretaries.Select(c => c.AiType));
+      if (currentSecretaryPoint >= secretaryMax)
       {
-        await game.CharacterLogAsync($"政務官を雇おうとしましたが、すでに政務官の数が上限 <num>{secretaryMax}</num> に達しています");
+        await game.CharacterLogAsync($"政務官を雇おうとしましたが、すでに政務官ポイントが上限 <num>{secretaryMax}</num> に達しています");
+        return;
+      }
+
+      var afterSecretaryPoint = CountryService.GetCurrentSecretaryPoint(secretaries.Select(c => c.AiType).Append(type));
+      if (afterSecretaryPoint > secretaryMax)
+      {
+        await game.CharacterLogAsync($"政務官を雇おうとしましたが、雇用後の政務官ポイントが上限 <num>{secretaryMax}</num> を越えます");
         return;
       }
 
