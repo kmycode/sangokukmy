@@ -100,6 +100,7 @@ namespace SangokuKmy.Models.Services
         LastUpdatedGameDate = system.GameDateTime,
         TownId = (await repo.Town.GetAllAsync()).First().Id,
         AliasId = Config.Admin.AliasId,
+        Money = 1000_0000,
       };
       admin.SetPassword(Config.Admin.Password);
       await repo.Character.AddAsync(admin);
