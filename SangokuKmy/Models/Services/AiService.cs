@@ -50,7 +50,7 @@ namespace SangokuKmy.Models.Services
       return country;
     }
 
-    private static async Task CreateCharacterAsync(MainRepository repo, IEnumerable<CharacterAiType> types, uint countryId, uint townId, SystemData system)
+    private static async Task<IEnumerable<Character>> CreateCharacterAsync(MainRepository repo, IEnumerable<CharacterAiType> types, uint countryId, uint townId, SystemData system)
     {
       var charas = new List<Character>();
       foreach (var type in types)
@@ -97,6 +97,8 @@ namespace SangokuKmy.Models.Services
           chara.FormationType = formation.Type;
         }
       }
+
+      return charas;
     }
 
     public static async Task SetIconAsync(MainRepository repo, Character chara)
@@ -611,6 +613,86 @@ namespace SangokuKmy.Models.Services
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
       return true;
+    }
+
+    public static async Task CheckManagedReinforcementsAsync(MainRepository repo, uint countryId)
+    {
+      var country = await repo.Country.GetByIdAsync(countryId);
+      if (!country.HasData || country.Data.AiType != CountryAiType.Managed)
+      {
+        return;
+      }
+
+      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+
+      var allCharacters = await repo.Character.GetAllAliveAsync();
+      var warCountries = wars
+        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
+        .Where(w => w.IsJoin(countryId))
+        .Select(w => w.RequestedCountryId == countryId ? w.InsistedCountryId : w.RequestedCountryId)
+        .Distinct()
+        .Select(c => new { CountryId = c, CharacterCount = allCharacters.Count(cc => cc.CountryId == c && cc.AiType == CharacterAiType.Human), })
+        .ToArray();
+      var countryCharacters = allCharacters.Where(c => c.CountryId == countryId && c.AiType.IsManaged());
+
+      var requestedReinforcementCount = Math.Max(warCountries.Sum(c => c.CharacterCount) - countryCharacters.Count() - 3, 0);
+      var currentReinforcements = countryCharacters.Where(c => c.Name.Contains("援軍"));
+      if (currentReinforcements.Count() < requestedReinforcementCount)
+      {
+        // 援軍追加
+        var types = new List<CharacterAiType>();
+        var count = requestedReinforcementCount - currentReinforcements.Count();
+        var battlersCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler);
+        var civilOfficialsCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedCivilOfficial);
+        var patrollersCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller);
+        for (var i = 0; i < count; i++)
+        {
+          if (battlersCount + civilOfficialsCount > patrollersCount * 3)
+          {
+            types.Add(CharacterAiType.ManagedPatroller);
+            patrollersCount++;
+          }
+          else
+          {
+            if ((battlersCount + civilOfficialsCount + patrollersCount) % 8 == 0)
+            {
+              types.Add(CharacterAiType.ManagedWallBattler);
+            }
+            else
+            {
+              types.Add(CharacterAiType.ManagedBattler);
+            }
+            battlersCount++;
+          }
+        }
+
+        var created = await CreateCharacterAsync(repo, types, countryId, country.Data.CapitalTownId, await repo.System.GetAsync());
+        foreach (var chara in created)
+        {
+          if (chara.AiType == CharacterAiType.ManagedPatroller)
+          {
+            chara.Popularity = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller).Max(c => c.Popularity);
+          }
+          else
+          {
+            chara.Strong = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler).Max(c => c.Strong);
+            chara.Leadership = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler).Max(c => c.Leadership);
+          }
+          chara.Name = $"{country.Data.Name}_援軍{chara.Name}_{chara.Id}";
+          await LogService.AddMapLogAsync(repo, false, EventType.ReinforcementActived, $"<character>{chara.Name}</character> が新たに <country>{country.Data.Name}</country> の援軍として加わりました");
+        }
+      }
+      else if (currentReinforcements.Count() > requestedReinforcementCount)
+      {
+        // 援軍削除
+        var count = currentReinforcements.Count() - requestedReinforcementCount;
+        var targets = currentReinforcements.OrderByDescending(c => c.Id).Take(count).ToArray();
+        foreach (var target in targets)
+        {
+          await CharacterService.RemoveAsync(repo, target);
+          await LogService.AddMapLogAsync(repo, false, EventType.ReinforcementReturned, $"<character>{target.Name}</character> は、<country>{country.Data.Name}</country> の援軍の任を終え消滅しました");
+        }
+      }
     }
 
     public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync)

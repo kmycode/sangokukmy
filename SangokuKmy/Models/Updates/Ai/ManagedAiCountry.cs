@@ -203,6 +203,9 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task RunInnerAsync(MainRepository repo)
     {
+      await AiService.CheckManagedReinforcementsAsync(repo, this.Country.Id);
+      await repo.SaveChangesAsync();
+
       this.allTowns = await repo.Town.GetAllAsync();
       var towns = this.allTowns.Where(t => t.CountryId == this.Country.Id);
       this.allCharacters = await repo.Character.GetAllAliveAsync();
