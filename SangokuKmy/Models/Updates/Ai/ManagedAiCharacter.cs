@@ -920,7 +920,12 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (await this.InputSafeInAsync(repo, Config.PaySafeMax, 3_0000))
+      if (await this.InputBuyRiceAsync(repo, 0.85f))
+      {
+        return;
+      }
+
+      if (await this.InputSafeInAsync(repo, Config.PaySafeMax, 10_0000))
       {
         return;
       }

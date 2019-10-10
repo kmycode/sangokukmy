@@ -1370,7 +1370,14 @@ namespace SangokuKmy.Models.Updates.Ai
     {
       if (this.Town.Security < 100)
       {
-        this.command.Type = CharacterCommandType.SuperSecurity;
+        if (this.Character.Rice > 3000 && this.Town.Security < 95)
+        {
+          this.command.Type = CharacterCommandType.SuperSecurity;
+        }
+        else
+        {
+          this.command.Type = CharacterCommandType.Security;
+        }
         return true;
       }
       return false;
