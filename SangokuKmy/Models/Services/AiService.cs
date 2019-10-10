@@ -636,6 +636,8 @@ namespace SangokuKmy.Models.Services
             chara.Strong = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler).Max(c => c.Strong);
             chara.Leadership = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler).Max(c => c.Leadership);
           }
+          chara.Money = countryCharacters.Max(c => c.Money);
+          chara.Rice = countryCharacters.Max(c => c.Rice);
           chara.Name = $"{country.Data.Name}_援軍{chara.Name}_{chara.Id}";
           await LogService.AddMapLogAsync(repo, false, EventType.ReinforcementActived, $"<character>{chara.Name}</character> が新たに <country>{country.Data.Name}</country> の援軍として加わりました");
         }
