@@ -329,21 +329,24 @@ namespace SangokuKmy.Models.Commands
 
         var targetDamage = Math.Max(RandomService.Next(myAttack + 1), 1);
         var myDamage = Math.Max(RandomService.Next(targetAttack + 1), 1);
+        var myCommand = BattleTurnCommand.None;
+        var targetCommand = BattleTurnCommand.None;
 
         // 突撃
-        var isMyRush = false;
-        var isTargetRush = false;
-        if (mySoldierType.IsRush())
+        if (myCommand == BattleTurnCommand.None && targetCommand == BattleTurnCommand.None)
         {
-          targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack(targetSoldierType)), 14), targetCharacter.SoldierNumber);
-          targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 2);
-          isMyRush = true;
-        }
-        else if (targetSoldierType.IsRush())
-        {
-          myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack(mySoldierType)), 8), character.SoldierNumber);
-          myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 2);
-          isTargetRush = true;
+          if (mySoldierType.IsRush())
+          {
+            targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack(targetSoldierType)), 14), targetCharacter.SoldierNumber);
+            targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 2);
+            myCommand = BattleTurnCommand.Rush;
+          }
+          else if (targetSoldierType.IsRush())
+          {
+            myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack(mySoldierType)), 8), character.SoldierNumber);
+            myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 2);
+            targetCommand = BattleTurnCommand.Rush;
+          }
         }
 
         // 兵士数がマイナスにならないようにする
@@ -384,8 +387,8 @@ namespace SangokuKmy.Models.Commands
           AttackerDamage = (short)myDamage,
           DefenderNumber = (short)targetCharacter.SoldierNumber,
           DefenderDamage = (short)targetDamage,
-          IsAttackerRush = isMyRush,
-          IsDefenderRush = isTargetRush,
+          AttackerCommand = myCommand,
+          DefenderCommand = targetCommand,
         });
       }
 

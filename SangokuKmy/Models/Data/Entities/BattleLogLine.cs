@@ -55,12 +55,51 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("defenderNumber")]
     public short DefenderNumber { get; set; }
 
-    [Column("is_attacker_rush")]
-    [JsonProperty("isAttackerRush")]
-    public bool IsAttackerRush { get; set; }
+    [Column("attacker_command")]
+    [JsonIgnore]
+    public BattleTurnCommand AttackerCommand { get; set; }
 
-    [Column("is_defender_rush")]
-    [JsonProperty("isDefenderRush")]
-    public bool IsDefenderRush { get; set; }
+    [NotMapped]
+    [JsonProperty("attackerCommand")]
+    public short ApiAttackerCommand
+    {
+      get => (short)this.AttackerCommand;
+      set => this.AttackerCommand = (BattleTurnCommand)value;
+    }
+
+    [Column("defender_command")]
+    [JsonIgnore]
+    public BattleTurnCommand DefenderCommand { get; set; }
+
+    [NotMapped]
+    [JsonProperty("defenderCommand")]
+    public short ApiDefenderCommand
+    {
+      get => (short)this.DefenderCommand;
+      set => this.DefenderCommand = (BattleTurnCommand)value;
+    }
+  }
+
+  public enum BattleTurnCommand : short
+  {
+    /// <summary>
+    /// なし
+    /// </summary>
+    None = 0,
+
+    /// <summary>
+    /// 突撃
+    /// </summary>
+    Rush = 1,
+
+    /// <summary>
+    /// 混乱
+    /// </summary>
+    Disorder = 2,
+
+    /// <summary>
+    /// 同士討ち
+    /// </summary>
+    FriendlyFire = 3,
   }
 }
