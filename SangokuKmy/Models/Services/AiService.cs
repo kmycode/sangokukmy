@@ -488,7 +488,6 @@ namespace SangokuKmy.Models.Services
       {
         CharacterAiType.ManagedBattler,
         CharacterAiType.ManagedBattler,
-        CharacterAiType.ManagedBattler,
         CharacterAiType.ManagedCivilOfficial,
         CharacterAiType.ManagedPatroller,
       };
