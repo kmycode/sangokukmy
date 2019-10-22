@@ -310,13 +310,37 @@ namespace SangokuKmy.Models.Services
         return null;
       }
 
+      var size = RandomService.Next(3, 10);
       var charas = new List<CharacterAiType>
       {
         CharacterAiType.TerroristBattler,
-        CharacterAiType.TerroristWallBattler,
         CharacterAiType.TerroristCivilOfficial,
         CharacterAiType.TerroristPatroller,
       };
+      if (size >= 4)
+      {
+        charas.Add(CharacterAiType.TerroristWallBattler);
+      }
+      if (size >= 5)
+      {
+        charas.Add(CharacterAiType.TerroristBattler);
+      }
+      if (size >= 6)
+      {
+        charas.Add(CharacterAiType.TerroristPatroller);
+      }
+      if (size >= 7)
+      {
+        charas.Add(CharacterAiType.TerroristRyofu);
+      }
+      if (size >= 8)
+      {
+        charas.Add(CharacterAiType.TerroristCivilOfficial);
+      }
+      if (size >= 9)
+      {
+        charas.Add(CharacterAiType.TerroristPatroller);
+      }
 
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", "匈奴", "羯", "鮮卑", "氐", "奚", "夷", "俚", };
       var name = names[RandomService.Next(0, names.Length)];
