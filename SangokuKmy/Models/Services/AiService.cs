@@ -730,7 +730,7 @@ namespace SangokuKmy.Models.Services
       var towns = allTowns
         .Where(t => !singleTownCountries.Contains(t.CountryId))
         .Where(t => !aiCountries.Contains(t.CountryId))
-        .Where(t => t.Security <= 0 && t.People <= 8000)
+        .Where(t => t.Security <= 8 && t.People <= 8000)
         .Where(t => !warCountries.Contains(t.CountryId) && !townWars.Select(tt => tt.TownId).Contains(t.Id))
         .ToList();
 
