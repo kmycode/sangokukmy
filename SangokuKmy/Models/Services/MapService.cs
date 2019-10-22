@@ -185,6 +185,12 @@ namespace SangokuKmy.Models.Services
           TownBuilding.TrainPopularity,
           TownBuilding.TrainStrong,
           TownBuilding.Palace,
+          TownBuilding.Houses,
+          TownBuilding.Casting,
+          TownBuilding.TrainingBuilding,
+          TownBuilding.Camp,
+          TownBuilding.Extension,
+          TownBuilding.Sukiya,
         };
         var r = RandomService.Next(0, b.Length);
         town.TownBuilding = b[r];

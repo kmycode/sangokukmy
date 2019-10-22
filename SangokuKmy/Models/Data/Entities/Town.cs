@@ -318,6 +318,36 @@ namespace SangokuKmy.Models.Data.Entities
     /// 宮殿
     /// </summary>
     Palace = 16,
+
+    /// <summary>
+    /// 住宅
+    /// </summary>
+    Houses = 17,
+
+    /// <summary>
+    /// 鋳金所
+    /// </summary>
+    Casting = 18,
+
+    /// <summary>
+    /// 訓練施設
+    /// </summary>
+    TrainingBuilding = 19,
+
+    /// <summary>
+    /// 陣
+    /// </summary>
+    Camp = 20,
+
+    /// <summary>
+    /// 増築拠点
+    /// </summary>
+    Extension = 21,
+
+    /// <summary>
+    /// 数寄屋
+    /// </summary>
+    Sukiya = 22,
   }
 
   public static class TownExtensions

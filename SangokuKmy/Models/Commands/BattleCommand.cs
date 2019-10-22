@@ -317,8 +317,11 @@ namespace SangokuKmy.Models.Commands
       var myPower = mySoldierType.CalcPower(character);
       var targetPower = targetSoldierType.CalcPower(targetCharacter);
 
-      var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetCharacter.Proficiency / 2.5f) / 8), 0);
-      var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
+      var myProficiency = myTown.TownBuilding == TownBuilding.Camp ? character.Proficiency * (1 + 2 * (float)myTown.TownBuildingValue / Config.TownBuildingMax) : character.Proficiency;
+      var targetProficiency = targetTown.TownBuilding == TownBuilding.Camp ? targetCharacter.Proficiency * (1 + 2 * (float)myTown.TownBuildingValue / Config.TownBuildingMax) : targetCharacter.Proficiency;
+
+      var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetProficiency / 2.5f) / 8), 0);
+      var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - myProficiency / 2.5f) / 8), 0);
 
       log.AttackerAttackPower = myAttack;
       log.DefenderAttackPower = targetAttack;
