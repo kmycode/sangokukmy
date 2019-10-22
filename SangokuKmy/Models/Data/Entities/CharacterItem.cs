@@ -1252,7 +1252,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterItemType.Chukoetsu,
         Name = "中行説の霊",
-        Money = 5_000_000,
+        Money = 500_000,
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
@@ -1274,7 +1274,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterItemType.Kojinnoakashi,
         Name = "胡人の証",
-        Money = 5_000_000,
+        Money = 500_000,
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = false,
