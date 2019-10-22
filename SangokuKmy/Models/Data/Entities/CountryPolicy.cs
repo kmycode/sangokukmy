@@ -505,10 +505,25 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CountryPolicyTypeInfo
       {
+        Type = CountryPolicyType.Scouter,
+        Name = "密偵",
+        BasePoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.IntellectCountry),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.ScouterMax,
+            Value = Config.ScouterMax,
+          },
+        },
+      },
+      new CountryPolicyTypeInfo
+      {
         Type = CountryPolicyType.UnitOrder,
         Name = "号令",
         BasePoint = 3000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.IntellectCountry),
+        SubjectAppear = list => list.Contains(CountryPolicyType.Scouter),
       },
       new CountryPolicyTypeInfo
       {
@@ -551,20 +566,6 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CountryPolicyEffectType.BoostWith,
             Value = (int)CountryPolicyType.IntellectCountry,
-          },
-        },
-      },
-      new CountryPolicyTypeInfo
-      {
-        Type = CountryPolicyType.Scouter,
-        Name = "密偵",
-        BasePoint = 4000,
-        Effects =
-        {
-          new CountryPolicyEffect
-          {
-            Type = CountryPolicyEffectType.ScouterMax,
-            Value = Config.ScouterMax,
           },
         },
       },
