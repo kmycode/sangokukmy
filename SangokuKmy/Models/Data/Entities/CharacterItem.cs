@@ -1268,6 +1268,8 @@ namespace SangokuKmy.Models.Data.Entities
         DiscoverFroms = new List<CharacterFrom>
         {
           CharacterFrom.Warrior,
+          CharacterFrom.Terrorist,
+          CharacterFrom.Staff,
         },
       },
       new CharacterItemInfo
