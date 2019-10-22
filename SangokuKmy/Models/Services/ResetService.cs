@@ -92,29 +92,32 @@ namespace SangokuKmy.Models.Services
         system.Period++;
       }
 
-      var admin = new Character
+      if (Config.IsGenerateAdminCharacter)
       {
-        Name = Config.Admin.Name,
-        AiType = CharacterAiType.Administrator,
-        LastUpdated = DateTime.Now,
-        LastUpdatedGameDate = system.GameDateTime,
-        TownId = (await repo.Town.GetAllAsync()).First().Id,
-        AliasId = Config.Admin.AliasId,
-        Money = 1000_0000,
-      };
-      admin.SetPassword(Config.Admin.Password);
-      await repo.Character.AddAsync(admin);
-      await repo.SaveChangesAsync();
+        var admin = new Character
+        {
+          Name = Config.Admin.Name,
+          AiType = CharacterAiType.Administrator,
+          LastUpdated = DateTime.Now,
+          LastUpdatedGameDate = system.GameDateTime,
+          TownId = (await repo.Town.GetAllAsync()).First().Id,
+          AliasId = Config.Admin.AliasId,
+          Money = 1000_0000,
+        };
+        admin.SetPassword(Config.Admin.Password);
+        await repo.Character.AddAsync(admin);
+        await repo.SaveChangesAsync();
 
-      var adminIcon = new CharacterIcon
-      {
-        CharacterId = admin.Id,
-        IsAvailable = true,
-        IsMain = true,
-        Type = CharacterIconType.Gravatar,
-        FileName = Config.Admin.GravatarMailAddressMD5,
-      };
-      await repo.Character.AddCharacterIconAsync(adminIcon);
+        var adminIcon = new CharacterIcon
+        {
+          CharacterId = admin.Id,
+          IsAvailable = true,
+          IsMain = true,
+          Type = CharacterIconType.Gravatar,
+          FileName = Config.Admin.GravatarMailAddressMD5,
+        };
+        await repo.Character.AddCharacterIconAsync(adminIcon);
+      }
 
       await repo.MapLog.AddAsync(new MapLog
       {
