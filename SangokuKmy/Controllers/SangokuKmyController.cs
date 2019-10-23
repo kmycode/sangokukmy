@@ -163,16 +163,23 @@ namespace SangokuKmy.Controllers
     {
       using (var repo = MainRepository.WithReadAndWrite())
       {
-        foreach (var commandGroup in commands.GroupBy(c => c.Type))
+        try
         {
-          var cmd = Commands.Get(commandGroup.Key).GetOrError(ErrorCode.CommandTypeNotFoundError);
-          var sameCommandParamsGroups = commandGroup.GroupBy(g => g.Parameters.Any() ? g.Parameters.Select(p => p.GetHashCode()).Aggregate((p1, p2) => p1 ^ p2) : 0, c => c);
-          foreach (var sameCommandParamsGroup in sameCommandParamsGroups)
+          foreach (var commandGroup in commands.GroupBy(c => c.Type))
           {
-            await cmd.InputAsync(repo, this.AuthData.CharacterId, sameCommandParamsGroup.Select(c => c.GameDateTime), sameCommandParamsGroup.First().Parameters.ToArray());
+            var cmd = Commands.Get(commandGroup.Key).GetOrError(ErrorCode.CommandTypeNotFoundError);
+            var sameCommandParamsGroups = commandGroup.GroupBy(g => g.Parameters.Any() ? g.Parameters.Select(p => p.GetHashCode()).Aggregate((p1, p2) => p1 ^ p2) : 0, c => c);
+            foreach (var sameCommandParamsGroup in sameCommandParamsGroups)
+            {
+              await cmd.InputAsync(repo, this.AuthData.CharacterId, sameCommandParamsGroup.Select(c => c.GameDateTime), sameCommandParamsGroup.First().Parameters.ToArray());
+            }
           }
+          await repo.SaveChangesAsync();
         }
-        await repo.SaveChangesAsync();
+        catch (Exception ex)
+        {
+          repo.Error(ex);
+        }
       }
     }
 
