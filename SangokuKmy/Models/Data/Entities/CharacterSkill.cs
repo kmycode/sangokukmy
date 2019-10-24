@@ -815,8 +815,9 @@ namespace SangokuKmy.Models.Data.Entities
             SoldierTypeData = new CharacterSoldierTypeData
             {
               BaseAttack = 40,
-              RushProbability = 800,
-              RushAttack = 140,
+              RushProbability = 1000,
+              RushAttack = 80,
+              ContinuousProbability = 1000,
             },
           },
         },
@@ -963,6 +964,7 @@ namespace SangokuKmy.Models.Data.Entities
             SoldierTypeData = new CharacterSoldierTypeData
             {
               BaseAttack = 20,
+              RushDefend = 20,
             },
           },
           new CharacterSkillEffect

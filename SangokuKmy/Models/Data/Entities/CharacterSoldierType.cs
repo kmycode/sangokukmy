@@ -230,6 +230,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 1,
           BaseDefend = 0,
+          RushDefend = 2,
           TypeInfantry = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -246,6 +247,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 0,
           BaseDefend = 1,
+          RushDefend = 2,
           TypeCrossbow = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -262,6 +264,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 3,
           BaseDefend = 1,
+          RushDefend = 2,
           TypeCavalry = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -400,12 +403,12 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TypeCavalry = 10,
           WallDefend = -4,
-          RushProbability = 400,
+          RushProbability = 250,
           RushAttack = 12,
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 14,
+        Money = 12,
         FakeMoney = 20,
         Technology = 999,
         CanConscript = true,
@@ -436,6 +439,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           IntellectDefend = 100,
+          RushDefend = 3,
           IntellectEx = 1,
           TypeGuard = 10,
           PowerStrong = 1,
@@ -651,6 +655,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 6,
           BaseDefend = 4,
+          RushDefend = 3,
           TypeCavalry = 10,
           IntellectEx = 1,
           PowerIntellect = 1,
@@ -668,6 +673,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 9,
           BaseDefend = 4,
+          RushDefend = 3,
           TypeCrossbow = 10,
           IntellectEx = 1,
           PowerIntellect = 1,

@@ -567,9 +567,10 @@ namespace SangokuKmy.Models.Updates
                 peopleAdd = -80 * (50 - town.Security);
               }
               town.People += peopleAdd;
-              if (town.People > town.PeopleMax)
+              var peopleMax = (int)(town.TownBuilding != TownBuilding.Houses ? town.PeopleMax : town.PeopleMax + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 10000);
+              if (town.People > peopleMax)
               {
-                town.People = town.PeopleMax;
+                town.People = peopleMax;
               }
               else if (town.People < 0)
               {
@@ -661,7 +662,9 @@ namespace SangokuKmy.Models.Updates
                   town.TownBuilding == TownBuilding.TrainIntellect ||
                   town.TownBuilding == TownBuilding.TrainLeadership ||
                   town.TownBuilding == TownBuilding.TrainPopularity ||
-                  town.TownBuilding == TownBuilding.TerroristHouse)
+                  town.TownBuilding == TownBuilding.TerroristHouse ||
+                  town.TownBuilding == TownBuilding.TrainingBuilding ||
+                  town.TownBuilding == TownBuilding.Sukiya)
               {
                 var charas = await repo.Town.GetCharactersAsync(town.Id);
                 var isConnected = countryData
@@ -704,6 +707,22 @@ namespace SangokuKmy.Models.Updates
                       chara.Proficiency = Math.Max(chara.Proficiency, (short)(60 * size));
                     }
                   }
+                  else if (town.TownBuilding == TownBuilding.TrainingBuilding)
+                  {
+                    var formation = await repo.Character.GetFormationAsync(chara.Id, chara.FormationType);
+                    formation.Experience += (int)(6 * size);
+                  }
+                  else if (town.TownBuilding == TownBuilding.Sukiya)
+                  {
+                    if (RandomService.Next(1, 1001) <= (int)(8 * size))
+                    {
+                      var info = await ItemService.PickTownHiddenItemAsync(repo, chara.TownId, chara);
+                      if (info.HasData)
+                      {
+                        await LogService.AddCharacterLogAsync(repo, system.GameDateTime, chara.Id, $"<town>{town.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
+                      }
+                    }
+                  }
 
                   if (isNotify)
                   {
@@ -726,12 +745,27 @@ namespace SangokuKmy.Models.Updates
                   town.Security = (short)Math.Min((int)(town.Security + 8 * size), 100);
                 }
               }
-              else if (town.TownBuilding == TownBuilding.Palace)
+              else if (town.TownBuilding == TownBuilding.Extension)
+              {
+                if (system.GameDateTime.Month % 6 == 1)
+                {
+                  town.WallMax += (int)(3 * size);
+                }
+              }
+              else if (town.TownBuilding == TownBuilding.Palace ||
+                town.TownBuilding == TownBuilding.Casting)
               {
                 var cc = await repo.Country.GetAliveByIdAsync(town.CountryId);
                 if (cc.HasData)
                 {
-                  cc.Data.PolicyPoint += (short)(9 * size);
+                  if (town.TownBuilding == TownBuilding.Palace)
+                  {
+                    cc.Data.PolicyPoint += (short)(9 * size);
+                  }
+                  else if (town.TownBuilding == TownBuilding.Casting)
+                  {
+                    cc.Data.SafeMoney += (int)(200 * size);
+                  }
                 }
               }
             }
@@ -888,7 +922,7 @@ namespace SangokuKmy.Models.Updates
             if (allTowns.Any(t => t.CountryId == 0) &&
               system.ManagementCountryCount < 1)
             {
-              var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message), 2);
+              var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
               if (isCreated)
               {
                 system.ManagementCountryCount++;

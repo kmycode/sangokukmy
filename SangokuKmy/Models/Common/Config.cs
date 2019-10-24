@@ -85,5 +85,7 @@ namespace SangokuKmy.Models.Common
     public static float SoldierPeopleCost { get; } = 5.55f;
 
     public static float RicePriceBase { get; } = 1000000.0f;
+
+    public static bool IsGenerateAdminCharacter { get; } = false;
   }
 }

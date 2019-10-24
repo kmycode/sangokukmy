@@ -317,8 +317,11 @@ namespace SangokuKmy.Models.Commands
       var myPower = mySoldierType.CalcPower(character);
       var targetPower = targetSoldierType.CalcPower(targetCharacter);
 
-      var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetCharacter.Proficiency / 2.5f) / 8), 0);
-      var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - character.Proficiency / 2.5f) / 8), 0);
+      var myProficiency = myTown.TownBuilding == TownBuilding.Camp ? character.Proficiency * (1 + 2 * (float)myTown.TownBuildingValue / Config.TownBuildingMax) : character.Proficiency;
+      var targetProficiency = targetTown.TownBuilding == TownBuilding.Camp ? targetCharacter.Proficiency * (1 + 2 * (float)myTown.TownBuildingValue / Config.TownBuildingMax) : targetCharacter.Proficiency;
+
+      var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetProficiency / 2.5f) / 8), 0);
+      var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - myProficiency / 2.5f) / 8), 0);
 
       log.AttackerAttackPower = myAttack;
       log.DefenderAttackPower = targetAttack;
@@ -329,21 +332,32 @@ namespace SangokuKmy.Models.Commands
 
         var targetDamage = Math.Max(RandomService.Next(myAttack + 1), 1);
         var myDamage = Math.Max(RandomService.Next(targetAttack + 1), 1);
+        var myCommand = BattleTurnCommand.None;
+        var targetCommand = BattleTurnCommand.None;
 
         // 突撃
-        var isMyRush = false;
-        var isTargetRush = false;
-        if (mySoldierType.IsRush())
+        if (myCommand == BattleTurnCommand.None && targetCommand == BattleTurnCommand.None)
         {
-          targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack(targetSoldierType)), 14), targetCharacter.SoldierNumber);
-          targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 2);
-          isMyRush = true;
-        }
-        else if (targetSoldierType.IsRush())
-        {
-          myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack(mySoldierType)), 8), character.SoldierNumber);
-          myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 2);
-          isTargetRush = true;
+          if (mySoldierType.IsRush())
+          {
+            var rushSize = mySoldierType.CalcRushAttack(targetSoldierType);
+            targetDamage = Math.Min(Math.Max((int)(targetDamage + rushSize), 14), targetCharacter.SoldierNumber);
+            targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 2);
+            if (rushSize > 0)
+            {
+              myCommand = BattleTurnCommand.Rush;
+            }
+          }
+          else if (targetSoldierType.IsRush())
+          {
+            var rushSize = targetSoldierType.CalcRushAttack(mySoldierType);
+            myDamage = Math.Min(Math.Max((int)(myDamage + rushSize), 8), character.SoldierNumber);
+            myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 2);
+            if (rushSize > 0)
+            {
+              targetCommand = BattleTurnCommand.Rush;
+            }
+          }
         }
 
         // 兵士数がマイナスにならないようにする
@@ -384,8 +398,8 @@ namespace SangokuKmy.Models.Commands
           AttackerDamage = (short)myDamage,
           DefenderNumber = (short)targetCharacter.SoldierNumber,
           DefenderDamage = (short)targetDamage,
-          IsAttackerRush = isMyRush,
-          IsDefenderRush = isTargetRush,
+          AttackerCommand = myCommand,
+          DefenderCommand = targetCommand,
         });
       }
 
@@ -522,6 +536,7 @@ namespace SangokuKmy.Models.Commands
                 targetCountry.OverthrownGameDate = game.GameDateTime;
                 await StatusStreaming.Default.SendAllAsync(ApiData.From(targetCountry));
                 await AnonymousStreaming.Default.SendAllAsync(ApiData.From(targetCountry));
+                await AiService.CheckManagedReinforcementsAsync(repo, targetCountry.Id);
                 await game.MapLogAsync(EventType.Overthrown, "<country>" + targetCountry.Name + "</country> は滅亡しました", true);
 
                 var targetCountryCharacters = await repo.Character.RemoveCountryAsync(targetCountry.Id);

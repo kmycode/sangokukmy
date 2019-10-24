@@ -50,7 +50,7 @@ namespace SangokuKmy.Models.Services
       return country;
     }
 
-    private static async Task CreateCharacterAsync(MainRepository repo, IEnumerable<CharacterAiType> types, uint countryId, uint townId, SystemData system)
+    private static async Task<IEnumerable<Character>> CreateCharacterAsync(MainRepository repo, IEnumerable<CharacterAiType> types, uint countryId, uint townId, SystemData system)
     {
       var charas = new List<Character>();
       foreach (var type in types)
@@ -97,6 +97,8 @@ namespace SangokuKmy.Models.Services
           chara.FormationType = formation.Type;
         }
       }
+
+      return charas;
     }
 
     public static async Task SetIconAsync(MainRepository repo, Character chara)
@@ -308,13 +310,37 @@ namespace SangokuKmy.Models.Services
         return null;
       }
 
+      var size = RandomService.Next(3, 10);
       var charas = new List<CharacterAiType>
       {
         CharacterAiType.TerroristBattler,
-        CharacterAiType.TerroristWallBattler,
         CharacterAiType.TerroristCivilOfficial,
         CharacterAiType.TerroristPatroller,
       };
+      if (size >= 4)
+      {
+        charas.Add(CharacterAiType.TerroristWallBattler);
+      }
+      if (size >= 5)
+      {
+        charas.Add(CharacterAiType.TerroristBattler);
+      }
+      if (size >= 6)
+      {
+        charas.Add(CharacterAiType.TerroristPatroller);
+      }
+      if (size >= 7)
+      {
+        charas.Add(CharacterAiType.TerroristRyofu);
+      }
+      if (size >= 8)
+      {
+        charas.Add(CharacterAiType.TerroristCivilOfficial);
+      }
+      if (size >= 9)
+      {
+        charas.Add(CharacterAiType.TerroristPatroller);
+      }
 
       var names = new string[] { "南蛮", "烏丸", "羌", "山越", "匈奴", "羯", "鮮卑", "氐", "奚", "夷", "俚", };
       var name = names[RandomService.Next(0, names.Length)];
@@ -430,7 +456,7 @@ namespace SangokuKmy.Models.Services
       return true;
     }
 
-    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync, int size = -1)
+    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
     {
       var towns = await repo.Town.GetAllAsync();
       var targetTowns = towns.Where(t => t.CountryId == 0).ToArray();
@@ -439,10 +465,10 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      return await CreateManagedCountryAsync(repo, targetTowns[RandomService.Next(0, targetTowns.Length)], mapLogAsync, size);
+      return await CreateManagedCountryAsync(repo, targetTowns[RandomService.Next(0, targetTowns.Length)], mapLogAsync);
     }
 
-    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync, int size = -1)
+    public static async Task<bool> CreateManagedCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync)
     {
       if (town.CountryId != 0)
       {
@@ -457,66 +483,23 @@ namespace SangokuKmy.Models.Services
       }
 
       var countries = await repo.Country.GetAllAsync();
-      if (size < 0)
-      {
-        size = RandomService.Next(0, 4);
-      }
-      List<CharacterAiType> charas = null;
 
-      string[] names = null;
-      if (size == 0)
+      var charas = new List<CharacterAiType>
       {
-        charas = new List<CharacterAiType>
-        {
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedCivilOfficial,
-        };
-        names = new string[] { "冉魏", "成漢", "北燕", "翟魏", "代", "張楚", "仲", "後秦", "西秦", "五胡夏",
-          "西涼", "南斉", "蕭梁", "西魏", "北周", "後晋", "五代後漢", "後周", "前蜀", "後蜀", "荊南", "閩",
-          "北漢", "岐", "五代十国燕", "呉越", "曹", "蔡", "春秋陳", "鄭", "衛", "春秋宋", "魯", "中山", "杞",
-          "曾", "邾", "滕", "春秋唐", "栄", "単", "沈", "莱", "英", "六", "庸", "邢", "古蜀", "新末梁", "梁", };
-      }
-      if (size == 1)
-      {
-        charas = new List<CharacterAiType>
-        {
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedCivilOfficial,
-        };
-        names = new string[] { "新", "戦国趙", "前趙（五胡漢）", "後趙", "前涼", "後涼", "韓", "戦国魏", "春秋燕",
-          "前燕", "後燕", "越", "春秋呉", "十国呉", "東周", "北涼", "南涼", "劉宋", "東魏", "北斉", "後梁", "後唐",
-          "武周", "南唐", "十国楚", "南漢", "成家（公孫述）", };
-      }
-      if (size == 2)
-      {
-        charas = new List<CharacterAiType>
-        {
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedCivilOfficial,
-          CharacterAiType.ManagedPatroller,
-        };
-        names = new string[] { "秦", "前秦", "晋", "西晋", "東晋", "斉", "金", "明", "隋", "陳", "楚", "春秋楚", "夏", "商", "北魏", "元", };
-      }
-      if (size == 3)
-      {
-        charas = new List<CharacterAiType>
-        {
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedBattler,
-          CharacterAiType.ManagedCivilOfficial,
-          CharacterAiType.ManagedCivilOfficial,
-          CharacterAiType.ManagedPatroller,
-        };
-        names = new string[] { "魏", "蜀漢", "呉", "漢", "唐", "宋", "清", "西周", };
-      }
-      if (names == null || charas == null)
-      {
-        return false;
-      }
+        CharacterAiType.ManagedBattler,
+        CharacterAiType.ManagedBattler,
+        CharacterAiType.ManagedCivilOfficial,
+        CharacterAiType.ManagedPatroller,
+      };
+      var names = new string[] { "冉魏", "成漢", "北燕", "翟魏", "代", "張楚", "仲", "後秦", "西秦", "五胡夏",
+        "西涼", "南斉", "蕭梁", "西魏", "北周", "後晋", "五代後漢", "後周", "前蜀", "後蜀", "荊南", "閩",
+        "北漢", "岐", "五代十国燕", "呉越", "曹", "蔡", "春秋陳", "鄭", "衛", "春秋宋", "魯", "中山", "杞",
+        "曾", "邾", "滕", "春秋唐", "栄", "単", "沈", "莱", "英", "六", "庸", "邢", "古蜀", "新末梁", "梁",
+        "新", "戦国趙", "前趙（五胡漢）", "後趙", "前涼", "後涼", "韓", "戦国魏", "春秋燕",
+        "前燕", "後燕", "越", "春秋呉", "十国呉", "東周", "北涼", "南涼", "劉宋", "東魏", "北斉", "後梁", "後唐",
+        "武周", "南唐", "十国楚", "南漢", "成家（公孫述）",
+        "秦", "前秦", "晋", "西晋", "東晋", "斉", "金", "明", "隋", "陳", "楚", "春秋楚", "夏", "商", "北魏", "元",
+        "魏", "蜀漢", "呉", "漢", "唐", "宋", "清", "西周", };
 
       var availableNames = names.Where(n => !countries.Any(c => c.Name == n)).ToArray();
       if (!availableNames.Any())
@@ -613,6 +596,88 @@ namespace SangokuKmy.Models.Services
       return true;
     }
 
+    public static async Task CheckManagedReinforcementsAsync(MainRepository repo, uint countryId)
+    {
+      var country = await repo.Country.GetByIdAsync(countryId);
+      if (!country.HasData || country.Data.AiType != CountryAiType.Managed)
+      {
+        return;
+      }
+
+      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+
+      var allCharacters = await repo.Character.GetAllAliveAsync();
+      var warCountries = wars
+        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
+        .Where(w => w.IsJoin(countryId))
+        .Select(w => w.RequestedCountryId == countryId ? w.InsistedCountryId : w.RequestedCountryId)
+        .Distinct()
+        .Select(c => new { CountryId = c, CharacterCount = allCharacters.Count(cc => cc.CountryId == c && cc.AiType == CharacterAiType.Human), })
+        .ToArray();
+      var countryCharacters = allCharacters.Where(c => c.CountryId == countryId && c.AiType.IsManaged());
+
+      var requestedReinforcementCount = Math.Max(warCountries.Sum(c => c.CharacterCount) - countryCharacters.Count() - 3, 0);
+      var currentReinforcements = countryCharacters.Where(c => c.Name.Contains("援軍"));
+      if (currentReinforcements.Count() < requestedReinforcementCount)
+      {
+        // 援軍追加
+        var types = new List<CharacterAiType>();
+        var count = requestedReinforcementCount - currentReinforcements.Count();
+        var battlersCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler);
+        var civilOfficialsCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedCivilOfficial);
+        var patrollersCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller);
+        for (var i = 0; i < count; i++)
+        {
+          if (battlersCount + civilOfficialsCount > patrollersCount * 3)
+          {
+            types.Add(CharacterAiType.ManagedPatroller);
+            patrollersCount++;
+          }
+          else
+          {
+            if ((battlersCount + civilOfficialsCount + patrollersCount) % 8 == 0)
+            {
+              types.Add(CharacterAiType.ManagedWallBattler);
+            }
+            else
+            {
+              types.Add(CharacterAiType.ManagedBattler);
+            }
+            battlersCount++;
+          }
+        }
+
+        var created = await CreateCharacterAsync(repo, types, countryId, country.Data.CapitalTownId, await repo.System.GetAsync());
+        foreach (var chara in created)
+        {
+          if (chara.AiType == CharacterAiType.ManagedPatroller)
+          {
+            chara.Popularity = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller).Max(c => c.Popularity);
+          }
+          else
+          {
+            chara.Strong = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler).Max(c => c.Strong);
+            chara.Leadership = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler).Max(c => c.Leadership);
+          }
+          chara.Money = countryCharacters.Max(c => c.Money);
+          chara.Rice = countryCharacters.Max(c => c.Rice);
+          chara.Name = $"{country.Data.Name}_援軍{chara.Name}_{chara.Id}";
+          await LogService.AddMapLogAsync(repo, false, EventType.ReinforcementActived, $"<character>{chara.Name}</character> が新たに <country>{country.Data.Name}</country> の援軍として加わりました");
+        }
+      }
+      else if (currentReinforcements.Count() > requestedReinforcementCount)
+      {
+        // 援軍削除
+        var count = currentReinforcements.Count() - requestedReinforcementCount;
+        var targets = currentReinforcements.OrderByDescending(c => c.Id).Take(count).ToArray();
+        foreach (var target in targets)
+        {
+          await CharacterService.RemoveAsync(repo, target);
+          await LogService.AddMapLogAsync(repo, false, EventType.ReinforcementReturned, $"<character>{target.Name}</character> は、<country>{country.Data.Name}</country> の援軍の任を終え消滅しました");
+        }
+      }
+    }
+
     public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync)
     {
       var system = await repo.System.GetAsync();
@@ -688,7 +753,7 @@ namespace SangokuKmy.Models.Services
       var towns = allTowns
         .Where(t => !singleTownCountries.Contains(t.CountryId))
         .Where(t => !aiCountries.Contains(t.CountryId))
-        .Where(t => t.Security <= 0 && t.People <= 8000)
+        .Where(t => t.Security <= 8 && t.People <= 8000)
         .Where(t => !warCountries.Contains(t.CountryId) && !townWars.Select(tt => tt.TownId).Contains(t.Id))
         .ToList();
 

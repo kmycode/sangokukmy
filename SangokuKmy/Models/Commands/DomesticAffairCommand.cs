@@ -329,7 +329,7 @@ namespace SangokuKmy.Models.Commands
     public override CharacterCommandType Type => CharacterCommandType.PeopleIncrease;
     protected override string GetValueName() => "農民";
     protected override int GetCurrentValue(Town town) => town.People;
-    protected override int GetMaxValue(Town town) => town.PeopleMax;
+    protected override int GetMaxValue(Town town) => (int)(town.TownBuilding != TownBuilding.Houses ? town.PeopleMax : town.PeopleMax + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 10000);
     protected override void SetValue(Town town, int value) => town.People = value;
     protected override string GetValueAddingText() => "回復";
     protected override int GetCharacterAssets(Character character) => character.Rice;

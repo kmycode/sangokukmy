@@ -28,5 +28,19 @@ namespace SangokuKmy.Models.Services
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(log));
       return log;
     }
+
+    public static async Task<CharacterLog> AddCharacterLogAsync(MainRepository repo, GameDateTime current, uint id, string message)
+    {
+      var log = new CharacterLog
+      {
+        GameDateTime = current,
+        DateTime = DateTime.Now,
+        CharacterId = id,
+        Message = message,
+      };
+      await repo.Character.AddCharacterLogAsync(log);
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(log), id);
+      return log;
+    }
   }
 }
