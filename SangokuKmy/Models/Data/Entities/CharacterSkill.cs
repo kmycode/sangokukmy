@@ -817,7 +817,6 @@ namespace SangokuKmy.Models.Data.Entities
               BaseAttack = 40,
               RushProbability = 1000,
               RushAttack = 80,
-              ContinuousProbability = 1000,
             },
           },
         },
@@ -850,7 +849,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              ContinuousProbability = 600,
+              ContinuousProbability = 1000,
             },
           },
         },
