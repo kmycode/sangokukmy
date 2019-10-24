@@ -340,15 +340,23 @@ namespace SangokuKmy.Models.Commands
         {
           if (mySoldierType.IsRush())
           {
-            targetDamage = Math.Min(Math.Max((int)(targetDamage + mySoldierType.CalcRushAttack(targetSoldierType)), 14), targetCharacter.SoldierNumber);
+            var rushSize = mySoldierType.CalcRushAttack(targetSoldierType);
+            targetDamage = Math.Min(Math.Max((int)(targetDamage + rushSize), 14), targetCharacter.SoldierNumber);
             targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 2);
-            myCommand = BattleTurnCommand.Rush;
+            if (rushSize > 0)
+            {
+              myCommand = BattleTurnCommand.Rush;
+            }
           }
           else if (targetSoldierType.IsRush())
           {
-            myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack(mySoldierType)), 8), character.SoldierNumber);
+            var rushSize = targetSoldierType.CalcRushAttack(mySoldierType);
+            myDamage = Math.Min(Math.Max((int)(myDamage + rushSize), 8), character.SoldierNumber);
             myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 2);
-            targetCommand = BattleTurnCommand.Rush;
+            if (rushSize > 0)
+            {
+              targetCommand = BattleTurnCommand.Rush;
+            }
           }
         }
 

@@ -122,8 +122,11 @@ namespace SangokuKmy.Models.Data.Entities
 
     public (int AttackCorrection, int DefendCorrection) CalcCorrections(Character chara, IEnumerable<CharacterSkill> skills, CharacterSoldierTypeData enemyType)
     {
-      var a = (float)this.BaseAttack;
-      var d = (float)this.BaseDefend;
+      // 壁の場合だけ特定補正を有効または無効にする
+      var typeWall = enemyType.TypeWall / 100.0f;
+
+      var a = (float)this.BaseAttack * (1 - typeWall / 2);
+      var d = (float)this.BaseDefend * (1 - typeWall / 2);
 
       a += this.StrongAttack / 1000.0f * chara.Strong;
       d += this.StrongDefend / 1000.0f * chara.Strong;
@@ -131,15 +134,15 @@ namespace SangokuKmy.Models.Data.Entities
       a += this.IntellectAttack / 1000.0f * chara.Intellect;
       d += this.IntellectDefend / 1000.0f * chara.Intellect;
 
-      a += this.WallAttack * (enemyType.TypeWall / 100.0f);
-      d += this.WallDefend * (enemyType.TypeWall / 100.0f);
+      a += this.WallAttack * typeWall;
+      d += this.WallDefend * typeWall;
 
-      a += this.TypeGuardAttack * (this.TypeGuard / 100.0f);
-      d += this.TypeGuardDefend * (this.TypeGuard / 100.0f);
+      a += this.TypeGuardAttack * (this.TypeGuard / 100.0f) * (1 - typeWall);
+      d += this.TypeGuardDefend * (this.TypeGuard / 100.0f) * (1 - typeWall);
 
       var g = this.CalcGogyoPower(enemyType);
-      a += this.GogyoAttack * g;
-      d += this.GogyoDefend * g;
+      a += this.GogyoAttack * g * (1 - typeWall);
+      d += this.GogyoDefend * g * (1 - typeWall);
 
       return ((int)a, (int)d);
     }
@@ -242,7 +245,7 @@ namespace SangokuKmy.Models.Data.Entities
 
     public float CalcRushAttack(CharacterSoldierTypeData enemyType)
     {
-      return Math.Max(this.RushAttack - enemyType.RushDefend, 0) / 8.0f;
+      return (1 - enemyType.WallAttack / 100.0f) * Math.Max(this.RushAttack - enemyType.RushDefend, 0) / 8.0f;
     }
   }
 
