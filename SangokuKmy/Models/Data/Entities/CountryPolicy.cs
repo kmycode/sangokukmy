@@ -507,7 +507,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.Scouter,
         Name = "密偵",
-        BasePoint = 4000,
+        BasePoint = 3000,
         SubjectAppear = list => list.Contains(CountryPolicyType.IntellectCountry),
         Effects =
         {
