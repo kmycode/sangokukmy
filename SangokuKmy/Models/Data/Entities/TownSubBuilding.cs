@@ -110,8 +110,13 @@ namespace SangokuKmy.Models.Data.Entities
         Size = 1,
         Money = 10000,
         CanBuildMultiple = true,
+        BuildDuring = 12,
         OnBuilt = t => t.AgricultureMax += 500,
-        OnRemoved = t => t.AgricultureMax -= 500,
+        OnRemoved = t =>
+        {
+          t.AgricultureMax -= 500;
+          t.Agriculture = Math.Min(t.Agriculture, t.AgricultureMax);
+        },
       }
     };
 
