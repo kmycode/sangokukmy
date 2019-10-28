@@ -108,6 +108,13 @@ namespace SangokuKmy.Models.Data.Entities
     [NotMapped]
     [JsonProperty("defenders")]
     public IEnumerable<CharacterForAnonymous> Defenders { get; set; }
+
+    /// <summary>
+    /// 都市の建築物
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("subBuildings")]
+    public IEnumerable<ScoutedSubBuilding> SubBuildings { get; set; }
   }
 
   public enum ScoutMethod : short

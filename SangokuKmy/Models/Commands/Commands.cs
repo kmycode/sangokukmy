@@ -60,6 +60,8 @@ namespace SangokuKmy.Models.Commands
       new SoldierTrainingAllCommand(),
       new SpyCommand(),
       // new ExamineCommand(),
+      new BuildSubBuildingCommand(),
+      new RemoveSubBuildingCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

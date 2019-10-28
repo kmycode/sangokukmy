@@ -101,6 +101,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 君主（一時的に無効）
     /// </summary>
     MonarchDisabled = 8,
+
+    /// <summary>
+    /// 建築官
+    /// </summary>
+    Builder = 9,
   }
 
   public static class CountryPostExtentions
@@ -197,14 +202,22 @@ namespace SangokuKmy.Models.Data.Entities
     {
       return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
     }
-
-    /// <summary>
-    /// 国の設定をする権限があるか確認する
-    /// </summary>
-    /// <returns>設定権限があるか</returns>
     public static bool CanCountrySettingExceptForCommands(this IEnumerable<CountryPost> posts)
     {
       return posts.Any(p => p.Type.CanCountrySettingExceptForCommands());
+    }
+
+    /// <summary>
+    /// 建築物を建てる権限があるか確認する
+    /// </summary>
+    /// <returns>建築権限があるか</returns>
+    public static bool CanBuildTownSubBuildings(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior || type == CountryPostType.GrandGeneral || type == CountryPostType.Builder;
+    }
+    public static bool CanBuildTownSubBuildings(this IEnumerable<CountryPost> posts)
+    {
+      return posts.Any(p => p.Type.CanBuildTownSubBuildings());
     }
   }
 }

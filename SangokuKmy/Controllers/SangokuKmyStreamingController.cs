@@ -40,6 +40,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<TownForAnonymous> towns;
       IEnumerable<Town> myTowns;
       IEnumerable<TownDefender> defenders;
+      IEnumerable<TownSubBuilding> subBuildings;
       IEnumerable<ScoutedTown> scoutedTowns;
       IEnumerable<ChatMessage> chatMessages;
       IEnumerable<CountryAlliance> alliances;
@@ -91,6 +92,7 @@ namespace SangokuKmy.Controllers
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
         myTowns = allTowns.Where(tw => tw.CountryId == chara.CountryId || chara.TownId == tw.Id);
         scoutedTowns = await repo.ScoutedTown.GetByScoutedCountryIdAsync(chara.CountryId);
+        subBuildings = (await repo.Town.GetSubBuildingsAsync()).Where(s => myTowns.Any(ms => ms.Id == s.TownId));
 
         var allCharasData = await repo.Character.GetAllAliveWithIconAsync();
         allCharas = allCharasData.Where(c => c.Character.Id != chara.Id).Select(c =>
@@ -147,6 +149,7 @@ namespace SangokuKmy.Controllers
         .Concat(items.Select(i => ApiData.From(i)))
         .Concat(skills.Select(s => ApiData.From(s)))
         .Concat(commandMessages.Select(m => ApiData.From(m)))
+        .Concat(subBuildings.Select(s => ApiData.From(s)))
         .ToList();
       sendData.Add(ApiData.From(new ApiSignal
       {

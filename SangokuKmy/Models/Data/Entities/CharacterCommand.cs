@@ -356,5 +356,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 探索
     /// </summary>
     Examine = 62,
+
+    /// <summary>
+    /// 建築物の建設
+    /// </summary>
+    BuildSubBuilding = 63,
+
+    /// <summary>
+    /// 建築物の撤去
+    /// </summary>
+    RemoveSubBuilding = 64,
   }
 }

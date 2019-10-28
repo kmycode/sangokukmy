@@ -771,6 +771,85 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
+          // 都市建築物の建設または撤去
+          {
+            var subBuildings = await repo.Town.GetSubBuildingsAsync();
+            foreach (var subBuilding in subBuildings.Where(s => (s.Status == TownSubBuildingStatus.UnderConstruction || s.Status == TownSubBuildingStatus.Removing) && s.IntStatusFinishGameDateTime <= system.IntGameDateTime))
+            {
+              var isError = false;
+
+              var infoOptional = TownSubBuildingTypeInfoes.Get(subBuilding.Type);
+              if (!infoOptional.HasData)
+              {
+                isError = true;
+              }
+              var info = infoOptional.Data;
+
+              var chara = allCharacters.FirstOrDefault(c => c.Id == subBuilding.CharacterId);
+              if (chara == null)
+              {
+                isError = true;
+              }
+
+              var town = allTowns.FirstOrDefault(t => t.Id == subBuilding.TownId);
+              if (town == null)
+              {
+                isError = true;
+              }
+
+              if (isError)
+              {
+                repo.Town.RemoveSubBuilding(subBuilding);
+              }
+              else if (subBuilding.Status == TownSubBuildingStatus.UnderConstruction)
+              {
+                if (town.CountryId != chara.CountryId)
+                {
+                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} を建設しているところでしたが、都市が別の国に支配されたため作業は中止されました");
+                  repo.Town.RemoveSubBuilding(subBuilding);
+                  subBuilding.Status = TownSubBuildingStatus.Unknown;
+                }
+                else
+                {
+                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} を建設しました");
+                  subBuilding.Status = TownSubBuildingStatus.Available;
+                  info.OnBuilt?.Invoke(town);
+                }
+              }
+              else if (subBuilding.Status == TownSubBuildingStatus.Removing)
+              {
+                if (town.CountryId != chara.CountryId)
+                {
+                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} を撤去しているところでしたが、都市が別の国に支配されたため作業は中止されました");
+                  subBuilding.Status = TownSubBuildingStatus.Available;
+                }
+                else
+                {
+                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} を撤去しました");
+                  repo.Town.RemoveSubBuilding(subBuilding);
+                  info.OnRemoved?.Invoke(town);
+                  subBuilding.Status = TownSubBuildingStatus.Unknown;
+                }
+              }
+              else
+              {
+                repo.Town.RemoveSubBuilding(subBuilding);
+                isError = true;
+              }
+
+              if (isError)
+              {
+                subBuilding.Status = TownSubBuildingStatus.Unknown;
+              }
+
+              if (!isError)
+              {
+                await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
+              }
+              await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(subBuilding), repo, town);
+            }
+          }
+
           // 同盟破棄・戦争開始
           {
             foreach (var alliance in await repo.CountryDiplomacies.GetBreakingAlliancesAsync())

@@ -112,8 +112,12 @@ namespace SangokuKmy.Models.Data.Repositories
           };
           return data;
         });
+      var subBuildings = await this.container.Context.ScoutedSubBuildings
+        .Where(sc => sc.ScoutId == t.Id)
+        .ToArrayAsync();
       t.Characters = characters;
       t.Defenders = defenders;
+      t.SubBuildings = subBuildings;
     }
 
     /// <summary>
@@ -167,8 +171,19 @@ namespace SangokuKmy.Models.Data.Repositories
               SoldierType = c.ApiSoldierType,
               SoldierNumber = c.SoldierNumber,
             });
+        var subBuildings =
+          (await this.container.Context.TownSubBuildings
+            .Where(ts => ts.TownId == town.ScoutedTownId)
+            .ToArrayAsync())
+            .Select(c => new ScoutedSubBuilding
+            {
+              ScoutId = town.Id,
+              Type = c.Type,
+              Status = c.Status,
+            });
         await this.container.Context.ScoutedCharacters.AddRangeAsync(characters);
         await this.container.Context.ScoutedDefenders.AddRangeAsync(defenders);
+        await this.container.Context.ScoutedSubBuildings.AddRangeAsync(subBuildings);
       }
       catch (Exception ex)
       {
@@ -205,6 +220,7 @@ namespace SangokuKmy.Models.Data.Repositories
         await this.container.RemoveAllRowsAsync(typeof(ScoutedTown));
         await this.container.RemoveAllRowsAsync(typeof(ScoutedCharacter));
         await this.container.RemoveAllRowsAsync(typeof(ScoutedDefender));
+        await this.container.RemoveAllRowsAsync(typeof(ScoutedSubBuilding));
       }
       catch (Exception ex)
       {
