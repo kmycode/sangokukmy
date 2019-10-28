@@ -96,7 +96,7 @@ namespace SangokuKmy.Models.Data.Entities
 
     public Action<Town> OnBuilt { get; set; }
 
-    public Action<Town> OnRemoved { get; set; }
+    public Action<Town> OnRemoving { get; set; }
   }
 
   public static class TownSubBuildingTypeInfoes
@@ -112,7 +112,7 @@ namespace SangokuKmy.Models.Data.Entities
         CanBuildMultiple = true,
         BuildDuring = 12,
         OnBuilt = t => t.AgricultureMax += 500,
-        OnRemoved = t =>
+        OnRemoving = t =>
         {
           t.AgricultureMax -= 500;
           t.Agriculture = Math.Min(t.Agriculture, t.AgricultureMax);

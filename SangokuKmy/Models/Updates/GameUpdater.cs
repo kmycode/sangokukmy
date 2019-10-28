@@ -827,7 +827,6 @@ namespace SangokuKmy.Models.Updates
                 {
                   await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} の撤去が完了しました");
                   repo.Town.RemoveSubBuilding(subBuilding);
-                  info.OnRemoved?.Invoke(town);
                   subBuilding.Status = TownSubBuildingStatus.Unknown;
                 }
               }
