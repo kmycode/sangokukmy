@@ -811,7 +811,7 @@ namespace SangokuKmy.Models.Updates
                 }
                 else
                 {
-                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} を建設しました");
+                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} の建設が完了しました");
                   subBuilding.Status = TownSubBuildingStatus.Available;
                   info.OnBuilt?.Invoke(town);
                 }
@@ -825,7 +825,7 @@ namespace SangokuKmy.Models.Updates
                 }
                 else
                 {
-                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} を撤去しました");
+                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} の撤去が完了しました");
                   repo.Town.RemoveSubBuilding(subBuilding);
                   info.OnRemoved?.Invoke(town);
                   subBuilding.Status = TownSubBuildingStatus.Unknown;
@@ -848,6 +848,8 @@ namespace SangokuKmy.Models.Updates
               }
               await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(subBuilding), repo, town);
             }
+
+            await repo.SaveChangesAsync();
           }
 
           // 同盟破棄・戦争開始
