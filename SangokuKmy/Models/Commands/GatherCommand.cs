@@ -53,13 +53,21 @@ namespace SangokuKmy.Models.Commands
         {
           var oldTownId = memberChara.TownId;
 
-          memberChara.TownId = town.Id;
-          await game.CharacterLogByIdAsync(memberChara.Id, "部隊 <unit>" + unit.Name + "</unit> の" + postName + " <character>" + character.Name + "</character> の指示で、<town>" + town.Name + "</town> に集合しました");
-          await StatusStreaming.Default.SendCharacterAsync(new IApiData[] {
+          var townData = new List<IApiData>
+          {
             ApiData.From(town),
             ApiData.From(memberChara),
             ApiData.From(new ApiSignal { Type = SignalType.UnitGathered, }),
-          }, memberChara.Id);
+          };
+          var subBuildings = await repo.Town.GetSubBuildingsAsync(town.Id);
+          foreach (var subBuilding in subBuildings)
+          {
+            townData.Add(ApiData.From(subBuilding));
+          }
+
+          memberChara.TownId = town.Id;
+          await game.CharacterLogByIdAsync(memberChara.Id, "部隊 <unit>" + unit.Name + "</unit> の" + postName + " <character>" + character.Name + "</character> の指示で、<town>" + town.Name + "</town> に集合しました");
+          await StatusStreaming.Default.SendCharacterAsync(townData, memberChara.Id);
 
           if (oldTownId != memberChara.TownId)
           {

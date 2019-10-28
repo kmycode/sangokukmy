@@ -1452,6 +1452,16 @@ namespace SangokuKmy.Models.Updates
             var oldTownCharacters = await repo.Town.GetCharactersWithIconAsync(oldTownId);
             await StatusStreaming.Default.SendCharacterAsync(oldTownCharacters.Where(tc => tc.Character.CountryId != character.CountryId).Select(tc => ApiData.From(new CharacterForAnonymous(tc.Character, tc.Icon, tc.Character.CountryId == character.CountryId ? CharacterShareLevel.SameCountry : CharacterShareLevel.Anonymous))), character.Id);
             await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new TownForAnonymous(oldTown.Data)), character.Id);
+
+            var subBuildings = await repo.Town.GetSubBuildingsAsync(oldTownId);
+            await StatusStreaming.Default.SendCharacterAsync(subBuildings.Select(s => ApiData.From(new TownSubBuilding
+            {
+              Id = s.Id,
+              StatusFinishGameDateTime = s.StatusFinishGameDateTime,
+              Status = TownSubBuildingStatus.Unknown,
+              TownId = s.TownId,
+              Type = s.Type,
+            })), character.Id);
           }
 
           var newTown = await repo.Town.GetByIdAsync(character.TownId);
@@ -1459,6 +1469,9 @@ namespace SangokuKmy.Models.Updates
           {
             var defenders = await repo.Town.GetAllDefendersAsync();
             await StatusStreaming.Default.SendCharacterAsync(defenders.Where(d => d.TownId == newTown.Data.Id).Select(d => ApiData.From(d)), character.Id);
+
+            var subBuildings = await repo.Town.GetSubBuildingsAsync(character.TownId);
+            await StatusStreaming.Default.SendCharacterAsync(subBuildings.Select(s => ApiData.From(s)), character.Id);
           }
         }
       }
