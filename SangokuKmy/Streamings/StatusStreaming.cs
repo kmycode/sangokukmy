@@ -101,7 +101,7 @@ namespace SangokuKmy.Streamings
     {
       var townCharacters = (await repo.Town.GetCharactersAsync(town.Id)).Where(c => c.CountryId != town.CountryId);
       await this.SendAsync(data, c => c.ExtraData.CountryId == town.CountryId || townCharacters.Any(tc => tc.Id == c.ExtraData.Id));
-      if (anonymousData.Type != default)
+      if (anonymousData != null)
       {
         await this.SendAsync(anonymousData, c => c.ExtraData.CountryId != town.CountryId && !townCharacters.Any(tc => tc.Id == c.ExtraData.Id));
       }
