@@ -47,7 +47,6 @@ namespace SangokuKmy.Controllers
       IEnumerable<CountryWar> wars;
       IEnumerable<TownWar> townWars;
       IEnumerable<CountryPolicy> policies;
-      IEnumerable<CountryScouter> scouters;
       IEnumerable<ThreadBbsItem> countryBbsItems;
       IEnumerable<ThreadBbsItem> globalBbsItems;
       IEnumerable<Reinforcement> reinforcements;
@@ -76,7 +75,6 @@ namespace SangokuKmy.Controllers
         wars = await repo.CountryDiplomacies.GetAllWarsAsync();
         townWars = await repo.CountryDiplomacies.GetAllTownWarsAsync();
         policies = await repo.Country.GetPoliciesAsync(country?.Id ?? 0);
-        scouters = await repo.Country.GetScoutersAsync(country?.Id ?? 0);
         countryBbsItems = await repo.ThreadBbs.GetCountryBbsByCountryIdAsync(chara.CountryId);
         globalBbsItems = await repo.ThreadBbs.GetGlobalBbsAsync();
         reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
@@ -139,7 +137,6 @@ namespace SangokuKmy.Controllers
         .Concat(wars.Select(cw => ApiData.From(cw)))
         .Concat(townWars.Select(tw => ApiData.From(tw)))
         .Concat(policies.Select(p => ApiData.From(p)))
-        .Concat(scouters.Select(s => ApiData.From(s)))
         .Concat(countryBbsItems.Select(b => ApiData.From(b)))
         .Concat(globalBbsItems.Select(b => ApiData.From(b)))
         .Concat(reinforcements.Select(r => ApiData.From(r)))

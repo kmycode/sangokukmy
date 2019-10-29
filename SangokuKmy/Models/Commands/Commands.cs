@@ -43,8 +43,6 @@ namespace SangokuKmy.Models.Commands
       new RemoveSecretaryCommand(),
       // new SoldierResearchCommand(),
       new PolicyCommand(),
-      new AddScouterCommand(),
-      new RemoveScouterCommand(),
       new GetFormationCommand(),
       new ChangeFormationCommand(),
       // new ResearchFormationCommand(),

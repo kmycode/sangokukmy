@@ -262,7 +262,6 @@ namespace SangokuKmy.Models.Data.Entities
     Secretary,
     CountrySafeMax,
     CountrySafeCollectionMax,
-    ScouterMax,
     BoostWith,
   }
 
@@ -511,11 +510,6 @@ namespace SangokuKmy.Models.Data.Entities
         SubjectAppear = list => list.Contains(CountryPolicyType.IntellectCountry),
         Effects =
         {
-          new CountryPolicyEffect
-          {
-            Type = CountryPolicyEffectType.ScouterMax,
-            Value = Config.ScouterMax,
-          },
         },
       },
       new CountryPolicyTypeInfo

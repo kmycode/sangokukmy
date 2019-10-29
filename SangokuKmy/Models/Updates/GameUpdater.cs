@@ -207,8 +207,7 @@ namespace SangokuKmy.Models.Updates
 
               // 収入から政務官収入をひく
               var secretaries = country.Characters.Where(c => c.AiType.IsSecretary());
-              var scouters = await repo.Country.GetScoutersAsync(country.Country.Id);
-              if (secretaries.Any() || scouters.Any())
+              if (secretaries.Any())
               {
                 bool PayAndCanContinue(int income)
                 {
@@ -247,18 +246,6 @@ namespace SangokuKmy.Models.Updates
                   {
                     character.Money = 0;
                     character.Rice = 0;
-                  }
-                }
-                foreach (var scouter in scouters)
-                {
-                  var isContinue = PayAndCanContinue(scoutersIncome);
-
-                  if (!isContinue)
-                  {
-                    repo.Country.RemoveScouter(scouter);
-
-                    scouter.IsRemoved = true;
-                    await StatusStreaming.Default.SendCountryAsync(ApiData.From(scouter), country.Country.Id);
                   }
                 }
               }
@@ -1068,35 +1055,6 @@ namespace SangokuKmy.Models.Updates
               {
                 await repo.SaveChangesAsync();
               }
-            }
-          }
-        }
-
-        // 斥候
-        {
-          var scouters = await repo.Country.GetScoutersAsync();
-          foreach (var scouter in scouters)
-          {
-            var countryOptional = await repo.Country.GetByIdAsync(scouter.CountryId);
-            var townOptional = await repo.Town.GetByIdAsync(scouter.TownId);
-            if (!countryOptional.HasData || !townOptional.HasData)
-            {
-              repo.Country.RemoveScouter(scouter);
-              continue;
-            }
-
-            var scoutedTown = ScoutedTown.From(townOptional.Data);
-            scoutedTown.ScoutedDateTime = system.GameDateTime;
-            scoutedTown.ScoutedCountryId = scouter.CountryId;
-            scoutedTown.ScoutMethod = ScoutMethod.Scouter;
-
-            await repo.ScoutedTown.AddScoutAsync(scoutedTown);
-            await repo.SaveChangesAsync();
-
-            var savedScoutedTown = (await repo.ScoutedTown.GetByTownIdAsync(townOptional.Data.Id, scouter.CountryId)).Data;
-            if (savedScoutedTown != null)
-            {
-              await StatusStreaming.Default.SendCountryAsync(ApiData.From(savedScoutedTown), scouter.CountryId);
             }
           }
         }
