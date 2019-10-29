@@ -67,7 +67,8 @@ namespace SangokuKmy.Controllers
         country = (await repo.Country.GetByIdAsync(chara.CountryId)).Data;
         countries = await repo.Country.GetAllForAnonymousAsync();
         chatMessages = (await repo.ChatMessage.GetCountryMessagesAsync(chara.CountryId, uint.MaxValue, 50))
-          .Concat(await repo.ChatMessage.GetGlobalMessagesAsync(uint.MaxValue, 50))
+          .Concat(await repo.ChatMessage.GetGlobalMessagesAsync(uint.MaxValue, 0, 50))
+          .Concat(await repo.ChatMessage.GetGlobalMessagesAsync(uint.MaxValue, 1, 50))
           .Concat(await repo.ChatMessage.GetPrivateMessagesAsync(chara.Id, uint.MaxValue, 50))
           .Concat(await repo.ChatMessage.GetPromotionMessagesAsync(chara.Id, uint.MaxValue, 50));
         alliances = (await repo.CountryDiplomacies.GetAllPublicAlliancesAsync())

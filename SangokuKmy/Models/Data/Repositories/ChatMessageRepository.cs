@@ -56,9 +56,9 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <param name="sinceId">最初のID</param>
     /// <param name="count">取得数</param>
     /// <returns>全国宛の一覧</returns>
-    public async Task<IReadOnlyCollection<ChatMessage>> GetGlobalMessagesAsync(uint sinceId, int count)
+    public async Task<IReadOnlyCollection<ChatMessage>> GetGlobalMessagesAsync(uint sinceId, int type, int count)
     {
-      return await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.Global, sinceId, count);
+      return await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.Global && mes.TypeData == type, sinceId, count);
     }
 
     /// <summary>
