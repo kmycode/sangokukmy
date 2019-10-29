@@ -279,7 +279,7 @@ namespace SangokuKmy.Models.Commands
 
         var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).GetAvailableTypes();
 
-        targetCharacter.SoldierType = targetTown.Technology >= 999 ? SoldierType.Guard_Step4 :
+        targetCharacter.SoldierType = targetTown.Technology >= 1000 ? SoldierType.Guard_Step4 :
           targetTown.Technology >= 600 ? SoldierType.Guard_Step3 :
           targetTown.Technology >= 300 ? SoldierType.Guard_Step2 :
           SoldierType.Guard_Step1;

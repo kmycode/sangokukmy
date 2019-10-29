@@ -336,7 +336,7 @@ namespace SangokuKmy.Models.Services
 
         public override int Technology => RandomService.Next(0, 4) * 100;
 
-        public override int TechnologyMax => 999;
+        public override int TechnologyMax => 1000;
 
         public override int Wall => RandomService.Next(8, 15) * 100;
 
@@ -361,7 +361,7 @@ namespace SangokuKmy.Models.Services
 
         public override int Technology => RandomService.Next(1, 7) * 100;
 
-        public override int TechnologyMax => 999;
+        public override int TechnologyMax => 1000;
 
         public override int Wall => 300;
 
