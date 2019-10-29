@@ -627,6 +627,7 @@ namespace SangokuKmy.Controllers
         }
 
         charas = (await repo.Town.GetCharactersWithIconAsync(townId))
+          .Where(c => c.Character.CountryId == chara.CountryId || c.Character.AiType != CharacterAiType.SecretaryScouter)
           .Select(c => new CharacterForAnonymous(c.Character, c.Icon, null, c.Character.AiType == CharacterAiType.Human ? c.Commands : null, c.CustomSoldierType.Data, c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);

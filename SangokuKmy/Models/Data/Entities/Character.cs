@@ -676,6 +676,7 @@ namespace SangokuKmy.Models.Data.Entities
     ManagedMoneyInflatingPatroller = 26,
     SecretaryUnitLeader = 27,
     Administrator = 28,
+    SecretaryScouter = 29,
   }
 
   public static class CharacterAiTypeExtensions
@@ -685,7 +686,8 @@ namespace SangokuKmy.Models.Data.Entities
       return type == CharacterAiType.SecretaryPatroller ||
         type == CharacterAiType.SecretaryUnitGather ||
         type == CharacterAiType.SecretaryPioneer ||
-        type == CharacterAiType.SecretaryUnitLeader;
+        type == CharacterAiType.SecretaryUnitLeader ||
+        type == CharacterAiType.SecretaryScouter;
     }
 
     public static bool IsTerrorist(this CharacterAiType type)

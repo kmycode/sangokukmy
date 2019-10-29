@@ -95,7 +95,7 @@ namespace SangokuKmy.Controllers
         subBuildings = (await repo.Town.GetSubBuildingsAsync()).Where(s => myTowns.Any(ms => ms.Id == s.TownId));
 
         var allCharasData = await repo.Character.GetAllAliveWithIconAsync();
-        allCharas = allCharasData.Where(c => c.Character.Id != chara.Id).Select(c =>
+        allCharas = allCharasData.Where(c => c.Character.Id != chara.Id).Where(c => c.Character.CountryId == chara.CountryId || c.Character.AiType != CharacterAiType.SecretaryScouter).Select(c =>
           new CharacterForAnonymous(c.Character, c.Icon,
             (c.Character.CountryId == chara.CountryId && c.Character.TownId == chara.TownId) ? CharacterShareLevel.SameTownAndSameCountry :
             c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameCountry :

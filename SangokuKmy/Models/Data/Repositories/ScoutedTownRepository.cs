@@ -148,6 +148,7 @@ namespace SangokuKmy.Models.Data.Repositories
           (await this.container.Context.Characters
             .Where(c => c.TownId == town.ScoutedTownId)
             .Where(c => !c.HasRemoved)
+            .Where(c => c.AiType != CharacterAiType.SecretaryScouter || c.CountryId == town.ScoutedCountryId)
             .ToArrayAsync())
             .Select(c => new ScoutedCharacter
             {
