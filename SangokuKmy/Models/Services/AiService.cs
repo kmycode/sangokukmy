@@ -616,7 +616,7 @@ namespace SangokuKmy.Models.Services
         .ToArray();
       var countryCharacters = allCharacters.Where(c => c.CountryId == countryId && c.AiType.IsManaged());
 
-      var requestedReinforcementCount = Math.Max(warCountries.Sum(c => c.CharacterCount) - countryCharacters.Count() - 3, 0);
+      var requestedReinforcementCount = Math.Max(warCountries.Sum(c => c.CharacterCount) - countryCharacters.Count(c => !c.Name.Contains("援軍")) - 3, 0);
       var currentReinforcements = countryCharacters.Where(c => c.Name.Contains("援軍"));
       if (currentReinforcements.Count() < requestedReinforcementCount)
       {
@@ -652,12 +652,12 @@ namespace SangokuKmy.Models.Services
         {
           if (chara.AiType == CharacterAiType.ManagedPatroller)
           {
-            chara.Popularity = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller).Max(c => c.Popularity);
+            chara.Popularity = Math.Max(chara.Popularity, countryCharacters.Max(c => c.Popularity));
           }
           else
           {
-            chara.Strong = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler).Max(c => c.Strong);
-            chara.Leadership = countryCharacters.Where(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler).Max(c => c.Leadership);
+            chara.Strong = Math.Max(chara.Strong, countryCharacters.Max(c => c.Strong));
+            chara.Leadership = Math.Max(chara.Leadership, countryCharacters.Max(c => c.Leadership));
           }
           chara.Money = countryCharacters.Max(c => c.Money);
           chara.Rice = countryCharacters.Max(c => c.Rice);
