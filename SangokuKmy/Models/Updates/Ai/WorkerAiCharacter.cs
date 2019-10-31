@@ -224,6 +224,7 @@ namespace SangokuKmy.Models.Updates.Ai
           var match = this.towns
             .Where(t => t.CountryId == this.Country.Id)
             .Where(t => this.towns.GetAroundTowns(t).Any(tt => mainWars.Contains(tt.CountryId)))
+            .OrderByDescending(t => t.Wall + t.WallMax + t.Technology + t.TechnologyMax + t.People + t.PeopleMax)
             .OrderByDescending(t => this.towns.GetAroundTowns(t).Count(tt => mainWars.Contains(tt.CountryId)))
             .FirstOrDefault();
           if (match != null)
