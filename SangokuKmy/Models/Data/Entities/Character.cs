@@ -705,7 +705,11 @@ namespace SangokuKmy.Models.Data.Entities
         type == CharacterAiType.ManagedPatroller ||
         type == CharacterAiType.ManagedShortstopBattler ||
         type == CharacterAiType.ManagedWallBattler ||
-        type == CharacterAiType.ManagedWallBreaker;
+        type == CharacterAiType.ManagedWallBreaker ||
+        type == CharacterAiType.ManagedMoneyInflatingBattler ||
+        type == CharacterAiType.ManagedMoneyInflatingCivilOfficial ||
+        type == CharacterAiType.ManagedMoneyInflatingPatroller ||
+        type == CharacterAiType.ManagedShortstopCivilOfficial;
     }
 
     public static bool IsMoneyInflator(this CharacterAiType type)
