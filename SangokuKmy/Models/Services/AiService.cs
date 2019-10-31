@@ -628,7 +628,7 @@ namespace SangokuKmy.Models.Services
         var patrollersCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller);
         for (var i = 0; i < count; i++)
         {
-          if (battlersCount + civilOfficialsCount > patrollersCount * 3)
+          if (battlersCount + civilOfficialsCount > patrollersCount * 3 + 3)
           {
             types.Add(CharacterAiType.ManagedPatroller);
             patrollersCount++;
