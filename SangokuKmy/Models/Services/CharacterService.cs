@@ -58,6 +58,7 @@ namespace SangokuKmy.Models.Services
       var defenders = await repo.Town.GetAllDefendersAsync();
       var policies = await repo.Country.GetPoliciesAsync(newId);
       var commandComments = await repo.CharacterCommand.GetMessagesAsync(newId);
+      var alliances = await repo.CountryDiplomacies.GetCountryAllAlliancesAsync(newId);
       await StatusStreaming.Default.SendCharacterAsync(towns.Where(t => t.CountryId == newId).Select(t => ApiData.From(t)), charas.Select(c => c.Id));
       await StatusStreaming.Default.SendCharacterAsync(towns.Where(t => t.CountryId != newId).Select(t => ApiData.From(new TownForAnonymous(t))), charas.Select(c => c.Id));
       await StatusStreaming.Default.SendCharacterAsync(defenders.Where(d => towns.Any(t => t.Id == d.TownId && t.CountryId == newId)).Select(d => ApiData.From(d)), charas.Select(c => c.Id));
@@ -92,6 +93,7 @@ namespace SangokuKmy.Models.Services
 
       await StatusStreaming.Default.SendCharacterAsync(policies.Select(p => ApiData.From(p)), charas.Select(c => c.Id));
       await StatusStreaming.Default.SendCharacterAsync(commandComments.Select(c => ApiData.From(c)), charas.Select(c => c.Id));
+      await StatusStreaming.Default.SendCharacterAsync(alliances.Select(a => ApiData.From(a)), charas.Select(c => c.Id));
     }
 
     public static async Task ChangeTownAsync(MainRepository repo, uint newId, Character chara)
