@@ -146,6 +146,17 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("chat/character/read")]
+    public async Task SetPrivateChatMessagesReadAsync()
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        await repo.ChatMessage.SetAllPrivateMessagesReadAsync(this.AuthData.CharacterId);
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpPost("chat/country/{id}")]
     public async Task PostOtherCountryChatMessageAsync(
       [FromRoute] uint id,

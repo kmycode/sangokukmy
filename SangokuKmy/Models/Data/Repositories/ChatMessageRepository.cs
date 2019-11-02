@@ -73,6 +73,26 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 個人宛に既読をつける
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    public async Task SetAllPrivateMessagesReadAsync(uint characterId)
+    {
+      try
+      {
+        var messages = await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.Private && mes.TypeData2 == characterId && !mes.IsRead, default, 100);
+        foreach (var message in messages)
+        {
+          message.IsRead = true;
+        }
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
     /// 登用を取得する
     /// </summary>
     /// <param name="sinceId">最初のID</param>

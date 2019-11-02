@@ -112,6 +112,13 @@ namespace SangokuKmy.Models.Data.Entities
       get => ApiDateTime.FromDateTime(this.Posted);
       set => this.Posted = value.ToDateTime();
     }
+
+    /// <summary>
+    /// 既読
+    /// </summary>
+    [Column("is_read")]
+    [JsonProperty("isRead")]
+    public bool IsRead { get; set; }
   }
 
   public enum ChatMessageType : short
