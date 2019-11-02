@@ -105,13 +105,22 @@ namespace SangokuKmy.Models.Commands
       ai.Character.TownId = country.CapitalTownId;
       ai.Character.Money = 10000;
       ai.Character.Rice = 10000;
-      ai.Character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime + 10);
-      if (ai.Character.LastUpdated > system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime))
+      if (type != CharacterAiType.SecretaryScouter)
       {
-        ai.Character.LastUpdatedGameDate = game.GameDateTime.NextMonth();
+        ai.Character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime + 10);
+        if (ai.Character.LastUpdated > system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime))
+        {
+          ai.Character.LastUpdatedGameDate = game.GameDateTime.NextMonth();
+        }
+        else
+        {
+          ai.Character.LastUpdatedGameDate = game.GameDateTime;
+        }
       }
       else
       {
+        // 斥候は0分0秒更新で諜報する
+        ai.Character.LastUpdated = system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
         ai.Character.LastUpdatedGameDate = game.GameDateTime;
       }
       await repo.Character.AddAsync(ai.Character);
