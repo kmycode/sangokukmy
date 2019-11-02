@@ -284,7 +284,7 @@ namespace SangokuKmy.Models.Commands
           targetTown.Technology >= 300 ? SoldierType.Guard_Step2 :
           SoldierType.Guard_Step1;
         targetCharacter.Strong = trendStrong;
-        targetCharacter.Proficiency = 0;
+        targetCharacter.Proficiency = 100;
 
         targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(targetCharacter.SoldierType);
         targetFormation = FormationTypeInfoes.Get(FormationType.Normal).Data;
