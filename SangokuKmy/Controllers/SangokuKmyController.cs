@@ -537,6 +537,53 @@ namespace SangokuKmy.Controllers
       // await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), chara.Id);
     }
 
+    [HttpPost("items/all")]
+    [AuthenticationFilter]
+    public async Task ReceiveAllItemsAsync()
+    {
+      Character chara;
+      List<CharacterItem> changedItems = new List<CharacterItem>();
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var items = await repo.Character.GetItemsAsync(chara.Id);
+        var targets = items
+          .OrderBy(i => i.IntLastStatusChangedGameDate)
+          .Where(i => i.Status == CharacterItemStatus.CharacterPending);
+
+        var skills = await repo.Character.GetSkillsAsync(chara.Id);
+        var itemMax = CharacterService.GetItemMax(skills);
+        var itemCount = CharacterService.CountLimitedItems(items);
+
+        foreach (var target in targets)
+        {
+          var infoOptional = target.GetInfo();
+          if (!infoOptional.HasData)
+          {
+            continue;
+          }
+          var info = infoOptional.Data;
+
+          if (!info.IsResource && itemMax <= itemCount)
+          {
+            continue;
+          }
+
+          await ItemService.SetCharacterAsync(repo, target, chara);
+          changedItems.Add(target);
+          if (!info.IsResource)
+          {
+            itemCount++;
+          }
+        }
+
+        await repo.SaveChangesAsync();
+      }
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
+      // await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), chara.Id);
+    }
+
     [HttpPost("skills")]
     [AuthenticationFilter]
     public async Task AddSkillAsync(
