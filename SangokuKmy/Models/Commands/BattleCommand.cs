@@ -335,7 +335,7 @@ namespace SangokuKmy.Models.Commands
         var myCommand = BattleTurnCommand.None;
         var targetCommand = BattleTurnCommand.None;
 
-        // 突撃
+        // 突撃など
         if (myCommand == BattleTurnCommand.None && targetCommand == BattleTurnCommand.None && !isWall)
         {
           if (mySoldierType.IsRush())
@@ -344,11 +344,31 @@ namespace SangokuKmy.Models.Commands
             targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 2);
             myCommand = BattleTurnCommand.Rush;
           }
+          else if (mySoldierType.IsDisorder())
+          {
+            myDamage = 0;
+            myCommand = BattleTurnCommand.Disorder;
+          }
+          else if (mySoldierType.IsFriendlyFire())
+          {
+            targetDamage += myDamage;
+            myCommand = BattleTurnCommand.FriendlyFire;
+          }
           else if (targetSoldierType.IsRush())
           {
             myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack(mySoldierType)), 8), character.SoldierNumber);
             myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 2);
             targetCommand = BattleTurnCommand.Rush;
+          }
+          else if (targetSoldierType.IsDisorder())
+          {
+            targetDamage = 0;
+            targetCommand = BattleTurnCommand.Disorder;
+          }
+          else  if (targetSoldierType.IsFriendlyFire())
+          {
+            myDamage += targetDamage;
+            targetCommand = BattleTurnCommand.FriendlyFire;
           }
         }
 
