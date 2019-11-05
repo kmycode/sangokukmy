@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SangokuKmy.Common;
 using SangokuKmy.Filters;
+using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
@@ -225,7 +226,8 @@ namespace SangokuKmy.Controllers
 
           if (o.Status == CountryWarStatus.Stoped && param.Status == CountryWarStatus.InReady)
           {
-            if (param.StartGameDate.ToInt() < system.IntGameDateTime + 12 * 12 + 1)
+            if (param.StartGameDate.ToInt() < system.IntGameDateTime + 12 * 12 + 1 ||
+              param.StartGameDate.Year < Config.StartYear + Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
             {
               // 開戦が早すぎる
               ErrorCode.InvalidParameterError.Throw();
