@@ -81,7 +81,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("message")]
     public string Message { get; set; }
 
-    [JsonIgnore]
+    [JsonProperty("lastUpdatedGameDate")]
     public GameDateTime LastUpdatedGameDate
     {
       get => GameDateTime.FromInt(this.IntLastUpdatedGameDate);
@@ -123,6 +123,8 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.Reinforcement = reinforcement;
       this.From = character.From;
       this.HasRemoved = character.HasRemoved;
+      this.LastUpdated = character.LastUpdated;
+      this.IntLastUpdatedGameDate = character.IntLastUpdatedGameDate;
       if (level == CharacterShareLevel.SameCountry || level == CharacterShareLevel.SameTown || level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountryTownOtherCountry)
       {
         this.TownId = character.TownId;
@@ -135,8 +137,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
       }
       if (level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountry)
       {
-        this.LastUpdated = character.LastUpdated;
-        this.IntLastUpdatedGameDate = character.IntLastUpdatedGameDate;
         if (commands != null)
         {
           var cmds = new List<CharacterCommand>();

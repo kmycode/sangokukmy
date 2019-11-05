@@ -37,6 +37,19 @@ namespace SangokuKmy.Models.Services
           }
         }
 
+        var commands = await repo.CharacterCommand.GetAsync(chara.Id, new GameDateTime[]
+        {
+          chara.LastUpdatedGameDate,
+          chara.LastUpdatedGameDate.AddMonth(1),
+          chara.LastUpdatedGameDate.AddMonth(2),
+          chara.LastUpdatedGameDate.AddMonth(3),
+          chara.LastUpdatedGameDate.AddMonth(4),
+        });
+        if (commands.Any())
+        {
+          await StatusStreaming.Default.SendCountryAsync(commands.Select(c => ApiData.From(c)), newId);
+        }
+
         chara.CountryId = newId;
       }
 

@@ -161,8 +161,14 @@ namespace SangokuKmy.Controllers
     public async Task SetCharacterCommandsAsync(
       [FromBody] IReadOnlyList<CharacterCommand> commands)
     {
+      SystemData system;
+      Character chara;
+
       using (var repo = MainRepository.WithReadAndWrite())
       {
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        system = await repo.System.GetAsync();
+
         try
         {
           foreach (var commandGroup in commands.GroupBy(c => c.Type))
@@ -187,6 +193,12 @@ namespace SangokuKmy.Controllers
         {
           repo.Error(ex);
         }
+      }
+
+      var streamingCommands = commands.Where(c => c.IntGameDateTime <= system.IntGameDateTime + 5).ToArray();
+      if (streamingCommands.Any())
+      {
+        await StatusStreaming.Default.SendCountryAsync(streamingCommands.Select(s => ApiData.From(s)), chara.CountryId);
       }
     }
 

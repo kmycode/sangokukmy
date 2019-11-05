@@ -57,6 +57,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<CharacterItem> items;
       IEnumerable<CharacterSkill> skills;
       IEnumerable<CommandMessage> commandMessages;
+      IEnumerable<CharacterCommand> otherCharacterCommands;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -86,6 +87,9 @@ namespace SangokuKmy.Controllers
         items = await repo.CharacterItem.GetAllAsync();
         skills = await repo.Character.GetSkillsAsync(chara.Id);
         commandMessages = await repo.CharacterCommand.GetMessagesAsync(chara.CountryId);
+
+        var countryCharacters = await repo.Country.GetCharactersWithIconsAndCommandsAsync(chara.CountryId);
+        otherCharacterCommands = countryCharacters.SelectMany(c => c.Commands);
 
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
@@ -147,6 +151,7 @@ namespace SangokuKmy.Controllers
         .Concat(items.Select(i => ApiData.From(i)))
         .Concat(skills.Select(s => ApiData.From(s)))
         .Concat(commandMessages.Select(m => ApiData.From(m)))
+        .Concat(otherCharacterCommands.Select(c => ApiData.From(c)))
         .Concat(subBuildings.Select(s => ApiData.From(s)))
         .ToList();
       sendData.Add(ApiData.From(new ApiSignal

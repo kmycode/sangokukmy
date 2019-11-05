@@ -1402,6 +1402,13 @@ namespace SangokuKmy.Models.Updates
         // 武将情報を全員に送信
         await CharacterService.StreamCharacterAsync(repo, character);
 
+        // 武将の新しいコマンドを全員に送信
+        var newCommand = await repo.CharacterCommand.GetAsync(character.Id, currentMonth.AddMonth(4));
+        if (newCommand.HasData)
+        {
+          await StatusStreaming.Default.SendCountryAsync(ApiData.From(newCommand.Data), character.CountryId);
+        }
+
         // 移動した場合、移動情報を全員に配信する
         if (oldTownId != character.TownId)
         {

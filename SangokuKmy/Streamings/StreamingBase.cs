@@ -154,7 +154,7 @@ namespace SangokuKmy.Streamings
       await this.SendAsync(new ApiData<T>[] { data }, subject);
     }
 
-    protected async Task SendAsync(IEnumerable<IApiData> data, Predicate<StreamingData<EXTRA>> subject)
+    protected async Task SendAsync<T>(IEnumerable<T> data, Predicate<StreamingData<EXTRA>> subject)
     {
       this.CleanAbortedResponses();
       try
