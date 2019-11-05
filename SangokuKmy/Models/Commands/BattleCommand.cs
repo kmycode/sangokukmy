@@ -303,6 +303,7 @@ namespace SangokuKmy.Models.Commands
           myAttackCorrection += Math.Max((int)(60 * ((100 - mySoldierType.TypeAntiWall) / 100.0f)), 0);
         }
       }
+      var targetNameWithTag = $"<{(isWall ? "wall" : "character")}>{targetCharacter.Name}</{(isWall ? "wall" : "character")}>";
 
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");
 
@@ -397,7 +398,7 @@ namespace SangokuKmy.Models.Commands
         myFormationExperience += myFormationExperienceTmp * 0.6f + targetFormationExperienceTmp * 0.4f;
         targetFormationExperience += targetFormationExperienceTmp * 0.6f + myFormationExperienceTmp * 0.4f;
 
-        await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
+        await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | " + targetNameWithTag + " <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
         if (!isWall)
         {
           await game.CharacterLogByIdAsync(targetCharacter.Id, "  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
@@ -428,12 +429,12 @@ namespace SangokuKmy.Models.Commands
         {
           Name = "無所属",
         };
-        var prefix = $"[<town>{targetTown.Name}</town>]{(continuousCount > 1 ? "(連戦)" : "")} <country>{myCountry.Name}</country> の <character>{character.Name}</character> は <country>{targetCountry.Name}</country> の <character>{targetCharacter.Name}</character>";
+        var prefix = $"[<town>{targetTown.Name}</town>]{(continuousCount > 1 ? "(連戦)" : "")} <country>{myCountry.Name}</country> の <character>{character.Name}</character> は <country>{targetCountry.Name}</country> の {targetNameWithTag}";
         if (character.SoldierNumber <= 0 && targetCharacter.SoldierNumber <= 0)
         {
           removedDefenders = await repo.Town.RemoveDefenderAsync(targetCharacter.Id);
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleDrawLose, prefix + " と引き分けました", false);
-          await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> と引き分けました");
+          await game.CharacterLogAsync($"{targetNameWithTag} と引き分けました");
           if (!isWall)
           {
             if (character.AiType == CharacterAiType.TerroristRyofu)
@@ -450,7 +451,7 @@ namespace SangokuKmy.Models.Commands
         else if (character.SoldierNumber <= 0 && targetCharacter.SoldierNumber > 0)
         {
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleLose, prefix + " に敗北しました", false);
-          await game.CharacterLogAsync($"<character>{targetCharacter.Name}</character> に敗北しました");
+          await game.CharacterLogAsync($"{targetNameWithTag} に敗北しました");
           if (!isWall)
           {
             if (character.AiType == CharacterAiType.TerroristRyofu)
@@ -467,7 +468,7 @@ namespace SangokuKmy.Models.Commands
         else if (character.SoldierNumber > 0 && targetCharacter.SoldierNumber > 0)
         {
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleDraw, prefix + " と引き分けました", false);
-          await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> と引き分けました");
+          await game.CharacterLogAsync($"{targetNameWithTag} と引き分けました");
           if (!isWall)
           {
             if (character.AiType == CharacterAiType.TerroristRyofu)
@@ -509,7 +510,7 @@ namespace SangokuKmy.Models.Commands
             }
             removedDefenders = await repo.Town.RemoveDefenderAsync(targetCharacter.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.BattleWin, prefix + " を倒しました", false);
-            await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> に勝利しました");
+            await game.CharacterLogAsync($"{targetNameWithTag} に勝利しました");
             await game.CharacterLogByIdAsync(targetCharacter.Id, $"<character>{character.Name}</character> に敗北しました。<town>{targetTown.Name}</town> の守備から外れました");
           }
           else
