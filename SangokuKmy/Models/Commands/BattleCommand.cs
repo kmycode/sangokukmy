@@ -678,7 +678,7 @@ namespace SangokuKmy.Models.Commands
         targetCharacter.FormationPoint += targetFormationPoint;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType) + $" 陣形ex: <num>{(int)targetFormationExperience}</num> 陣形P: <num>{targetFormationPoint}</num>");
 
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCharacter), targetCharacter.Id);
+        await CharacterService.StreamCharacterAsync(repo, targetCharacter);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
         {
           Type = SignalType.DefenderBattled,
