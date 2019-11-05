@@ -675,6 +675,8 @@ namespace SangokuKmy.Models.Data.Entities
           BaseDefend = 4,
           RushDefend = 3,
           TypeCrossbow = 10,
+          DisorderProbability = 10,
+          FriendlyFireProbability = 10,
           IntellectEx = 1,
           PowerIntellect = 1,
         },
