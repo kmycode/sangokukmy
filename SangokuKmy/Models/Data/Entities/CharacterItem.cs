@@ -185,6 +185,7 @@ namespace SangokuKmy.Models.Data.Entities
     AddSoldierType,
     ProficiencyMinimum,
     JoinableAiCountry,
+    SoldierCorrection,
   }
 
   public enum CharacterItemRareType
@@ -200,6 +201,7 @@ namespace SangokuKmy.Models.Data.Entities
   {
     public CharacterItemEffectType Type { get; set; }
     public int Value { get; set; }
+    public CharacterSoldierTypeData SoldierTypeData { get; set; }
   }
 
   public class CharacterResourceItemEffect : CharacterItemEffect
@@ -1597,6 +1599,17 @@ namespace SangokuKmy.Models.Data.Entities
         return info.Data.UsingEffects.Where(e => e.Type == type).Sum(e => e.Value);
       }
       return 0;
+    }
+
+    public static CharacterSoldierTypeData GetSoldierTypeData(this IEnumerable<CharacterItem> items)
+    {
+      var effects = items.Where(i => i.Status == CharacterItemStatus.CharacterHold).GetInfos().SelectMany(i => i.Effects).Where(e => e.Type == CharacterItemEffectType.SoldierCorrection);
+      var correction = new CharacterSoldierTypeData();
+      foreach (var e in effects)
+      {
+        correction.Append(e.SoldierTypeData);
+      }
+      return correction;
     }
 
     public static IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> GetResources(this IEnumerable<CharacterItem> item, CharacterItemEffectType type, Predicate<CharacterResourceItemEffect> subject, int size)

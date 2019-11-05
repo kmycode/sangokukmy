@@ -189,6 +189,7 @@ namespace SangokuKmy.Models.Commands
       var myFormationExperience = 0.0f;
       var myContribution = 20;
       var mySkills = await repo.Character.GetSkillsAsync(character.Id);
+      var myItems = await repo.Character.GetItemsAsync(character.Id);
       var targetAttackCorrection = 0;
       var targetDefenceCorrection = 0;
       var targetAttackSoldierTypeCorrection = 0;
@@ -197,6 +198,7 @@ namespace SangokuKmy.Models.Commands
       var targetFormationExperience = 0.0f;
       var targetContribution = 0;
       IReadOnlyList<CharacterSkill> targetSkills = Enumerable.Empty<CharacterSkill>().ToArray();
+      IReadOnlyList<CharacterItem> targetItems = Enumerable.Empty<CharacterItem>().ToArray();
       character.Rice -= character.SoldierNumber * myRicePerSoldier;
       var aiLog = new AiBattleHistory
       {
@@ -210,7 +212,16 @@ namespace SangokuKmy.Models.Commands
 
       mySoldierType
         .Append(myFormation.GetDataFromLevel(myFormationData.Level))
-        .Append(mySkills.GetSoldierTypeData());
+        .Append(mySkills.GetSoldierTypeData())
+        .Append(myItems.GetSoldierTypeData());
+      foreach (var info in targetItems
+        .GetInfos()
+        .Where(i => i.Effects != null)
+        .SelectMany(i => i.Effects)
+        .Where(e => e.Type == CharacterItemEffectType.SoldierCorrection && e.SoldierTypeData != null))
+      {
+        targetSoldierType.Append(info.SoldierTypeData);
+      }
 
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
@@ -264,6 +275,9 @@ namespace SangokuKmy.Models.Commands
 
         targetSkills = await repo.Character.GetSkillsAsync(targetCharacter.Id);
         targetSoldierType.Append(targetSkills.GetSoldierTypeData());
+
+        targetItems = await repo.Character.GetItemsAsync(targetCharacter.Id);
+        targetSoldierType.Append(targetItems.GetSoldierTypeData());
 
         isWall = false;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
