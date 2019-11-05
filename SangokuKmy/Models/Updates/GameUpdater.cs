@@ -163,7 +163,11 @@ namespace SangokuKmy.Models.Updates
           await AddMapLogInnerAsync(isImportant, type, message);
         }
 
-        var allCharacters = await repo.Character.GetAllAliveAsync();
+        var allCharacters = (await repo.Character.GetAllAliveWithIconAsync()).Select(c =>
+        {
+          c.Character.MainIcon = c.Icon;
+          return c.Character;
+        }).ToArray();
         var allTowns = await repo.Town.GetAllAsync();
         var allCountries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown).ToArray();
         var allPolicies = await repo.Country.GetPoliciesAsync();
@@ -653,7 +657,7 @@ namespace SangokuKmy.Models.Updates
                   town.TownBuilding == TownBuilding.TrainingBuilding ||
                   town.TownBuilding == TownBuilding.Sukiya)
               {
-                var charas = await repo.Town.GetCharactersAsync(town.Id);
+                var charas = allCharacters.Where(c => c.TownId == town.Id);
                 var isConnected = countryData
                   .FirstOrDefault(c => c.Country.Id == town.CountryId)?
                   .Policies
