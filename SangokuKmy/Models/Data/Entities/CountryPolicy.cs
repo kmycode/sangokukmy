@@ -484,7 +484,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CountryPolicyEffect
           {
             Type = CountryPolicyEffectType.Secretary,
-            Value = 1,
+            Value = 2,
           },
         },
       },
@@ -510,6 +510,11 @@ namespace SangokuKmy.Models.Data.Entities
         SubjectAppear = list => list.Contains(CountryPolicyType.IntellectCountry),
         Effects =
         {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.Secretary,
+            Value = 1,
+          },
         },
       },
       new CountryPolicyTypeInfo
