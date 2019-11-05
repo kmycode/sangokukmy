@@ -655,7 +655,8 @@ namespace SangokuKmy.Models.Updates
                   town.TownBuilding == TownBuilding.TrainPopularity ||
                   town.TownBuilding == TownBuilding.TerroristHouse ||
                   town.TownBuilding == TownBuilding.TrainingBuilding ||
-                  town.TownBuilding == TownBuilding.Sukiya)
+                  town.TownBuilding == TownBuilding.Sukiya ||
+                  town.TownBuilding == TownBuilding.School)
               {
                 var charas = allCharacters.Where(c => c.TownId == town.Id);
                 var isConnected = countryData
@@ -690,6 +691,18 @@ namespace SangokuKmy.Models.Updates
                     var o = chara.Popularity;
                     chara.AddPopularityEx(isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize);
                     isNotify = chara.Popularity != o;
+                  }
+                  else if (town.TownBuilding == TownBuilding.School)
+                  {
+                    var o1 = chara.Strong;
+                    var o2 = chara.Intellect;
+                    var o3 = chara.Leadership;
+                    var o4 = chara.Popularity;
+                    chara.AddStrongEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
+                    chara.AddIntellectEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
+                    chara.AddLeadershipEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
+                    chara.AddPopularityEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
+                    isNotify = chara.Strong != o1 || chara.Intellect != o2 || chara.Leadership != o3 || chara.Popularity != o4;
                   }
                   else if (town.TownBuilding == TownBuilding.TerroristHouse)
                   {

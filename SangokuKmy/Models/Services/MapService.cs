@@ -191,6 +191,7 @@ namespace SangokuKmy.Models.Services
           TownBuilding.Camp,
           TownBuilding.Extension,
           TownBuilding.Sukiya,
+          TownBuilding.School,
         };
         var r = RandomService.Next(0, b.Length);
         town.TownBuilding = b[r];
