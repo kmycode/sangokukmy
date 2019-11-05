@@ -112,6 +112,7 @@ namespace SangokuKmy.Models.Services
         FileName = RandomService.Next(0, 99) + ".gif",
       };
       await repo.Character.AddCharacterIconAsync(icon);
+      chara.MainIcon = icon;
     }
 
     public static async Task<bool> CreateWarIfNotWarAsync(MainRepository repo, GameDateTime? startDate = null)
