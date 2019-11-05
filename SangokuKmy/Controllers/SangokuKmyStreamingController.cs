@@ -82,7 +82,7 @@ namespace SangokuKmy.Controllers
         reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
         countryMessages = await repo.Country.GetMessagesAsync(chara.CountryId);
         solidierTypes = await repo.CharacterSoldierType.GetByCharacterIdAsync(chara.Id);
-        defenders = await repo.Town.GetAllDefendersAsync();
+        defenders = (await repo.Town.GetAllDefendersAsync()).OrderByDescending(d => d.Id);
         formations = await repo.Character.GetFormationsAsync(chara.Id);
         items = await repo.CharacterItem.GetAllAsync();
         skills = await repo.Character.GetSkillsAsync(chara.Id);
