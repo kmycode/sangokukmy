@@ -1205,6 +1205,9 @@ namespace SangokuKmy.Models.Updates
               await repo.SaveChangesAsync();
             }
           }
+
+          var addMoney = skills.GetSumOfValues(CharacterSkillEffectType.MoneyRegularly);
+          character.Money += addMoney;
         }
 
         // 技能ポイントが十分にあるときは自動で技能獲得

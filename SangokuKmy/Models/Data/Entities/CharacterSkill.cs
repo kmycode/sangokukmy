@@ -119,6 +119,7 @@ namespace SangokuKmy.Models.Data.Entities
     PopularityExRegularly,
     StrongOrIntellectExRegularly,
     FormationExRegularly,
+    MoneyRegularly,
     SoldierDiscountPercentage,
     SoldierType,
     SoldierCorrection,
@@ -351,6 +352,11 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.ItemMax,
             Value = 2,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.MoneyRegularly,
+            Value = 67,
           },
         },
       },
