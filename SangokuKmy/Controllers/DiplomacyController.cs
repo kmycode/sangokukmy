@@ -258,7 +258,8 @@ namespace SangokuKmy.Controllers
             // 存在しない戦争を停戦にはできない
             ErrorCode.NotPermissionError.Throw();
           }
-          else if (param.StartGameDate.ToInt() < system.IntGameDateTime + 12 * 12 + 1)
+          else if (param.StartGameDate.ToInt() < system.IntGameDateTime + 12 * 12 + 1 ||
+              param.StartGameDate.Year < Config.StartYear + Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
           {
             // 開戦が早すぎる
             ErrorCode.InvalidParameterError.Throw();
