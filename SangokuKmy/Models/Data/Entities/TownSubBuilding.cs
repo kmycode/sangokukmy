@@ -78,6 +78,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 農地
     /// </summary>
     Farmland = 1,
+
+    /// <summary>
+    /// 市場
+    /// </summary>
+    Market = 2,
   }
 
   public class TownSubBuildingTypeInfo
@@ -117,7 +122,22 @@ namespace SangokuKmy.Models.Data.Entities
           t.AgricultureMax -= 500;
           t.Agriculture = Math.Min(t.Agriculture, t.AgricultureMax);
         },
-      }
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.Market,
+        Name = "市場",
+        Size = 1,
+        Money = 10000,
+        CanBuildMultiple = true,
+        BuildDuring = 12,
+        OnBuilt = t => t.CommercialMax += 500,
+        OnRemoving = t =>
+        {
+          t.CommercialMax -= 500;
+          t.Commercial = Math.Min(t.Commercial, t.CommercialMax);
+        },
+      },
     };
 
     public static Optional<TownSubBuildingTypeInfo> Get(TownSubBuildingType type)
