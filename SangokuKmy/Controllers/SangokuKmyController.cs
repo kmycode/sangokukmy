@@ -176,6 +176,13 @@ namespace SangokuKmy.Controllers
           }
           await repo.SaveChangesAsync();
         }
+        catch (SangokuKmyException ex)
+        {
+          if (ex.ErrorCode.Code == ErrorCode.LackOfTownTechnologyForSoldier.Code)
+          {
+            repo.ErrorWithCustomCode(ex);
+          }
+        }
         catch (Exception ex)
         {
           repo.Error(ex);
