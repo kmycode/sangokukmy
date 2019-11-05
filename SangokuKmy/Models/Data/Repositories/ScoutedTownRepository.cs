@@ -94,6 +94,7 @@ namespace SangokuKmy.Models.Data.Repositories
         });
       var defenders = (await this.container.Context.ScoutedDefenders
         .Where(sc => sc.ScoutId == t.Id)
+        .OrderByDescending(sc => sc.OriginalId)
         .Join(this.container.Context.Characters,
           sc => sc.CharacterId,
           c => c.Id,
@@ -163,14 +164,15 @@ namespace SangokuKmy.Models.Data.Repositories
             .Join(this.container.Context.Characters.Where(c => !c.HasRemoved),
               td => td.CharacterId,
               c => c.Id,
-              (td, c) => c)
+              (td, c) => new { Defender = td, Character = c, })
             .ToArrayAsync())
             .Select(c => new ScoutedDefender
             {
-              CharacterId = c.Id,
+              OriginalId = c.Defender.Id,
+              CharacterId = c.Character.Id,
               ScoutId = town.Id,
-              SoldierType = c.ApiSoldierType,
-              SoldierNumber = c.SoldierNumber,
+              SoldierType = c.Character.ApiSoldierType,
+              SoldierNumber = c.Character.SoldierNumber,
             });
         var subBuildings =
           (await this.container.Context.TownSubBuildings
