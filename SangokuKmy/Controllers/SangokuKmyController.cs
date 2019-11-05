@@ -195,7 +195,7 @@ namespace SangokuKmy.Controllers
         }
       }
 
-      var streamingCommands = commands.Where(c => c.IntGameDateTime <= system.IntGameDateTime + 5).ToArray();
+      var streamingCommands = commands.Where(c => c.IntGameDateTime <= (system.GameDateTime.Year >= Config.UpdateStartYear ? system.IntGameDateTime : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, }.ToInt()) + 5).ToArray();
       if (streamingCommands.Any())
       {
         await StatusStreaming.Default.SendCountryAsync(streamingCommands.Select(s => ApiData.From(s)), chara.CountryId);
