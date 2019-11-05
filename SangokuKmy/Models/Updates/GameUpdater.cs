@@ -768,7 +768,7 @@ namespace SangokuKmy.Models.Updates
                   }
                   else if (town.TownBuilding == TownBuilding.Casting)
                   {
-                    cc.Data.SafeMoney += (int)(200 * size);
+                    cc.Data.SafeMoney += (int)(400 * size);
                   }
                 }
               }
