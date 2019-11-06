@@ -715,6 +715,7 @@ namespace SangokuKmy.Models.Updates
                   {
                     var formation = await repo.Character.GetFormationAsync(chara.Id, chara.FormationType);
                     formation.Experience += (int)(6 * size);
+                    await StatusStreaming.Default.SendCharacterAsync(ApiData.From(formation), chara.Id);
                   }
                   else if (town.TownBuilding == TownBuilding.Sukiya)
                   {
