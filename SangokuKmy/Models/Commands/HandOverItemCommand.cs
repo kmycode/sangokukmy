@@ -91,6 +91,8 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      character.Contribution += 15;
+
       await ItemService.ReleaseCharacterAsync(repo, item, character);
       await ItemService.SetCharacterPendingAsync(repo, item, target);
       await game.CharacterLogAsync($"<character>{target.Name}</character> にアイテム {info.Name} を譲渡しました");
