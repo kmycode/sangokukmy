@@ -28,13 +28,6 @@ namespace SangokuKmy.Models.Commands
       }
       else
       {
-        var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
-        if (!countryOptional.HasData)
-        {
-          await game.CharacterLogAsync("陣形変更は、無所属の武将は実行できません");
-          return;
-        }
-
         var type = (FormationType)formationTypeOptional.Data.NumberValue;
         var info = FormationTypeInfoes.Get(type);
 
