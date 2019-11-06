@@ -234,6 +234,7 @@ namespace SangokuKmy.Models.Commands
   public class SuperSecurityCommand : SecurityCommand
   {
     public override CharacterCommandType Type => CharacterCommandType.SuperSecurity;
+    protected override int GetCharacterAttribute(Character character) => base.GetCharacterAttribute(character) * 2;
     protected override int UseAssetsLength() => 800;
     protected override int Contributes() => 60;
   }
