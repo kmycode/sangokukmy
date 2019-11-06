@@ -431,6 +431,7 @@ namespace SangokuKmy.Models.Commands
           DefenderCommand = targetCommand,
         });
       }
+      continuousTurns++;
 
       if (isWall)
       {
