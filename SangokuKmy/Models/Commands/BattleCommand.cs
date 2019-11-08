@@ -562,38 +562,11 @@ namespace SangokuKmy.Models.Commands
                 {
                   await CountryService.SetPolicyAndSaveAsync(repo, myCountry, CountryPolicyType.GetTerrorists, isCheckSubjects: false);
                 }
-                targetCountry.HasOverthrown = true;
-                targetCountry.OverthrownGameDate = game.GameDateTime;
-                await StatusStreaming.Default.SendAllAsync(ApiData.From(targetCountry));
-                await AnonymousStreaming.Default.SendAllAsync(ApiData.From(targetCountry));
-                await AiService.CheckManagedReinforcementsAsync(repo, targetCountry.Id);
+
+                await CountryService.OverThrowAsync(repo, targetCountry);
                 await game.MapLogAsync(EventType.Overthrown, "<country>" + targetCountry.Name + "</country> は滅亡しました", true);
 
-                var targetCountryCharacters = await repo.Character.RemoveCountryAsync(targetCountry.Id);
-                repo.Unit.RemoveUnitsByCountryId(targetCountry.Id);
-                repo.Reinforcement.RemoveByCountryId(targetCountry.Id);
-                repo.ChatMessage.RemoveByCountryId(targetCountry.Id);
-                repo.CountryDiplomacies.RemoveByCountryId(targetCountry.Id);
-                repo.Country.RemoveDataByCountryId(targetCountry.Id);
-
-                // 滅亡国武将に通知
-                var commanders = new CountryMessage
-                {
-                  Type = CountryMessageType.Commanders,
-                  Message = string.Empty,
-                  CountryId = 0,
-                };
-                foreach (var targetCountryCharacter in await repo.Country.GetCharactersWithIconsAndCommandsAsync(targetCountry.Id))
-                {
-                  await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCountryCharacter.Character), targetCountryCharacter.Character.Id);
-                  await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), targetCountryCharacter.Character.Id);
-                }
-
-                // 登用分を無効化
-                await ChatService.DenyCountryPromotions(repo, targetCountry);
-
                 await StatusStreaming.Default.SendCountryAsync(ApiData.From(myCountry), myCountry.Id);
-                StatusStreaming.Default.UpdateCache(targetCountryCharacters);
               }
               else
               {
@@ -725,6 +698,10 @@ namespace SangokuKmy.Models.Commands
         newDefender.Status = TownDefenderStatus.Available;
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(newDefender), character.CountryId);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(newDefender), townCharas.Where(tc => tc.CountryId != character.CountryId).Select(tc => tc.Id));
+      }
+      foreach (var c in townCharas)
+      {
+        await CharacterService.StreamCharacterAsync(repo, c);
       }
 
       // 連戦

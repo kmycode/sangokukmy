@@ -263,5 +263,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 停戦
     /// </summary>
     WarStopped = 34,
+
+    /// <summary>
+    /// 割譲
+    /// </summary>
+    Concession = 35,
+
+    /// <summary>
+    /// 降伏
+    /// </summary>
+    Surrender = 36,
   }
 }

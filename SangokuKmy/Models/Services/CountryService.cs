@@ -14,6 +14,42 @@ namespace SangokuKmy.Models.Services
 {
   public static class CountryService
   {
+    public static async Task OverThrowAsync(MainRepository repo, Country country)
+    {
+      var system = await repo.System.GetAsync();
+      country.HasOverthrown = true;
+      country.OverthrownGameDate = system.GameDateTime;
+
+      var targetCountryCharacters = await repo.Character.RemoveCountryAsync(country.Id);
+      repo.Unit.RemoveUnitsByCountryId(country.Id);
+      repo.Reinforcement.RemoveByCountryId(country.Id);
+      repo.ChatMessage.RemoveByCountryId(country.Id);
+      repo.CountryDiplomacies.RemoveByCountryId(country.Id);
+      repo.Country.RemoveDataByCountryId(country.Id);
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+      await AiService.CheckManagedReinforcementsAsync(repo, country.Id);
+
+      // 滅亡国武将に通知
+      var commanders = new CountryMessage
+      {
+        Type = CountryMessageType.Commanders,
+        Message = string.Empty,
+        CountryId = 0,
+      };
+      foreach (var targetCountryCharacter in await repo.Country.GetCharactersWithIconsAndCommandsAsync(country.Id))
+      {
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCountryCharacter.Character), targetCountryCharacter.Character.Id);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), targetCountryCharacter.Character.Id);
+      }
+
+      // 登用分を無効化
+      await ChatService.DenyCountryPromotions(repo, country);
+
+      StatusStreaming.Default.UpdateCache(targetCountryCharacters);
+    }
+
     public static async Task SendWarAndSaveAsync(MainRepository repo, CountryWar war)
     {
       MapLog mapLog = null;

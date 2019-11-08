@@ -457,5 +457,73 @@ namespace SangokuKmy.Controllers
         await CountryService.SendTownWarAndSaveAsync(repo, war);
       }
     }
+
+    [AuthenticationFilter]
+    [HttpPut("country/{countryId}/give/{townId}")]
+    public async Task GiveTownAsync(
+      [FromRoute] uint townId,
+      [FromRoute] uint countryId)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var system = await repo.System.GetAsync();
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(chara.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
+        if (myPost == null || !myPost.Type.CanDiplomacy())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var targetTown = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+        var targetCountry = await repo.Country.GetAliveByIdAsync(countryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+
+        if (targetTown.CountryId != chara.CountryId)
+        {
+          // 自分以外の国の都市を割譲できない
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        if (targetCountry.AiType != CountryAiType.Human)
+        {
+          // AI国家に割譲できない
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        var allTowns = await repo.Town.GetAllAsync();
+        if (!allTowns.GetAroundCountries(targetTown).Contains(countryId))
+        {
+          // 割譲で飛び地は作れない
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        var isSurrender = allTowns.Count(t => t.CountryId == chara.CountryId) == 1;
+
+        // 割譲
+        var defenders = (await repo.Town.GetAllDefendersAsync()).Where(d => d.TownId == townId);
+        foreach (var d in defenders)
+        {
+          repo.Town.RemoveDefender(d.CharacterId);
+          await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(d), repo, targetTown);
+        }
+        targetTown.CountryId = targetCountry.Id;
+        var townCharacters = await repo.Town.GetCharactersAsync(townId);
+        foreach (var character in townCharacters)
+        {
+          await CharacterService.StreamCharacterAsync(repo, character);
+        }
+        await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown), repo);
+        await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(targetTown)));
+        await LogService.AddMapLogAsync(repo, true, EventType.Concession, $"<country>{country.Name}</country> は、<country>{targetCountry.Name}</country> に <town>{targetTown.Name}</town> を割譲しました");
+
+        if (isSurrender)
+        {
+          // 降伏
+          await CountryService.OverThrowAsync(repo, country);
+          await LogService.AddMapLogAsync(repo, true, EventType.Surrender, $"<country>{country.Name}</country> は、<country>{targetCountry.Name}</country> に降伏しました");
+        }
+      }
+    }
   }
 }
