@@ -287,22 +287,22 @@ namespace SangokuKmy.Controllers
             // 開戦が遅すぎる
             ErrorCode.InvalidParameterError.Throw();
           }
+        });
 
-          alliance.Some((a) =>
+        alliance.Some((a) =>
+        {
+          if (a.Status == CountryAllianceStatus.Available ||
+              a.Status == CountryAllianceStatus.ChangeRequesting ||
+              a.Status == CountryAllianceStatus.InBreaking)
           {
-            if (a.Status == CountryAllianceStatus.Available ||
-                a.Status == CountryAllianceStatus.ChangeRequesting ||
-                a.Status == CountryAllianceStatus.InBreaking)
-            {
-              // 同盟が有効中
-              ErrorCode.NotPermissionError.Throw();
-            }
-            if (a.Status == CountryAllianceStatus.Requesting)
-            {
-              // 自動で同盟申請を却下する
-              a.Status = CountryAllianceStatus.Broken;
-            }
-          });
+            // 同盟が有効中
+            ErrorCode.NotPermissionError.Throw();
+          }
+          if (a.Status == CountryAllianceStatus.Requesting)
+          {
+            // 自動で同盟申請を却下する
+            a.Status = CountryAllianceStatus.Broken;
+          }
         });
 
         war = new CountryWar
