@@ -48,6 +48,25 @@ namespace SangokuKmy.Models.Services
       await ChatService.DenyCountryPromotions(repo, country);
 
       StatusStreaming.Default.UpdateCache(targetCountryCharacters);
+      await repo.SaveChangesAsync();
+
+      var allTowns = await repo.Town.GetAllAsync();
+      var allCountries = await repo.Country.GetAllAsync();
+      var townAiMap = allTowns.Join(allCountries, t => t.CountryId, c => c.Id, (t, c) => new { CountryId = c.Id, c.AiType, });
+      var humanCountry = townAiMap.FirstOrDefault(t => t.AiType != CountryAiType.Terrorists);
+      if (allTowns.All(t => t.CountryId > 0) &&
+        townAiMap.All(t => t.CountryId == humanCountry.CountryId || t.AiType == CountryAiType.Terrorists))
+      {
+        if (!system.IsWaitingReset)
+        {
+          var unifiedCountry = humanCountry != null ? allCountries.FirstOrDefault(c => c.Id == humanCountry.CountryId) : allCountries.FirstOrDefault(c => !c.HasOverthrown);
+          if (unifiedCountry != null)
+          {
+            await LogService.AddMapLogAsync(repo, true, EventType.Unified, "大陸は、<country>" + unifiedCountry.Name + "</country> によって統一されました");
+            await ResetService.RequestResetAsync(repo);
+          }
+        }
+      }
     }
 
     public static async Task SendWarAndSaveAsync(MainRepository repo, CountryWar war)

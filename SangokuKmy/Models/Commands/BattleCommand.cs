@@ -586,21 +586,6 @@ namespace SangokuKmy.Models.Commands
                 }
               }
             }
-
-            var allTowns = await repo.Town.GetAllAsync();
-            var allCountries = await repo.Country.GetAllAsync();
-            var townAiMap = allTowns.Join(allCountries, t => t.CountryId, c => c.Id, (t, c) => new { CountryId = c.Id, c.AiType, });
-            var humanCountry = townAiMap.FirstOrDefault(t => t.AiType != CountryAiType.Terrorists);
-            if (allTowns.All(t => t.CountryId > 0) &&
-              townAiMap.All(t => t.CountryId == humanCountry.CountryId || t.AiType == CountryAiType.Terrorists))
-            {
-              var system = await repo.System.GetAsync();
-              if (!system.IsWaitingReset)
-              {
-                await game.MapLogAsync(EventType.Unified, "大陸は、<country>" + myCountry.Name + "</country> によって統一されました", true);
-                await ResetService.RequestResetAsync(repo);
-              }
-            }
           }
 
           // アイテム
