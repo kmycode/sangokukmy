@@ -59,6 +59,11 @@ namespace SangokuKmy.Controllers
         }
 
         var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        if (target.AiType != CountryAiType.Human)
+        {
+          // 人間の国以外に同盟を申請することはできない
+          ErrorCode.InvalidOperationError.Throw();
+        }
 
         old = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
         var changeTo = await repo.CountryDiplomacies.GetCountryAllianceChangingValueAsync(self.CountryId, targetId);
