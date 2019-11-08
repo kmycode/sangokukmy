@@ -684,10 +684,6 @@ namespace SangokuKmy.Models.Commands
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(newDefender), character.CountryId);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(newDefender), townCharas.Where(tc => tc.CountryId != character.CountryId).Select(tc => tc.Id));
       }
-      foreach (var c in townCharas)
-      {
-        await CharacterService.StreamCharacterAsync(repo, c);
-      }
 
       // 連戦
       if (canContinuous)
