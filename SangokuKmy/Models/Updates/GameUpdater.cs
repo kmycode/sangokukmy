@@ -864,7 +864,7 @@ namespace SangokuKmy.Models.Updates
               if (alliance.BreakingDelay <= 0)
               {
                 alliance.Status = CountryAllianceStatus.Broken;
-                if (alliance.IsPublic)
+                if (alliance.IsPublic && alliance.Status != CountryAllianceStatus.ChangeRequestingValue)
                 {
                   var country1 = allCountries.FirstOrDefault(c => c.Id == alliance.RequestedCountryId);
                   var country2 = allCountries.FirstOrDefault(c => c.Id == alliance.InsistedCountryId);

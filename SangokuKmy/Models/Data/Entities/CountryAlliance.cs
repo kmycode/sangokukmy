@@ -11,6 +11,7 @@ namespace SangokuKmy.Models.Data.Entities
   {
     [Key]
     [Column("id")]
+    [JsonProperty("id")]
     public uint Id { get; set; }
 
     /// <summary>
@@ -30,6 +31,13 @@ namespace SangokuKmy.Models.Data.Entities
       get => (short)this.Status;
       set => this.Status = (CountryAllianceStatus)value;
     }
+
+    /// <summary>
+    /// 同盟内容変更の対象ID（有効中の条約では0、協議中の内容を含むデータでは有効中の条約IDが設定される）
+    /// </summary>
+    [Column("change_target_id")]
+    [JsonProperty("changeTargetId")]
+    public uint ChangeTargetId { get; set; }
 
     /// <summary>
     /// 同盟をリクエストした国のID
@@ -58,13 +66,6 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("breaking_delay")]
     [JsonProperty("breakingDelay")]
     public int BreakingDelay { get; set; }
-
-    /// <summary>
-    /// 修正協議中の新しい破棄猶予
-    /// </summary>
-    [Column("new_breaking_delay")]
-    [JsonProperty("newBreakingDelay")]
-    public int NewBreakingDelay { get; set; }
   }
 
   public enum CountryAllianceStatus : short
@@ -100,5 +101,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 条項修正の承認待ち
     /// </summary>
     ChangeRequesting = 6,
+
+    /// <summary>
+    /// 条約修正協議中の内容
+    /// </summary>
+    ChangeRequestingValue = 7,
+
+    /// <summary>
+    /// 同盟の条約が変更された（DB上ではAvailableに書き換えられる）
+    /// </summary>
+    Changed = 8,
   }
 }

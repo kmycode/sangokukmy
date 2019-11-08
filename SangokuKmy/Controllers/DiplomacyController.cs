@@ -35,12 +35,14 @@ namespace SangokuKmy.Controllers
     {
       CountryAlliance alliance;
       MapLog mapLog = null;
+      Optional<CountryAlliance> old = default;
 
       if (param.Status != CountryAllianceStatus.Available &&
           param.Status != CountryAllianceStatus.ChangeRequesting &&
           param.Status != CountryAllianceStatus.Dismissed &&
           param.Status != CountryAllianceStatus.InBreaking &&
           param.Status != CountryAllianceStatus.Requesting &&
+          param.Status != CountryAllianceStatus.Changed &&
           param.Status != CountryAllianceStatus.None)
       {
         ErrorCode.InvalidParameterError.Throw();
@@ -58,7 +60,8 @@ namespace SangokuKmy.Controllers
 
         var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
 
-        var old = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
+        old = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
+        var changeTo = await repo.CountryDiplomacies.GetCountryAllianceChangingValueAsync(self.CountryId, targetId);
         var war = await repo.CountryDiplomacies.GetCountryWarAsync(self.CountryId, targetId);
         if (old.HasData &&
           old.Data.Status != CountryAllianceStatus.Broken &&
@@ -67,7 +70,7 @@ namespace SangokuKmy.Controllers
         {
           var o = old.Data;
 
-          if ((param.Status == CountryAllianceStatus.Available || param.Status == CountryAllianceStatus.ChangeRequesting) &&
+          if ((param.Status == CountryAllianceStatus.Available || param.Status == CountryAllianceStatus.ChangeRequesting || param.Status == CountryAllianceStatus.Changed) &&
                 o.Status == CountryAllianceStatus.Requesting)
           {
             if (self.CountryId == o.RequestedCountryId)
@@ -93,11 +96,29 @@ namespace SangokuKmy.Controllers
             // 再承認はできない
             ErrorCode.MeaninglessOperationError.Throw();
           }
+          else if (param.Status == CountryAllianceStatus.Changed)
+          {
+            if (!changeTo.HasData || o.Status != CountryAllianceStatus.ChangeRequesting)
+            {
+              // 変更提案していないのに承諾はできない
+              ErrorCode.InvalidOperationError.Throw();
+            }
+            else if (changeTo.Data.RequestedCountryId == self.CountryId)
+            {
+              // 自分の変更要求を自分で承認できない
+              ErrorCode.InvalidOperationError.Throw();
+            }
+          }
 
-          if (param.Status == CountryAllianceStatus.Available)
+          if (param.Status == CountryAllianceStatus.Available || param.Status == CountryAllianceStatus.InBreaking)
           {
             param.BreakingDelay = o.BreakingDelay;
             param.IsPublic = o.IsPublic;
+          }
+          else if (param.Status == CountryAllianceStatus.Changed)
+          {
+            param.BreakingDelay = changeTo.Data.BreakingDelay;
+            param.IsPublic = changeTo.Data.IsPublic;
           }
         }
         else
@@ -126,13 +147,22 @@ namespace SangokuKmy.Controllers
           InsistedCountryId = targetId,
           BreakingDelay = param.BreakingDelay,
           IsPublic = param.IsPublic,
-          Status = param.Status,
-          NewBreakingDelay = param.NewBreakingDelay,
+          Status = param.Status == CountryAllianceStatus.Changed ? CountryAllianceStatus.Available : param.Status,
         };
-        await repo.CountryDiplomacies.SetAllianceAsync(alliance);
+        if (param.Status != CountryAllianceStatus.ChangeRequesting)
+        {
+          await repo.CountryDiplomacies.SetAllianceAsync(alliance);
+        }
+        else
+        {
+          alliance.ChangeTargetId = old.Data.Id;
+          alliance.Status = CountryAllianceStatus.ChangeRequestingValue;
+          old.Data.Status = CountryAllianceStatus.ChangeRequesting;
+          await repo.CountryDiplomacies.SetAllianceChangingValueAsync(alliance);
+        }
 
         // 同盟関係を周りに通知
-        if (alliance.IsPublic && old.HasData)
+        if (alliance.IsPublic && old.HasData && alliance.Status != CountryAllianceStatus.ChangeRequestingValue)
         {
           if (old.Data.Status == CountryAllianceStatus.Requesting &&
               alliance.Status == CountryAllianceStatus.Available)
@@ -155,7 +185,7 @@ namespace SangokuKmy.Controllers
       }
 
       // 同盟関係を周りに通知
-      if (alliance.IsPublic)
+      if (alliance.IsPublic && alliance.Status != CountryAllianceStatus.ChangeRequestingValue)
       {
         await StatusStreaming.Default.SendAllAsync(ApiData.From(alliance));
         if (mapLog != null)
@@ -168,6 +198,12 @@ namespace SangokuKmy.Controllers
       {
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(alliance), alliance.RequestedCountryId);
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(alliance), alliance.InsistedCountryId);
+      }
+
+      if (alliance.Status == CountryAllianceStatus.ChangeRequestingValue && old.HasData)
+      {
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(old.Data), alliance.RequestedCountryId);
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(old.Data), alliance.InsistedCountryId);
       }
     }
 
