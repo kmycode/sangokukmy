@@ -114,11 +114,13 @@ namespace SangokuKmy.Controllers
           {
             param.BreakingDelay = o.BreakingDelay;
             param.IsPublic = o.IsPublic;
+            param.Memo = o.Memo;
           }
           else if (param.Status == CountryAllianceStatus.Changed)
           {
             param.BreakingDelay = changeTo.Data.BreakingDelay;
             param.IsPublic = changeTo.Data.IsPublic;
+            param.Memo = changeTo.Data.Memo;
           }
         }
         else
@@ -147,6 +149,7 @@ namespace SangokuKmy.Controllers
           InsistedCountryId = targetId,
           BreakingDelay = param.BreakingDelay,
           IsPublic = param.IsPublic,
+          Memo = param.Memo,
           Status = param.Status == CountryAllianceStatus.Changed ? CountryAllianceStatus.Available : param.Status,
         };
         if (param.Status != CountryAllianceStatus.ChangeRequesting)

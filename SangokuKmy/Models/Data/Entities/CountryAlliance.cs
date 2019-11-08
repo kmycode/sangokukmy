@@ -66,6 +66,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("breaking_delay")]
     [JsonProperty("breakingDelay")]
     public int BreakingDelay { get; set; }
+
+    /// <summary>
+    /// 自由記述欄
+    /// </summary>
+    [Column("memo")]
+    [JsonProperty("memo")]
+    public string Memo { get; set; }
   }
 
   public enum CountryAllianceStatus : short
