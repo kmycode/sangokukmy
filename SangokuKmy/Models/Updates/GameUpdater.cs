@@ -906,7 +906,7 @@ namespace SangokuKmy.Models.Updates
                 }
               }
             }
-            foreach (var war in (await repo.CountryDiplomacies.GetReadyWarsAsync()).Where(cw => cw.Status == CountryWarStatus.InReady))
+            foreach (var war in (await repo.CountryDiplomacies.GetReadyWarsAsync()).Where(cw => cw.Status == CountryWarStatus.InReady || cw.Status == CountryWarStatus.StopRequesting))
             {
               if (war.StartGameDate.ToInt() <= system.GameDateTime.ToInt())
               {

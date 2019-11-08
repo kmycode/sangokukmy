@@ -258,5 +258,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 蛮族
     /// </summary>
     AppendThiefs = 33,
+
+    /// <summary>
+    /// 停戦
+    /// </summary>
+    WarStopped = 34,
   }
 }

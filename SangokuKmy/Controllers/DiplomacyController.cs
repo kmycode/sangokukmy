@@ -181,9 +181,9 @@ namespace SangokuKmy.Controllers
       Optional<CountryAlliance> alliance;
       MapLog mapLog = null;
 
-      if (param.Status != CountryWarStatus.InReady /* &&
+      if (param.Status != CountryWarStatus.InReady &&
           param.Status != CountryWarStatus.StopRequesting &&
-          param.Status != CountryWarStatus.Stoped */ )
+          param.Status != CountryWarStatus.Stoped)
       {
         ErrorCode.InvalidParameterError.Throw();
       }
@@ -206,14 +206,19 @@ namespace SangokuKmy.Controllers
         alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
         old.Some((o) =>
         {
-          if ((o.Status == CountryWarStatus.InReady || o.Status == CountryWarStatus.Available) &&
+          if (o.Status == param.Status)
+          {
+            ErrorCode.MeaninglessOperationError.Throw();
+          }
+
+          if ((o.Status == CountryWarStatus.Available || o.Status == CountryWarStatus.InReady) &&
               param.Status == CountryWarStatus.InReady)
           {
             // 重複して宣戦布告はできない
             ErrorCode.MeaninglessOperationError.Throw();
           }
           else if (o.Status == CountryWarStatus.StopRequesting && param.Status == CountryWarStatus.Stoped &&
-                   o.RequestedCountryId == self.CountryId)
+                   o.RequestedStopCountryId == self.CountryId)
           {
             // 自分の停戦要求を自分で承認できない
             ErrorCode.NotPermissionError.Throw();
@@ -226,6 +231,7 @@ namespace SangokuKmy.Controllers
 
           if (o.Status == CountryWarStatus.Stoped && param.Status == CountryWarStatus.InReady)
           {
+            // 停戦後の再布告
             if (param.StartGameDate.ToInt() < system.IntGameDateTime + 12 * 12 + 1 ||
               param.StartGameDate.Year < Config.StartYear + Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
             {
@@ -238,12 +244,24 @@ namespace SangokuKmy.Controllers
               ErrorCode.InvalidParameterError.Throw();
             }
           }
-          else
+          else if (o.Status == CountryWarStatus.StopRequesting && param.Status == CountryWarStatus.InReady)
           {
-            param.RequestedCountryId = o.RequestedCountryId;
-            param.InsistedCountryId = o.InsistedCountryId;
-            param.StartGameDate = o.StartGameDate;
+            // 停戦撤回または拒否
+            if (o.StartGameDate.ToInt() <= system.GameDateTime.ToInt())
+            {
+              // 開戦後の場合は開戦扱い
+              param.Status = CountryWarStatus.Available;
+            }
           }
+
+          if (param.Status == CountryWarStatus.StopRequesting)
+          {
+            param.RequestedStopCountryId = self.CountryId;
+          }
+
+          param.RequestedCountryId = o.RequestedCountryId;
+          param.InsistedCountryId = o.InsistedCountryId;
+          param.StartGameDate = o.StartGameDate;
         });
         old.None(() =>
         {

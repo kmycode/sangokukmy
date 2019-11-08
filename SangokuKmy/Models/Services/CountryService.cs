@@ -16,26 +16,42 @@ namespace SangokuKmy.Models.Services
   {
     public static async Task SendWarAndSaveAsync(MainRepository repo, CountryWar war)
     {
+      MapLog mapLog = null;
+
       await repo.CountryDiplomacies.SetWarAsync(war);
 
-      // 戦争を周りに通知
-      var country1 = await repo.Country.GetAliveByIdAsync(war.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-      var country2 = await repo.Country.GetAliveByIdAsync(war.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-      var mapLog = new MapLog
+      if ((war.Status == CountryWarStatus.InReady && war.RequestedStopCountryId == 0) || war.Status == CountryWarStatus.Stoped)
       {
-        ApiGameDateTime = (await repo.System.GetAsync()).GameDateTime,
-        Date = DateTime.Now,
-        EventType = EventType.WarInReady,
-        IsImportant = true,
-        Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> へ侵攻します",
-      };
-      await repo.MapLog.AddAsync(mapLog);
+        // 戦争を周りに通知
+        var country1 = await repo.Country.GetAliveByIdAsync(war.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var country2 = await repo.Country.GetAliveByIdAsync(war.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        mapLog = new MapLog
+        {
+          ApiGameDateTime = (await repo.System.GetAsync()).GameDateTime,
+          Date = DateTime.Now,
+          IsImportant = true,
+        };
+        if (war.Status == CountryWarStatus.InReady)
+        {
+          mapLog.EventType = EventType.WarInReady;
+          mapLog.Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> へ侵攻します";
+        }
+        else if (war.Status == CountryWarStatus.Stoped)
+        {
+          mapLog.EventType = EventType.WarStopped;
+          mapLog.Message = "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争は停戦しました";
+        }
+        await repo.MapLog.AddAsync(mapLog);
+      }
 
       await repo.SaveChangesAsync();
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+      if (mapLog != null)
+      {
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+        await AnonymousStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+      }
     }
 
     public static async Task SendTownWarAndSaveAsync(MainRepository repo, TownWar war)
