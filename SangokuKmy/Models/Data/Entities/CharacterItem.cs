@@ -78,7 +78,7 @@ namespace SangokuKmy.Models.Data.Entities
 
     [Column("resource")]
     [JsonProperty("resource")]
-    public ushort Resource { get; set; }
+    public int Resource { get; set; }
   }
 
   public enum CharacterItemStatus : short

@@ -19,7 +19,7 @@ namespace SangokuKmy.Models.Commands
     {
       var itemTypeOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
       var targetIdOptional = options.FirstOrDefault(p => p.Type == 2).ToOptional();
-      var itemIdOptional = options.FirstOrDefault(p => p.Type == 3).ToOptional();
+      var resourceSizeOptional = options.FirstOrDefault(p => p.Type == 4).ToOptional();
 
       if (!itemTypeOptional.HasData || !targetIdOptional.HasData)
       {
@@ -54,37 +54,31 @@ namespace SangokuKmy.Models.Commands
       }
       var info = infoOptional.Data;
 
-      Optional<CharacterItem> itemOptional = default;
       if (info.IsResource)
       {
-        if (itemIdOptional.Data?.NumberValue == null)
+        if (resourceSizeOptional.Data?.NumberValue == null)
         {
           await game.CharacterLogAsync("アイテム（資源）譲渡のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
           return;
         }
-
-        itemOptional = await repo.CharacterItem.GetByIdAsync((uint)itemIdOptional.Data.NumberValue);
-        if (!itemOptional.HasData)
-        {
-          await game.CharacterLogAsync($"ID: {itemIdOptional.Data.NumberValue} のアイテムは存在しません。<emerge>管理者にお問い合わせください</emerge>");
-          return;
-        }
       }
       
-      CharacterItem item;
-      if (!info.IsResource)
+      var charaItems = await repo.Character.GetItemsAsync(character.Id);
+      var item = charaItems.FirstOrDefault(i => i.Type == itemType && (i.Status == CharacterItemStatus.CharacterHold));
+      if (item == null)
       {
-        var charaItems = await repo.Character.GetItemsAsync(character.Id);
-        item = charaItems.FirstOrDefault(i => i.Type == itemType && (i.Status == CharacterItemStatus.CharacterHold || i.Status == CharacterItemStatus.CharacterPending));
+        item = charaItems.FirstOrDefault(i => i.Type == itemType && (i.Status == CharacterItemStatus.CharacterPending));
       }
-      else
+
+      var resourceSize = resourceSizeOptional.Data?.NumberValue ?? 0;
+      if (info.IsResource)
       {
-        item = itemOptional.Data;
-        if ((item.Status != CharacterItemStatus.CharacterHold && item.Status != CharacterItemStatus.CharacterPending) || item.CharacterId != character.Id)
+        if (item.Resource < resourceSize)
         {
-          item = null;
+          resourceSize = item.Resource;
         }
       }
+
       if (item == null)
       {
         await game.CharacterLogAsync($"アイテム {info.Name} を譲渡しようとしましたが、それは現在所持していません");
@@ -93,17 +87,29 @@ namespace SangokuKmy.Models.Commands
 
       character.Contribution += 15;
 
-      await ItemService.ReleaseCharacterAsync(repo, item, character);
-      await ItemService.SetCharacterPendingAsync(repo, item, target);
-      await game.CharacterLogAsync($"<character>{target.Name}</character> にアイテム {info.Name} を譲渡しました");
-      await game.CharacterLogByIdAsync(target.Id, $"<character>{character.Name}</character> からアイテム {info.Name} を受け取りました");
+      if (!info.IsResource || item.Resource == resourceSize)
+      {
+        await ItemService.ReleaseCharacterAsync(repo, item, character);
+        await ItemService.SetCharacterPendingAsync(repo, item, target);
+        await game.CharacterLogAsync($"<character>{target.Name}</character> にアイテム {info.Name} を譲渡しました");
+        await game.CharacterLogByIdAsync(target.Id, $"<character>{character.Name}</character> からアイテム {info.Name} を受け取りました");
+      }
+      else
+      {
+        // 資源の分配
+        var newItem = await ItemService.DivideResourceAndSaveAsync(repo, item, resourceSize);
+        await ItemService.ReleaseCharacterAsync(repo, newItem, character);
+        await ItemService.SetCharacterPendingAsync(repo, newItem, target);
+        await game.CharacterLogAsync($"<character>{target.Name}</character> に資源 {info.Name} を <num>{resourceSize}</num> 譲渡しました");
+        await game.CharacterLogByIdAsync(target.Id, $"<character>{character.Name}</character> から資源 {info.Name} を <num>{resourceSizeOptional.Data.NumberValue}</num> 受け取りました");
+      }
     }
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
       var itemType = (CharacterItemType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var targetId = (uint)options.FirstOrDefault(p => p.Type == 2).Or(ErrorCode.LackOfCommandParameter).NumberValue;
-      var itemId = options.FirstOrDefault(p => p.Type == 3)?.NumberValue;
+      var resourceSize = options.FirstOrDefault(p => p.Type == 4)?.NumberValue ?? 0;
       var chara = await repo.Character.GetByIdAsync(characterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
       var target = await repo.Character.GetByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
 
@@ -118,7 +124,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       var items = await repo.Character.GetItemsAsync(chara.Id);
-      if (!items.Any(i => i.Type == itemType && (i.Status == CharacterItemStatus.CharacterHold || i.Status == CharacterItemStatus.CharacterPending) && (itemId == null || itemId == i.Id)))
+      if (!items.Any(i => i.Type == itemType && (i.Status == CharacterItemStatus.CharacterHold || i.Status == CharacterItemStatus.CharacterPending)))
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }
@@ -127,6 +133,11 @@ namespace SangokuKmy.Models.Commands
       if (!info.CanHandOver)
       {
         ErrorCode.InvalidCommandParameter.Throw();
+      }
+
+      if (info.IsResource && (info.DefaultResource < resourceSize || resourceSize == 0))
+      {
+        ErrorCode.NumberRangeError.Throw(new ErrorCode.RangeErrorParameter("resourceSize", resourceSize, 1, info.DefaultResource));
       }
 
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates, options);
