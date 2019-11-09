@@ -69,7 +69,7 @@ namespace SangokuKmy.Models.Services
       item.TownId = 0;
       item.LastStatusChangedGameDate = system.GameDateTime;
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
+      await CharacterService.StreamCharacterAsync(repo, chara);
       await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
     }
 
@@ -171,7 +171,7 @@ namespace SangokuKmy.Models.Services
 
       if (chara != null)
       {
-        await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
+        await CharacterService.StreamCharacterAsync(repo, chara);
       }
       await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
     }
