@@ -81,9 +81,30 @@ namespace SangokuKmy.Streamings
     /// <param name="data">都市データ</param>
     public async Task SendTownToAllAsync(ApiData<Town> data, MainRepository repo)
     {
-      var townCharacters = (await repo.Town.GetCharactersAsync(data.Data.Id)).Where(c => c.CountryId != data.Data.CountryId);
-      await this.SendAsync(data, c => c.ExtraData.CountryId == data.Data.CountryId || townCharacters.Any(tc => tc.Id == c.ExtraData.Id));
-      await this.SendAsync(ApiData.From(new TownForAnonymous(data.Data)), c => c.ExtraData.CountryId != data.Data.CountryId && !townCharacters.Any(tc => tc.Id == c.ExtraData.Id));
+      await this.SendTownToAllAsync(data, repo, data.Data, ApiData.From(new TownForAnonymous(data.Data)));
+    }
+
+    /// <summary>
+    /// 全員に都市データを送信する。その国以外の武将には簡易データのみが送られる
+    /// </summary>
+    /// <param name="data">都市データ</param>
+    public async Task SendTownToAllAsync<T>(ApiData<T> data, MainRepository repo, Town town)
+    {
+      await this.SendTownToAllAsync<T, object>(data, repo, town, default);
+    }
+
+    /// <summary>
+    /// 全員に都市データを送信する。その国以外の武将には簡易データのみが送られる
+    /// </summary>
+    /// <param name="data">都市データ</param>
+    public async Task SendTownToAllAsync<T, U>(ApiData<T> data, MainRepository repo, Town town, ApiData<U> anonymousData)
+    {
+      var townCharacters = (await repo.Town.GetCharactersAsync(town.Id)).Where(c => c.CountryId != town.CountryId);
+      await this.SendAsync(data, c => c.ExtraData.CountryId == town.CountryId || townCharacters.Any(tc => tc.Id == c.ExtraData.Id));
+      if (anonymousData != null)
+      {
+        await this.SendAsync(anonymousData, c => c.ExtraData.CountryId != town.CountryId && !townCharacters.Any(tc => tc.Id == c.ExtraData.Id));
+      }
     }
 
     /// <summary>

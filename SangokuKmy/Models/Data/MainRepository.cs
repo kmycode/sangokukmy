@@ -260,6 +260,14 @@ namespace SangokuKmy.Models.Data
       // usingを使っているのであれば、このあとDisposeメソッドが呼び出される
     }
 
+    public void ErrorWithCustomCode(Exception ex)
+    {
+      this.isError = true;
+      throw ex;
+
+      // usingを使っているのであれば、このあとDisposeメソッドが呼び出される
+    }
+
     private class Container : IRepositoryContainer
     {
       private readonly MainRepository repo;

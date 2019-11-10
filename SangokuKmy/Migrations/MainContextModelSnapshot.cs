@@ -469,7 +469,7 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("IntLastStatusChangedGameDate")
                         .HasColumnName("last_status_changed_game_date");
 
-                    b.Property<ushort>("Resource")
+                    b.Property<int>("Resource")
                         .HasColumnName("resource");
 
                     b.Property<short>("Status")
@@ -642,6 +642,9 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("CharacterId")
                         .HasColumnName("character_id");
 
+                    b.Property<bool>("IsRead")
+                        .HasColumnName("is_read");
+
                     b.Property<string>("Message")
                         .HasColumnName("message");
 
@@ -739,14 +742,17 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("BreakingDelay")
                         .HasColumnName("breaking_delay");
 
+                    b.Property<uint>("ChangeTargetId")
+                        .HasColumnName("change_target_id");
+
                     b.Property<uint>("InsistedCountryId")
                         .HasColumnName("insisted_country_id");
 
                     b.Property<bool>("IsPublic")
                         .HasColumnName("is_public");
 
-                    b.Property<int>("NewBreakingDelay")
-                        .HasColumnName("new_breaking_delay");
+                    b.Property<string>("Memo")
+                        .HasColumnName("memo");
 
                     b.Property<uint>("RequestedCountryId")
                         .HasColumnName("requested_country_id");
@@ -858,23 +864,6 @@ namespace SangokuKmy.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("country_researches");
-                });
-
-            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CountryScouter", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<uint>("CountryId")
-                        .HasColumnName("country_id");
-
-                    b.Property<uint>("TownId")
-                        .HasColumnName("town_id");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("country_scouters");
                 });
 
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CountryWar", b =>
@@ -1461,6 +1450,9 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("CharacterId")
                         .HasColumnName("character_id");
 
+                    b.Property<uint>("OriginalId")
+                        .HasColumnName("original_id");
+
                     b.Property<uint>("ScoutId")
                         .HasColumnName("scout_id");
 
@@ -1473,6 +1465,26 @@ namespace SangokuKmy.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("scouted_defenders");
+                });
+
+            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.ScoutedSubBuilding", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id");
+
+                    b.Property<uint>("ScoutId")
+                        .HasColumnName("scout_id");
+
+                    b.Property<short>("Status")
+                        .HasColumnName("status");
+
+                    b.Property<short>("Type")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("scouted_sub_buildings");
                 });
 
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.ScoutedTown", b =>
@@ -1752,6 +1764,32 @@ namespace SangokuKmy.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("town_defenders");
+                });
+
+            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.TownSubBuilding", b =>
+                {
+                    b.Property<uint>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id");
+
+                    b.Property<uint>("CharacterId")
+                        .HasColumnName("character_id");
+
+                    b.Property<int>("IntStatusFinishGameDateTime")
+                        .HasColumnName("status_finish_game_date_time");
+
+                    b.Property<short>("Status")
+                        .HasColumnName("status");
+
+                    b.Property<uint>("TownId")
+                        .HasColumnName("town_id");
+
+                    b.Property<short>("Type")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("town_sub_buildings");
                 });
 
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.TownWar", b =>

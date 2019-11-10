@@ -56,9 +56,9 @@ namespace SangokuKmy.Models.Data.Repositories
     /// <param name="sinceId">最初のID</param>
     /// <param name="count">取得数</param>
     /// <returns>全国宛の一覧</returns>
-    public async Task<IReadOnlyCollection<ChatMessage>> GetGlobalMessagesAsync(uint sinceId, int count)
+    public async Task<IReadOnlyCollection<ChatMessage>> GetGlobalMessagesAsync(uint sinceId, int type, int count)
     {
-      return await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.Global, sinceId, count);
+      return await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.Global && mes.TypeData == type, sinceId, count);
     }
 
     /// <summary>
@@ -70,6 +70,26 @@ namespace SangokuKmy.Models.Data.Repositories
     public async Task<IReadOnlyCollection<ChatMessage>> GetPrivateMessagesAsync(uint characterId, uint sinceId, int count)
     {
       return await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.Private && (mes.TypeData == characterId || mes.TypeData2 == characterId), sinceId, count);
+    }
+
+    /// <summary>
+    /// 個人宛に既読をつける
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    public async Task SetAllPrivateMessagesReadAsync(uint characterId)
+    {
+      try
+      {
+        var messages = await this.GetMessagesAsync(mes => mes.Type == ChatMessageType.Private && mes.TypeData2 == characterId && !mes.IsRead, default, 100);
+        foreach (var message in messages)
+        {
+          message.IsRead = true;
+        }
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
     }
 
     /// <summary>

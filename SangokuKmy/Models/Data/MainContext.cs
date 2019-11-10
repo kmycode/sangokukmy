@@ -116,11 +116,6 @@ namespace SangokuKmy.Models.Data
     public DbSet<CountryPolicy> CountryPolicies { get; set; }
 
     /// <summary>
-    /// 国の斥候
-    /// </summary>
-    public DbSet<CountryScouter> CountryScouters { get; set; }
-
-    /// <summary>
     /// AI国家の戦略
     /// </summary>
     public DbSet<AiCountryStorategy> AiCountryStorategies { get; set; }
@@ -176,6 +171,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<Town> Towns { get; set; }
 
     /// <summary>
+    /// 都市の建築物
+    /// </summary>
+    public DbSet<TownSubBuilding> TownSubBuildings { get; set; }
+
+    /// <summary>
     /// 諜報された都市データ
     /// </summary>
     public DbSet<ScoutedTown> ScoutedTowns { get; set; }
@@ -189,6 +189,11 @@ namespace SangokuKmy.Models.Data
     /// 諜報された都市の守備データ
     /// </summary>
     public DbSet<ScoutedDefender> ScoutedDefenders { get; set; }
+
+    /// <summary>
+    /// 諜報された都市の建築物データ
+    /// </summary>
+    public DbSet<ScoutedSubBuilding> ScoutedSubBuildings { get; set; }
 
     /// <summary>
     /// 都市の守備武将

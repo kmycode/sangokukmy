@@ -14,28 +14,99 @@ namespace SangokuKmy.Models.Services
 {
   public static class CountryService
   {
+    public static async Task OverThrowAsync(MainRepository repo, Country country)
+    {
+      var system = await repo.System.GetAsync();
+      country.HasOverthrown = true;
+      country.OverthrownGameDate = system.GameDateTime;
+
+      var targetCountryCharacters = await repo.Character.RemoveCountryAsync(country.Id);
+      repo.Unit.RemoveUnitsByCountryId(country.Id);
+      repo.Reinforcement.RemoveByCountryId(country.Id);
+      repo.ChatMessage.RemoveByCountryId(country.Id);
+      repo.CountryDiplomacies.RemoveByCountryId(country.Id);
+      repo.Country.RemoveDataByCountryId(country.Id);
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
+      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
+      await AiService.CheckManagedReinforcementsAsync(repo, country.Id);
+
+      // 滅亡国武将に通知
+      var commanders = new CountryMessage
+      {
+        Type = CountryMessageType.Commanders,
+        Message = string.Empty,
+        CountryId = 0,
+      };
+      foreach (var targetCountryCharacter in await repo.Country.GetCharactersWithIconsAndCommandsAsync(country.Id))
+      {
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCountryCharacter.Character), targetCountryCharacter.Character.Id);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), targetCountryCharacter.Character.Id);
+      }
+
+      // 登用分を無効化
+      await ChatService.DenyCountryPromotions(repo, country);
+
+      StatusStreaming.Default.UpdateCache(targetCountryCharacters);
+      await repo.SaveChangesAsync();
+
+      var allTowns = await repo.Town.GetAllAsync();
+      var allCountries = await repo.Country.GetAllAsync();
+      var townAiMap = allTowns.Join(allCountries, t => t.CountryId, c => c.Id, (t, c) => new { CountryId = c.Id, c.AiType, });
+      var humanCountry = townAiMap.FirstOrDefault(t => t.AiType != CountryAiType.Terrorists);
+      if (allTowns.All(t => t.CountryId > 0) &&
+        townAiMap.All(t => t.CountryId == humanCountry.CountryId || t.AiType == CountryAiType.Terrorists))
+      {
+        if (!system.IsWaitingReset)
+        {
+          var unifiedCountry = humanCountry != null ? allCountries.FirstOrDefault(c => c.Id == humanCountry.CountryId) : allCountries.FirstOrDefault(c => !c.HasOverthrown);
+          if (unifiedCountry != null)
+          {
+            await LogService.AddMapLogAsync(repo, true, EventType.Unified, "大陸は、<country>" + unifiedCountry.Name + "</country> によって統一されました");
+            await ResetService.RequestResetAsync(repo);
+          }
+        }
+      }
+    }
+
     public static async Task SendWarAndSaveAsync(MainRepository repo, CountryWar war)
     {
+      MapLog mapLog = null;
+
       await repo.CountryDiplomacies.SetWarAsync(war);
 
-      // 戦争を周りに通知
-      var country1 = await repo.Country.GetAliveByIdAsync(war.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-      var country2 = await repo.Country.GetAliveByIdAsync(war.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-      var mapLog = new MapLog
+      if ((war.Status == CountryWarStatus.InReady && war.RequestedStopCountryId == 0) || war.Status == CountryWarStatus.Stoped)
       {
-        ApiGameDateTime = (await repo.System.GetAsync()).GameDateTime,
-        Date = DateTime.Now,
-        EventType = EventType.WarInReady,
-        IsImportant = true,
-        Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> へ侵攻します",
-      };
-      await repo.MapLog.AddAsync(mapLog);
+        // 戦争を周りに通知
+        var country1 = await repo.Country.GetAliveByIdAsync(war.RequestedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var country2 = await repo.Country.GetAliveByIdAsync(war.InsistedCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        mapLog = new MapLog
+        {
+          ApiGameDateTime = (await repo.System.GetAsync()).GameDateTime,
+          Date = DateTime.Now,
+          IsImportant = true,
+        };
+        if (war.Status == CountryWarStatus.InReady)
+        {
+          mapLog.EventType = EventType.WarInReady;
+          mapLog.Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> へ侵攻します";
+        }
+        else if (war.Status == CountryWarStatus.Stoped)
+        {
+          mapLog.EventType = EventType.WarStopped;
+          mapLog.Message = "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争は停戦しました";
+        }
+        await repo.MapLog.AddAsync(mapLog);
+      }
 
       await repo.SaveChangesAsync();
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
-      await AnonymousStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+      if (mapLog != null)
+      {
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+        await AnonymousStreaming.Default.SendAllAsync(ApiData.From(mapLog));
+      }
     }
 
     public static async Task SendTownWarAndSaveAsync(MainRepository repo, TownWar war)
@@ -114,10 +185,11 @@ namespace SangokuKmy.Models.Services
     public static int GetCurrentSecretaryPoint(IEnumerable<CharacterAiType> currentSecretaries)
     {
       return currentSecretaries
-        .Sum(c => c == CharacterAiType.SecretaryPatroller ? 1 :
+        .Sum(c => c == CharacterAiType.SecretaryPatroller ? 2 :
                   c == CharacterAiType.SecretaryPioneer ? 1 :
                   c == CharacterAiType.SecretaryUnitGather ? 1 :
-                  c == CharacterAiType.SecretaryUnitLeader ? 1 : 0);
+                  c == CharacterAiType.SecretaryUnitLeader ? 1 :
+                  c == CharacterAiType.SecretaryScouter ? 1 : 0);
     }
 
     public static int GetCountrySafeMax(IEnumerable<CountryPolicyType> policies)

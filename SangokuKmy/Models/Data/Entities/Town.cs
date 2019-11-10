@@ -348,6 +348,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 数寄屋
     /// </summary>
     Sukiya = 22,
+
+    /// <summary>
+    /// 小学
+    /// </summary>
+    School = 23,
   }
 
   public static class TownExtensions

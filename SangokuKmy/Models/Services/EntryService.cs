@@ -14,8 +14,8 @@ namespace SangokuKmy.Models.Services
 {
   public static class EntryService
   {
-    public static int GetAttributeMax(GameDateTime current) => 100 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.65f * 0.4f);
-    public static int GetAttributeSumMax(GameDateTime current) => 200 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.65f);
+    public static int GetAttributeMax(GameDateTime current) => 100 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.9f * 0.75f);
+    public static int GetAttributeSumMax(GameDateTime current) => 200 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.9f);
 
     public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode)
     {
@@ -71,8 +71,8 @@ namespace SangokuKmy.Models.Services
         LastUpdated = DateTime.Now,
         LastUpdatedGameDate = system.GameDateTime,
         Message = newChara.Message,
-        Money = 1000 + Math.Max(system.GameDateTime.ToInt() - (Config.StartYear + Config.UpdateStartYear) * 12 - Config.StartMonth, 0) * 100,
-        Rice = 500 + Math.Max(system.GameDateTime.ToInt() - (Config.StartYear + Config.UpdateStartYear) * 12 - Config.StartMonth, 0) * 50,
+        Money = 1000 + Math.Max(system.GameDateTime.ToInt() - (Config.StartYear + Config.UpdateStartYear + 4) * 12 - Config.StartMonth, 0) * 120,
+        Rice = 500 + Math.Max(system.GameDateTime.ToInt() - (Config.StartYear + Config.UpdateStartYear + 4) * 12 - Config.StartMonth, 0) * 60,
         SoldierType = SoldierType.Common,
         SoldierNumber = 0,
         Proficiency = 0,

@@ -216,7 +216,7 @@ namespace SangokuKmy.Models.Commands
       }
       else
       {
-        if (character.Intellect > character.Strong)
+        if (character.Popularity > character.Strong)
         {
           character.AddPopularityEx(ex);
         }

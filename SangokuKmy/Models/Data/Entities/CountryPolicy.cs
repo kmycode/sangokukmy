@@ -262,7 +262,6 @@ namespace SangokuKmy.Models.Data.Entities
     Secretary,
     CountrySafeMax,
     CountrySafeCollectionMax,
-    ScouterMax,
     BoostWith,
   }
 
@@ -485,7 +484,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CountryPolicyEffect
           {
             Type = CountryPolicyEffectType.Secretary,
-            Value = 1,
+            Value = 2,
           },
         },
       },
@@ -513,8 +512,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CountryPolicyEffect
           {
-            Type = CountryPolicyEffectType.ScouterMax,
-            Value = Config.ScouterMax,
+            Type = CountryPolicyEffectType.Secretary,
+            Value = 1,
           },
         },
       },

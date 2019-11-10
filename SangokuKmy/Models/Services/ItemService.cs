@@ -42,7 +42,27 @@ namespace SangokuKmy.Models.Services
       item.CharacterId = chara.Id;
       item.TownId = 0;
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
+      // 資源を統合
+      var infoOptional = CharacterItemInfoes.Get(item.Type);
+      if (infoOptional.HasData)
+      {
+        var info = infoOptional.Data;
+        if (info.IsResource)
+        {
+          var characterItems = await repo.Character.GetItemsAsync(chara.Id);
+          var resource = characterItems.FirstOrDefault(i => i.Id != item.Id && i.Status == CharacterItemStatus.CharacterHold && i.Type == item.Type);
+          if (resource != null)
+          {
+            resource.Resource += item.Resource;
+            item.Status = CharacterItemStatus.CharacterSpent;
+            item.CharacterId = 0;
+            item.Resource = 0;
+            await StatusStreaming.Default.SendAllAsync(ApiData.From(resource));
+          }
+        }
+      }
+
+      await CharacterService.StreamCharacterAsync(repo, chara);
       await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
     }
 
@@ -69,7 +89,7 @@ namespace SangokuKmy.Models.Services
       item.TownId = 0;
       item.LastStatusChangedGameDate = system.GameDateTime;
 
-      await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
+      await CharacterService.StreamCharacterAsync(repo, chara);
       await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
     }
 
@@ -171,9 +191,35 @@ namespace SangokuKmy.Models.Services
 
       if (chara != null)
       {
-        await StatusStreaming.Default.SendAllAsync(ApiData.From(chara));
+        await CharacterService.StreamCharacterAsync(repo, chara);
       }
       await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
+    }
+
+    public static async Task<CharacterItem> DivideResourceAndSaveAsync(MainRepository repo, CharacterItem item, int resourceSize)
+    {
+      if (item.Resource <= resourceSize)
+      {
+        return item;
+      }
+
+      item.Resource -= resourceSize;
+
+      var newItem = new CharacterItem
+      {
+        Type = item.Type,
+        Status = item.Status,
+        CharacterId = item.CharacterId,
+        TownId = item.TownId,
+        IntLastStatusChangedGameDate = item.IntLastStatusChangedGameDate,
+        Resource = resourceSize,
+      };
+      await GenerateItemAndSaveAsync(repo, newItem);
+
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(newItem));
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(item));
+
+      return newItem;
     }
 
     public static async Task<Optional<CharacterItemInfo>> PickTownHiddenItemAsync(MainRepository repo, uint townId, Character chara)

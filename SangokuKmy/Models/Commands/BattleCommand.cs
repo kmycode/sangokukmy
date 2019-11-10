@@ -189,6 +189,7 @@ namespace SangokuKmy.Models.Commands
       var myFormationExperience = 0.0f;
       var myContribution = 20;
       var mySkills = await repo.Character.GetSkillsAsync(character.Id);
+      var myItems = await repo.Character.GetItemsAsync(character.Id);
       var targetAttackCorrection = 0;
       var targetDefenceCorrection = 0;
       var targetAttackSoldierTypeCorrection = 0;
@@ -197,6 +198,7 @@ namespace SangokuKmy.Models.Commands
       var targetFormationExperience = 0.0f;
       var targetContribution = 0;
       IReadOnlyList<CharacterSkill> targetSkills = Enumerable.Empty<CharacterSkill>().ToArray();
+      IReadOnlyList<CharacterItem> targetItems = Enumerable.Empty<CharacterItem>().ToArray();
       character.Rice -= character.SoldierNumber * myRicePerSoldier;
       var aiLog = new AiBattleHistory
       {
@@ -210,7 +212,16 @@ namespace SangokuKmy.Models.Commands
 
       mySoldierType
         .Append(myFormation.GetDataFromLevel(myFormationData.Level))
-        .Append(mySkills.GetSoldierTypeData());
+        .Append(mySkills.GetSoldierTypeData())
+        .Append(myItems.GetSoldierTypeData());
+      foreach (var info in targetItems
+        .GetInfos()
+        .Where(i => i.Effects != null)
+        .SelectMany(i => i.Effects)
+        .Where(e => e.Type == CharacterItemEffectType.SoldierCorrection && e.SoldierTypeData != null))
+      {
+        targetSoldierType.Append(info.SoldierTypeData);
+      }
 
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
@@ -265,6 +276,9 @@ namespace SangokuKmy.Models.Commands
         targetSkills = await repo.Character.GetSkillsAsync(targetCharacter.Id);
         targetSoldierType.Append(targetSkills.GetSoldierTypeData());
 
+        targetItems = await repo.Character.GetItemsAsync(targetCharacter.Id);
+        targetSoldierType.Append(targetItems.GetSoldierTypeData());
+
         isWall = false;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
       }
@@ -279,12 +293,12 @@ namespace SangokuKmy.Models.Commands
 
         var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).GetAvailableTypes();
 
-        targetCharacter.SoldierType = targetTown.Technology >= 999 ? SoldierType.Guard_Step4 :
+        targetCharacter.SoldierType = targetTown.Technology >= 1000 ? SoldierType.Guard_Step4 :
           targetTown.Technology >= 600 ? SoldierType.Guard_Step3 :
           targetTown.Technology >= 300 ? SoldierType.Guard_Step2 :
           SoldierType.Guard_Step1;
         targetCharacter.Strong = trendStrong;
-        targetCharacter.Proficiency = 0;
+        targetCharacter.Proficiency = 100;
 
         targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(targetCharacter.SoldierType);
         targetFormation = FormationTypeInfoes.Get(FormationType.Normal).Data;
@@ -303,6 +317,7 @@ namespace SangokuKmy.Models.Commands
           myAttackCorrection += Math.Max((int)(60 * ((100 - mySoldierType.TypeAntiWall) / 100.0f)), 0);
         }
       }
+      var targetNameWithTag = $"<{(isWall ? "wall" : "character")}>{targetCharacter.Name}</{(isWall ? "wall" : "character")}>";
 
       await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> に攻め込みました");
 
@@ -317,8 +332,10 @@ namespace SangokuKmy.Models.Commands
       var myPower = mySoldierType.CalcPower(character);
       var targetPower = targetSoldierType.CalcPower(targetCharacter);
 
-      var myProficiency = myTown.TownBuilding == TownBuilding.Camp ? character.Proficiency * (1 + 2 * (float)myTown.TownBuildingValue / Config.TownBuildingMax) : character.Proficiency;
-      var targetProficiency = targetTown.TownBuilding == TownBuilding.Camp ? targetCharacter.Proficiency * (1 + 2 * (float)targetTown.TownBuildingValue / Config.TownBuildingMax) : targetCharacter.Proficiency;
+      var myCampValue = Math.Min(1.6f, Math.Max(1, game.GameDateTime.Year * 0.024f * myTown.TownBuildingValue / Config.TownBuildingMax));
+      var targetCampValue = Math.Min(1.6f, Math.Max(1, game.GameDateTime.Year * 0.024f * targetTown.TownBuildingValue / Config.TownBuildingMax));
+      var myProficiency = myTown.TownBuilding == TownBuilding.Camp ? character.Proficiency * myCampValue : character.Proficiency;
+      var targetProficiency = (targetTown.TownBuilding == TownBuilding.Camp && !isWall) ? targetCharacter.Proficiency * targetCampValue : targetCharacter.Proficiency;
 
       var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetProficiency / 2.5f) / 8), 0);
       var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - myProficiency / 2.5f) / 8), 0);
@@ -335,7 +352,7 @@ namespace SangokuKmy.Models.Commands
         var myCommand = BattleTurnCommand.None;
         var targetCommand = BattleTurnCommand.None;
 
-        // 突撃
+        // 突撃など
         if (myCommand == BattleTurnCommand.None && targetCommand == BattleTurnCommand.None && !isWall)
         {
           if (mySoldierType.IsRush())
@@ -344,11 +361,31 @@ namespace SangokuKmy.Models.Commands
             targetDamage = Math.Max(targetDamage, Math.Max(myAttack + 1, 1) / 2);
             myCommand = BattleTurnCommand.Rush;
           }
+          else if (mySoldierType.IsDisorder())
+          {
+            myDamage = 0;
+            myCommand = BattleTurnCommand.Disorder;
+          }
+          else if (mySoldierType.IsFriendlyFire())
+          {
+            targetDamage += myDamage;
+            myCommand = BattleTurnCommand.FriendlyFire;
+          }
           else if (targetSoldierType.IsRush())
           {
             myDamage = Math.Min(Math.Max((int)(myDamage + targetSoldierType.CalcRushAttack(mySoldierType)), 8), character.SoldierNumber);
             myDamage = Math.Max(myDamage, Math.Max(targetAttack + 1, 1) / 2);
             targetCommand = BattleTurnCommand.Rush;
+          }
+          else if (targetSoldierType.IsDisorder())
+          {
+            targetDamage = 0;
+            targetCommand = BattleTurnCommand.Disorder;
+          }
+          else  if (targetSoldierType.IsFriendlyFire())
+          {
+            myDamage += targetDamage;
+            targetCommand = BattleTurnCommand.FriendlyFire;
           }
         }
 
@@ -377,7 +414,7 @@ namespace SangokuKmy.Models.Commands
         myFormationExperience += myFormationExperienceTmp * 0.6f + targetFormationExperienceTmp * 0.4f;
         targetFormationExperience += targetFormationExperienceTmp * 0.6f + myFormationExperienceTmp * 0.4f;
 
-        await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
+        await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | " + targetNameWithTag + " <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
         if (!isWall)
         {
           await game.CharacterLogByIdAsync(targetCharacter.Id, "  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
@@ -394,6 +431,7 @@ namespace SangokuKmy.Models.Commands
           DefenderCommand = targetCommand,
         });
       }
+      continuousTurns++;
 
       if (isWall)
       {
@@ -408,12 +446,12 @@ namespace SangokuKmy.Models.Commands
         {
           Name = "無所属",
         };
-        var prefix = $"[<town>{targetTown.Name}</town>]{(continuousCount > 1 ? "(連戦)" : "")} <country>{myCountry.Name}</country> の <character>{character.Name}</character> は <country>{targetCountry.Name}</country> の <character>{targetCharacter.Name}</character>";
+        var prefix = $"[<town>{targetTown.Name}</town>]{(continuousCount > 1 ? "(連戦)" : "")} <country>{myCountry.Name}</country> の <character>{character.Name}</character> は <country>{targetCountry.Name}</country> の {targetNameWithTag}";
         if (character.SoldierNumber <= 0 && targetCharacter.SoldierNumber <= 0)
         {
           removedDefenders = await repo.Town.RemoveDefenderAsync(targetCharacter.Id);
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleDrawLose, prefix + " と引き分けました", false);
-          await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> と引き分けました");
+          await game.CharacterLogAsync($"{targetNameWithTag} と引き分けました");
           if (!isWall)
           {
             if (character.AiType == CharacterAiType.TerroristRyofu)
@@ -430,7 +468,7 @@ namespace SangokuKmy.Models.Commands
         else if (character.SoldierNumber <= 0 && targetCharacter.SoldierNumber > 0)
         {
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleLose, prefix + " に敗北しました", false);
-          await game.CharacterLogAsync($"<character>{targetCharacter.Name}</character> に敗北しました");
+          await game.CharacterLogAsync($"{targetNameWithTag} に敗北しました");
           if (!isWall)
           {
             if (character.AiType == CharacterAiType.TerroristRyofu)
@@ -447,7 +485,7 @@ namespace SangokuKmy.Models.Commands
         else if (character.SoldierNumber > 0 && targetCharacter.SoldierNumber > 0)
         {
           mapLogId = await game.MapLogAndSaveAsync(EventType.BattleDraw, prefix + " と引き分けました", false);
-          await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> と引き分けました");
+          await game.CharacterLogAsync($"{targetNameWithTag} と引き分けました");
           if (!isWall)
           {
             if (character.AiType == CharacterAiType.TerroristRyofu)
@@ -489,7 +527,7 @@ namespace SangokuKmy.Models.Commands
             }
             removedDefenders = await repo.Town.RemoveDefenderAsync(targetCharacter.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.BattleWin, prefix + " を倒しました", false);
-            await game.CharacterLogAsync("<character>" + targetCharacter.Name + "</character> に勝利しました");
+            await game.CharacterLogAsync($"{targetNameWithTag} に勝利しました");
             await game.CharacterLogByIdAsync(targetCharacter.Id, $"<character>{character.Name}</character> に敗北しました。<town>{targetTown.Name}</town> の守備から外れました");
           }
           else
@@ -524,38 +562,11 @@ namespace SangokuKmy.Models.Commands
                 {
                   await CountryService.SetPolicyAndSaveAsync(repo, myCountry, CountryPolicyType.GetTerrorists, isCheckSubjects: false);
                 }
-                targetCountry.HasOverthrown = true;
-                targetCountry.OverthrownGameDate = game.GameDateTime;
-                await StatusStreaming.Default.SendAllAsync(ApiData.From(targetCountry));
-                await AnonymousStreaming.Default.SendAllAsync(ApiData.From(targetCountry));
-                await AiService.CheckManagedReinforcementsAsync(repo, targetCountry.Id);
+
+                await CountryService.OverThrowAsync(repo, targetCountry);
                 await game.MapLogAsync(EventType.Overthrown, "<country>" + targetCountry.Name + "</country> は滅亡しました", true);
 
-                var targetCountryCharacters = await repo.Character.RemoveCountryAsync(targetCountry.Id);
-                repo.Unit.RemoveUnitsByCountryId(targetCountry.Id);
-                repo.Reinforcement.RemoveByCountryId(targetCountry.Id);
-                repo.ChatMessage.RemoveByCountryId(targetCountry.Id);
-                repo.CountryDiplomacies.RemoveByCountryId(targetCountry.Id);
-                repo.Country.RemoveDataByCountryId(targetCountry.Id);
-
-                // 滅亡国武将に通知
-                var commanders = new CountryMessage
-                {
-                  Type = CountryMessageType.Commanders,
-                  Message = string.Empty,
-                  CountryId = 0,
-                };
-                foreach (var targetCountryCharacter in await repo.Country.GetCharactersWithIconsAndCommandsAsync(targetCountry.Id))
-                {
-                  await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCountryCharacter.Character), targetCountryCharacter.Character.Id);
-                  await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), targetCountryCharacter.Character.Id);
-                }
-
-                // 登用分を無効化
-                await ChatService.DenyCountryPromotions(repo, targetCountry);
-
                 await StatusStreaming.Default.SendCountryAsync(ApiData.From(myCountry), myCountry.Id);
-                StatusStreaming.Default.UpdateCache(targetCountryCharacters);
               }
               else
               {
@@ -573,21 +584,6 @@ namespace SangokuKmy.Models.Commands
                 {
                   await StatusStreaming.Default.SendCountryAsync(ApiData.From(savedScoutedTown), targetCountry.Id);
                 }
-              }
-            }
-
-            var allTowns = await repo.Town.GetAllAsync();
-            var allCountries = await repo.Country.GetAllAsync();
-            var townAiMap = allTowns.Join(allCountries, t => t.CountryId, c => c.Id, (t, c) => new { CountryId = c.Id, c.AiType, });
-            var humanCountry = townAiMap.FirstOrDefault(t => t.AiType != CountryAiType.Terrorists);
-            if (allTowns.All(t => t.CountryId > 0) &&
-              townAiMap.All(t => t.CountryId == humanCountry.CountryId || t.AiType == CountryAiType.Terrorists))
-            {
-              var system = await repo.System.GetAsync();
-              if (!system.IsWaitingReset)
-              {
-                await game.MapLogAsync(EventType.Unified, "大陸は、<country>" + myCountry.Name + "</country> によって統一されました", true);
-                await ResetService.RequestResetAsync(repo);
               }
             }
           }
@@ -655,7 +651,7 @@ namespace SangokuKmy.Models.Commands
         targetCharacter.FormationPoint += targetFormationPoint;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType) + $" 陣形ex: <num>{(int)targetFormationExperience}</num> 陣形P: <num>{targetFormationPoint}</num>");
 
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCharacter), targetCharacter.Id);
+        await CharacterService.StreamCharacterAsync(repo, targetCharacter);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
         {
           Type = SignalType.DefenderBattled,

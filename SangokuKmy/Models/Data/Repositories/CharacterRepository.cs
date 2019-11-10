@@ -530,6 +530,7 @@ namespace SangokuKmy.Models.Data.Repositories
         await this.container.RemoveAllRowsAsync(typeof(CharacterIcon));
         await this.container.RemoveAllRowsAsync(typeof(CharacterLog));
         await this.container.RemoveAllRowsAsync(typeof(CharacterUpdateLog));
+        await this.container.RemoveAllRowsAsync(typeof(CharacterSkill));
         await this.container.RemoveAllRowsAsync(typeof(LogCharacterCache));
         await this.container.RemoveAllRowsAsync(typeof(Formation));
       }

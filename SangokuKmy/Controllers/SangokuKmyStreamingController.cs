@@ -40,13 +40,13 @@ namespace SangokuKmy.Controllers
       IEnumerable<TownForAnonymous> towns;
       IEnumerable<Town> myTowns;
       IEnumerable<TownDefender> defenders;
+      IEnumerable<TownSubBuilding> subBuildings;
       IEnumerable<ScoutedTown> scoutedTowns;
       IEnumerable<ChatMessage> chatMessages;
       IEnumerable<CountryAlliance> alliances;
       IEnumerable<CountryWar> wars;
       IEnumerable<TownWar> townWars;
       IEnumerable<CountryPolicy> policies;
-      IEnumerable<CountryScouter> scouters;
       IEnumerable<ThreadBbsItem> countryBbsItems;
       IEnumerable<ThreadBbsItem> globalBbsItems;
       IEnumerable<Reinforcement> reinforcements;
@@ -57,6 +57,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<CharacterItem> items;
       IEnumerable<CharacterSkill> skills;
       IEnumerable<CommandMessage> commandMessages;
+      IEnumerable<CharacterCommand> otherCharacterCommands;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -67,7 +68,8 @@ namespace SangokuKmy.Controllers
         country = (await repo.Country.GetByIdAsync(chara.CountryId)).Data;
         countries = await repo.Country.GetAllForAnonymousAsync();
         chatMessages = (await repo.ChatMessage.GetCountryMessagesAsync(chara.CountryId, uint.MaxValue, 50))
-          .Concat(await repo.ChatMessage.GetGlobalMessagesAsync(uint.MaxValue, 50))
+          .Concat(await repo.ChatMessage.GetGlobalMessagesAsync(uint.MaxValue, 0, 50))
+          .Concat(await repo.ChatMessage.GetGlobalMessagesAsync(uint.MaxValue, 1, 50))
           .Concat(await repo.ChatMessage.GetPrivateMessagesAsync(chara.Id, uint.MaxValue, 50))
           .Concat(await repo.ChatMessage.GetPromotionMessagesAsync(chara.Id, uint.MaxValue, 50));
         alliances = (await repo.CountryDiplomacies.GetAllPublicAlliancesAsync())
@@ -75,25 +77,28 @@ namespace SangokuKmy.Controllers
         wars = await repo.CountryDiplomacies.GetAllWarsAsync();
         townWars = await repo.CountryDiplomacies.GetAllTownWarsAsync();
         policies = await repo.Country.GetPoliciesAsync(country?.Id ?? 0);
-        scouters = await repo.Country.GetScoutersAsync(country?.Id ?? 0);
         countryBbsItems = await repo.ThreadBbs.GetCountryBbsByCountryIdAsync(chara.CountryId);
         globalBbsItems = await repo.ThreadBbs.GetGlobalBbsAsync();
         reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
         countryMessages = await repo.Country.GetMessagesAsync(chara.CountryId);
         solidierTypes = await repo.CharacterSoldierType.GetByCharacterIdAsync(chara.Id);
-        defenders = await repo.Town.GetAllDefendersAsync();
+        defenders = (await repo.Town.GetAllDefendersAsync()).OrderByDescending(d => d.Id);
         formations = await repo.Character.GetFormationsAsync(chara.Id);
         items = await repo.CharacterItem.GetAllAsync();
         skills = await repo.Character.GetSkillsAsync(chara.Id);
         commandMessages = await repo.CharacterCommand.GetMessagesAsync(chara.CountryId);
 
+        var countryCharacters = await repo.Country.GetCharactersWithIconsAndCommandsAsync(chara.CountryId);
+        otherCharacterCommands = countryCharacters.SelectMany(c => c.Commands);
+
         var allTowns = await repo.Town.GetAllAsync();
         towns = allTowns.Select(tw => new TownForAnonymous(tw));
         myTowns = allTowns.Where(tw => tw.CountryId == chara.CountryId || chara.TownId == tw.Id);
         scoutedTowns = await repo.ScoutedTown.GetByScoutedCountryIdAsync(chara.CountryId);
+        subBuildings = (await repo.Town.GetSubBuildingsAsync()).Where(s => myTowns.Any(ms => ms.Id == s.TownId));
 
         var allCharasData = await repo.Character.GetAllAliveWithIconAsync();
-        allCharas = allCharasData.Where(c => c.Character.Id != chara.Id).Select(c =>
+        allCharas = allCharasData.Where(c => c.Character.Id != chara.Id).Where(c => c.Character.CountryId == chara.CountryId || c.Character.AiType != CharacterAiType.SecretaryScouter).Select(c =>
           new CharacterForAnonymous(c.Character, c.Icon,
             (c.Character.CountryId == chara.CountryId && c.Character.TownId == chara.TownId) ? CharacterShareLevel.SameTownAndSameCountry :
             c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameCountry :
@@ -137,7 +142,6 @@ namespace SangokuKmy.Controllers
         .Concat(wars.Select(cw => ApiData.From(cw)))
         .Concat(townWars.Select(tw => ApiData.From(tw)))
         .Concat(policies.Select(p => ApiData.From(p)))
-        .Concat(scouters.Select(s => ApiData.From(s)))
         .Concat(countryBbsItems.Select(b => ApiData.From(b)))
         .Concat(globalBbsItems.Select(b => ApiData.From(b)))
         .Concat(reinforcements.Select(r => ApiData.From(r)))
@@ -147,6 +151,8 @@ namespace SangokuKmy.Controllers
         .Concat(items.Select(i => ApiData.From(i)))
         .Concat(skills.Select(s => ApiData.From(s)))
         .Concat(commandMessages.Select(m => ApiData.From(m)))
+        .Concat(otherCharacterCommands.Select(c => ApiData.From(c)))
+        .Concat(subBuildings.Select(s => ApiData.From(s)))
         .ToList();
       sendData.Add(ApiData.From(new ApiSignal
       {

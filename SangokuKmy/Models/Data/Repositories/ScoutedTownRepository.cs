@@ -94,6 +94,7 @@ namespace SangokuKmy.Models.Data.Repositories
         });
       var defenders = (await this.container.Context.ScoutedDefenders
         .Where(sc => sc.ScoutId == t.Id)
+        .OrderByDescending(sc => sc.OriginalId)
         .Join(this.container.Context.Characters,
           sc => sc.CharacterId,
           c => c.Id,
@@ -112,8 +113,12 @@ namespace SangokuKmy.Models.Data.Repositories
           };
           return data;
         });
+      var subBuildings = await this.container.Context.ScoutedSubBuildings
+        .Where(sc => sc.ScoutId == t.Id)
+        .ToArrayAsync();
       t.Characters = characters;
       t.Defenders = defenders;
+      t.SubBuildings = subBuildings;
     }
 
     /// <summary>
@@ -144,6 +149,7 @@ namespace SangokuKmy.Models.Data.Repositories
           (await this.container.Context.Characters
             .Where(c => c.TownId == town.ScoutedTownId)
             .Where(c => !c.HasRemoved)
+            .Where(c => c.AiType != CharacterAiType.SecretaryScouter || c.CountryId == town.ScoutedCountryId)
             .ToArrayAsync())
             .Select(c => new ScoutedCharacter
             {
@@ -158,17 +164,29 @@ namespace SangokuKmy.Models.Data.Repositories
             .Join(this.container.Context.Characters.Where(c => !c.HasRemoved),
               td => td.CharacterId,
               c => c.Id,
-              (td, c) => c)
+              (td, c) => new { Defender = td, Character = c, })
             .ToArrayAsync())
             .Select(c => new ScoutedDefender
             {
-              CharacterId = c.Id,
+              OriginalId = c.Defender.Id,
+              CharacterId = c.Character.Id,
               ScoutId = town.Id,
-              SoldierType = c.ApiSoldierType,
-              SoldierNumber = c.SoldierNumber,
+              SoldierType = c.Character.ApiSoldierType,
+              SoldierNumber = c.Character.SoldierNumber,
+            });
+        var subBuildings =
+          (await this.container.Context.TownSubBuildings
+            .Where(ts => ts.TownId == town.ScoutedTownId)
+            .ToArrayAsync())
+            .Select(c => new ScoutedSubBuilding
+            {
+              ScoutId = town.Id,
+              Type = c.Type,
+              Status = c.Status,
             });
         await this.container.Context.ScoutedCharacters.AddRangeAsync(characters);
         await this.container.Context.ScoutedDefenders.AddRangeAsync(defenders);
+        await this.container.Context.ScoutedSubBuildings.AddRangeAsync(subBuildings);
       }
       catch (Exception ex)
       {
@@ -205,6 +223,7 @@ namespace SangokuKmy.Models.Data.Repositories
         await this.container.RemoveAllRowsAsync(typeof(ScoutedTown));
         await this.container.RemoveAllRowsAsync(typeof(ScoutedCharacter));
         await this.container.RemoveAllRowsAsync(typeof(ScoutedDefender));
+        await this.container.RemoveAllRowsAsync(typeof(ScoutedSubBuilding));
       }
       catch (Exception ex)
       {

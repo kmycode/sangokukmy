@@ -314,6 +314,56 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<TownSubBuilding>> GetSubBuildingsAsync()
+    {
+      try
+      {
+        return await this.container.Context.TownSubBuildings.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<IReadOnlyList<TownSubBuilding>> GetSubBuildingsAsync(uint townId)
+    {
+      try
+      {
+        return await this.container.Context.TownSubBuildings.Where(s => s.TownId == townId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task AddSubBuildingAsync(TownSubBuilding building)
+    {
+      try
+      {
+        await this.container.Context.TownSubBuildings.AddAsync(building);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public void RemoveSubBuilding(TownSubBuilding building)
+    {
+      try
+      {
+        this.container.Context.TownSubBuildings.Remove(building);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     /// <summary>
     /// 初期化に使うデータを取得
     /// </summary>
@@ -355,6 +405,7 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         await this.container.RemoveAllRowsAsync(typeof(Town));
         await this.container.RemoveAllRowsAsync(typeof(TownDefender));
+        await this.container.RemoveAllRowsAsync(typeof(TownSubBuilding));
       }
       catch (Exception ex)
       {

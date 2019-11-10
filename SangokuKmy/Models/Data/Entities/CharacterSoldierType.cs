@@ -410,7 +410,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 12,
         FakeMoney = 20,
-        Technology = 999,
+        Technology = 1000,
         CanConscript = true,
         CanConscriptWithoutResource = false,
       },
@@ -428,7 +428,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 14,
         FakeMoney = 20,
-        Technology = 999,
+        Technology = 1000,
         CanConscript = true,
         CanConscriptWithoutResource = false,
       },
@@ -445,7 +445,7 @@ namespace SangokuKmy.Models.Data.Entities
           PowerStrong = 1,
         },
         Money = 14,
-        Technology = 999,
+        Technology = 1000,
         CanConscript = true,
       },
       new CharacterSoldierTypePart
@@ -485,7 +485,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 2,
-          BaseDefend = 7,
+          BaseDefend = 3,
           TypeWall = 10,
           PowerStrong = 1,
         },
@@ -499,7 +499,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 4,
-          BaseDefend = 8,
+          BaseDefend = 4,
           TypeWall = 10,
           PowerStrong = 1,
         },
@@ -513,7 +513,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 6,
-          BaseDefend = 9,
+          BaseDefend = 5,
           TypeWall = 10,
           PowerStrong = 1,
         },
@@ -527,7 +527,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 9,
-          BaseDefend = 10,
+          BaseDefend = 6,
           TypeWall = 10,
           PowerStrong = 1,
         },
@@ -675,6 +675,8 @@ namespace SangokuKmy.Models.Data.Entities
           BaseDefend = 4,
           RushDefend = 3,
           TypeCrossbow = 10,
+          DisorderProbability = 10,
+          FriendlyFireProbability = 10,
           IntellectEx = 1,
           PowerIntellect = 1,
         },

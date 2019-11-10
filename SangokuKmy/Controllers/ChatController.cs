@@ -66,12 +66,13 @@ namespace SangokuKmy.Controllers
     [HttpGet("chat/global")]
     public async Task<ApiArrayData<ChatMessage>> GetGlobalChatMessagesAsync(
       [FromQuery] uint sinceId = default,
+      [FromQuery] int type = default,
       [FromQuery] int count = default)
     {
       IEnumerable<ChatMessage> messages;
       using (var repo = MainRepository.WithRead())
       {
-        messages = await repo.ChatMessage.GetGlobalMessagesAsync(sinceId, count);
+        messages = await repo.ChatMessage.GetGlobalMessagesAsync(sinceId, type, count);
       }
       return ApiData.From(messages);
     }
@@ -92,7 +93,7 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.Global);
+        message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.Global, param.TypeData);
         await repo.SaveChangesAsync();
       }
 
@@ -142,6 +143,17 @@ namespace SangokuKmy.Controllers
       }
 
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(message), new uint[] { chara.Id, id, });
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("chat/character/read")]
+    public async Task SetPrivateChatMessagesReadAsync()
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        await repo.ChatMessage.SetAllPrivateMessagesReadAsync(this.AuthData.CharacterId);
+        await repo.SaveChangesAsync();
+      }
     }
 
     [AuthenticationFilter]

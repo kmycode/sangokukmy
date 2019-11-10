@@ -27,6 +27,16 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("posts")]
     public IEnumerable<CountryPost> Posts { get; set; }
 
+    [JsonIgnore]
+    public CountryAiType AiType { get; set; }
+
+    [JsonProperty("aiType")]
+    public short ApiAiType
+    {
+      get => (short)this.AiType;
+      set => this.AiType = (CountryAiType)value;
+    }
+
     public CountryForAnonymous(Country country)
     {
       this.Id = country.Id;
@@ -35,6 +45,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.CapitalTownId = country.CapitalTownId;
       this.HasOverthrown = country.HasOverthrown;
       this.OverthrownGameDate = country.OverthrownGameDate;
+      this.AiType = country.AiType;
     }
   }
 }

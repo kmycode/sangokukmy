@@ -163,7 +163,11 @@ namespace SangokuKmy.Models.Updates
           await AddMapLogInnerAsync(isImportant, type, message);
         }
 
-        var allCharacters = await repo.Character.GetAllAliveAsync();
+        var allCharacters = (await repo.Character.GetAllAliveWithIconAsync()).Select(c =>
+        {
+          c.Character.MainIcon = c.Icon;
+          return c.Character;
+        }).ToArray();
         var allTowns = await repo.Town.GetAllAsync();
         var allCountries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown).ToArray();
         var allPolicies = await repo.Country.GetPoliciesAsync();
@@ -207,8 +211,7 @@ namespace SangokuKmy.Models.Updates
 
               // 収入から政務官収入をひく
               var secretaries = country.Characters.Where(c => c.AiType.IsSecretary());
-              var scouters = await repo.Country.GetScoutersAsync(country.Country.Id);
-              if (secretaries.Any() || scouters.Any())
+              if (secretaries.Any())
               {
                 bool PayAndCanContinue(int income)
                 {
@@ -247,18 +250,6 @@ namespace SangokuKmy.Models.Updates
                   {
                     character.Money = 0;
                     character.Rice = 0;
-                  }
-                }
-                foreach (var scouter in scouters)
-                {
-                  var isContinue = PayAndCanContinue(scoutersIncome);
-
-                  if (!isContinue)
-                  {
-                    repo.Country.RemoveScouter(scouter);
-
-                    scouter.IsRemoved = true;
-                    await StatusStreaming.Default.SendCountryAsync(ApiData.From(scouter), country.Country.Id);
                   }
                 }
               }
@@ -664,9 +655,10 @@ namespace SangokuKmy.Models.Updates
                   town.TownBuilding == TownBuilding.TrainPopularity ||
                   town.TownBuilding == TownBuilding.TerroristHouse ||
                   town.TownBuilding == TownBuilding.TrainingBuilding ||
-                  town.TownBuilding == TownBuilding.Sukiya)
+                  town.TownBuilding == TownBuilding.Sukiya ||
+                  town.TownBuilding == TownBuilding.School)
               {
-                var charas = await repo.Town.GetCharactersAsync(town.Id);
+                var charas = allCharacters.Where(c => c.TownId == town.Id);
                 var isConnected = countryData
                   .FirstOrDefault(c => c.Country.Id == town.CountryId)?
                   .Policies
@@ -700,6 +692,18 @@ namespace SangokuKmy.Models.Updates
                     chara.AddPopularityEx(isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize);
                     isNotify = chara.Popularity != o;
                   }
+                  else if (town.TownBuilding == TownBuilding.School)
+                  {
+                    var o1 = chara.Strong;
+                    var o2 = chara.Intellect;
+                    var o3 = chara.Leadership;
+                    var o4 = chara.Popularity;
+                    chara.AddStrongEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
+                    chara.AddIntellectEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
+                    chara.AddLeadershipEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
+                    chara.AddPopularityEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
+                    isNotify = chara.Strong != o1 || chara.Intellect != o2 || chara.Leadership != o3 || chara.Popularity != o4;
+                  }
                   else if (town.TownBuilding == TownBuilding.TerroristHouse)
                   {
                     if (chara.CountryId == town.CountryId)
@@ -711,6 +715,7 @@ namespace SangokuKmy.Models.Updates
                   {
                     var formation = await repo.Character.GetFormationAsync(chara.Id, chara.FormationType);
                     formation.Experience += (int)(6 * size);
+                    await StatusStreaming.Default.SendCharacterAsync(ApiData.From(formation), chara.Id);
                   }
                   else if (town.TownBuilding == TownBuilding.Sukiya)
                   {
@@ -764,11 +769,91 @@ namespace SangokuKmy.Models.Updates
                   }
                   else if (town.TownBuilding == TownBuilding.Casting)
                   {
-                    cc.Data.SafeMoney += (int)(200 * size);
+                    cc.Data.SafeMoney += (int)(400 * size);
                   }
                 }
               }
             }
+          }
+
+          // 都市建築物の建設または撤去
+          {
+            var subBuildings = await repo.Town.GetSubBuildingsAsync();
+            foreach (var subBuilding in subBuildings.Where(s => (s.Status == TownSubBuildingStatus.UnderConstruction || s.Status == TownSubBuildingStatus.Removing) && s.IntStatusFinishGameDateTime <= system.IntGameDateTime))
+            {
+              var isError = false;
+
+              var infoOptional = TownSubBuildingTypeInfoes.Get(subBuilding.Type);
+              if (!infoOptional.HasData)
+              {
+                isError = true;
+              }
+              var info = infoOptional.Data;
+
+              var chara = allCharacters.FirstOrDefault(c => c.Id == subBuilding.CharacterId);
+              if (chara == null)
+              {
+                isError = true;
+              }
+
+              var town = allTowns.FirstOrDefault(t => t.Id == subBuilding.TownId);
+              if (town == null)
+              {
+                isError = true;
+              }
+
+              if (isError)
+              {
+                repo.Town.RemoveSubBuilding(subBuilding);
+              }
+              else if (subBuilding.Status == TownSubBuildingStatus.UnderConstruction)
+              {
+                if (town.CountryId != chara.CountryId)
+                {
+                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} を建設しているところでしたが、都市が別の国に支配されたため作業は中止されました");
+                  repo.Town.RemoveSubBuilding(subBuilding);
+                  subBuilding.Status = TownSubBuildingStatus.Unknown;
+                }
+                else
+                {
+                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} の建設が完了しました");
+                  subBuilding.Status = TownSubBuildingStatus.Available;
+                  info.OnBuilt?.Invoke(town);
+                }
+              }
+              else if (subBuilding.Status == TownSubBuildingStatus.Removing)
+              {
+                if (town.CountryId != chara.CountryId)
+                {
+                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} を撤去しているところでしたが、都市が別の国に支配されたため作業は中止されました");
+                  subBuilding.Status = TownSubBuildingStatus.Available;
+                }
+                else
+                {
+                  await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} の撤去が完了しました");
+                  repo.Town.RemoveSubBuilding(subBuilding);
+                  subBuilding.Status = TownSubBuildingStatus.Unknown;
+                }
+              }
+              else
+              {
+                repo.Town.RemoveSubBuilding(subBuilding);
+                isError = true;
+              }
+
+              if (isError)
+              {
+                subBuilding.Status = TownSubBuildingStatus.Unknown;
+              }
+
+              if (!isError)
+              {
+                await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
+              }
+              await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(subBuilding), repo, town);
+            }
+
+            await repo.SaveChangesAsync();
           }
 
           // 同盟破棄・戦争開始
@@ -779,7 +864,7 @@ namespace SangokuKmy.Models.Updates
               if (alliance.BreakingDelay <= 0)
               {
                 alliance.Status = CountryAllianceStatus.Broken;
-                if (alliance.IsPublic)
+                if (alliance.IsPublic && alliance.Status != CountryAllianceStatus.ChangeRequestingValue)
                 {
                   var country1 = allCountries.FirstOrDefault(c => c.Id == alliance.RequestedCountryId);
                   var country2 = allCountries.FirstOrDefault(c => c.Id == alliance.InsistedCountryId);
@@ -821,7 +906,7 @@ namespace SangokuKmy.Models.Updates
                 }
               }
             }
-            foreach (var war in (await repo.CountryDiplomacies.GetReadyWarsAsync()).Where(cw => cw.Status == CountryWarStatus.InReady))
+            foreach (var war in (await repo.CountryDiplomacies.GetReadyWarsAsync()).Where(cw => cw.Status == CountryWarStatus.InReady || cw.Status == CountryWarStatus.StopRequesting))
             {
               if (war.StartGameDate.ToInt() <= system.GameDateTime.ToInt())
               {
@@ -992,35 +1077,6 @@ namespace SangokuKmy.Models.Updates
           }
         }
 
-        // 斥候
-        {
-          var scouters = await repo.Country.GetScoutersAsync();
-          foreach (var scouter in scouters)
-          {
-            var countryOptional = await repo.Country.GetByIdAsync(scouter.CountryId);
-            var townOptional = await repo.Town.GetByIdAsync(scouter.TownId);
-            if (!countryOptional.HasData || !townOptional.HasData)
-            {
-              repo.Country.RemoveScouter(scouter);
-              continue;
-            }
-
-            var scoutedTown = ScoutedTown.From(townOptional.Data);
-            scoutedTown.ScoutedDateTime = system.GameDateTime;
-            scoutedTown.ScoutedCountryId = scouter.CountryId;
-            scoutedTown.ScoutMethod = ScoutMethod.Scouter;
-
-            await repo.ScoutedTown.AddScoutAsync(scoutedTown);
-            await repo.SaveChangesAsync();
-
-            var savedScoutedTown = (await repo.ScoutedTown.GetByTownIdAsync(townOptional.Data.Id, scouter.CountryId)).Data;
-            if (savedScoutedTown != null)
-            {
-              await StatusStreaming.Default.SendCountryAsync(ApiData.From(savedScoutedTown), scouter.CountryId);
-            }
-          }
-        }
-
         // 月の更新を保存
         var updateLog = new CharacterUpdateLog { IsFirstAtMonth = true, DateTime = DateTime.Now, GameDateTime = system.GameDateTime, };
         await repo.Character.AddCharacterUpdateLogAsync(updateLog);
@@ -1150,6 +1206,9 @@ namespace SangokuKmy.Models.Updates
               await repo.SaveChangesAsync();
             }
           }
+
+          var addMoney = skills.GetSumOfValues(CharacterSkillEffectType.MoneyRegularly);
+          character.Money += addMoney;
         }
 
         // 技能ポイントが十分にあるときは自動で技能獲得
@@ -1360,6 +1419,13 @@ namespace SangokuKmy.Models.Updates
         // 武将情報を全員に送信
         await CharacterService.StreamCharacterAsync(repo, character);
 
+        // 武将の新しいコマンドを全員に送信
+        var newCommand = await repo.CharacterCommand.GetAsync(character.Id, currentMonth.AddMonth(4));
+        if (newCommand.HasData)
+        {
+          await StatusStreaming.Default.SendCountryAsync(ApiData.From(newCommand.Data), character.CountryId);
+        }
+
         // 移動した場合、移動情報を全員に配信する
         if (oldTownId != character.TownId)
         {
@@ -1372,6 +1438,16 @@ namespace SangokuKmy.Models.Updates
             var oldTownCharacters = await repo.Town.GetCharactersWithIconAsync(oldTownId);
             await StatusStreaming.Default.SendCharacterAsync(oldTownCharacters.Where(tc => tc.Character.CountryId != character.CountryId).Select(tc => ApiData.From(new CharacterForAnonymous(tc.Character, tc.Icon, tc.Character.CountryId == character.CountryId ? CharacterShareLevel.SameCountry : CharacterShareLevel.Anonymous))), character.Id);
             await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new TownForAnonymous(oldTown.Data)), character.Id);
+
+            var subBuildings = await repo.Town.GetSubBuildingsAsync(oldTownId);
+            await StatusStreaming.Default.SendCharacterAsync(subBuildings.Select(s => ApiData.From(new TownSubBuilding
+            {
+              Id = s.Id,
+              StatusFinishGameDateTime = s.StatusFinishGameDateTime,
+              Status = TownSubBuildingStatus.Unknown,
+              TownId = s.TownId,
+              Type = s.Type,
+            })), character.Id);
           }
 
           var newTown = await repo.Town.GetByIdAsync(character.TownId);
@@ -1379,6 +1455,9 @@ namespace SangokuKmy.Models.Updates
           {
             var defenders = await repo.Town.GetAllDefendersAsync();
             await StatusStreaming.Default.SendCharacterAsync(defenders.Where(d => d.TownId == newTown.Data.Id).Select(d => ApiData.From(d)), character.Id);
+
+            var subBuildings = await repo.Town.GetSubBuildingsAsync(character.TownId);
+            await StatusStreaming.Default.SendCharacterAsync(subBuildings.Select(s => ApiData.From(s)), character.Id);
           }
         }
       }

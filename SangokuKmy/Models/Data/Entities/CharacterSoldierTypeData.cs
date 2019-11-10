@@ -76,6 +76,10 @@ namespace SangokuKmy.Models.Data.Entities
     public ushort RushAttack { get; set; }
     
     public ushort RushDefend { get; set; }
+
+    public short DisorderProbability { get; set; }
+
+    public short FriendlyFireProbability { get; set; }
     
     public short ContinuousProbability { get; set; }
 
@@ -229,13 +233,28 @@ namespace SangokuKmy.Models.Data.Entities
 
     public bool IsRush()
     {
-      if (this.RushProbability == 0)
+      return this.CalcProbability(this.RushProbability);
+    }
+
+    public bool IsDisorder()
+    {
+      return this.CalcProbability(this.DisorderProbability);
+    }
+
+    public bool IsFriendlyFire()
+    {
+      return this.CalcProbability(this.FriendlyFireProbability);
+    }
+
+    private bool CalcProbability(short probability)
+    {
+      if (probability == 0)
       {
         return false;
       }
-      else if (this.RushProbability < 10000 - 1)
+      else if (probability < 10000 - 1)
       {
-        return RandomService.Next(0, 10000) < this.RushProbability;
+        return RandomService.Next(0, 10000) < probability;
       }
       else
       {
@@ -284,6 +303,8 @@ namespace SangokuKmy.Models.Data.Entities
       self.RushProbability += d.RushProbability;
       self.RushAttack += d.RushAttack;
       self.RushDefend += d.RushDefend;
+      self.DisorderProbability += d.DisorderProbability;
+      self.FriendlyFireProbability += d.FriendlyFireProbability;
       self.StrongEx += d.StrongEx;
       self.IntellectEx += d.IntellectEx;
       self.LeadershipEx += d.LeadershipEx;
