@@ -170,7 +170,7 @@ namespace SangokuKmy.Models.Commands
         }
       }
 
-      var optionsWithoutResult = options.Where(o => o.Type == 1 || o.Type == 3);
+      var optionsWithoutResult = options.Where(o => o.Type == 1 || o.Type == 4);
       options = optionsWithoutResult.Append(new CharacterCommandParameter
       {
         Type = 2,
