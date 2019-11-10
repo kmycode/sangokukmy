@@ -73,6 +73,8 @@ namespace SangokuKmy.Models.Commands
       var resourceSize = resourceSizeOptional.Data?.NumberValue ?? 0;
       if (info.IsResource)
       {
+        // 譲渡や購入などで、資源がすべて１つのアイテムデータとしてまとめられているのが前提
+        // 同じ資源アイテムを２つ以上持ってた場合は想定しない
         if (item.Resource < resourceSize)
         {
           resourceSize = item.Resource;
