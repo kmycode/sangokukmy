@@ -62,6 +62,8 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      List<Func<Task>> onSucceeds = new List<Func<Task>>();
+
       CharacterItem target;
       var resourceSize = resourceSizeOptional.Data?.NumberValue ?? 0;
       if (!info.IsResource)
@@ -96,18 +98,29 @@ namespace SangokuKmy.Models.Commands
           else if (targets.Count() >= 2)
           {
             target = targets.First();
-            var currentSize = target.Resource;
-            foreach (var t in targets.Skip(1))
+            onSucceeds.Add(async () =>
             {
-              currentSize += t.Resource;
-              t.Resource = currentSize <= resourceSize ? 0 : currentSize - resourceSize;
-              if (t.Resource == 0)
+              var currentSize = target.Resource;
+              foreach (var t in targets.Skip(1))
               {
-                t.Status = CharacterItemStatus.CharacterSpent;
-                t.TownId = 0;
+                currentSize += t.Resource;
+                var size = currentSize <= resourceSize ? 0 : currentSize - resourceSize;
+                target.Resource += t.Resource - size;
+                t.Resource = size;
+                if (t.Resource == 0)
+                {
+                  t.Status = CharacterItemStatus.CharacterSpent;
+                  t.TownId = 0;
+                }
+                await StatusStreaming.Default.SendAllAsync(ApiData.From(t));
+
+                if (currentSize >= resourceSize)
+                {
+                  break;
+                }
               }
-              await StatusStreaming.Default.SendAllAsync(ApiData.From(t));
-            }
+              await StatusStreaming.Default.SendAllAsync(ApiData.From(target));
+            });
           }
           else
           {
@@ -132,6 +145,11 @@ namespace SangokuKmy.Models.Commands
       {
         await game.CharacterLogAsync("アイテム購入の金が足りません");
         return;
+      }
+
+      foreach (var run in onSucceeds)
+      {
+        await run();
       }
 
       character.Money -= needMoney;
