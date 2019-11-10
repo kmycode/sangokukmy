@@ -87,7 +87,7 @@ namespace SangokuKmy.Models.Commands
 
       character.Contribution += 15;
 
-      if (!info.IsResource || item.Resource == resourceSize)
+      if (!info.IsResource || item.Resource <= resourceSize)
       {
         await ItemService.ReleaseCharacterAsync(repo, item, character);
         await ItemService.SetCharacterPendingAsync(repo, item, target);
