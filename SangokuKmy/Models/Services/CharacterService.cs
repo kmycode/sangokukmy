@@ -68,6 +68,7 @@ namespace SangokuKmy.Models.Services
       var country = await repo.Country.GetByIdAsync(newId);
       var towns = await repo.Town.GetAllAsync();
       var characters = (await repo.Character.GetAllAliveWithIconAsync()).Where(c => !charas.Any(cc => cc.Id != c.Character.Id));
+      var charaCommands = (await repo.Country.GetCharactersWithIconsAndCommandsAsync(newId)).SelectMany(c => c.Commands);
       var defenders = await repo.Town.GetAllDefendersAsync();
       var policies = await repo.Country.GetPoliciesAsync(newId);
       var commandComments = await repo.CharacterCommand.GetMessagesAsync(newId);
@@ -106,6 +107,7 @@ namespace SangokuKmy.Models.Services
 
       await StatusStreaming.Default.SendCharacterAsync(policies.Select(p => ApiData.From(p)), charas.Select(c => c.Id));
       await StatusStreaming.Default.SendCharacterAsync(commandComments.Select(c => ApiData.From(c)), charas.Select(c => c.Id));
+      await StatusStreaming.Default.SendCharacterAsync(charaCommands.Select(c => ApiData.From(c)), charas.Select(c => c.Id));
       await StatusStreaming.Default.SendCharacterAsync(alliances.Select(a => ApiData.From(a)), charas.Select(c => c.Id));
     }
 
