@@ -91,14 +91,22 @@ namespace SangokuKmy.Models.Commands
             foreach (var t in targets.Skip(1))
             {
               currentSize += t.Resource;
-              t.Resource = currentSize <= resourceSize ? 0 : currentSize - resourceSize;
+              var size = currentSize <= resourceSize ? 0 : currentSize - resourceSize;
+              target.Resource += t.Resource - size;
+              t.Resource = size;
               if (t.Resource == 0)
               {
                 t.Status = CharacterItemStatus.CharacterSpent;
-                t.TownId = 0;
+                t.CharacterId = 0;
               }
               await StatusStreaming.Default.SendAllAsync(ApiData.From(t));
+
+              if (currentSize >= resourceSize)
+              {
+                break;
+              }
             }
+            await StatusStreaming.Default.SendAllAsync(ApiData.From(target));
           }
           else
           {
