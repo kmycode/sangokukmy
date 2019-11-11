@@ -107,7 +107,7 @@ namespace SangokuKmy.Models.Commands
           var needResources = add;
           foreach (var resource in resources)
           {
-            var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+            var newResource = Math.Max(0, resource.Item.Resource - needResources);
             onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
 
             needResources -= resource.Item.Resource;
@@ -165,7 +165,7 @@ namespace SangokuKmy.Models.Commands
           {
             discountMoney += (int)(Math.Min(resource.Item.Resource, needResources) * moneyPerSoldier * (resource.Effect.Value / 100.0f));
 
-            var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+            var newResource = Math.Max(0, resource.Item.Resource - needResources);
             onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
 
             needResources -= resource.Item.Resource;
@@ -187,7 +187,7 @@ namespace SangokuKmy.Models.Commands
             needResources = add;
             foreach (var resource in resources)
             {
-              var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+              var newResource = Math.Max(0, resource.Item.Resource - needResources);
               onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
 
               needResources -= resource.Item.Resource;
@@ -232,7 +232,7 @@ namespace SangokuKmy.Models.Commands
       }
 
 
-      async Task SpendResourceAsync(CharacterItem item, CharacterItemInfo info, ushort newResource)
+      async Task SpendResourceAsync(CharacterItem item, CharacterItemInfo info, int newResource)
       {
         item.Resource = newResource;
         if (item.Resource <= 0)
