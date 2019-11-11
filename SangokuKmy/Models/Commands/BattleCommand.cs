@@ -191,17 +191,19 @@ namespace SangokuKmy.Models.Commands
         AttackerSoldiersMoney = mySoldierType.Money * character.SoldierNumber,
       };
 
+      var myBattleResources = myItems
+        .Select(i => new { Item = i, Info = i.GetInfo().Data, })
+        .Where(i => i.Info != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
+
       mySoldierType
         .Append(myFormation.GetDataFromLevel(myFormationData.Level))
         .Append(mySkills.GetSoldierTypeData())
-        .Append(myItems.GetSoldierTypeData());
-      foreach (var info in targetItems
-        .GetInfos()
-        .Where(i => i.Effects != null)
-        .SelectMany(i => i.Effects)
-        .Where(e => e.Type == CharacterItemEffectType.SoldierCorrection && e.SoldierTypeData != null))
+        .Append(myItems.GetSoldierTypeData())
+        .Append(myBattleResources.SelectMany(r => r.Info.Effects.Where(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource).Select(e => e.SoldierTypeData)));
+
+      foreach (var myr in myBattleResources)
       {
-        targetSoldierType.Append(info.SoldierTypeData);
+        await SpendResourceAsync(myr.Item, myr.Info, myr.Item.Resource - 1);
       }
 
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
@@ -243,7 +245,16 @@ namespace SangokuKmy.Models.Commands
         targetSoldierType.Append(targetSkills.GetSoldierTypeData());
 
         targetItems = await repo.Character.GetItemsAsync(targetCharacter.Id);
-        targetSoldierType.Append(targetItems.GetSoldierTypeData());
+        var targetBattleResources = targetItems
+          .Select(i => new { Item = i, Info = i.GetInfo().Data, })
+          .Where(i => i.Info != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
+        targetSoldierType.Append(targetItems.GetSoldierTypeData())
+          .Append(targetBattleResources.SelectMany(r => r.Info.Effects.Where(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource).Select(e => e.SoldierTypeData)));
+
+        foreach (var myr in targetBattleResources)
+        {
+          await SpendResourceAsync(myr.Item, myr.Info, myr.Item.Resource - 1);
+        }
 
         isWall = false;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
@@ -666,6 +677,21 @@ namespace SangokuKmy.Models.Commands
           Type = 33,
           NumberValue = continuousTurns,
         }), game);
+      }
+
+
+      async Task SpendResourceAsync(CharacterItem item, CharacterItemInfo info, int newResource)
+      {
+        item.Resource = newResource;
+        if (item.Resource <= 0)
+        {
+          await ItemService.SpendCharacterAsync(repo, item, character);
+          await game.CharacterLogAsync($"アイテム {info.Name} はすべての資源を使い果たし、消滅しました");
+        }
+        else
+        {
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), character.Id);
+        }
       }
     }
 

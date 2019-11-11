@@ -309,7 +309,16 @@ namespace SangokuKmy.Models.Data.Entities
       return d;
     }
 
-    public static CharacterSoldierTypeData Append(this CharacterSoldierTypeData self, CharacterSoldierTypeData d)
+    public static CharacterSoldierTypeData Append(this CharacterSoldierTypeData self, IEnumerable<CharacterSoldierTypeData> d)
+    {
+      foreach (var dd in d)
+      {
+        self.Append(dd);
+      }
+      return self;
+    }
+
+      public static CharacterSoldierTypeData Append(this CharacterSoldierTypeData self, CharacterSoldierTypeData d)
     {
       self.PowerStrong += d.PowerStrong;
       self.PowerIntellect += d.PowerIntellect;

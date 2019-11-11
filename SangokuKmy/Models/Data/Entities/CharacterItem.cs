@@ -186,6 +186,7 @@ namespace SangokuKmy.Models.Data.Entities
     ProficiencyMinimum,
     JoinableAiCountry,
     SoldierCorrection,
+    SoldierCorrectionResource,
   }
 
   public enum CharacterItemRareType
