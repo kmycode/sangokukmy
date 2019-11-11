@@ -96,10 +96,6 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("characterSoldierTypeId")]
     public uint CharacterSoldierTypeId { get; set; }
 
-    [NotMapped]
-    [JsonProperty("characterSoldierType")]
-    public CharacterSoldierType CharacterSoldierType { get; set; }
-
     [Column("formation_type")]
     [JsonIgnore]
     public FormationType FormationType { get; set; }

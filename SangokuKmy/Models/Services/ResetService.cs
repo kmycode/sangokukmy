@@ -41,7 +41,6 @@ namespace SangokuKmy.Models.Services
       await repo.BattleLog.ResetAsync();
       await repo.CharacterItem.ResetAsync();
       await repo.CharacterCommand.ResetAsync();
-      await repo.CharacterSoldierType.ResetAsync();
       await repo.Character.ResetAsync();
       await repo.EntryHost.ResetAsync();
       await repo.ChatMessage.ResetAsync();

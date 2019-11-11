@@ -1293,14 +1293,6 @@ namespace SangokuKmy.Models.Updates
 
         // 兵士の兵糧
         var ricePerSoldier = 1;
-        if (character.SoldierType == SoldierType.Custom)
-        {
-          var soldierType = await repo.CharacterSoldierType.GetByIdAsync(character.CharacterSoldierTypeId);
-          if (soldierType.HasData)
-          {
-            ricePerSoldier = 1 + soldierType.Data.RicePerTurn;
-          }
-        }
         var rice = character.SoldierNumber * ricePerSoldier;
         if (character.Rice >= rice)
         {

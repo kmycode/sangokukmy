@@ -151,27 +151,8 @@ namespace SangokuKmy.Models.Commands
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
 
-      CharacterSoldierTypeData mySoldierType;
-      int myRicePerSoldier;
-      if (character.SoldierType != SoldierType.Custom)
-      {
-        mySoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(character.SoldierType);
-        myRicePerSoldier = 1;
-      }
-      else
-      {
-        var type = await repo.CharacterSoldierType.GetByIdAsync(character.CharacterSoldierTypeId);
-        if (type.HasData)
-        {
-          mySoldierType = type.Data.ToParts().ToData();
-          myRicePerSoldier = 1 + type.Data.RicePerTurn;
-        }
-        else
-        {
-          await game.CharacterLogAsync($"カスタム兵種ID: {character.CharacterSoldierTypeId} は存在しません。<emerge>管理者にお問い合わせください</emerge>");
-          return;
-        }
-      }
+      var mySoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(character.SoldierType);
+      var myRicePerSoldier = 1;
       var myFormation = FormationTypeInfoes.Get(character.FormationType).Data;
       if (myFormation == null)
       {
@@ -247,22 +228,7 @@ namespace SangokuKmy.Models.Commands
         aiLog.DefenderId = targetCharacter.Id;
         aiLog.TargetType = targetCharacter.SoldierNumber < 10 ? AiBattleTargetType.CharacterLowSoldiers : AiBattleTargetType.Character;
 
-        if (targetCharacter.SoldierType != SoldierType.Custom)
-        {
-          targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(targetCharacter.SoldierType);
-        }
-        else
-        {
-          var type = await repo.CharacterSoldierType.GetByIdAsync(targetCharacter.CharacterSoldierTypeId);
-          if (type.HasData)
-          {
-            targetSoldierType = type.Data.ToParts().ToData();
-          }
-          else
-          {
-            targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(SoldierType.Common);
-          }
-        }
+        targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(targetCharacter.SoldierType);
 
         targetFormation = FormationTypeInfoes.Get(targetCharacter.FormationType).Data;
         if (targetFormation == null)

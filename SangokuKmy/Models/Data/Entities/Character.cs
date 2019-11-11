@@ -556,6 +556,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// カスタム
     /// </summary>
+    [Obsolete("カスタム兵種は削除")]
     Custom = 15,
 
     /// <summary>
