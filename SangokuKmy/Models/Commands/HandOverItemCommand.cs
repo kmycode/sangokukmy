@@ -73,6 +73,8 @@ namespace SangokuKmy.Models.Commands
       var resourceSize = resourceSizeOptional.Data?.NumberValue ?? 0;
       if (info.IsResource)
       {
+        // 譲渡や購入などで、資源がすべて１つのアイテムデータとしてまとめられているのが前提
+        // 同じ資源アイテムを２つ以上持ってた場合は想定しない
         if (item.Resource < resourceSize)
         {
           resourceSize = item.Resource;
@@ -87,7 +89,7 @@ namespace SangokuKmy.Models.Commands
 
       character.Contribution += 15;
 
-      if (!info.IsResource || item.Resource <= resourceSize)
+      if (!info.IsResource)
       {
         await ItemService.ReleaseCharacterAsync(repo, item, character);
         await ItemService.SetCharacterPendingAsync(repo, item, target);
@@ -96,10 +98,18 @@ namespace SangokuKmy.Models.Commands
       }
       else
       {
-        // 資源の分配
-        var newItem = await ItemService.DivideResourceAndSaveAsync(repo, item, resourceSize);
-        await ItemService.ReleaseCharacterAsync(repo, newItem, character);
-        await ItemService.SetCharacterPendingAsync(repo, newItem, target);
+        if (item.Resource > resourceSize)
+        {
+          // 資源の分解
+          var newItem = await ItemService.DivideResourceAndSaveAsync(repo, item, resourceSize);
+          await ItemService.ReleaseCharacterAsync(repo, newItem, character);
+          await ItemService.SetCharacterPendingAsync(repo, newItem, target);
+        }
+        else
+        {
+          await ItemService.ReleaseCharacterAsync(repo, item, character);
+          await ItemService.SetCharacterPendingAsync(repo, item, target);
+        }
         await game.CharacterLogAsync($"<character>{target.Name}</character> に資源 {info.Name} を <num>{resourceSize}</num> 譲渡しました");
         await game.CharacterLogByIdAsync(target.Id, $"<character>{character.Name}</character> から資源 {info.Name} を <num>{resourceSizeOptional.Data.NumberValue}</num> 受け取りました");
       }

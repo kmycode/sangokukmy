@@ -49,7 +49,7 @@ namespace SangokuKmy.Models.Data.Entities
 
     public short TypeWall { get; set; }
 
-    public short TypeAntiWall { get; set; }
+    public short TypeWeapon { get; set; }
 
     public short TypeGuard { get; set; }
 
@@ -89,6 +89,22 @@ namespace SangokuKmy.Models.Data.Entities
     
     public short WallDefend { get; set; }
 
+    public short InfantryAttack { get; set; }
+
+    public short InfantryDefend { get; set; }
+
+    public short CavalryAttack { get; set; }
+
+    public short CavalryDefend { get; set; }
+
+    public short CrossbowAttack { get; set; }
+
+    public short CrossbowDefend { get; set; }
+
+    public short WeaponAttack { get; set; }
+
+    public short WeaponDefend { get; set; }
+
     public short StrongEx { get; set; }
 
     public short IntellectEx { get; set; }
@@ -126,7 +142,7 @@ namespace SangokuKmy.Models.Data.Entities
 
     public (int AttackCorrection, int DefendCorrection) CalcCorrections(Character chara, IEnumerable<CharacterSkill> skills, CharacterSoldierTypeData enemyType)
     {
-      // 壁の場合だけ特定補正を有効または無効にする
+      // 相手が城壁のとき、特殊な戦闘補正がつく
       var typeWall = enemyType.TypeWall / 100.0f;
 
       var a = (float)this.BaseAttack * (1 - typeWall / 2);
@@ -140,6 +156,14 @@ namespace SangokuKmy.Models.Data.Entities
 
       a += this.WallAttack * typeWall;
       d += this.WallDefend * typeWall;
+      a += this.InfantryAttack * enemyType.TypeInfantry / 100.0f;
+      d += this.InfantryDefend * enemyType.TypeInfantry / 100.0f;
+      a += this.CavalryAttack * enemyType.TypeCavalry / 100.0f;
+      d += this.CavalryDefend * enemyType.TypeCavalry / 100.0f;
+      a += this.CrossbowAttack * enemyType.TypeCrossbow / 100.0f;
+      d += this.CrossbowDefend * enemyType.TypeCrossbow / 100.0f;
+      a += this.WeaponAttack * enemyType.TypeWeapon / 100.0f;
+      d += this.WeaponDefend * enemyType.TypeWeapon / 100.0f;
 
       a += this.TypeGuardAttack * (this.TypeGuard / 100.0f) * (1 - typeWall);
       d += this.TypeGuardDefend * (this.TypeGuard / 100.0f) * (1 - typeWall);
@@ -298,6 +322,14 @@ namespace SangokuKmy.Models.Data.Entities
       self.IntellectDefend += d.IntellectDefend;
       self.WallAttack += d.WallAttack;
       self.WallDefend += d.WallDefend;
+      self.InfantryAttack += d.InfantryAttack;
+      self.InfantryDefend += d.InfantryDefend;
+      self.CavalryAttack += d.CavalryAttack;
+      self.CavalryDefend += d.CavalryDefend;
+      self.CrossbowAttack += d.CrossbowAttack;
+      self.CrossbowDefend += d.CrossbowDefend;
+      self.WeaponAttack += d.WeaponAttack;
+      self.WeaponDefend += d.WeaponDefend;
       self.ContinuousProbability += d.ContinuousProbability;
       self.ContinuousProbabilityOnSingleTurn += d.ContinuousProbabilityOnSingleTurn;
       self.RushProbability += d.RushProbability;
@@ -313,7 +345,7 @@ namespace SangokuKmy.Models.Data.Entities
       self.TypeCrossbow += d.TypeCrossbow;
       self.TypeInfantry += d.TypeInfantry;
       self.TypeWall += d.TypeWall;
-      self.TypeAntiWall += d.TypeAntiWall;
+      self.TypeWeapon += d.TypeWeapon;
       self.TypeGuard += d.TypeGuard;
       self.TypeGuardAttack += d.TypeGuardAttack;
       self.TypeGuardDefend += d.TypeGuardDefend;

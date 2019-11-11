@@ -196,5 +196,10 @@ namespace SangokuKmy.Models.Services
     {
       return policies.GetSumOfValues(CountryPolicyEffectType.CountrySafeMax);
     }
+
+    public static int GetCountryResearchLevel(IEnumerable<CountryPolicyType> policies)
+    {
+      return policies.GetSumOfValues(CountryPolicyEffectType.ResearchLevel) + 1;
+    }
   }
 }

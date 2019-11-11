@@ -113,7 +113,7 @@ namespace SangokuKmy.Models.Commands
             var needResources = add;
             foreach (var resource in resources)
             {
-              var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+              var newResource = Math.Max(0, resource.Item.Resource - needResources);
               onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
 
               needResources -= resource.Item.Resource;
@@ -195,7 +195,7 @@ namespace SangokuKmy.Models.Commands
           {
             discountMoney += (int)(Math.Min(resource.Item.Resource, needResources) * moneyPerSoldier * (resource.Effect.Value / 100.0f));
 
-            var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+            var newResource = Math.Max(0, resource.Item.Resource - needResources);
             onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
 
             needResources -= resource.Item.Resource;
@@ -217,7 +217,7 @@ namespace SangokuKmy.Models.Commands
             needResources = add;
             foreach (var resource in resources)
             {
-              var newResource = (ushort)Math.Max(0, resource.Item.Resource - needResources);
+              var newResource = Math.Max(0, resource.Item.Resource - needResources);
               onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
 
               needResources -= resource.Item.Resource;
@@ -267,7 +267,7 @@ namespace SangokuKmy.Models.Commands
       }
 
 
-      async Task SpendResourceAsync(CharacterItem item, CharacterItemInfo info, ushort newResource)
+      async Task SpendResourceAsync(CharacterItem item, CharacterItemInfo info, int newResource)
       {
         item.Resource = newResource;
         if (item.Resource <= 0)
@@ -296,6 +296,7 @@ namespace SangokuKmy.Models.Commands
           .GetOrErrorAsync(ErrorCode.InvalidCommandParameter))
           .ToParts()
           .ToData();
+      var policies = (await repo.Country.GetPoliciesAsync(chara.CountryId)).GetAvailableTypes();
 
       if (soldierNumber.NumberValue == null || soldierNumber.NumberValue <= 0)
       {
@@ -304,6 +305,8 @@ namespace SangokuKmy.Models.Commands
 
       if (isDefaultSoldierType)
       {
+        var info = DefaultCharacterSoldierTypeParts.Get(soldierType).GetOrError(ErrorCode.InvalidCommandParameter);
+
         // 禁兵は、雑兵と同じタイプにする（実行時判定なので）
         if (soldierType == SoldierType.Guard)
         {
@@ -311,8 +314,7 @@ namespace SangokuKmy.Models.Commands
         }
         else if (soldierType == SoldierType.Military)
         {
-          var policies = await repo.Country.GetPoliciesAsync(chara.CountryId);
-          if (!policies.GetAvailableTypes().Contains(CountryPolicyType.JusticeMessage))
+          if (!policies.Contains(CountryPolicyType.JusticeMessage))
           {
             var skills = await repo.Character.GetSkillsAsync(chara.Id);
             if (!skills.AnySkillEffects(CharacterSkillEffectType.SoldierType, (int)SoldierType.Military))
@@ -323,12 +325,7 @@ namespace SangokuKmy.Models.Commands
         }
         else
         {
-          var info = DefaultCharacterSoldierTypeParts.Get(soldierType);
-          if (!info.HasData)
-          {
-            ErrorCode.InternalDataNotFoundError.Throw();
-          }
-          if (info.Data.CanConscriptWithoutResource && !info.Data.CanConscriptWithoutSkill)
+          if (info.CanConscriptWithoutResource && !info.CanConscriptWithoutSkill)
           {
             var skills = await repo.Character.GetSkillsAsync(chara.Id);
             if (!CharacterSkillInfoes.AnySkillEffects(skills, CharacterSkillEffectType.SoldierType, (int)soldierType))
@@ -336,6 +333,12 @@ namespace SangokuKmy.Models.Commands
               ErrorCode.NotSkillError.Throw();
             }
           }
+        }
+
+        // 研究レベルチェック
+        if (CountryService.GetCountryResearchLevel(policies) < info.ResearchLevel)
+        {
+          ErrorCode.NotResearchLevelError.Throw();
         }
       }
       else

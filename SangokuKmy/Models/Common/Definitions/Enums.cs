@@ -256,6 +256,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode NotSkillError { get; } = new ErrorCode(403, 46);
 
+    /// <summary>
+    /// 研究レベルがないエラー
+    /// </summary>
+    public static ErrorCode NotResearchLevelError { get; } = new ErrorCode(403, 47);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]
