@@ -263,6 +263,7 @@ namespace SangokuKmy.Models.Data.Entities
     CountrySafeMax,
     CountrySafeCollectionMax,
     BoostWith,
+    ResearchLevel,
   }
 
   public enum CountryPolicyEffectCalcType

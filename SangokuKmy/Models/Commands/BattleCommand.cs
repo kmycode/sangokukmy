@@ -314,7 +314,7 @@ namespace SangokuKmy.Models.Commands
         var myPolicies = (await repo.Country.GetPoliciesAsync(character.CountryId)).GetAvailableTypes();
         if (myPolicies.Contains(CountryPolicyType.Shosha))
         {
-          myAttackCorrection += Math.Max((int)(60 * ((100 - mySoldierType.TypeAntiWall) / 100.0f)), 0);
+          myAttackCorrection += Math.Max((int)(60 * ((100 - mySoldierType.TypeWeapon) / 100.0f)), 0);
         }
       }
       var targetNameWithTag = $"<{(isWall ? "wall" : "character")}>{targetCharacter.Name}</{(isWall ? "wall" : "character")}>";

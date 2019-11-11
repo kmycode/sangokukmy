@@ -183,6 +183,8 @@ namespace SangokuKmy.Models.Data.Entities
 
     public int Technology { get; set; }
 
+    public short ResearchLevel { get; set; } = 1;
+
     public bool CanConscript { get; set; } = true;
 
     public bool CanConscriptWithoutResource { get; set; } = true;
@@ -457,7 +459,7 @@ namespace SangokuKmy.Models.Data.Entities
           WallAttack = 20,
           WallDefend = 10,
           StrongEx = 1,
-          TypeAntiWall = 10,
+          TypeWeapon = 10,
           PowerStrong = 1,
         },
         Money = 30,
