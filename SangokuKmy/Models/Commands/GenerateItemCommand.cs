@@ -165,7 +165,7 @@ namespace SangokuKmy.Models.Commands
 
           if (info.Data.IsResource)
           {
-            item.Resource = (ushort)(info.Data.DefaultResource + RandomService.Next((int)(generateInfo.ResourceAttribute(chara.Data) * 1.4f)));
+            item.Resource = (ushort)(info.Data.DefaultResource + RandomService.Next((int)(generateInfo.ResourceAttribute(chara.Data) * 1.4f / info.Data.DefaultResource * 1000)));
           }
 
           await ItemService.GenerateItemAndSaveAsync(repo, item);
