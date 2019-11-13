@@ -724,7 +724,7 @@ namespace SangokuKmy.Models.Updates
                       var info = await ItemService.PickTownHiddenItemAsync(repo, chara.TownId, chara);
                       if (info.HasData)
                       {
-                        await LogService.AddCharacterLogAsync(repo, system.GameDateTime, chara.Id, $"<town>{town.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
+                        await LogService.AddCharacterLogAsync(repo, system.GameDateTime, chara.Id, $"数寄屋から <town>{town.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
                       }
                     }
                   }
