@@ -62,6 +62,7 @@ namespace SangokuKmy.Models.Commands
       targetOptional.Data.Money += money;
       character.Contribution += 30;
       character.AddIntellectEx(50);
+      character.SkillPoint++;
 
       await game.CharacterLogAsync($"国庫から金 <num>{money}</num> を搬出し、<character>{targetOptional.Data.Name}</character> に与えました");
       await game.CharacterLogByIdAsync(targetOptional.Data.Id, $"<character>{character.Name}</character> より、国庫から金 <num>{money}</num> を受け取りました");

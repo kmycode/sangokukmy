@@ -252,6 +252,7 @@ namespace SangokuKmy.Models.Commands
         var finish = GameDateTime.FromInt(game.GameDateTime.ToInt() + generateInfo.Length);
         generateInfo.AddExAttribute(character);
         character.Contribution += generateInfo.Contribution;
+        character.SkillPoint++;
         await game.CharacterLogAsync($"<town>{town.Name}</town> で <num>{money}</num> を投し、{info.Name} の生産を開始しました。結果は <num>{finish.Year}</num> 年 <num>{finish.Month}</num> 月に来ます");
       }
       else

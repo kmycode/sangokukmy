@@ -55,6 +55,7 @@ namespace SangokuKmy.Models.Commands
             if (countryOptional.HasData && !countryOptional.Data.HasOverthrown)
             {
               character.Contribution += 20;
+              character.SkillPoint++;
             }
 
             await game.CharacterLogAsync("<town>" + town.Name + "</town> へ移動しました");

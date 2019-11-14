@@ -613,6 +613,7 @@ namespace SangokuKmy.Models.Commands
       myContribution += myExperience;
       character.Contribution += (int)(myContribution);
       character.FormationPoint += myFormationPoint;
+      character.SkillPoint++;
       await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType) + $" 陣形ex: <num>{(int)myFormationExperience}</num> 陣形P: <num>{myFormationPoint}</num>");
       myFormationData.Experience += (int)myFormationExperience;
       if (myFormation.CheckLevelUp(myFormationData))
@@ -626,6 +627,7 @@ namespace SangokuKmy.Models.Commands
         targetContribution += targetExperience;
         targetCharacter.Contribution += (int)(targetContribution);
         targetCharacter.FormationPoint += targetFormationPoint;
+        targetCharacter.SkillPoint++;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType) + $" 陣形ex: <num>{(int)targetFormationExperience}</num> 陣形P: <num>{targetFormationPoint}</num>");
 
         await CharacterService.StreamCharacterAsync(repo, targetCharacter);

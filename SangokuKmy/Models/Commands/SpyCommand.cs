@@ -64,6 +64,7 @@ namespace SangokuKmy.Models.Commands
           character.Money -= 200;
           character.Contribution += 40;
           character.AddIntellectEx(50);
+          character.SkillPoint++;
         }
       }
     }

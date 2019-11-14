@@ -296,6 +296,7 @@ namespace SangokuKmy.Models.Commands
         if (country.HasData && !country.Data.HasOverthrown)
         {
           character.Contribution += 30;
+          character.SkillPoint++;
         }
         character.Money -= 50;
       }

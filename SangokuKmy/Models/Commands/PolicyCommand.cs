@@ -68,6 +68,7 @@ namespace SangokuKmy.Models.Commands
 
         // 経験値、金の増減
         character.Contribution += 30;
+        character.SkillPoint++;
         character.Money -= 50;
         if (character.Strong > character.Intellect)
         {

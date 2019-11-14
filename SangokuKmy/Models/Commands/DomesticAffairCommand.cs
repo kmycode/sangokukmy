@@ -87,6 +87,7 @@ namespace SangokuKmy.Models.Commands
         // 経験値、金の増減
         this.SetCharacterAssets(character, this.GetCharacterAssets(character) - this.UseAssetsLength());
         character.Contribution += this.Contributes();
+        character.SkillPoint++;
         this.AddCharacterAttributeEx(character, this.Experiences());
 
         await game.CharacterLogAsync("<town>" + town.Name + "</town> の " + this.GetValueName() + " を <num>+" + add + "</num> " + this.GetValueAddingText() + "しました");

@@ -54,7 +54,12 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"<num>{assets}</num> の米を <num>{result}</num> の金に交換しました");
       }
 
-      character.Contribution += skills.GetSumOfValues(CharacterSkillEffectType.RiceBuyContribution);
+      var contributon = skills.GetSumOfValues(CharacterSkillEffectType.RiceBuyContribution);
+      if (contributon > 0)
+      {
+        character.Contribution += contributon;
+        character.SkillPoint++;
+      }
       character.AddIntellectEx(50);
     }
 

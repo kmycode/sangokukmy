@@ -141,6 +141,7 @@ namespace SangokuKmy.Models.Commands
       ai.Character.Name += ai.Character.Id;
       character.Contribution += 30;
       character.AddLeadershipEx(50);
+      character.SkillPoint++;
       await game.CharacterLogAsync($"政務官 <character>{ai.Character.Name}</character> を雇いました");
       await game.MapLogAsync(EventType.SecretaryAdded, $"<country>{country.Name}</country> は、新しく政務官 <character>{ai.Character.Name}</character> を雇いました", false);
       await CharacterService.StreamCharacterAsync(repo, ai.Character);
@@ -229,6 +230,7 @@ namespace SangokuKmy.Models.Commands
 
       character.Contribution += 30;
       character.AddLeadershipEx(50);
+      character.SkillPoint++;
       await game.CharacterLogAsync($"政務官 <character>{secretaryOptional.Data.Name}</character> を部隊 {unit.Name} に配属しました");
     }
 
@@ -313,6 +315,7 @@ namespace SangokuKmy.Models.Commands
 
       character.Contribution += 30;
       character.AddLeadershipEx(50);
+      character.SkillPoint++;
       await game.CharacterLogAsync($"政務官 <character>{secretaryOptional.Data.Name}</character> を都市 <town>{townOptional.Data.Name}</town> に配属しました");
 
       await CharacterService.StreamCharacterAsync(repo, secretaryOptional.Data);
@@ -384,6 +387,7 @@ namespace SangokuKmy.Models.Commands
       secretaryOptional.Data.AiType = CharacterAiType.RemovedSecretary;
       character.Contribution += 30;
       character.AddLeadershipEx(50);
+      character.SkillPoint++;
       await game.CharacterLogAsync($"政務官 <character>{secretaryOptional.Data.Name}</character> を解雇しました。政務官武将更新のタイミングで削除されます");
       await CharacterService.StreamCharacterAsync(repo, secretaryOptional.Data);
     }

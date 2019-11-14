@@ -31,6 +31,7 @@ namespace SangokuKmy.Models.Commands
       if (character.CountryId > 0)
       {
         character.Contribution += 10;
+        character.SkillPoint++;
       }
 
       await game.CharacterLogAsync("陣形ポイントを <num>+" + add + "</num> 上げました");

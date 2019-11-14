@@ -205,6 +205,7 @@ namespace SangokuKmy.Models.Commands
             }
             character.SoldierType = soldierType;
             character.Contribution += 10;
+            character.SkillPoint++;
             character.Money -= needMoney;
             town.People -= (int)(add * Config.SoldierPeopleCost);
             town.Security -= (short)(add / 10);

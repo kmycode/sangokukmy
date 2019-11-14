@@ -71,6 +71,7 @@ namespace SangokuKmy.Models.Commands
         character.AddLeadershipEx(50);
         //character.Money -= 1000;
         character.FormationPoint -= info.Data.RequiredPoint;
+        character.SkillPoint++;
 
         var formation = new Formation
         {

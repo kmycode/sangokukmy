@@ -54,6 +54,7 @@ namespace SangokuKmy.Models.Commands
         character.Money -= 50;
         character.Contribution += 30;
         character.AddLeadershipEx(50);
+        character.SkillPoint++;
         await game.CharacterLogAsync("訓練を <num>+" + add + "</num> 上げました");
       }
       else

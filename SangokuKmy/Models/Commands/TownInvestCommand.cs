@@ -136,6 +136,7 @@ namespace SangokuKmy.Models.Commands
 
         character.AddIntellectEx(500);
         character.Contribution += 200;
+        character.SkillPoint++;
         await game.CharacterLogAsync($"<town>{town.Name}</town> に <num>{money}</num> を投資しました。結果は <num>{game.GameDateTime.Year + 3}</num> 年 <num>{game.GameDateTime.Month}</num> 月に来ます。知力Ex <num>+500</num>");
       }
       else

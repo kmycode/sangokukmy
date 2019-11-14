@@ -55,6 +55,7 @@ namespace SangokuKmy.Models.Commands
 
       character.Contribution += 30;
       character.AddPopularityEx(50);
+      character.SkillPoint++;
       var message = await ChatService.PostChatMessageAsync(repo, new ChatMessage
       {
         CharacterIconId = iconOptional.Data.Id,

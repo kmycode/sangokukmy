@@ -107,6 +107,7 @@ namespace SangokuKmy.Models.Commands
       }
       character.Contribution += 100;
       character.AddStrongEx(100);
+      character.SkillPoint++;
 
       await game.CharacterLogAsync($"<town>{town.Name}</town> で {info.Name} の建設を開始しました。終了: <num>{end.Year}</num>年<num>{end.Month}</num>月");
 
