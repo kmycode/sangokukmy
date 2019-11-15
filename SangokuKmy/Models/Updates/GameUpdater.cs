@@ -665,6 +665,8 @@ namespace SangokuKmy.Models.Updates
                   .Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.ConnectionBuildings) == true;
                 var shortSize = (short)(size * 11);
                 var connectedSize = (short)(size * 18);
+                var schoolSize = (short)(size * 2);
+                var schoolConnectedSize = (short)(size * 9);
                 foreach (var chara in charas)
                 {
                   var isNotify = false;
@@ -698,10 +700,10 @@ namespace SangokuKmy.Models.Updates
                     var o2 = chara.Intellect;
                     var o3 = chara.Leadership;
                     var o4 = chara.Popularity;
-                    chara.AddStrongEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
-                    chara.AddIntellectEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
-                    chara.AddLeadershipEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
-                    chara.AddPopularityEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
+                    chara.AddStrongEx((short)(isConnected && chara.CountryId == town.CountryId ? schoolConnectedSize : schoolSize));
+                    chara.AddIntellectEx((short)(isConnected && chara.CountryId == town.CountryId ? schoolConnectedSize : schoolSize));
+                    chara.AddLeadershipEx((short)(isConnected && chara.CountryId == town.CountryId ? schoolConnectedSize : schoolSize));
+                    chara.AddPopularityEx((short)(isConnected && chara.CountryId == town.CountryId ? schoolConnectedSize : schoolSize));
                     isNotify = chara.Strong != o1 || chara.Intellect != o2 || chara.Leadership != o3 || chara.Popularity != o4;
                   }
                   else if (town.TownBuilding == TownBuilding.TerroristHouse)
