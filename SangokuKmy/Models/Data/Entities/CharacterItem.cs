@@ -1603,7 +1603,7 @@ namespace SangokuKmy.Models.Data.Entities
 
     public static CharacterSoldierTypeData GetSoldierTypeData(this IEnumerable<CharacterItem> items)
     {
-      var effects = items.Where(i => i.Status == CharacterItemStatus.CharacterHold).GetInfos().SelectMany(i => i.Effects).Where(e => e.Type == CharacterItemEffectType.SoldierCorrection);
+      var effects = items.Where(i => i.Status == CharacterItemStatus.CharacterHold).GetInfos().Where(i => i.Effects != null).SelectMany(i => i.Effects).Where(e => e.Type == CharacterItemEffectType.SoldierCorrection);
       var correction = new CharacterSoldierTypeData();
       foreach (var e in effects)
       {
