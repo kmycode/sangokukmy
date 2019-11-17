@@ -263,6 +263,7 @@ namespace SangokuKmy.Models.Updates
                 var addMax = 1000 + currentLank * lankSalary;
                 neededAllSalaries += addMax;
               }
+              country.Country.LastRequestedIncomes = neededAllSalaries;
               var isAllCharactersGetAddMax = neededAllSalaries <= salary.AllSalary;
 
               // 収入を武将に配る
