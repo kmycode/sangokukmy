@@ -91,6 +91,7 @@ namespace SangokuKmy.Models.Commands
       character.AddStrongEx(100);
 
       subBuilding.Status = TownSubBuildingStatus.Removing;
+      subBuilding.StatusFinishGameDateTime = end;
       info.OnRemoving?.Invoke(town);
 
       await game.CharacterLogAsync($"<town>{town.Name}</town> で {info.Name} の撤去を開始しました。終了: <num>{end.Year}</num>年<num>{end.Month}</num>月");
