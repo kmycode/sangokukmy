@@ -83,6 +83,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// 市場
     /// </summary>
     Market = 2,
+
+    /// <summary>
+    /// 工房
+    /// </summary>
+    Workshop = 3,
+
+    /// <summary>
+    /// 大規模工房
+    /// </summary>
+    LargeWorkshop = 4,
   }
 
   public class TownSubBuildingTypeInfo

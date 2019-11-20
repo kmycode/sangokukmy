@@ -629,6 +629,81 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     IntellectRepeatingCrossbow = 29,
 
+    /// <summary>
+    /// 牛兵
+    /// </summary>
+    Cow = 30,
+
+    /// <summary>
+    /// 投石兵
+    /// </summary>
+    Stoner = 31,
+
+    /// <summary>
+    /// 祈祷兵
+    /// </summary>
+    Prayer = 32,
+
+    /// <summary>
+    /// 戟兵
+    /// </summary>
+    Infantry = 33,
+
+    /// <summary>
+    /// 槍兵
+    /// </summary>
+    Mercenary = 34,
+
+    /// <summary>
+    /// 投石器
+    /// </summary>
+    StoneSlingshot = 35,
+
+    /// <summary>
+    /// 槍騎兵
+    /// </summary>
+    SpearCavalry = 36,
+
+    /// <summary>
+    /// 弓騎兵
+    /// </summary>
+    ArcherCavalry = 37,
+
+    /// <summary>
+    /// 戦車兵
+    /// </summary>
+    Chariot = 38,
+
+    /// <summary>
+    /// 義戈兵
+    /// </summary>
+    PopularityHalberd = 39,
+
+    /// <summary>
+    /// 義殲兵
+    /// </summary>
+    PopularityCavalry = 40,
+
+    /// <summary>
+    /// 投擲器
+    /// </summary>
+    PopularityStoner = 41,
+
+    /// <summary>
+    /// 梓弓兵
+    /// </summary>
+    IntellectArcher = 42,
+
+    /// <summary>
+    /// 梓弩兵
+    /// </summary>
+    IntellectCrossbow = 43,
+
+    /// <summary>
+    /// 工作兵
+    /// </summary>
+    Craftsman = 44,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,
@@ -636,6 +711,8 @@ namespace SangokuKmy.Models.Data.Entities
     Guard_Step3 = 102,
 
     Guard_Step4 = 103,
+
+    Guard_Step5 = 104,
   }
 
   public static class DefaultCharacterSoldierTypeExtensions

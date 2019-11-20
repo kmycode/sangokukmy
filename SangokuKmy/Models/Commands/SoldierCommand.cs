@@ -293,16 +293,26 @@ namespace SangokuKmy.Models.Commands
         }
       }
 
-      // 研究レベルチェック
-      if (CountryService.GetCountryResearchLevel(policies) < info.ResearchLevel)
+      // 徴兵可能な都市特化チェック
+      if (info.TownTypes != null && !info.TownTypes.Contains(town.Type) && !info.TownTypes.Contains(town.SubType))
       {
-        ErrorCode.NotResearchLevelError.Throw();
+        ErrorCode.NotTownTypeError.Throw();
       }
 
       // 都市の支配国チェック
       if (soldierTypeData.Technology > 0 && (town.CountryId != chara.CountryId || town.Technology < soldierTypeData.Technology))
       {
         ErrorCode.LackOfTownTechnologyForSoldier.Throw();
+      }
+
+      // 建築物チェック
+      if (!info.CanConscriptWithoutSubBuilding)
+      {
+        var sbs = await repo.Town.GetSubBuildingsAsync(town.Id);
+        if (!sbs.Any(s => s.Type == info.NeededSubBuildingType))
+        {
+          ErrorCode.LackOfTownSubBuildingForSoldier.Throw();
+        }
       }
 
       // 入力
