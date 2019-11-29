@@ -191,7 +191,7 @@ namespace SangokuKmy.Models.Updates
                   .Towns
                   .Sum(t =>
                   {
-                    var val = (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People / 10000;
+                    var val = (long)(system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People / 10000;
 
                     return val;
                   }),
