@@ -317,8 +317,8 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              TypeGuardAttack = 20,
-              TypeGuardDefend = 50,
+              TypeInfantryAttack = 20,
+              TypeInfantryDefend = 50,
             },
           },
         },
@@ -954,7 +954,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
-            Value = 40,
+            Value = 30,
           },
         },
       },
@@ -989,7 +989,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.ItemMax,
-            Value = 3,
+            Value = 1,
           },
         },
       },
@@ -1077,6 +1077,7 @@ namespace SangokuKmy.Models.Data.Entities
             {
               RushProbability = 200,
               RushAttack = 60,
+              DisorderProbability = 400,
             },
           },
         },
@@ -1101,7 +1102,12 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.SoldierType,
             Value = (int)SoldierType.IntellectRepeatingCrossbow,
-          }
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.IntellectCrossbow,
+          },
         },
       },
     };
