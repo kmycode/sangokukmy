@@ -175,6 +175,7 @@ namespace SangokuKmy.Models.Data.Entities
     EquippedInfantry = 78,
     EquippedCavalry = 79,
     EquippedCrossbow = 80,
+    SkillBook = 81,
   }
 
   public enum CharacterItemEffectType
@@ -186,6 +187,7 @@ namespace SangokuKmy.Models.Data.Entities
     IntellectEx,
     FormationEx,
     Money,
+    SkillPoint,
     TerroristEnemy,
     DiscountSoldierPercentageWithResource,
     DiscountInfantrySoldierPercentage,
@@ -1674,6 +1676,23 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterItemEffectType.Popularity,
             Value = 20,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.SkillBook,
+        Name = "技能書",
+        Money = 80000,
+        InitializeNumber = 6,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.SkillPoint,
+            Value = 12,
           },
         },
       },
