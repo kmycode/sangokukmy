@@ -159,7 +159,24 @@ namespace SangokuKmy.Models.Commands
         else
         {
           // 資源による割引
-          var resources = items.GetResources(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), add);
+          IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> resources = null;
+          if (soldierTypeData.TypeInfantry > 0)
+          {
+            resources = items.GetResources(CharacterItemEffectType.DiscountInfantrySoldierPercentage, ef => true, add);
+          }
+          else if (soldierTypeData.TypeCavalry > 0)
+          {
+            resources = items.GetResources(CharacterItemEffectType.DiscountCavalrySoldierPercentage, ef => true, add);
+          }
+          else if (soldierTypeData.TypeCrossbow > 0)
+          {
+            resources = items.GetResources(CharacterItemEffectType.DiscountCrossbowSoldierPercentage, ef => true, add);
+          }
+          if (resources == null || !resources.Any())
+          {
+            resources = items.GetResources(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), add);
+          }
+
           var needResources = add;
           foreach (var resource in resources)
           {

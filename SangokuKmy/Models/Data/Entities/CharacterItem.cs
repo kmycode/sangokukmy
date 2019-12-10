@@ -169,6 +169,12 @@ namespace SangokuKmy.Models.Data.Entities
     PrivateBook = 72,
     AnnotationBook = 73,
     Kojinnoakashi = 74,
+    EquippedHeavyGeki = 75,
+    EquippedHeavyHorse = 76,
+    EquippedChariot = 77,
+    EquippedInfantry = 78,
+    EquippedCavalry = 79,
+    EquippedCrossbow = 80,
   }
 
   public enum CharacterItemEffectType
@@ -182,6 +188,9 @@ namespace SangokuKmy.Models.Data.Entities
     Money,
     TerroristEnemy,
     DiscountSoldierPercentageWithResource,
+    DiscountInfantrySoldierPercentage,
+    DiscountCavalrySoldierPercentage,
+    DiscountCrossbowSoldierPercentage,
     AddSoldierType,
     ProficiencyMinimum,
     JoinableAiCountry,
@@ -1310,9 +1319,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 1,
         MoneyPerResource = 18,
-        InitializeNumber = 12,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect
@@ -1333,9 +1342,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 2,
         MoneyPerResource = 22,
-        InitializeNumber = 12,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownHiddenOnly,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect
@@ -1356,9 +1365,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 1,
         MoneyPerResource = 18,
-        InitializeNumber = 12,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect
@@ -1380,9 +1389,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 2,
         MoneyPerResource = 22,
-        InitializeNumber = 12,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownHiddenOnly,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect
@@ -1400,7 +1409,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterItemInfo
       {
         Type = CharacterItemType.EquippedRepeatingCrossbow,
-        Name = "装備連弩",
+        Name = "連弩装備",
         IsResource = true,
         ResourceLevel = 1,
         MoneyPerResource = 20,
@@ -1518,6 +1527,120 @@ namespace SangokuKmy.Models.Data.Entities
         DiscoverFroms = new List<CharacterFrom>
         {
           CharacterFrom.Warrior,
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedHeavyGeki,
+        Name = "重戟装備",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 20,
+        InitializeNumber = 6,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.HeavyInfantry,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedHeavyHorse,
+        Name = "重騎装備",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 20,
+        InitializeNumber = 6,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.HeavyCavalry,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedChariot,
+        Name = "戦車",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 22,
+        InitializeNumber = 6,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.Chariot,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedInfantry,
+        Name = "歩兵装備",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 18,
+        InitializeNumber = 12,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.DiscountInfantrySoldierPercentage,
+            Value = 30,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedCavalry,
+        Name = "騎兵装備",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 18,
+        InitializeNumber = 12,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.DiscountCavalrySoldierPercentage,
+            Value = 30,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedCrossbow,
+        Name = "弩",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 18,
+        InitializeNumber = 12,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.DiscountCrossbowSoldierPercentage,
+            Value = 30,
+          },
         },
       },
       new CharacterItemInfo
