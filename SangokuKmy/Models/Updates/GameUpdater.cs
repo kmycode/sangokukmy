@@ -658,7 +658,7 @@ namespace SangokuKmy.Models.Updates
                   town.TownBuilding == TownBuilding.Sukiya ||
                   town.TownBuilding == TownBuilding.School)
               {
-                var charas = allCharacters.Where(c => c.TownId == town.Id);
+                var charas = allCharacters.Where(c => c.TownId == town.Id && c.CountryId == town.CountryId);
                 var isConnected = countryData
                   .FirstOrDefault(c => c.Country.Id == town.CountryId)?
                   .Policies
@@ -671,25 +671,25 @@ namespace SangokuKmy.Models.Updates
                   if (town.TownBuilding == TownBuilding.TrainStrong)
                   {
                     var o = chara.Strong;
-                    chara.AddStrongEx(isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize);
+                    chara.AddStrongEx(isConnected ? connectedSize : shortSize);
                     isNotify = chara.Strong != o;
                   }
                   else if (town.TownBuilding == TownBuilding.TrainIntellect)
                   {
                     var o = chara.Intellect;
-                    chara.AddIntellectEx(isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize);
+                    chara.AddIntellectEx(isConnected ? connectedSize : shortSize);
                     isNotify = chara.Intellect != o;
                   }
                   else if (town.TownBuilding == TownBuilding.TrainLeadership)
                   {
                     var o = chara.Leadership;
-                    chara.AddLeadershipEx(isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize);
+                    chara.AddLeadershipEx(isConnected ? connectedSize : shortSize);
                     isNotify = chara.Leadership != o;
                   }
                   else if (town.TownBuilding == TownBuilding.TrainPopularity)
                   {
                     var o = chara.Popularity;
-                    chara.AddPopularityEx(isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize);
+                    chara.AddPopularityEx(isConnected ? connectedSize : shortSize);
                     isNotify = chara.Popularity != o;
                   }
                   else if (town.TownBuilding == TownBuilding.School)
@@ -698,18 +698,15 @@ namespace SangokuKmy.Models.Updates
                     var o2 = chara.Intellect;
                     var o3 = chara.Leadership;
                     var o4 = chara.Popularity;
-                    chara.AddStrongEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
-                    chara.AddIntellectEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
-                    chara.AddLeadershipEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
-                    chara.AddPopularityEx((short)((isConnected && chara.CountryId == town.CountryId ? connectedSize : shortSize) - 9));
+                    chara.AddStrongEx((short)((isConnected ? connectedSize : shortSize) - 9));
+                    chara.AddIntellectEx((short)((isConnected ? connectedSize : shortSize) - 9));
+                    chara.AddLeadershipEx((short)((isConnected ? connectedSize : shortSize) - 9));
+                    chara.AddPopularityEx((short)((isConnected ? connectedSize : shortSize) - 9));
                     isNotify = chara.Strong != o1 || chara.Intellect != o2 || chara.Leadership != o3 || chara.Popularity != o4;
                   }
                   else if (town.TownBuilding == TownBuilding.TerroristHouse)
                   {
-                    if (chara.CountryId == town.CountryId)
-                    {
-                      chara.Proficiency = Math.Max(chara.Proficiency, (short)(60 * size));
-                    }
+                    chara.Proficiency = Math.Max(chara.Proficiency, (short)(60 * size));
                   }
                   else if (town.TownBuilding == TownBuilding.TrainingBuilding)
                   {
