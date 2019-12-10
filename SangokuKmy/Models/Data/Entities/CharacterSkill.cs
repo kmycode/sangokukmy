@@ -105,6 +105,9 @@ namespace SangokuKmy.Models.Data.Entities
     Staff3 = 48,
     Staff4 = 49,
     Staff5 = 50,
+    People3b = 51,
+    People4b = 52,
+    People5b = 53,
   }
 
   public enum CharacterSkillEffectType
@@ -464,12 +467,17 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.GenerateItem,
-            Value = (int)CharacterItemType.EquippedGoodGeki,
+            Value = (int)CharacterItemType.EquippedInfantry,
           },
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.GenerateItem,
-            Value = (int)CharacterItemType.EquippedGoodHorse,
+            Value = (int)CharacterItemType.EquippedCavalry,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EquippedCrossbow,
           },
         },
       },
@@ -481,6 +489,16 @@ namespace SangokuKmy.Models.Data.Entities
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Engineer2),
         Effects = new List<CharacterSkillEffect>
         {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EquippedHeavyGeki,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EquippedHeavyHorse,
+          },
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.GenerateItem,
@@ -499,7 +517,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.ItemMax,
-            Value = 3,
+            Value = 2,
           },
         },
       },
@@ -515,6 +533,11 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.GenerateItem,
             Value = (int)CharacterItemType.EquippedSeishuYari,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EquippedChariot,
           },
         },
       },
@@ -731,7 +754,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.People3,
         RequestedPoint = 320,
-        Name = "農家 Lv.3",
+        Name = "農家 Lv.a3",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People2),
         Effects = new List<CharacterSkillEffect>
         {
@@ -746,7 +769,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.People4,
         RequestedPoint = 280,
-        Name = "農家 Lv.4",
+        Name = "農家 Lv.a4",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People3),
         Effects = new List<CharacterSkillEffect>
         {
@@ -766,7 +789,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.People5,
         RequestedPoint = 480,
-        Name = "農家 Lv.5",
+        Name = "農家 Lv.a5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People4),
         Effects = new List<CharacterSkillEffect>
         {
@@ -774,6 +797,51 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.GenerateItem,
             Value = (int)CharacterItemType.EliteSoldier,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People3b,
+        RequestedPoint = 320,
+        Name = "農家 Lv.b3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.PopularityHalberd,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People4b,
+        RequestedPoint = 280,
+        Name = "農家 Lv.b4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People3b),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.PopularityCavalry,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.People5b,
+        RequestedPoint = 480,
+        Name = "農家 Lv.b5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People4b),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.PopularityStoner,
           },
         },
       },
