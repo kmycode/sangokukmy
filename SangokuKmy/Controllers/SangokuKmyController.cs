@@ -480,7 +480,7 @@ namespace SangokuKmy.Controllers
         {
           ErrorCode.MeaninglessOperationError.Throw();
         }
-        if (chara.FormationPoint < 50)
+        if (chara.FormationPoint < 0)
         {
           ErrorCode.InvalidOperationError.Throw();
         }
@@ -491,7 +491,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.InvalidOperationError.Throw();
         }
 
-        chara.FormationPoint -= 50;
+        chara.FormationPoint -= 0;
         chara.FormationType = param.Type;
 
         log = new CharacterLog
