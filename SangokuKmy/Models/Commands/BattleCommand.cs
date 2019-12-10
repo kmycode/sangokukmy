@@ -114,7 +114,7 @@ namespace SangokuKmy.Models.Commands
             }
           }
 
-          if (!isTownWar)
+          if (!isTownWar && targetCountryOptional.Data.AiType != CountryAiType.Farmers)
           {
             if (!warOptional.HasData)
             {
