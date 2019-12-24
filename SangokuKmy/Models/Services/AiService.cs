@@ -618,64 +618,67 @@ namespace SangokuKmy.Models.Services
         .ToArray();
       var countryCharacters = allCharacters.Where(c => c.CountryId == countryId && c.AiType.IsManaged());
 
-      var requestedReinforcementCount = Math.Max(warCountries.Sum(c => c.CharacterCount) - countryCharacters.Count(c => !c.Name.Contains("援軍")) - 3, 0);
-      var currentReinforcements = countryCharacters.Where(c => c.Name.Contains("援軍"));
-      if (currentReinforcements.Count() < requestedReinforcementCount)
+      if (countryCharacters.Any())
       {
-        // 援軍追加
-        var types = new List<CharacterAiType>();
-        var count = requestedReinforcementCount - currentReinforcements.Count();
-        var battlersCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler);
-        var civilOfficialsCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedCivilOfficial);
-        var patrollersCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller);
-        for (var i = 0; i < count; i++)
+        var requestedReinforcementCount = Math.Max(warCountries.Sum(c => c.CharacterCount) - countryCharacters.Count(c => !c.Name.Contains("援軍")) - 3, 0);
+        var currentReinforcements = countryCharacters.Where(c => c.Name.Contains("援軍"));
+        if (currentReinforcements.Count() < requestedReinforcementCount)
         {
-          if (battlersCount + civilOfficialsCount > patrollersCount * 3 + 3)
+          // 援軍追加
+          var types = new List<CharacterAiType>();
+          var count = requestedReinforcementCount - currentReinforcements.Count();
+          var battlersCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedBattler);
+          var civilOfficialsCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedCivilOfficial);
+          var patrollersCount = countryCharacters.Count(c => c.AiType.ToManagedStandard() == CharacterAiType.ManagedPatroller);
+          for (var i = 0; i < count; i++)
           {
-            types.Add(CharacterAiType.ManagedPatroller);
-            patrollersCount++;
-          }
-          else
-          {
-            if ((battlersCount + civilOfficialsCount + patrollersCount) % 8 == 0)
+            if (battlersCount + civilOfficialsCount > patrollersCount * 3 + 3)
             {
-              types.Add(CharacterAiType.ManagedWallBattler);
+              types.Add(CharacterAiType.ManagedPatroller);
+              patrollersCount++;
             }
             else
             {
-              types.Add(CharacterAiType.ManagedBattler);
+              if ((battlersCount + civilOfficialsCount + patrollersCount) % 8 == 0)
+              {
+                types.Add(CharacterAiType.ManagedWallBattler);
+              }
+              else
+              {
+                types.Add(CharacterAiType.ManagedBattler);
+              }
+              battlersCount++;
             }
-            battlersCount++;
           }
-        }
 
-        var created = await CreateCharacterAsync(repo, types, countryId, country.Data.CapitalTownId, await repo.System.GetAsync());
-        foreach (var chara in created)
-        {
-          if (chara.AiType == CharacterAiType.ManagedPatroller)
+          var created = await CreateCharacterAsync(repo, types, countryId, country.Data.CapitalTownId, await repo.System.GetAsync());
+          foreach (var chara in created)
           {
-            chara.Popularity = Math.Max(chara.Popularity, countryCharacters.Max(c => c.Popularity));
+            if (chara.AiType == CharacterAiType.ManagedPatroller)
+            {
+              chara.Popularity = Math.Max(chara.Popularity, countryCharacters.Max(c => c.Popularity));
+            }
+            else
+            {
+              chara.Strong = Math.Max(chara.Strong, countryCharacters.Max(c => c.Strong));
+              chara.Leadership = Math.Max(chara.Leadership, countryCharacters.Max(c => c.Leadership));
+            }
+            chara.Money = countryCharacters.Max(c => c.Money);
+            chara.Rice = countryCharacters.Max(c => c.Rice);
+            chara.Name = $"{country.Data.Name}_援軍{chara.Name}_{chara.Id}";
+            await LogService.AddMapLogAsync(repo, false, EventType.ReinforcementActived, $"<character>{chara.Name}</character> が新たに <country>{country.Data.Name}</country> の援軍として加わりました");
           }
-          else
-          {
-            chara.Strong = Math.Max(chara.Strong, countryCharacters.Max(c => c.Strong));
-            chara.Leadership = Math.Max(chara.Leadership, countryCharacters.Max(c => c.Leadership));
-          }
-          chara.Money = countryCharacters.Max(c => c.Money);
-          chara.Rice = countryCharacters.Max(c => c.Rice);
-          chara.Name = $"{country.Data.Name}_援軍{chara.Name}_{chara.Id}";
-          await LogService.AddMapLogAsync(repo, false, EventType.ReinforcementActived, $"<character>{chara.Name}</character> が新たに <country>{country.Data.Name}</country> の援軍として加わりました");
         }
-      }
-      else if (currentReinforcements.Count() > requestedReinforcementCount)
-      {
-        // 援軍削除
-        var count = currentReinforcements.Count() - requestedReinforcementCount;
-        var targets = currentReinforcements.OrderByDescending(c => c.Id).Take(count).ToArray();
-        foreach (var target in targets)
+        else if (currentReinforcements.Count() > requestedReinforcementCount)
         {
-          await CharacterService.RemoveAsync(repo, target);
-          await LogService.AddMapLogAsync(repo, false, EventType.ReinforcementReturned, $"<character>{target.Name}</character> は、<country>{country.Data.Name}</country> の援軍の任を終え消滅しました");
+          // 援軍削除
+          var count = currentReinforcements.Count() - requestedReinforcementCount;
+          var targets = currentReinforcements.OrderByDescending(c => c.Id).Take(count).ToArray();
+          foreach (var target in targets)
+          {
+            await CharacterService.RemoveAsync(repo, target);
+            await LogService.AddMapLogAsync(repo, false, EventType.ReinforcementReturned, $"<character>{target.Name}</character> は、<country>{country.Data.Name}</country> の援軍の任を終え消滅しました");
+          }
         }
       }
     }
