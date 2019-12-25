@@ -193,7 +193,7 @@ namespace SangokuKmy.Models.Commands
 
       var myBattleResources = myItems
         .Select(i => new { Item = i, Info = i.GetInfo().Data, })
-        .Where(i => i.Info != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
+        .Where(i => i.Info != null && i.Info.Effects != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
 
       mySoldierType
         .Append(myFormation.GetDataFromLevel(myFormationData.Level))
