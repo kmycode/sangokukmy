@@ -121,7 +121,7 @@ namespace SangokuKmy.Models.Commands
       {
         // 斥候は0分0秒更新で諜報する
         ai.Character.LastUpdated = system.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
-        ai.Character.LastUpdatedGameDate = game.GameDateTime;
+        ai.Character.LastUpdatedGameDate = game.GameDateTime.NextMonth();
       }
       await repo.Character.AddAsync(ai.Character);
 
