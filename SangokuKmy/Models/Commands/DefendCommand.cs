@@ -41,6 +41,7 @@ namespace SangokuKmy.Models.Commands
         {
           character.Contribution += 25;
           character.AddLeadershipEx(50);
+          character.SkillPoint++;
           var def = await repo.Town.SetDefenderAsync(character.Id, town.Id);
           await game.CharacterLogAsync("<town>" + town.Name + "</town> の守備につきました");
 

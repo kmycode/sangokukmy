@@ -89,6 +89,7 @@ namespace SangokuKmy.Models.Commands
       }
       character.Contribution += 100;
       character.AddStrongEx(100);
+      character.SkillPoint++;
 
       subBuilding.Status = TownSubBuildingStatus.Removing;
       subBuilding.StatusFinishGameDateTime = end;

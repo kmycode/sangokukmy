@@ -180,6 +180,7 @@ namespace SangokuKmy.Models.Data.Repositories
             .ToArrayAsync())
             .Select(c => new ScoutedSubBuilding
             {
+              OriginalId = c.Id,
               ScoutId = town.Id,
               Type = c.Type,
               Status = c.Status,

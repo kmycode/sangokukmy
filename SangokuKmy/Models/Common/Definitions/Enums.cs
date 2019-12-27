@@ -257,9 +257,14 @@ namespace SangokuKmy.Models.Common.Definitions
     public static ErrorCode NotSkillError { get; } = new ErrorCode(403, 46);
 
     /// <summary>
-    /// 研究レベルがないエラー
+    /// 都市特化が対応してないエラー
     /// </summary>
-    public static ErrorCode NotResearchLevelError { get; } = new ErrorCode(403, 47);
+    public static ErrorCode NotTownTypeError { get; } = new ErrorCode(403, 47);
+
+    /// <summary>
+    /// 建築物が対応してないエラー
+    /// </summary>
+    public static ErrorCode LackOfTownSubBuildingForSoldier { get; } = new ErrorCode(403, 48);
 
     public class RangeErrorParameter
     {

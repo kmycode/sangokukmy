@@ -79,6 +79,7 @@ namespace SangokuKmy.Models.Commands
 
       character.AddLeadershipEx(50);
       character.Contribution += 10;
+      character.SkillPoint++;
       await game.CharacterLogAsync("<number>" + members.Count() + "</number> 名を <town>" + town.Name + "</town> に集合させました");
     }
 

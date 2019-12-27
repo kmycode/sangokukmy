@@ -51,6 +51,7 @@ namespace SangokuKmy.Models.Commands
 
         character.Contribution += 30;
         character.AddLeadershipEx(50);
+        character.SkillPoint++;
         character.FormationType = type;
         await game.CharacterLogAsync($"陣形を {info.Data.Name} に変更しました");
       }

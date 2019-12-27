@@ -169,6 +169,13 @@ namespace SangokuKmy.Models.Data.Entities
     PrivateBook = 72,
     AnnotationBook = 73,
     Kojinnoakashi = 74,
+    EquippedHeavyGeki = 75,
+    EquippedHeavyHorse = 76,
+    EquippedChariot = 77,
+    EquippedInfantry = 78,
+    EquippedCavalry = 79,
+    EquippedCrossbow = 80,
+    SkillBook = 81,
   }
 
   public enum CharacterItemEffectType
@@ -180,12 +187,17 @@ namespace SangokuKmy.Models.Data.Entities
     IntellectEx,
     FormationEx,
     Money,
+    SkillPoint,
     TerroristEnemy,
     DiscountSoldierPercentageWithResource,
+    DiscountInfantrySoldierPercentage,
+    DiscountCavalrySoldierPercentage,
+    DiscountCrossbowSoldierPercentage,
     AddSoldierType,
     ProficiencyMinimum,
     JoinableAiCountry,
     SoldierCorrection,
+    SoldierCorrectionResource,
   }
 
   public enum CharacterItemRareType
@@ -1309,9 +1321,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 1,
         MoneyPerResource = 18,
-        InitializeNumber = 12,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect
@@ -1332,9 +1344,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 2,
         MoneyPerResource = 22,
-        InitializeNumber = 12,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownHiddenOnly,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect
@@ -1355,9 +1367,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 1,
         MoneyPerResource = 18,
-        InitializeNumber = 12,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect
@@ -1379,9 +1391,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 2,
         MoneyPerResource = 22,
-        InitializeNumber = 12,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownHiddenOnly,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect
@@ -1399,7 +1411,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterItemInfo
       {
         Type = CharacterItemType.EquippedRepeatingCrossbow,
-        Name = "装備連弩",
+        Name = "連弩装備",
         IsResource = true,
         ResourceLevel = 1,
         MoneyPerResource = 20,
@@ -1521,6 +1533,120 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterItemInfo
       {
+        Type = CharacterItemType.EquippedHeavyGeki,
+        Name = "重戟装備",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 20,
+        InitializeNumber = 6,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.HeavyInfantry,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedHeavyHorse,
+        Name = "重騎装備",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 20,
+        InitializeNumber = 6,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.HeavyCavalry,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedChariot,
+        Name = "戦車",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 22,
+        InitializeNumber = 6,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.Chariot,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedInfantry,
+        Name = "歩兵装備",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 18,
+        InitializeNumber = 12,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.DiscountInfantrySoldierPercentage,
+            Value = 30,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedCavalry,
+        Name = "騎兵装備",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 18,
+        InitializeNumber = 12,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.DiscountCavalrySoldierPercentage,
+            Value = 30,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedCrossbow,
+        Name = "弩",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 18,
+        InitializeNumber = 12,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.DiscountCrossbowSoldierPercentage,
+            Value = 30,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
         Type = CharacterItemType.Shimingetsurei,
         Name = "四民月令",
         Money = 100000,
@@ -1550,6 +1676,23 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterItemEffectType.Popularity,
             Value = 20,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.SkillBook,
+        Name = "技能書",
+        Money = 80000,
+        InitializeNumber = 6,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.SkillPoint,
+            Value = 12,
           },
         },
       },
@@ -1603,7 +1746,12 @@ namespace SangokuKmy.Models.Data.Entities
 
     public static CharacterSoldierTypeData GetSoldierTypeData(this IEnumerable<CharacterItem> items)
     {
-      var effects = items.Where(i => i.Status == CharacterItemStatus.CharacterHold).GetInfos().Where(i => i.Effects != null).SelectMany(i => i.Effects).Where(e => e.Type == CharacterItemEffectType.SoldierCorrection);
+      var effects = items
+        .Where(i => i.Status == CharacterItemStatus.CharacterHold)
+        .GetInfos()
+        .Where(i => i.Effects != null)
+        .SelectMany(i => i.Effects)
+        .Where(e => e.Type == CharacterItemEffectType.SoldierCorrection);
       var correction = new CharacterSoldierTypeData();
       foreach (var e in effects)
       {

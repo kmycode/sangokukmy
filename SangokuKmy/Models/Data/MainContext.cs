@@ -71,11 +71,6 @@ namespace SangokuKmy.Models.Data
     public DbSet<CharacterUpdateLog> CharacterUpdateLogs { get; set; }
 
     /// <summary>
-    /// 武将の兵種
-    /// </summary>
-    public DbSet<CharacterSoldierType> CharacterSoldierTypes { get; set; }
-
-    /// <summary>
     /// アイテム
     /// </summary>
     public DbSet<CharacterItem> CharacterItems { get; set; }

@@ -88,6 +88,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       character.Contribution += 15;
+      character.SkillPoint++;
 
       if (!info.IsResource)
       {

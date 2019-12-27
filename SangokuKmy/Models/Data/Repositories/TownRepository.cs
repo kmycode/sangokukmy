@@ -139,7 +139,7 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="townId">都市ID</param>
     /// <returns>その都市に滞在する武将</returns>
-    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon, IReadOnlyList<CharacterCommand> Commands, Optional<CharacterSoldierType> CustomSoldierType)>> GetCharactersWithIconAsync(uint townId)
+    public async Task<IReadOnlyCollection<(Character Character, CharacterIcon Icon, IReadOnlyList<CharacterCommand> Commands)>> GetCharactersWithIconAsync(uint townId)
     {
       try
       {
@@ -160,10 +160,6 @@ namespace SangokuKmy.Models.Data.Repositories
             c => c.Command.CharacterId,
             (c, cs) => new { c.Character, c.Icons, Commands = cs.ToArray(), })
           .ToArrayAsync())
-          .GroupJoin(this.container.Context.CharacterSoldierTypes,
-              c => c.Character.SoldierType == SoldierType.Custom ? c.Character.CharacterSoldierTypeId : uint.MaxValue,
-              s => s.Id,
-              (c, ss) => new { c.Character, c.Commands, c.Icons, SoldierTypes = ss, })
           .OrderBy(data => data.Character.LastUpdated)
           .Select(data =>
           {
@@ -171,7 +167,7 @@ namespace SangokuKmy.Models.Data.Repositories
             {
               c.Command.SetParameters(c.Parameters);
               return c.Command;
-            }).ToArray(), data.SoldierTypes.FirstOrDefault().ToOptional());
+            }).ToArray());
           })
           .ToArray();
       }

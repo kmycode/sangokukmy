@@ -113,6 +113,11 @@ namespace SangokuKmy.Models.Services
             chara.Money += effect.Value;
             logs.Add($"金 <num>+{effect.Value}</num>");
           }
+          if (effect.Type == CharacterItemEffectType.SkillPoint)
+          {
+            chara.SkillPoint += effect.Value;
+            logs.Add($"技能P <num>+{effect.Value}</num>");
+          }
           if (effect.Type == CharacterItemEffectType.TerroristEnemy)
           {
             await repo.DelayEffect.AddAsync(new DelayEffect

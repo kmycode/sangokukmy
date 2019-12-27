@@ -50,9 +50,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("soldierType")]
     public int? SoldierType { get; set; }
 
-    [JsonProperty("characterSoldierType")]
-    public CharacterSoldierType CharacterSoldierType { get; set; }
-
     [JsonProperty("deleteTurn")]
     public int DeleteTurn { get; set; }
 
@@ -105,11 +102,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     }
 
     public CharacterForAnonymous(Character character, CharacterIcon mainIcon, Reinforcement reinforcement, IReadOnlyList<CharacterCommand> commands, CharacterShareLevel level)
-      : this(character, mainIcon, reinforcement, commands, null, level)
-    {
-    }
-
-    public CharacterForAnonymous(Character character, CharacterIcon mainIcon, Reinforcement reinforcement, IReadOnlyList<CharacterCommand> commands, CharacterSoldierType soldierType, CharacterShareLevel level)
     {
       this.Id = character.Id;
       this.Name = character.Name;
@@ -133,7 +125,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
       {
         this.SoldierNumber = character.SoldierNumber;
         this.SoldierType = character.ApiSoldierType;
-        this.CharacterSoldierType = soldierType;
       }
       if (level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountry)
       {

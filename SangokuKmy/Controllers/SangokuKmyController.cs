@@ -480,7 +480,7 @@ namespace SangokuKmy.Controllers
         {
           ErrorCode.MeaninglessOperationError.Throw();
         }
-        if (chara.FormationPoint < 50)
+        if (chara.FormationPoint < 0)
         {
           ErrorCode.InvalidOperationError.Throw();
         }
@@ -491,7 +491,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.InvalidOperationError.Throw();
         }
 
-        chara.FormationPoint -= 50;
+        chara.FormationPoint -= 0;
         chara.FormationType = param.Type;
 
         log = new CharacterLog
@@ -694,7 +694,7 @@ namespace SangokuKmy.Controllers
 
         charas = (await repo.Town.GetCharactersWithIconAsync(townId))
           .Where(c => c.Character.CountryId == chara.CountryId || c.Character.AiType != CharacterAiType.SecretaryScouter)
-          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, null, c.Character.AiType == CharacterAiType.Human ? c.Commands : null, c.CustomSoldierType.Data, c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown));
+          .Select(c => new CharacterForAnonymous(c.Character, c.Icon, null, c.Character.AiType == CharacterAiType.Human ? c.Commands : null, c.Character.CountryId == chara.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown));
       }
       return ApiData.From(charas);
     }
@@ -951,16 +951,6 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithRead())
       {
         var log = await repo.BattleLog.GetWithLinesByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
-        if (log.AttackerCache.SoldierType == SoldierType.Custom)
-        {
-          var type = await repo.CharacterSoldierType.GetByIdAsync(log.AttackerCache.CharacterSoldierTypeId);
-          log.AttackerCache.CharacterSoldierType = type.Data;
-        }
-        if (log.DefenderCache.SoldierType == SoldierType.Custom)
-        {
-          var type = await repo.CharacterSoldierType.GetByIdAsync(log.DefenderCache.CharacterSoldierTypeId);
-          log.DefenderCache.CharacterSoldierType = type.Data;
-        }
         return log;
       }
     }

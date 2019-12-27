@@ -53,6 +53,10 @@ namespace SangokuKmy.Models.Data.Entities
 
     public short TypeGuard { get; set; }
 
+    public short TypeInfantryAttack { get; set; }
+
+    public short TypeInfantryDefend { get; set; }
+
     public short TypeGuardAttack { get; set; }
 
     public short TypeGuardDefend { get; set; }
@@ -165,6 +169,8 @@ namespace SangokuKmy.Models.Data.Entities
       a += this.WeaponAttack * enemyType.TypeWeapon / 100.0f;
       d += this.WeaponDefend * enemyType.TypeWeapon / 100.0f;
 
+      a += this.TypeInfantryAttack * (this.TypeGuard / 100.0f) * (1 - typeWall);
+      d += this.TypeInfantryDefend * (this.TypeGuard / 100.0f) * (1 - typeWall);
       a += this.TypeGuardAttack * (this.TypeGuard / 100.0f) * (1 - typeWall);
       d += this.TypeGuardDefend * (this.TypeGuard / 100.0f) * (1 - typeWall);
 
@@ -309,7 +315,16 @@ namespace SangokuKmy.Models.Data.Entities
       return d;
     }
 
-    public static CharacterSoldierTypeData Append(this CharacterSoldierTypeData self, CharacterSoldierTypeData d)
+    public static CharacterSoldierTypeData Append(this CharacterSoldierTypeData self, IEnumerable<CharacterSoldierTypeData> d)
+    {
+      foreach (var dd in d)
+      {
+        self.Append(dd);
+      }
+      return self;
+    }
+
+      public static CharacterSoldierTypeData Append(this CharacterSoldierTypeData self, CharacterSoldierTypeData d)
     {
       self.PowerStrong += d.PowerStrong;
       self.PowerIntellect += d.PowerIntellect;
@@ -347,6 +362,8 @@ namespace SangokuKmy.Models.Data.Entities
       self.TypeWall += d.TypeWall;
       self.TypeWeapon += d.TypeWeapon;
       self.TypeGuard += d.TypeGuard;
+      self.TypeInfantryAttack += d.TypeInfantryAttack;
+      self.TypeInfantryDefend += d.TypeInfantryDefend;
       self.TypeGuardAttack += d.TypeGuardAttack;
       self.TypeGuardDefend += d.TypeGuardDefend;
       self.GogyoFire += d.GogyoFire;

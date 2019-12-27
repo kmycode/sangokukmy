@@ -69,6 +69,7 @@ namespace SangokuKmy.Models.Commands
           }
           character.Money += money;
           character.Contribution += 30;
+          character.SkillPoint++;
 
           var safeMoneyMax = CountryService.GetCountrySafeMax((await repo.Country.GetPoliciesAsync(country.Id)).GetAvailableTypes());
           if (country.SafeMoney < safeMoneyMax)

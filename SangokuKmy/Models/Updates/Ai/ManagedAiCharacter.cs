@@ -494,8 +494,8 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Name = "武将";
       this.Character.Strong = 100;
       this.Character.Leadership = 100;
-      this.Character.Money = 2000;
-      this.Character.Rice = 1000;
+      this.Character.Money = 20000;
+      this.Character.Rice = 10000;
     }
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
@@ -718,8 +718,8 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Name = "文官";
       this.Character.Intellect = 100;
       this.Character.Leadership = 100;
-      this.Character.Money = 2000;
-      this.Character.Rice = 1000;
+      this.Character.Money = 20000;
+      this.Character.Rice = 10000;
     }
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
@@ -874,8 +874,8 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Intellect = 90;
       this.Character.Popularity = 100;
       this.Character.Leadership = 10;
-      this.Character.Money = 2000;
-      this.Character.Rice = 1000;
+      this.Character.Money = 20000;
+      this.Character.Rice = 10000;
     }
 
     protected override async Task ActionPersonalAsync(MainRepository repo)

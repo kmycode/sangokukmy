@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20191111014954_RemoveCustomSoldierTypes")]
+    partial class RemoveCustomSoldierTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -636,9 +638,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("LastMoneyIncomes")
                         .HasColumnName("last_money_incomes");
-
-                    b.Property<int>("LastRequestedIncomes")
-                        .HasColumnName("last_requested_incomes");
 
                     b.Property<int>("LastRiceIncomes")
                         .HasColumnName("last_rice_incomes");
@@ -1400,9 +1399,6 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id");
-
-                    b.Property<uint>("OriginalId")
-                        .HasColumnName("original_id");
 
                     b.Property<uint>("ScoutId")
                         .HasColumnName("scout_id");

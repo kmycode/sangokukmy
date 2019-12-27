@@ -14,6 +14,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("type")]
     public byte ApiType { get; set; }
 
+    [JsonProperty("subType")]
+    public byte ApiSubType { get; set; }
+
     [JsonProperty("countryId")]
     public uint CountryId { get; set; }
 
@@ -33,6 +36,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
     {
       this.Id = town.Id;
       this.ApiType = town.ApiType;
+      this.ApiSubType = town.ApiSubType;
       this.CountryId = town.CountryId;
       this.Name = town.Name;
       this.X = town.X;

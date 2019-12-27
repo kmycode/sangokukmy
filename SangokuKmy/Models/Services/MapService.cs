@@ -277,19 +277,19 @@ namespace SangokuKmy.Models.Services
 
       private class AgricultureTownType : TownTypeDefinition
       {
-        public override int Agriculture => RandomService.Next(4, 9) * 100;
+        public override int Agriculture => 0;
 
-        public override int AgricultureMax => RandomService.Next(9, 15) * 100;
+        public override int AgricultureMax => RandomService.Next(3, 6) * 100;
 
-        public override int Commercial => RandomService.Next(1, 3) * 100;
+        public override int Commercial => 0;
 
-        public override int CommercialMax => RandomService.Next(2, 6) * 100;
+        public override int CommercialMax => 100;
 
         public override int Technology => RandomService.Next(0, 4) * 100;
 
-        public override int TechnologyMax => 900;
+        public override int TechnologyMax => RandomService.Next(7, 10) * 100;
 
-        public override int Wall => RandomService.Next(7, 11) * 100;
+        public override int Wall => RandomService.Next(1, 4) * 100;
 
         public override int WallMax => RandomService.Next(10, 20) * 100;
 
@@ -302,19 +302,19 @@ namespace SangokuKmy.Models.Services
 
       private class CommercialTownType : TownTypeDefinition
       {
-        public override int Agriculture => RandomService.Next(1, 3) * 100;
+        public override int Agriculture => 0;
 
-        public override int AgricultureMax => RandomService.Next(2, 5) * 100;
+        public override int AgricultureMax => 100;
 
-        public override int Commercial => RandomService.Next(4, 9) * 100;
+        public override int Commercial => 0;
 
-        public override int CommercialMax => RandomService.Next(9, 15) * 100;
+        public override int CommercialMax => RandomService.Next(3, 6) * 100;
 
         public override int Technology => RandomService.Next(0, 4) * 100;
 
-        public override int TechnologyMax => 900;
+        public override int TechnologyMax => RandomService.Next(7, 10) * 100;
 
-        public override int Wall => RandomService.Next(7, 11) * 100;
+        public override int Wall => RandomService.Next(1, 4) * 100;
 
         public override int WallMax => RandomService.Next(10, 20) * 100;
 
@@ -327,19 +327,19 @@ namespace SangokuKmy.Models.Services
 
       private class FortressTownType : TownTypeDefinition
       {
-        public override int Agriculture => RandomService.Next(1, 3) * 100;
+        public override int Agriculture => 0;
 
-        public override int AgricultureMax => RandomService.Next(1, 5) * 100;
+        public override int AgricultureMax => RandomService.Next(2, 4) * 100;
 
-        public override int Commercial => RandomService.Next(1, 3) * 100;
+        public override int Commercial => 0;
 
-        public override int CommercialMax => RandomService.Next(1, 5) * 100;
+        public override int CommercialMax => RandomService.Next(2, 4) * 100;
 
         public override int Technology => RandomService.Next(0, 4) * 100;
 
         public override int TechnologyMax => 1000;
 
-        public override int Wall => RandomService.Next(8, 15) * 100;
+        public override int Wall => RandomService.Next(1, 5) * 100;
 
         public override int WallMax => RandomService.Next(18, 29) * 100;
 
@@ -354,11 +354,11 @@ namespace SangokuKmy.Models.Services
       {
         public override int Agriculture => RandomService.Next(1, 3) * 100;
 
-        public override int AgricultureMax => RandomService.Next(16, 29) * 100;
+        public override int AgricultureMax => RandomService.Next(3, 6) * 100;
 
         public override int Commercial => RandomService.Next(1, 3) * 100;
 
-        public override int CommercialMax => RandomService.Next(16, 29) * 100;
+        public override int CommercialMax => RandomService.Next(3, 6) * 100;
 
         public override int Technology => RandomService.Next(1, 7) * 100;
 

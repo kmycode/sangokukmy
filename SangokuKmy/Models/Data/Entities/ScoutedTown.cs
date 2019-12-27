@@ -16,6 +16,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         ScoutedTownId = town.Id,
         Type = town.Type,
+        SubType = town.SubType,
         CountryId = town.CountryId,
         Name = town.Name,
         X = town.X,

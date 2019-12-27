@@ -57,7 +57,7 @@ namespace SangokuKmy.Models.Commands
       new PeopleDecreaseCommand(),
       new SoldierTrainingAllCommand(),
       new SpyCommand(),
-      // new ExamineCommand(),
+      new ExamineCommand(),
       new BuildSubBuildingCommand(),
       new RemoveSubBuildingCommand(),
     };
