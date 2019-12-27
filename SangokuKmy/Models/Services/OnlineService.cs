@@ -156,7 +156,7 @@ namespace SangokuKmy.Models.Services
         }
 
         // アイコンを取得
-        var iconNeeds = updates.Where(d => d.Status != OnlineStatus.Offline);
+        var iconNeeds = updates.Where(d => d.Status != OnlineStatus.Offline).ToArray();
         if (iconNeeds.Any())
         {
           using (var repo = MainRepository.WithRead())

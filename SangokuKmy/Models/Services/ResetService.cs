@@ -91,7 +91,7 @@ namespace SangokuKmy.Models.Services
         system.Period++;
       }
 
-      if (Config.IsGenerateAdminCharacter)
+      if (Config.Game.IsGenerateAdminCharacter)
       {
         var admin = new Character
         {
