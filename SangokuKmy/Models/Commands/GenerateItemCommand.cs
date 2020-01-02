@@ -22,7 +22,7 @@ namespace SangokuKmy.Models.Commands
         new GenerateItemInfo
         {
           From = CharacterFrom.Engineer,
-          ItemType = CharacterItemType.EquippedGoodGeki,
+          ItemType = CharacterItemType.EquippedInfantry,
           ResourceAttribute = c => c.Strong,
           AddExAttribute = c => c.AddStrongEx(200),
           Length = 12,
@@ -31,7 +31,34 @@ namespace SangokuKmy.Models.Commands
         new GenerateItemInfo
         {
           From = CharacterFrom.Engineer,
-          ItemType = CharacterItemType.EquippedGoodHorse,
+          ItemType = CharacterItemType.EquippedCavalry,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Engineer,
+          ItemType = CharacterItemType.EquippedCrossbow,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Engineer,
+          ItemType = CharacterItemType.EquippedHeavyGeki,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Engineer,
+          ItemType = CharacterItemType.EquippedHeavyHorse,
           ResourceAttribute = c => c.Strong,
           AddExAttribute = c => c.AddStrongEx(200),
           Length = 12,
@@ -50,6 +77,15 @@ namespace SangokuKmy.Models.Commands
         {
           From = CharacterFrom.Engineer,
           ItemType = CharacterItemType.EquippedSeishuYari,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Engineer,
+          ItemType = CharacterItemType.EquippedChariot,
           ResourceAttribute = c => c.Strong,
           AddExAttribute = c => c.AddStrongEx(200),
           Length = 12,
