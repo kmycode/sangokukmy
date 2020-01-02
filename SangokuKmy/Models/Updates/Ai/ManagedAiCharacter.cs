@@ -306,16 +306,16 @@ namespace SangokuKmy.Models.Updates.Ai
           }
         }
 
-        if (secretaries.Count() < secretaryMax &&
+        if (!secretaries.All(s => s.AiType == requestedType))
+        {
+          this.InputRemoveSecretary(secretaries.First(s => s.AiType != requestedType).Id);
+          return true;
+        }
+        if (CountryService.GetCurrentSecretaryPoint(secretaries.Select(s => s.AiType).Append(requestedType)) <= secretaryMax &&
           this.Country.LastMoneyIncomes > Config.SecretaryCost &&
           this.Country.LastRiceIncomes > Config.SecretaryCost)
         {
           this.InputAddSecretary(requestedType);
-          return true;
-        }
-        if (!secretaries.All(s => s.AiType == requestedType))
-        {
-          this.InputRemoveSecretary(secretaries.First(s => s.AiType != requestedType).Id);
           return true;
         }
 

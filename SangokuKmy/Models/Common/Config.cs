@@ -34,6 +34,8 @@ namespace SangokuKmy.Models.Common
       public static bool IsAllowMonarchReinforcement { get; set; } = false;
 
       public static bool IsThief { get; set; } = false;
+
+      public static bool IsGenerateAdminCharacter { get; set; } = false;
     }
 
     public static int UpdateTime { get; } = 600;
@@ -85,7 +87,5 @@ namespace SangokuKmy.Models.Common
     public static float SoldierPeopleCost { get; } = 5.45f;
 
     public static float RicePriceBase { get; } = 1000000.0f;
-
-    public static bool IsGenerateAdminCharacter { get; } = false;
   }
 }

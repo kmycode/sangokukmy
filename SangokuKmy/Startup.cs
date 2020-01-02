@@ -51,6 +51,7 @@ namespace SangokuKmy
       Config.Game.SecretKey = this.Configuration.GetSection("GameSettings")["SecretKey"];
       Config.Game.UploadedIconDirectory = this.Configuration.GetSection("GameSettings")["UploadedIconDirectory"];
       Config.Game.HistoricalUploadedIconDirectory = this.Configuration.GetSection("GameSettings")["HistoricalUploadedIconDirectory"];
+      Config.Game.IsGenerateAdminCharacter = this.Configuration.GetSection("GameSettings")["IsGenerateAdminCharacter"]?.ToLower() == "true";
 
       services.AddDbContext<MainContext>();
     }
