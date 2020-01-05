@@ -69,6 +69,11 @@ namespace SangokuKmy.Models.Commands
       {
         item = charaItems.FirstOrDefault(i => i.Type == itemType && (i.Status == CharacterItemStatus.CharacterPending));
       }
+      if (item == null)
+      {
+        await game.CharacterLogAsync($"アイテム {info.Name} を譲渡しようとしましたが、それは現在所持していません");
+        return;
+      }
 
       var resourceSize = resourceSizeOptional.Data?.NumberValue ?? 0;
       if (info.IsResource)
@@ -79,12 +84,6 @@ namespace SangokuKmy.Models.Commands
         {
           resourceSize = item.Resource;
         }
-      }
-
-      if (item == null)
-      {
-        await game.CharacterLogAsync($"アイテム {info.Name} を譲渡しようとしましたが、それは現在所持していません");
-        return;
       }
 
       character.Contribution += 15;
