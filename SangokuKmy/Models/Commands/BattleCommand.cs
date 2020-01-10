@@ -247,7 +247,7 @@ namespace SangokuKmy.Models.Commands
         targetItems = await repo.Character.GetItemsAsync(targetCharacter.Id);
         var targetBattleResources = targetItems
           .Select(i => new { Item = i, Info = i.GetInfo().Data, })
-          .Where(i => i.Info != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
+          .Where(i => i.Info != null && i.Info.Effects != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
         targetSoldierType.Append(targetItems.GetSoldierTypeData())
           .Append(targetBattleResources.SelectMany(r => r.Info.Effects.Where(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource).Select(e => e.SoldierTypeData)));
 

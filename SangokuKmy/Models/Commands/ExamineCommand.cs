@@ -30,6 +30,9 @@ namespace SangokuKmy.Models.Commands
         var town = townOptional.Data;
         if (town.CountryId != character.CountryId || (!countryOptional.HasData || countryOptional.Data.HasOverthrown))
         {
+          await game.CharacterLogAsync($"<town>{town.Name}</town> で探索しようとしましたが、自国の都市ではありません");
+          return;
+          /*
           await game.CharacterLogAsync($"<town>{town.Name}</town> で探索しようとしましたが、自国の都市ではありません。能力強化に切り替えます");
           await Commands.ExecuteAsync(CharacterCommandType.Training, repo, character, new List<CharacterCommandParameter>
           {
@@ -40,6 +43,7 @@ namespace SangokuKmy.Models.Commands
             },
           }, game);
           return;
+          */
         }
         var country = countryOptional.Data;
 
