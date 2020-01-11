@@ -72,8 +72,6 @@ namespace SangokuKmy.Models.Commands
             money = RandomService.Next(50, 400);
           }
           character.Money += money;
-          character.Contribution += 30;
-          character.SkillPoint++;
 
           var safeMoneyMax = CountryService.GetCountrySafeMax((await repo.Country.GetPoliciesAsync(country.Id)).GetAvailableTypes());
           if (country.SafeMoney < safeMoneyMax)
@@ -101,6 +99,9 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync($"金 <num>{money}</num> を発見し、懐中と国庫にそれぞれおさめました");
           await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
         }
+
+        character.Contribution += 30;
+        character.SkillPoint++;
       }
       else
       {
