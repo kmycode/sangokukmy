@@ -74,7 +74,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "禁兵",
         Data = new CharacterSoldierTypeData
         {
-          TypeGuard = 10,
+          TypeInfantry = 10,
           BaseAttack = 1,
           StrongEx = 1,
           PowerStrong = 1,
