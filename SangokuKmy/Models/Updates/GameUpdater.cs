@@ -826,6 +826,7 @@ namespace SangokuKmy.Models.Updates
                 {
                   await AddLogAsync(chara.Id, $"<town>{town.Name}</town> で {info.Name} を撤去しているところでしたが、都市が別の国に支配されたため作業は中止されました");
                   subBuilding.Status = TownSubBuildingStatus.Available;
+                  info.OnBuilt?.Invoke(town);
                 }
                 else
                 {
