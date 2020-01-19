@@ -62,7 +62,7 @@ namespace SangokuKmy.Models.Commands
       var chara = await repo.Character.GetByIdAsync(characterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
 
       var items = await repo.Character.GetItemsAsync(chara.Id);
-      if (!items.Any(i => i.Type == itemType && i.Status == CharacterItemStatus.CharacterHold))
+      if (!items.Any(i => i.Type == itemType && (i.Status == CharacterItemStatus.CharacterHold || i.Status == CharacterItemStatus.CharacterPending)))
       {
         ErrorCode.InvalidCommandParameter.Throw();
       }
