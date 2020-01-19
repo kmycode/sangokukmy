@@ -266,6 +266,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode LackOfTownSubBuildingForSoldier { get; } = new ErrorCode(403, 48);
 
+    /// <summary>
+    /// 未実装エラー
+    /// </summary>
+    public static ErrorCode NotSupportedError { get; } = new ErrorCode(501, 49);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

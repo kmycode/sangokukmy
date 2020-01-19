@@ -469,6 +469,8 @@ namespace SangokuKmy.Controllers
       [FromRoute] uint townId,
       [FromRoute] uint countryId)
     {
+      ErrorCode.NotSupportedError.Throw();
+
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var system = await repo.System.GetAsync();
