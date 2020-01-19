@@ -45,11 +45,6 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync($"アイテム {info.Name} を使用しようとしましたが、それは現在所持していません");
           return;
         }
-        else if (!info.IsResource && CharacterService.CountLimitedItems(charaItems) >= CharacterService.GetItemMax(skills))
-        {
-          await game.CharacterLogAsync($"アイテム {info.Name} を使用しようとしましたが、保留中のアイテムを使用するには、所持アイテム数の空きが最低 1 必要です");
-          return;
-        }
       }
       
       var log = await ItemService.SpendCharacterAsync(repo, target, character);
