@@ -257,13 +257,18 @@ namespace SangokuKmy.Models.Updates
               // すべての武将に必要な収入の合計を計算する
               var lankSalary = country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.AddSalary) ? 300 : 250;
               var neededAllSalaries = 0;
-              foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary() && c.Contribution > 0))
+              var neededAllSalariesAllCharacters = 0;
+              foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary()))
               {
                 var currentLank = character.Lank;
                 var addMax = 1500 + currentLank * lankSalary;
-                neededAllSalaries += addMax;
+                if (character.Contribution > 0)
+                {
+                  neededAllSalaries += addMax;
+                }
+                neededAllSalariesAllCharacters += addMax;
               }
-              country.Country.LastRequestedIncomes = neededAllSalaries;
+              country.Country.LastRequestedIncomes = neededAllSalariesAllCharacters;
               var isAllCharactersGetAddMax = neededAllSalaries <= salary.AllSalary;
 
               // 収入を武将に配る
