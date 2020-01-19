@@ -97,25 +97,25 @@ namespace SangokuKmy.Models.Services
       else if (chara.From == CharacterFrom.Merchant)
       {
         skills.Add(CharacterSkillType.Merchant1);
-        chara.Money += 20000;
+        chara.Money += 200000;
       }
       else if (chara.From == CharacterFrom.Engineer)
       {
         skills.Add(CharacterSkillType.Engineer1);
         chara.Strong += 10;
-        chara.Money += 10000;
+        chara.Money += 100000;
       }
       else if (chara.From == CharacterFrom.Terrorist)
       {
         skills.Add(CharacterSkillType.Terrorist1);
         chara.Strong += 15;
-        chara.Rice += 5000;
+        chara.Rice += 50000;
       }
       else if (chara.From == CharacterFrom.People)
       {
         skills.Add(CharacterSkillType.People1);
         chara.Popularity += 15;
-        chara.Rice += 5000;
+        chara.Rice += 50000;
       }
       else if (chara.From == CharacterFrom.Tactician)
       {
