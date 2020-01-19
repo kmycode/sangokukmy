@@ -255,12 +255,12 @@ namespace SangokuKmy.Models.Updates
               }
 
               // すべての武将に必要な収入の合計を計算する
-              var lankSalary = country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.AddSalary) ? 250 : 200;
+              var lankSalary = country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.AddSalary) ? 300 : 250;
               var neededAllSalaries = 0;
               foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary() && c.Contribution > 0))
               {
                 var currentLank = character.Lank;
-                var addMax = 1000 + currentLank * lankSalary;
+                var addMax = 1500 + currentLank * lankSalary;
                 neededAllSalaries += addMax;
               }
               country.Country.LastRequestedIncomes = neededAllSalaries;
@@ -272,7 +272,7 @@ namespace SangokuKmy.Models.Updates
                 var currentLank = character.Lank;
                 var add = salary.AllContributions > 0 ?
                   (int)(salary.AllSalary * (float)character.Contribution / salary.AllContributions + character.Contribution * 1.3f) : 0;
-                var addMax = 1000 + currentLank * lankSalary;
+                var addMax = 1500 + currentLank * lankSalary;
 
                 if (isAllCharactersGetAddMax && character.Contribution > 0)
                 {
