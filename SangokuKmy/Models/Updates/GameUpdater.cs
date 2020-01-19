@@ -325,7 +325,7 @@ namespace SangokuKmy.Models.Updates
                       tecName = "人望";
                       break;
                   }
-                  var newAddMax = 1000 + newLank * lankSalary;
+                  var newAddMax = 1500 + newLank * lankSalary;
                   character.FormationPoint += 20;
                   await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました。陣形P <num>+20</num>");
                   if (currentLank != newLank)
