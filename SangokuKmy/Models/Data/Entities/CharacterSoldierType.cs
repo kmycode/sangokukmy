@@ -98,7 +98,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 5,
+        Money = 4,
         Technology = 100,
       },
       new CharacterSoldierTypePart
@@ -117,7 +117,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 5,
+        Money = 4,
         Technology = 200,
       },
       new CharacterSoldierTypePart
@@ -136,7 +136,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 5,
+        Money = 4,
         Technology = 200,
       },
       new CharacterSoldierTypePart
@@ -155,7 +155,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 5,
+        Money = 4,
         Technology = 200,
       },
       new CharacterSoldierTypePart
@@ -171,7 +171,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 8,
+        Money = 6,
         Technology = 300,
       },
       new CharacterSoldierTypePart
@@ -195,7 +195,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 11,
+        Money = 9,
         Technology = 300,
       },
       new CharacterSoldierTypePart
@@ -218,7 +218,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 11,
+        Money = 9,
         Technology = 300,
       },
       new CharacterSoldierTypePart
@@ -242,7 +242,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 11,
+        Money = 9,
         Technology = 400,
       },
       new CharacterSoldierTypePart
@@ -263,7 +263,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Agriculture,
         },
-        Money = 18,
+        Money = 16,
         Technology = 500,
       },
       new CharacterSoldierTypePart
@@ -329,7 +329,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Fortress,
         },
-        Money = 11,
+        Money = 9,
         Technology = 600,
       },
       new CharacterSoldierTypePart
@@ -356,7 +356,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Fortress,
         },
-        Money = 11,
+        Money = 9,
         Technology = 600,
       },
       new CharacterSoldierTypePart
@@ -383,7 +383,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Agriculture,
         },
-        Money = 17,
+        Money = 13,
         Technology = 800,
         CanConscriptWithoutResource = false,
       },
@@ -410,7 +410,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Commercial,
         },
-        Money = 17,
+        Money = 13,
         Technology = 800,
         CanConscriptWithoutResource = false,
       },
@@ -435,7 +435,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Fortress,
         },
-        Money = 17,
+        Money = 13,
         Technology = 800,
         CanConscriptWithoutResource = false,
       },
@@ -468,7 +468,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Fortress,
         },
-        Money = 19,
+        Money = 15,
         Technology = 1000,
         CanConscriptWithoutResource = false,
       },
@@ -492,7 +492,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Agriculture,
         },
-        Money = 24,
+        Money = 17,
         Technology = 700,
         CanConscriptWithoutResource = false,
       },
@@ -517,7 +517,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Fortress,
         },
-        Money = 24,
+        Money = 17,
         Technology = 800,
         CanConscriptWithoutResource = false,
       },
@@ -539,7 +539,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Agriculture,
         },
-        Money = 24,
+        Money = 17,
         Technology = 900,
         CanConscriptWithoutResource = false,
       },
@@ -563,7 +563,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Commercial,
         },
-        Money = 24,
+        Money = 17,
         Technology = 900,
         CanConscriptWithoutResource = false,
       },
@@ -659,7 +659,7 @@ namespace SangokuKmy.Models.Data.Entities
           IntellectEx = 1,
           PowerIntellect = 1,
         },
-        Money = 8,
+        Money = 6,
         Technology = 300,
         CanConscriptWithoutSkill = false,
       },
@@ -678,7 +678,7 @@ namespace SangokuKmy.Models.Data.Entities
           IntellectEx = 1,
           PowerIntellect = 1,
         },
-        Money = 15,
+        Money = 12,
         Technology = 400,
       },
       new CharacterSoldierTypePart
@@ -702,7 +702,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Commercial,
         },
-        Money = 15,
+        Money = 12,
         Technology = 500,
       },
       new CharacterSoldierTypePart
@@ -725,7 +725,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Agriculture,
         },
-        Money = 15,
+        Money = 12,
         Technology = 700,
       },
       new CharacterSoldierTypePart
@@ -745,7 +745,7 @@ namespace SangokuKmy.Models.Data.Entities
           IntellectEx = 1,
           PowerIntellect = 1,
         },
-        Money = 22,
+        Money = 18,
         Technology = 700,
         CanConscriptWithoutSkill = false,
       },
@@ -770,7 +770,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Commercial,
         },
-        Money = 22,
+        Money = 18,
         Technology = 1000,
         CanConscriptWithoutSkill = false,
       },
@@ -795,7 +795,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Agriculture,
         },
-        Money = 22,
+        Money = 18,
         Technology = 1000,
       },
       new CharacterSoldierTypePart
