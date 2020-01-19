@@ -755,7 +755,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterSkillType.People3,
         RequestedPoint = 320,
         Name = "農家 Lv.a3",
-        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People2),
+        SubjectAppear = skills => !skills.Any(s => s.Type == CharacterSkillType.People3b) && skills.Any(s => s.Type == CharacterSkillType.People2),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
@@ -805,7 +805,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterSkillType.People3b,
         RequestedPoint = 320,
         Name = "農家 Lv.b3",
-        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.People2),
+        SubjectAppear = skills => !skills.Any(s => s.Type == CharacterSkillType.People3) && skills.Any(s => s.Type == CharacterSkillType.People2),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
