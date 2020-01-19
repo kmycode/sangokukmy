@@ -8,6 +8,7 @@ using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -59,6 +60,20 @@ namespace SangokuKmy.Models.Commands
       {
         character.Contribution += contributon;
         character.SkillPoint++;
+
+        var townOptional = await repo.Town.GetByIdAsync(character.TownId);
+        if (townOptional.HasData)
+        {
+          var town = townOptional.Data;
+          if (RandomService.Next(0, (int)(256.0f * (1 - skills.GetSumOfValues(CharacterSkillEffectType.ItemAppearOnDomesticAffairThousandth) / 1000.0f))) == 0)
+          {
+            var info = await ItemService.PickTownHiddenItemAsync(repo, character.TownId, character);
+            if (info.HasData)
+            {
+              await game.CharacterLogAsync($"<town>{town.Name}</town> に隠されたアイテム {info.Data.Name} を手に入れました");
+            }
+          }
+        }
       }
       character.AddIntellectEx(50);
     }
