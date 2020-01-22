@@ -499,7 +499,7 @@ namespace SangokuKmy.Controllers
           DateTime = DateTime.Now,
           GameDateTime = (await repo.System.GetAsync()).GameDateTime,
           CharacterId = chara.Id,
-          Message = $"陣形ポイント <num>50</num> を消費して、陣形を {info.Name} に変更しました",
+          Message = $"陣形を {info.Name} に変更しました",
         };
         await repo.Character.AddCharacterLogAsync(log);
 
