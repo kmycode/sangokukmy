@@ -359,7 +359,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.MoneyRegularly,
-            Value = 67,
+            Value = 100,
           },
         },
       },
