@@ -704,6 +704,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     Craftsman = 44,
 
+    /// <summary>
+    /// 長弓兵
+    /// </summary>
+    LongArcher = 45,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,
