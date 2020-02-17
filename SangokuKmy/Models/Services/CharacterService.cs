@@ -150,11 +150,11 @@ namespace SangokuKmy.Models.Services
       var icon = (await repo.Character.GetCharacterAllIconsAsync(character.Id)).GetMainOrFirst();
       var town = await repo.Town.GetByIdAsync(character.TownId);
       var townCharacters = await repo.Town.GetCharactersAsync(character.TownId);
-      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(character), character.Id);
       await StatusStreaming.Default.SendCountryExceptForCharacterAsync(ApiData.From(new CharacterForAnonymous(character, icon.Data, CharacterShareLevel.SameCountry)), character.CountryId, character.Id);
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new CharacterForAnonymous(character, icon.Data, character.AiType != CharacterAiType.SecretaryScouter ? CharacterShareLevel.SameTown : CharacterShareLevel.Anonymous)), townCharacters.Where(tc => tc.Id != character.Id && tc.CountryId != character.CountryId).Select(tc => tc.Id));
       await StatusStreaming.Default.SendCountryExceptForCharacterAsync(ApiData.From(new CharacterForAnonymous(character, icon.Data, character.AiType != CharacterAiType.SecretaryScouter ? CharacterShareLevel.SameCountryTownOtherCountry : CharacterShareLevel.Anonymous)), town.Data?.CountryId ?? 0, townCharacters.Where(tc => tc.CountryId == town.Data?.CountryId).Select(tc => tc.Id));
       await StatusStreaming.Default.SendCharacterExceptForCharactersAndCountryAsync(ApiData.From(new CharacterForAnonymous(character, icon.Data, CharacterShareLevel.Anonymous)), townCharacters.Select(tc => tc.Id), new uint[] { town.Data?.CountryId ?? 0, character.CountryId, });
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(character), character.Id);
     }
 
     public static async Task RemoveAsync(MainRepository repo, Character character)
