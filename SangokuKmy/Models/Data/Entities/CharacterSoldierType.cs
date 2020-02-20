@@ -76,6 +76,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TypeInfantry = 10,
           BaseAttack = 1,
+          BaseDefend = 1,
           StrongEx = 1,
           PowerStrong = 1,
         },
@@ -88,18 +89,79 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 3,
-          BaseDefend = 1,
+          BaseDefend = 3,
           CavalryAttack = 3,
-          CrossbowDefend = 1,
-          GogyoDefend = 1,
-          RushProbability = 20,
-          RushAttack = 3,
+          CavalryDefend = 3,
+          DisorderProbability = 20,
           TypeInfantry = 10,
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 4,
-        Technology = 100,
+        Money = 8,
+        Technology = 200,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Infantry,
+        Name = "戟兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 6,
+          BaseDefend = 6,
+          CavalryAttack = 6,
+          CavalryDefend = 6,
+          ContinuousProbability = 10,
+          DisorderProbability = 40,
+          TypeInfantry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 14,
+        Technology = 500,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.HeavyInfantry,
+        Name = "重戟兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 9,
+          BaseDefend = 9,
+          CavalryAttack = 9,
+          CavalryDefend = 9,
+          ContinuousProbability = 30,
+          DisorderProbability = 60,
+          TypeInfantry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 20,
+        Technology = 800,
+        CanConscriptWithoutResource = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Seishu,
+        Name = "青洲兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 12,
+          BaseDefend = 12,
+          CavalryAttack = 12,
+          CavalryDefend = 12,
+          ContinuousProbability = 50,
+          DisorderProbability = 80,
+          TypeInfantry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        TownTypes = new List<TownType>
+        {
+          TownType.Fortress,
+        },
+        Money = 35,
+        Technology = 1200,
+        CanConscriptWithoutResource = false,
       },
       new CharacterSoldierTypePart
       {
@@ -108,71 +170,17 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 3,
-          BaseDefend = 1,
-          CrossbowAttack = 2,
-          GogyoAttack = 2,
+          BaseDefend = 3,
+          CrossbowAttack = 3,
+          CrossbowDefend = 3,
           RushProbability = 20,
-          RushAttack = 4,
+          RushAttack = 2,
           TypeCavalry = 10,
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 4,
+        Money = 8,
         Technology = 200,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.Stoner,
-        Name = "投石兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 1,
-          BaseDefend = 3,
-          InfantryAttack = 2,
-          WeaponAttack = 2,
-          GogyoAttack = 2,
-          DisorderProbability = 30,
-          TypeCrossbow = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        Money = 4,
-        Technology = 200,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.Archer,
-        Name = "弓兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 2,
-          BaseDefend = 2,
-          InfantryAttack = 3,
-          InfantryDefend = 1,
-          GogyoAttack = 1,
-          GogyoDefend = 2,
-          TypeCrossbow = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        Money = 4,
-        Technology = 200,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.Prayer,
-        Name = "祈祷兵",
-        Data = new CharacterSoldierTypeData
-        {
-          GogyoAttack = 10,
-          GogyoDefend = 5,
-          ContinuousProbability = 20,
-          TypeWeapon = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        Money = 6,
-        Technology = 300,
       },
       new CharacterSoldierTypePart
       {
@@ -180,70 +188,144 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "軽騎兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 4,
-          BaseDefend = 2,
-          CrossbowAttack = 3,
-          CrossbowDefend = 1,
-          WeaponAttack = 2,
-          GogyoAttack = 2,
-          GogyoDefend = 1,
+          BaseAttack = 6,
+          BaseDefend = 6,
+          CrossbowAttack = 6,
+          CrossbowDefend = 6,
           ContinuousProbability = 20,
-          RushProbability = 30,
-          RushAttack = 6,
-          RushDefend = 1,
+          RushProbability = 40,
+          RushAttack = 4,
           TypeCavalry = 10,
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 9,
-        Technology = 300,
+        Money = 14,
+        Technology = 500,
       },
       new CharacterSoldierTypePart
       {
-        Preset = SoldierType.Infantry,
-        Name = "戟兵",
+        Preset = SoldierType.HeavyCavalry,
+        Name = "重騎兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 4,
-          BaseDefend = 2,
-          CavalryAttack = 3,
-          CavalryDefend = 1,
-          GogyoAttack = 1,
-          GogyoDefend = 2,
-          ContinuousProbability = 20,
-          RushProbability = 30,
-          RushAttack = 5,
-          RushDefend = 1,
-          TypeInfantry = 10,
+          BaseAttack = 9,
+          BaseDefend = 9,
+          CrossbowAttack = 9,
+          CrossbowDefend = 9,
+          ContinuousProbability = 40,
+          RushProbability = 60,
+          RushAttack = 6,
+          TypeCavalry = 10,
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 9,
-        Technology = 300,
+        Money = 20,
+        Technology = 800,
+        CanConscriptWithoutResource = false,
       },
       new CharacterSoldierTypePart
       {
-        Preset = SoldierType.Mercenary,
-        Name = "槍兵",
+        Preset = SoldierType.Chariot,
+        Name = "戦車兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 12,
+          BaseDefend = 12,
+          CrossbowAttack = 12,
+          CrossbowDefend = 12,
+          ContinuousProbability = 60,
+          RushProbability = 80,
+          RushAttack = 8,
+          TypeCavalry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        TownTypes = new List<TownType>
+        {
+          TownType.Fortress,
+        },
+        Money = 35,
+        Technology = 1200,
+        CanConscriptWithoutResource = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Archer,
+        Name = "弓兵",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 3,
-          BaseDefend = 2,
-          CavalryAttack = 6,
-          CavalryDefend = 3,
-          GogyoAttack = 2,
-          GogyoDefend = 1,
-          ContinuousProbability = 10,
-          RushProbability = 10,
-          RushAttack = 5,
-          RushDefend = 3,
-          DisorderProbability = 30,
-          TypeInfantry = 10,
+          BaseDefend = 3,
+          InfantryAttack = 3,
+          InfantryDefend = 3,
+          RushDefend = 2,
+          TypeCrossbow = 10,
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 9,
-        Technology = 400,
+        Money = 8,
+        Technology = 200,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.LongArcher,
+        Name = "長弓兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 6,
+          BaseDefend = 6,
+          InfantryAttack = 6,
+          InfantryDefend = 6,
+          RushDefend = 4,
+          TypeCrossbow = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 14,
+        Technology = 500,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.StrongCrossbow,
+        Name = "強弩兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 9,
+          BaseDefend = 9,
+          InfantryAttack = 9,
+          InfantryDefend = 9,
+          ContinuousProbability = 10,
+          RushDefend = 6,
+          TypeCrossbow = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 20,
+        Technology = 800,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.RepeatingCrossbow,
+        Name = "連弩兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 12,
+          BaseDefend = 12,
+          InfantryAttack = 12,
+          InfantryDefend = 12,
+          ContinuousProbability = 20,
+          RushDefend = 8,
+          TypeCrossbow = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        TownTypes = new List<TownType>
+        {
+          TownType.Fortress,
+        },
+        Money = 35,
+        Technology = 1200,
+        CanConscriptWithoutResource = false,
       },
       new CharacterSoldierTypePart
       {
@@ -251,10 +333,14 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "衝車",
         Data = new CharacterSoldierTypeData
         {
-          WallAttack = 12,
-          WallDefend = 8,
-          WeaponAttack = 3,
-          WeaponDefend = 2,
+          WallAttack = 15,
+          WallDefend = 5,
+          InfantryAttack = -2,
+          InfantryDefend = -2,
+          CavalryAttack = -2,
+          CavalryDefend = -2,
+          CrossbowAttack = -2,
+          CrossbowDefend = -2,
           TypeWeapon = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -263,7 +349,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Agriculture,
         },
-        Money = 16,
+        Money = 20,
         Technology = 500,
       },
       new CharacterSoldierTypePart
@@ -274,8 +360,12 @@ namespace SangokuKmy.Models.Data.Entities
         {
           WallAttack = 20,
           WallDefend = 10,
-          InfantryAttack = 2,
-          InfantryDefend = 2,
+          InfantryAttack = -2,
+          InfantryDefend = -2,
+          CavalryAttack = -2,
+          CavalryDefend = -2,
+          CrossbowAttack = -2,
+          CrossbowDefend = -2,
           TypeWeapon = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -293,13 +383,21 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "投石器",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 3,
-          BaseDefend = 1,
-          WallAttack = 18,
-          WallDefend = 8,
+          WallAttack = 20,
+          WallDefend = 15,
+          InfantryAttack = -2,
+          InfantryDefend = -2,
+          CavalryAttack = -2,
+          CavalryDefend = -2,
+          CrossbowAttack = -2,
+          CrossbowDefend = -2,
           TypeWeapon = 10,
           StrongEx = 1,
           PowerStrong = 1,
+        },
+        TownTypes = new List<TownType>
+        {
+          TownType.Commercial,
         },
         Money = 40,
         Technology = 600,
@@ -308,28 +406,70 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterSoldierTypePart
       {
+        Preset = SoldierType.Prayer,
+        Name = "祈祷兵",
+        Data = new CharacterSoldierTypeData
+        {
+          GogyoAttack = 12,
+          GogyoDefend = 12,
+          TypeWeapon = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 22,
+        Technology = 800,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Mercenary,
+        Name = "槍兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 3,
+          BaseDefend = 3,
+          CavalryAttack = 9,
+          CavalryDefend = 3,
+          TypeInfantry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 14,
+        Technology = 500,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Stoner,
+        Name = "投石兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 5,
+          BaseDefend = 5,
+          CrossbowAttack = 5,
+          CrossbowDefend = 5,
+          DisorderProbability = 30,
+          TypeInfantry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 12,
+        Technology = 600,
+      },
+      new CharacterSoldierTypePart
+      {
         Preset = SoldierType.SpearCavalry,
         Name = "槍騎兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 4,
-          BaseDefend = 2,
-          InfantryAttack = 2,
-          CrossbowAttack = 4,
-          CrossbowDefend = 2,
-          WeaponAttack = 1,
-          GogyoAttack = 4,
-          ContinuousProbability = 40,
-          RushDefend = 2,
+          BaseAttack = 5,
+          BaseDefend = 5,
+          InfantryAttack = 5,
+          InfantryDefend = 5,
+          FriendlyFireProbability = 30,
           TypeCavalry = 10,
           StrongEx = 1,
           PowerStrong = 1,
         },
-        TownTypes = new List<TownType>
-        {
-          TownType.Fortress,
-        },
-        Money = 9,
+        Money = 12,
         Technology = 600,
       },
       new CharacterSoldierTypePart
@@ -338,188 +478,18 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "弓騎兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 2,
-          BaseDefend = 4,
-          InfantryAttack = 4,
-          InfantryDefend = 2,
-          CrossbowAttack = 2,
-          WeaponAttack = 1,
-          GogyoAttack = 2,
-          GogyoDefend = 3,
-          ContinuousProbability = 20,
-          RushDefend = 2,
-          TypeCrossbow = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Fortress,
-        },
-        Money = 9,
-        Technology = 600,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.HeavyInfantry,
-        Name = "重戟兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 6,
-          BaseDefend = 3,
-          CavalryAttack = 4,
-          CavalryDefend = 2,
-          WeaponAttack = 1,
-          GogyoAttack = 2,
-          GogyoDefend = 2,
-          ContinuousProbability = 10,
-          RushProbability = 20,
-          RushAttack = 4,
-          TypeInfantry = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Agriculture,
-        },
-        Money = 13,
-        Technology = 800,
-        CanConscriptWithoutResource = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.HeavyCavalry,
-        Name = "重騎兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 6,
-          BaseDefend = 3,
-          CrossbowAttack = 4,
-          CrossbowDefend = 2,
-          WeaponAttack = 1,
-          GogyoAttack = 2,
-          ContinuousProbability = 40,
-          RushProbability = 20,
-          RushAttack = 4,
-          TypeCavalry = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Commercial,
-        },
-        Money = 13,
-        Technology = 800,
-        CanConscriptWithoutResource = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.StrongCrossbow,
-        Name = "強弩兵",
-        Data = new CharacterSoldierTypeData
-        {
           BaseAttack = 5,
-          BaseDefend = 4,
-          InfantryAttack = 4,
-          InfantryDefend = 2,
-          WeaponAttack = 1,
-          GogyoAttack = 2,
-          GogyoDefend = 2,
-          TypeCrossbow = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Fortress,
-        },
-        Money = 13,
-        Technology = 800,
-        CanConscriptWithoutResource = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.RepeatingCrossbow,
-        Name = "連弩兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 2,
-          BaseDefend = 3,
-          WallDefend = 1,
-          InfantryAttack = 4,
-          InfantryDefend = 2,
-          CavalryAttack = 1,
-          CavalryDefend = 1,
-          CrossbowAttack = 1,
-          CrossbowDefend = 1,
-          WeaponAttack = 1,
-          WeaponDefend = 1,
-          GogyoAttack = 5,
-          GogyoDefend = 3,
-          RushDefend = 3,
-          DisorderProbability = 40,
-          TypeCrossbow = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Fortress,
-        },
-        Money = 15,
-        Technology = 1000,
-        CanConscriptWithoutResource = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.Seishu,
-        Name = "青洲兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 9,
-          BaseDefend = 7,
-          CavalryAttack = 6,
-          CavalryDefend = 3,
-          RushProbability = 20,
-          RushAttack = 6,
-          TypeInfantry = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Agriculture,
-        },
-        Money = 17,
-        Technology = 700,
-        CanConscriptWithoutResource = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.Chariot,
-        Name = "戦車兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 9,
           BaseDefend = 5,
-          CrossbowAttack = 6,
-          CrossbowDefend = 3,
-          GogyoAttack = 2,
-          ContinuousProbability = 30,
-          DisorderProbability = 30,
-          TypeCavalry = 10,
+          CavalryAttack = 5,
+          CavalryDefend = 5,
+          RushProbability = 30,
+          RushAttack = 4,
+          TypeCrossbow = 10,
           StrongEx = 1,
           PowerStrong = 1,
         },
-        TownTypes = new List<TownType>
-        {
-          TownType.Fortress,
-        },
-        Money = 17,
-        Technology = 800,
-        CanConscriptWithoutResource = false,
+        Money = 12,
+        Technology = 600,
       },
       new CharacterSoldierTypePart
       {
@@ -527,8 +497,8 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "象兵",
         Data = new CharacterSoldierTypeData
         {
+          CavalryDefend = 2,
           CrossbowAttack = 2,
-          CrossbowDefend = 2,
           RushProbability = 200,
           RushAttack = 12,
           TypeCavalry = 10,
@@ -539,8 +509,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Agriculture,
         },
-        Money = 17,
-        Technology = 900,
+        Money = 25,
+        Technology = 800,
         CanConscriptWithoutResource = false,
       },
       new CharacterSoldierTypePart
@@ -549,12 +519,9 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "藤甲兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseDefend = 15,
-          CavalryAttack = 2,
-          CavalryDefend = 6,
-          WeaponDefend = 2,
-          GogyoDefend = 4,
-          DisorderProbability = 40,
+          BaseDefend = 16,
+          GogyoDefend = 5,
+          RushDefend = 5,
           TypeInfantry = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -563,9 +530,167 @@ namespace SangokuKmy.Models.Data.Entities
         {
           TownType.Commercial,
         },
-        Money = 17,
-        Technology = 900,
+        Money = 25,
+        Technology = 800,
         CanConscriptWithoutResource = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.IntellectCommon,
+        Name = "梓叡兵",
+        Data = new CharacterSoldierTypeData
+        {
+          TypeInfantry = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 8,
+        Technology = 300,
+        CanConscriptWithoutSkill = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.LightIntellect,
+        Name = "梓歩兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 2,
+          BaseDefend = 2,
+          CavalryAttack = 3,
+          CavalryDefend = 3,
+          DisorderProbability = 100,
+          TypeInfantry = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 15,
+        Technology = 600,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.IntellectHeavyCavalry,
+        Name = "梓馬兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 2,
+          BaseDefend = 2,
+          CrossbowAttack = 3,
+          CrossbowDefend = 3,
+          RushProbability = 50,
+          RushAttack = 6,
+          DisorderProbability = 100,
+          TypeCavalry = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 15,
+        Technology = 600,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.IntellectArcher,
+        Name = "梓弓兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 2,
+          BaseDefend = 2,
+          InfantryAttack = 3,
+          InfantryDefend = 3,
+          DisorderProbability = 100,
+          TypeCrossbow = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 15,
+        Technology = 600,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.IntellectRepeatingCrossbow,
+        Name = "梓琴兵",
+        Data = new CharacterSoldierTypeData
+        {
+          WallAttack = 12,
+          WallDefend = 12,
+          InfantryAttack = -3,
+          InfantryDefend = -3,
+          CavalryAttack = -3,
+          CavalryDefend = -3,
+          CrossbowAttack = -3,
+          CrossbowDefend = -3,
+          WeaponAttack = -3,
+          TypeWeapon = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 25,
+        Technology = 600,
+        CanConscriptWithoutSkill = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.IntellectCrossbow,
+        Name = "梓弩兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 7,
+          BaseDefend = 7,
+          InfantryAttack = 7,
+          InfantryDefend = 7,
+          ContinuousProbability = 30,
+          RushProbability = 80,
+          RushAttack = 8,
+          DisorderProbability = 80,
+          FriendlyFireProbability = 80,
+          TypeCrossbow = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 35,
+        Technology = 1300,
+        CanConscriptWithoutSkill = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Craftsman,
+        Name = "工作兵",
+        Data = new CharacterSoldierTypeData
+        {
+          WallAttack = 10,
+          WeaponAttack = 4,
+          WeaponDefend = 4,
+          RushDefend = 2,
+          DisorderProbability = 120,
+          FriendlyFireProbability = 120,
+          TypeInfantry = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        TownTypes = new List<TownType>
+        {
+          TownType.Commercial,
+        },
+        Money = 22,
+        Technology = 1000,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.StrongGuards,
+        Name = "壁守兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseDefend = 11,
+          TypeWall = 5,
+          TypeInfantry = 5,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        TownTypes = new List<TownType>
+        {
+          TownType.Fortress,
+        },
+        Money = 22,
+        Technology = 1000,
       },
       new CharacterSoldierTypePart
       {
@@ -648,174 +773,6 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 40,
         Technology = 700,
         CanConscriptWithoutSkill = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.IntellectCommon,
-        Name = "梓叡兵",
-        Data = new CharacterSoldierTypeData
-        {
-          TypeInfantry = 10,
-          IntellectEx = 1,
-          PowerIntellect = 1,
-        },
-        Money = 6,
-        Technology = 300,
-        CanConscriptWithoutSkill = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.LightIntellect,
-        Name = "梓神兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 3,
-          BaseDefend = 1,
-          CavalryAttack = 3,
-          GogyoAttack = 1,
-          DisorderProbability = 120,
-          TypeInfantry = 10,
-          IntellectEx = 1,
-          PowerIntellect = 1,
-        },
-        Money = 12,
-        Technology = 400,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.IntellectArcher,
-        Name = "梓弓兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 2,
-          BaseDefend = 2,
-          InfantryAttack = 2,
-          InfantryDefend = 1,
-          GogyoAttack = 1,
-          GogyoDefend = 1,
-          DisorderProbability = 100,
-          TypeCrossbow = 10,
-          IntellectEx = 1,
-          PowerIntellect = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Commercial,
-        },
-        Money = 12,
-        Technology = 500,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.IntellectHeavyCavalry,
-        Name = "梓馬兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 4,
-          CrossbowAttack = 2,
-          CrossbowDefend = 1,
-          RushProbability = 20,
-          RushAttack = 6,
-          DisorderProbability = 100,
-          TypeCavalry = 10,
-          IntellectEx = 1,
-          PowerIntellect = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Agriculture,
-        },
-        Money = 12,
-        Technology = 700,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.IntellectRepeatingCrossbow,
-        Name = "梓琴兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 4,
-          BaseDefend = 2,
-          InfantryAttack = 4,
-          InfantryDefend = 2,
-          WeaponAttack = 2,
-          WeaponDefend = 2,
-          FriendlyFireProbability = 50,
-          TypeCrossbow = 10,
-          IntellectEx = 1,
-          PowerIntellect = 1,
-        },
-        Money = 18,
-        Technology = 700,
-        CanConscriptWithoutSkill = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.IntellectCrossbow,
-        Name = "梓弩兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 3,
-          BaseDefend = 3,
-          InfantryAttack = 2,
-          InfantryDefend = 1,
-          GogyoAttack = 4,
-          GogyoDefend = 3,
-          DisorderProbability = 80,
-          TypeCrossbow = 10,
-          IntellectEx = 1,
-          PowerIntellect = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Commercial,
-        },
-        Money = 18,
-        Technology = 1000,
-        CanConscriptWithoutSkill = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.Craftsman,
-        Name = "工作兵",
-        Data = new CharacterSoldierTypeData
-        {
-          WallAttack = 8,
-          CavalryAttack = 1,
-          WeaponAttack = 6,
-          WeaponDefend = 2,
-          RushDefend = 2,
-          DisorderProbability = 120,
-          FriendlyFireProbability = 120,
-          TypeInfantry = 10,
-          IntellectEx = 1,
-          PowerIntellect = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Agriculture,
-        },
-        Money = 18,
-        Technology = 1000,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.StrongGuards,
-        Name = "壁守兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseDefend = 11,
-          TypeWall = 5,
-          TypeInfantry = 5,
-          IntellectEx = 1,
-          PowerIntellect = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Fortress,
-        },
-        Money = 22,
-        Technology = 1000,
       },
 
       // ----------------------------------------------------------
