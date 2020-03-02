@@ -543,7 +543,11 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         if (lastTownWar == null || lastTownWar.IntGameDate < this.Game.IntGameDateTime - 120)
         {
-          var town = allTowns.First(t => t.Id == this.Management.TownWarTargetTownId);
+          var town = allTowns.FirstOrDefault(t => t.Id == this.Management.TownWarTargetTownId);
+          if (town == null)
+          {
+            return false;
+          }
           var arounds = allTowns.GetAroundTowns(town).Where(t => t.CountryId == this.Country.Id);
 
           var inReadyCharacters = readyCharas.Count(c => c.SoldierNumber >= Math.Min((short)10, c.Leadership) && arounds.Any(t => t.Id == c.TownId));
