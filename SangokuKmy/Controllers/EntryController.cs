@@ -54,7 +54,7 @@ namespace SangokuKmy.Controllers
             CountryId = country.Id,
           };
 
-          if (country.AiType != CountryAiType.Human)
+          if (country.AiType != CountryAiType.Human || country.HasOverthrown)
           {
             extra.IsJoinLimited = true;
           }
