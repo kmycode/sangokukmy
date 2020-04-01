@@ -397,6 +397,10 @@ namespace SangokuKmy.Models.Commands
         {
           await game.CharacterLogByIdAsync(targetCharacter.Id, "  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
         }
+        else
+        {
+          character.BattleBrokeWallSize += targetDamage;
+        }
 
         logLines.Add(new BattleLogLine
         {
@@ -449,6 +453,8 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync($"{targetNameWithTag} に敗北しました");
           if (!isWall)
           {
+            character.BattleLostCount++;
+            targetCharacter.BattleWonCount++;
             if (character.AiType == CharacterAiType.TerroristRyofu)
             {
               myExperience += 500;
@@ -486,6 +492,9 @@ namespace SangokuKmy.Models.Commands
 
           if (!isWall)
           {
+            character.BattleWonCount++;
+            targetCharacter.BattleLostCount++;
+
             // 連戦
             if (continuousTurns < 50)
             {
@@ -520,6 +529,7 @@ namespace SangokuKmy.Models.Commands
             myExperience += 50;
             myContribution += 50;
             character.TownId = targetTown.Id;
+            character.BattleDominateCount++;
             newDefender = await repo.Town.SetDefenderAsync(character.Id, targetTown.Id);
             mapLogId = await game.MapLogAndSaveAsync(EventType.TakeAway, "<country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <town>" + targetTown.Name + "</town> を支配しました", true);
             await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> を支配しました");
@@ -668,6 +678,7 @@ namespace SangokuKmy.Models.Commands
       // 連戦
       if (canContinuous)
       {
+        character.BattleContinuousCount++;
         await repo.SaveChangesAsync();
         continuousCount++;
         await this.ExecuteAsync(repo, character, options.Where(p => p.Type != 32 && p.Type != 33).Append(new CharacterCommandParameter
