@@ -122,6 +122,62 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("aiType")]
     public int ApiAiType { get; set; }
 
+    /// <summary>
+    /// 金
+    /// </summary>
+    [Column("money")]
+    [JsonProperty("money")]
+    public int Money { get; set; }
+
+    /// <summary>
+    /// 米
+    /// </summary>
+    [Column("rice")]
+    [JsonProperty("rice")]
+    public int Rice { get; set; }
+
+    /// <summary>
+    /// 階級
+    /// </summary>
+    [Column("class")]
+    [JsonProperty("classValue")]
+    public int Class { get; set; }
+
+    /// <summary>
+    /// 戦闘勝利数
+    /// </summary>
+    [Column("battle_won_count")]
+    [JsonProperty("battleWonCount")]
+    public int BattleWonCount { get; set; }
+
+    /// <summary>
+    /// 戦闘敗北数
+    /// </summary>
+    [Column("battle_lost_count")]
+    [JsonProperty("battleLostCount")]
+    public int BattleLostCount { get; set; }
+
+    /// <summary>
+    /// 削った城壁の大きさ
+    /// </summary>
+    [Column("battle_broke_wall_size")]
+    [JsonProperty("battleBrokeWallSize")]
+    public int BattleBrokeWallSize { get; set; }
+
+    /// <summary>
+    /// 支配数
+    /// </summary>
+    [Column("battle_dominate_count")]
+    [JsonProperty("battleDominateCount")]
+    public int BattleDominateCount { get; set; }
+
+    /// <summary>
+    /// 連戦回数
+    /// </summary>
+    [Column("battle_continuous_count")]
+    [JsonProperty("battleContinuousCount")]
+    public int BattleContinuousCount { get; set; }
+
     public static HistoricalCharacter FromCharacter(Character chara)
     {
       return new HistoricalCharacter
@@ -134,6 +190,14 @@ namespace SangokuKmy.Models.Data.Entities
         Leadership = chara.Leadership,
         Popularity = chara.Popularity,
         AiType = chara.AiType,
+        Money = chara.Money,
+        Rice = chara.Rice,
+        Class = chara.Class,
+        BattleWonCount = chara.BattleWonCount,
+        BattleLostCount = chara.BattleLostCount,
+        BattleBrokeWallSize = chara.BattleBrokeWallSize,
+        BattleDominateCount = chara.BattleDominateCount,
+        BattleContinuousCount = chara.BattleContinuousCount,
       };
     }
   }

@@ -56,6 +56,12 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("hasRemoved")]
     public bool HasRemoved { get; set; }
 
+    [JsonProperty("money")]
+    public int Money { get; set; }
+
+    [JsonProperty("rice")]
+    public int Rice { get; set; }
+
     [JsonProperty("classValue")]
     public int Class { get; set; }
 
@@ -87,6 +93,21 @@ namespace SangokuKmy.Models.Data.ApiEntities
 
     [JsonIgnore]
     public int IntLastUpdatedGameDate { get; set; }
+
+    [JsonProperty("battleWonCount")]
+    public int BattleWonCount { get; set; }
+
+    [JsonProperty("battleLostCount")]
+    public int BattleLostCount { get; set; }
+
+    [JsonProperty("battleBrokeWallSize")]
+    public int BattleBrokeWallSize { get; set; }
+
+    [JsonProperty("battleDominateCount")]
+    public int BattleDominateCount { get; set; }
+
+    [JsonProperty("battleContinuousCount")]
+    public int BattleContinuousCount { get; set; }
 
     [JsonProperty("commands")]
     public IEnumerable<CharacterCommand> Commands { get; set; }
@@ -147,8 +168,15 @@ namespace SangokuKmy.Models.Data.ApiEntities
       if (level == CharacterShareLevel.AllCharacterList)
       {
         this.DeleteTurn = character.DeleteTurn;
+        this.Money = character.Money;
+        this.Rice = character.Rice;
         this.Class = character.Class;
         this.Message = character.Message;
+        this.BattleBrokeWallSize = character.BattleBrokeWallSize;
+        this.BattleContinuousCount = character.BattleContinuousCount;
+        this.BattleDominateCount = character.BattleDominateCount;
+        this.BattleLostCount = character.BattleLostCount;
+        this.BattleWonCount = character.BattleWonCount;
       }
     }
   }
