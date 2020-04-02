@@ -15,6 +15,7 @@ namespace SangokuKmy.Models.Updates.Ai
 {
   public abstract class WorkerAiCharacter : AiCharacter
   {
+    private SystemData system;
     private AiCountryData data;
     private CharacterCommand command;
     private IEnumerable<CountryWar> wars;
@@ -485,6 +486,7 @@ namespace SangokuKmy.Models.Updates.Ai
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
     {
       this.wars = wars;
+      this.system = await repo.System.GetAsync();
       this.townWars = await repo.CountryDiplomacies.GetAllTownWarsAsync();
       this.towns = await repo.Town.GetAllAsync();
       this.countries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown);
@@ -566,6 +568,18 @@ namespace SangokuKmy.Models.Updates.Ai
 
     private IEnumerable<uint> GetWaringCountries()
     {
+      if (this.system.IsBattleRoyaleMode)
+      {
+        if (this.countries.Any(c => c.AiType == CountryAiType.Human))
+        {
+          return this.countries.Where(c => c.AiType == CountryAiType.Human).Select(c => c.Id);
+        }
+        else
+        {
+          return this.countries.Select(c => c.Id).Append(0u);
+        }
+      }
+
       if (!this.IsWarAll)
       {
         var availableWars = this.wars

@@ -91,7 +91,8 @@ namespace SangokuKmy.Models.Commands
       }
 
       var targetCountryOptional = await repo.Country.GetByIdAsync(targetTown.CountryId);
-      if (targetCountryOptional.HasData)
+      var system = await repo.System.GetAsync();
+      if (targetCountryOptional.HasData && !system.IsBattleRoyaleMode)
       {
         if (targetCountryOptional.Data.IntEstablished + Config.CountryBattleStopDuring > game.GameDateTime.ToInt())
         {

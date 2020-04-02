@@ -81,6 +81,7 @@ namespace SangokuKmy.Models.Services
       system.IntResetGameDateTime = 0;
       system.TerroristCount = 0;
       system.ManagementCountryCount = 0;
+      system.IsBattleRoyaleMode = false;
       if (system.IsNextPeriodBeta)
       {
         system.BetaVersion++;
@@ -142,6 +143,7 @@ namespace SangokuKmy.Models.Services
     {
       var system = await repo.System.GetAsync();
       system.IsWaitingReset = true;
+      system.IsBattleRoyaleMode = false;
 
       var currentMonth = system.CurrentMonthStartDateTime;
       var todayResetHour = new DateTime(currentMonth.Year, currentMonth.Month, currentMonth.Day, 20, 0, 0, 0);

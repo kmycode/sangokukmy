@@ -9,7 +9,40 @@ using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Updates.Ai
 {
-  public class FarmerBattlerAiCharacter : AiCharacter
+  public abstract class FarmerAiCharacter : AiCharacter
+  {
+    public FarmerAiCharacter(Character character) : base(character)
+    {
+    }
+
+    protected async Task<IEnumerable<uint>> GetWarTargetCountriesAsync(MainRepository repo, IEnumerable<CountryWar> wars)
+    {
+      var system = await repo.System.GetAsync();
+      if (system.IsBattleRoyaleMode)
+      {
+        var countries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown);
+        if (countries.Any(c => c.AiType == CountryAiType.Human))
+        {
+          return countries.Where(c => c.AiType == CountryAiType.Human).Select(c => c.Id);
+        }
+        else
+        {
+          return countries.Select(c => c.Id).Append(0u);
+        }
+      }
+
+      var availableWars = wars
+        .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
+      if (availableWars.Any())
+      {
+        return availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
+      }
+
+      return Enumerable.Empty<uint>();
+    }
+  }
+
+  public class FarmerBattlerAiCharacter : FarmerAiCharacter
   {
     protected virtual bool CanWall => false;
 
@@ -80,11 +113,9 @@ namespace SangokuKmy.Models.Updates.Ai
         }
       }
 
-      var availableWars = wars
-        .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
-      if (availableWars.Any())
+      var targetCountryIds = await this.GetWarTargetCountriesAsync(repo, wars);
+      if (targetCountryIds.Any())
       {
-        var targetCountryIds = availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
         var targetTowns = towns
           .GetAroundTowns(this.Town)
           .Where(t => targetCountryIds.Contains(t.CountryId));
@@ -179,7 +210,7 @@ namespace SangokuKmy.Models.Updates.Ai
     }
   }
 
-  public class FarmerCivilOfficialAiCharacter : AiCharacter
+  public class FarmerCivilOfficialAiCharacter : FarmerAiCharacter
   {
     protected virtual bool CanSoldierForce => true;
 
@@ -220,13 +251,12 @@ namespace SangokuKmy.Models.Updates.Ai
       }
       else
       {
-        var availableWar = wars.FirstOrDefault(w => w.IntStartGameDate - 2 <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
-        if (availableWar != null)
+        var targetCountryIds = await this.GetWarTargetCountriesAsync(repo, wars);
+        if (targetCountryIds.Any())
         {
-          var targetCountryId = availableWar.InsistedCountryId == this.Country.Id ? availableWar.RequestedCountryId : availableWar.InsistedCountryId;
           var targetTowns = towns
             .GetAroundTowns(this.Town)
-            .Where(t => t.CountryId == targetCountryId);
+            .Where(t => targetCountryIds.Contains(t.CountryId));
 
           var currentTownDefenders = await repo.Town.GetDefendersAsync(this.Town.Id);
           var isDefending = currentTownDefenders.Any(d => d.Character.Id == this.Character.Id);
@@ -303,7 +333,7 @@ namespace SangokuKmy.Models.Updates.Ai
     }
   }
 
-  public class FarmerPatrollerAiCharacter : AiCharacter
+  public class FarmerPatrollerAiCharacter : FarmerAiCharacter
   {
     public FarmerPatrollerAiCharacter(Character character) : base(character)
     {
