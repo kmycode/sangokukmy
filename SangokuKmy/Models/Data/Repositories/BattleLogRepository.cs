@@ -139,7 +139,8 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     public async Task<GameDateTime> GetLastBattleMonthAsync()
     {
-      var lastMapLog = await this.container.Context.MapLogs.FirstOrDefaultAsync(m => m.Id == this.container.Context.BattleLogs.Max(b => b.MapLogId));
+      var max = this.container.Context.BattleLogs.Max(b => b.MapLogId);
+      var lastMapLog = await this.container.Context.MapLogs.FirstOrDefaultAsync(m => m.Id == max);
       if (lastMapLog != null)
       {
         return lastMapLog.ApiGameDateTime;

@@ -1052,7 +1052,7 @@ namespace SangokuKmy.Models.Updates
           // 黄巾の出現とバトルロワイヤルモード
           if (!system.IsBattleRoyaleMode && RandomService.Next(0, 70) == 0)
           {
-            if ((await repo.BattleLog.GetLastBattleMonthAsync()).ToInt() + 12 * 12 * 7 >= system.IntGameDateTime)
+            if ((await repo.BattleLog.GetLastBattleMonthAsync()).ToInt() + 12 * 12 * 7 <= system.IntGameDateTime)
             {
               // 候補都市一覧
               var townData = allTowns.Select(t => new { Town = t, AroundTowns = allTowns.GetAroundTowns(t), }).ToArray();
