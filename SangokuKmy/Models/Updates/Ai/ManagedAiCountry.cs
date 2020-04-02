@@ -206,6 +206,8 @@ namespace SangokuKmy.Models.Updates.Ai
       await AiService.CheckManagedReinforcementsAsync(repo, this.Country.Id);
       await repo.SaveChangesAsync();
 
+      var system = await repo.System.GetAsync();
+
       this.allTowns = await repo.Town.GetAllAsync();
       var towns = this.allTowns.Where(t => t.CountryId == this.Country.Id);
       this.allCharacters = await repo.Character.GetAllAliveAsync();
@@ -220,7 +222,7 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Management.CharacterSize = charaCount <= Config.CountryJoinMaxOnLimited / 2 + 1 ? AiCountryCharacterSize.Small :
         charaCount <= Config.CountryJoinMaxOnLimited ? AiCountryCharacterSize.Medium : AiCountryCharacterSize.Large;
 
-      if (!wars.Any())
+      if (!wars.Any() && !system.IsBattleRoyaleMode)
       {
         this.ResetCharacterAiTypes(characters.Where(c => c.AiType.IsManaged() && !c.AiType.IsMoneyInflator()));
 
@@ -702,9 +704,16 @@ namespace SangokuKmy.Models.Updates.Ai
 
       if (this.Management.WarStyle != AiCountryWarStyle.NotCare)
       {
-        var warTargets = wars
-          .Where(w => w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting)
-          .Select(w => w.RequestedCountryId == this.Country.Id ? w.InsistedCountryId : w.RequestedCountryId);
+        var battleRoyaleCountries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown);
+        if (battleRoyaleCountries.Any(c => c.AiType == CountryAiType.Human))
+        {
+          battleRoyaleCountries = battleRoyaleCountries.Where(c => c.AiType == CountryAiType.Human);
+        }
+        var warTargets = (await repo.System.GetAsync()).IsBattleRoyaleMode ?
+          battleRoyaleCountries.Select(c => c.Id) :
+          wars
+            .Where(w => w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting)
+            .Select(w => w.RequestedCountryId == this.Country.Id ? w.InsistedCountryId : w.RequestedCountryId);
         var targetCharas = charas.Where(c => c.AiType.IsManaged());
 
         var enemyTowns = towns.Where(t => warTargets.Contains(t.CountryId));
@@ -791,7 +800,7 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         c.AiType = c.AiType.ToManagedStandard();
       }
-      if (wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24)
+      if (!(await repo.System.GetAsync()).IsBattleRoyaleMode && wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24)
       {
         var developTownOptional = await repo.Town.GetByIdAsync(storategy.DevelopTownId);
         foreach (var c in charas.Where(c => c.CountryId == this.Country.Id && (c.Money >= Config.RiceBuyMax || c.Rice >= Config.RiceBuyMax)))

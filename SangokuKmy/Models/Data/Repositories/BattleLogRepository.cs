@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using SangokuKmy.Models.Data.ApiEntities;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -131,6 +132,25 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         this.container.Error(ex);
       }
+    }
+
+    /// <summary>
+    /// 最後に戦闘のあった年月を取得する
+    /// </summary>
+    public async Task<GameDateTime> GetLastBattleMonthAsync()
+    {
+      var max = this.container.Context.BattleLogs.Max(b => b.MapLogId);
+      var lastMapLog = await this.container.Context.MapLogs.FirstOrDefaultAsync(m => m.Id == max);
+      if (lastMapLog != null)
+      {
+        return lastMapLog.ApiGameDateTime;
+      }
+
+      return new GameDateTime
+      {
+        Year = Config.StartYear,
+        Month = Config.StartMonth,
+      }.AddMonth(Config.CountryBattleStopDuring);
     }
 
     /// <summary>

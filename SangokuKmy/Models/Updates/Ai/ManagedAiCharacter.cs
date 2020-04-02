@@ -85,7 +85,6 @@ namespace SangokuKmy.Models.Updates.Ai
     protected override async Task BeforeActionAsync(MainRepository repo)
     {
       var management = await repo.AiCountry.GetManagementByCountryIdAsync(this.Country.Id);
-      var wars = (await this.GetWarTargetsAsync(repo)).ToArray();
 
       // 井闌使われたときの対応
       if (management.HasData)
@@ -227,6 +226,7 @@ namespace SangokuKmy.Models.Updates.Ai
       await base.ActionAfterDefendLoopAsync(repo);
     }
 
+    /*
     protected async Task<IEnumerable<uint>> GetWarTargetsAsync(MainRepository repo)
     {
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync())
@@ -236,9 +236,16 @@ namespace SangokuKmy.Models.Updates.Ai
 
       return wars.Distinct();
     }
+    */
 
     protected async Task<bool> IsWarAsync(MainRepository repo)
     {
+      var system = await repo.System.GetAsync();
+      if (system.IsBattleRoyaleMode)
+      {
+        return true;
+      }
+
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync())
         .Where(w => w.RequestedCountryId == this.Country.Id || w.InsistedCountryId == this.Country.Id)
         .Where(w => w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting)

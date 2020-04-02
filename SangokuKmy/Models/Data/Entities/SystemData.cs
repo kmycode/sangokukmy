@@ -141,5 +141,12 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("management_count")]
     [JsonIgnore]
     public short ManagementCountryCount { get; set; }
+
+    /// <summary>
+    /// バトルロワイヤルモード
+    /// </summary>
+    [Column("is_battle_royale_mode")]
+    [JsonProperty("isBattleRoyaleMode")]
+    public bool IsBattleRoyaleMode { get; set; }
   }
 }

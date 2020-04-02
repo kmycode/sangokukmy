@@ -1049,6 +1049,33 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
+          // 黄巾の出現とバトルロワイヤルモード
+          if (!system.IsBattleRoyaleMode && RandomService.Next(0, 70) == 0)
+          {
+            if ((await repo.BattleLog.GetLastBattleMonthAsync()).ToInt() + 12 * 12 * 7 <= system.IntGameDateTime)
+            {
+              // 候補都市一覧
+              var townData = allTowns.Select(t => new { Town = t, AroundTowns = allTowns.GetAroundTowns(t), }).ToArray();
+              var aroundTownsCountMax = townData.Max(t => t.AroundTowns.Count());
+              var candidateBorderCount = Math.Min(aroundTownsCountMax, 4);
+
+              // 対象都市
+              var targetTownData = RandomService.Next(townData.Where(td => td.AroundTowns.Count() >= candidateBorderCount));
+
+              // 蜂起
+              await AiService.CreateFarmerCountryAsync(repo, targetTownData.Town, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message), true, true);
+              foreach (var town in targetTownData.AroundTowns)
+              {
+                await AiService.CreateFarmerCountryAsync(repo, (Town)town, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message), true);
+              }
+
+              system.IsBattleRoyaleMode = true;
+              await AddMapLogAsync(true, EventType.WarStart, "すべての国が戦争状態に突入しました");
+              await AddMapLogAsync(false, EventType.WarStart, "宣戦布告がなくとも、すべての国がお互いに攻め込むことが出来ます");
+              await repo.SaveChangesAsync();
+            }
+          }
+
           // 蛮族
           if (Config.Game.IsThief &&
               allTowns.Any(t => t.CountryId == 0) &&
