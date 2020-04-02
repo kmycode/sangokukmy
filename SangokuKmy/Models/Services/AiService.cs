@@ -683,18 +683,56 @@ namespace SangokuKmy.Models.Services
       }
     }
 
-    public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync)
+    public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync, bool isForce = false, bool isKokin = false)
     {
       var system = await repo.System.GetAsync();
       var targetCountryOptional = await repo.Country.GetAliveByIdAsync(town.CountryId);
 
+      var defenders = await repo.Town.GetDefendersAsync(town.Id);
+      if (defenders.Count > 0)
+      {
+        if (isForce)
+        {
+          // 守備を剥がす
+          var allRemovedDefenders = new List<TownDefender>();
+          var townCharas = await repo.Town.GetCharactersAsync(town.Id);
+          foreach (var defender in defenders)
+          {
+            var removedDefenders = await repo.Town.RemoveDefenderAsync(defender.Character.Id);
+            allRemovedDefenders.AddRange(removedDefenders);
+          }
+          foreach (var d in allRemovedDefenders)
+          {
+            d.Status = TownDefenderStatus.Losed;
+            if (targetCountryOptional.HasData)
+            {
+              await StatusStreaming.Default.SendCountryAsync(ApiData.From(d), targetCountryOptional.Data.Id);
+              await StatusStreaming.Default.SendCharacterAsync(ApiData.From(d), townCharas.Where(tc => tc.CountryId != targetCountryOptional.Data.Id).Select(tc => tc.Id));
+            }
+            else
+            {
+              await StatusStreaming.Default.SendCharacterAsync(ApiData.From(d), townCharas.Select(tc => tc.Id));
+            }
+          }
+        }
+        else
+        {
+          return false;
+        }
+      }
+
       if (targetCountryOptional.HasData && await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1)
       {
-        return false;
-      }
-      if ((await repo.Town.GetDefendersAsync(town.Id)).Count > 0)
-      {
-        return false;
+        if (isForce)
+        {
+          // 滅亡させる
+          await CountryService.OverThrowAsync(repo, targetCountryOptional.Data);
+          await mapLogAsync(EventType.Overthrown, "<country>" + targetCountryOptional.Data.Name + "</country> は滅亡しました", true);
+        }
+        else
+        {
+          return false;
+        }
       }
 
       var countryColor = GetNotUsingCountryColor(await repo.Country.GetAllAsync());
@@ -702,11 +740,28 @@ namespace SangokuKmy.Models.Services
       {
         return false;
       }
-      
-      var country = await CreateCountryAsync(repo, system, town, CharacterAiType.FarmerBattler, CharacterAiType.FarmerBattler, CharacterAiType.FarmerCivilOfficial);
+
+      var charaTypes = new List<CharacterAiType>
+      {
+        CharacterAiType.FarmerBattler,
+        CharacterAiType.FarmerBattler,
+        CharacterAiType.FarmerCivilOfficial,
+      };
+      if (isKokin)
+      {
+        charaTypes.Add(CharacterAiType.FarmerBattler);
+        charaTypes.Add(CharacterAiType.FarmerCivilOfficial);
+      }
+      var country = await CreateCountryAsync(repo, system, town, charaTypes.ToArray());
       country.CountryColorId = countryColor;
-      country.Name = $"{town.Name}農民団";
+      country.Name = isKokin ? "黄巾" : $"{town.Name}農民団";
       country.AiType = CountryAiType.Farmers;
+
+      var myCharas = (await repo.Country.GetCharactersAsync(country.Id)).Where(c => !c.HasRemoved).ToArray();
+      foreach (var chara in myCharas)
+      {
+        chara.Name = $"{chara.Name}{chara.Id}";
+      }
 
       if (targetCountryOptional.HasData)
       {
@@ -724,7 +779,7 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
-      if (targetCountryOptional.HasData)
+      if (targetCountryOptional.HasData && !isForce)
       {
         await CreateWarQuicklyAsync(repo, country, targetCountryOptional.Data);
       }

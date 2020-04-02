@@ -800,7 +800,7 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         c.AiType = c.AiType.ToManagedStandard();
       }
-      if (wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24)
+      if (!(await repo.System.GetAsync()).IsBattleRoyaleMode && wars.Min(w => w.IntStartGameDate) > this.Game.IntGameDateTime + 24)
       {
         var developTownOptional = await repo.Town.GetByIdAsync(storategy.DevelopTownId);
         foreach (var c in charas.Where(c => c.CountryId == this.Country.Id && (c.Money >= Config.RiceBuyMax || c.Rice >= Config.RiceBuyMax)))
