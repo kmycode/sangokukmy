@@ -255,6 +255,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 胡人徴発
     /// </summary>
     GetTerrorists = 37,
+
+    StrongStart2 = 38,
+    StrongStart3 = 39,
+    StrongStart4 = 40,
   }
 
   public enum CountryPolicyEffectType
@@ -557,7 +561,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.StrongStart,
         Name = "武官の肇",
-        BasePoint = 2000,
+        BasePoint = 1000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongCountry),
         Effects =
         {
@@ -567,6 +571,27 @@ namespace SangokuKmy.Models.Data.Entities
             Value = (int)CountryPolicyType.IntellectCountry,
           },
         },
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StrongStart2,
+        Name = "武官の肇／弐",
+        BasePoint = 5000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StrongStart3,
+        Name = "武官の肇／参",
+        BasePoint = 25000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart2),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.StrongStart4,
+        Name = "武官の肇／肆",
+        BasePoint = 125000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart3),
       },
 
       new CountryPolicyTypeInfo
