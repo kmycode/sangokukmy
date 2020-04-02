@@ -351,6 +351,27 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("battleContinuousCount")]
     public int BattleContinuousCount { get; set; }
 
+    /// <summary>
+    /// 計略使用回数
+    /// </summary>
+    [Column("battle_scheme_count")]
+    [JsonProperty("battleSchemeCount")]
+    public int BattleSchemeCount { get; set; }
+
+    /// <summary>
+    /// 戦闘で倒した兵士数
+    /// </summary>
+    [Column("battle_killed_count")]
+    [JsonProperty("battleKilledCount")]
+    public int BattleKilledCount { get; set; }
+
+    /// <summary>
+    /// 戦闘で倒された兵士数
+    /// </summary>
+    [Column("battle_being_killed_count")]
+    [JsonProperty("battleBeingKilledCount")]
+    public int BattleBeingKilledCount { get; set; }
+
     #endregion
 
     public void AddStrongEx(short ex)

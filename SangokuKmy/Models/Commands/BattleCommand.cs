@@ -367,6 +367,14 @@ namespace SangokuKmy.Models.Commands
             targetCommand = BattleTurnCommand.FriendlyFire;
           }
         }
+        if (myCommand != BattleTurnCommand.None)
+        {
+          character.BattleSchemeCount++;
+        }
+        if (!isWall && targetCommand != BattleTurnCommand.None)
+        {
+          targetCharacter.BattleSchemeCount++;
+        }
 
         // 兵士数がマイナスにならないようにする
         targetDamage = Math.Min(targetDamage, targetCharacter.SoldierNumber);
@@ -394,9 +402,13 @@ namespace SangokuKmy.Models.Commands
         targetFormationExperience += targetFormationExperienceTmp * 0.6f + myFormationExperienceTmp * 0.4f;
 
         await game.CharacterLogAsync("  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | " + targetNameWithTag + " <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
+        character.BattleKilledCount += targetDamage;
+        character.BattleBeingKilledCount += myDamage;
         if (!isWall)
         {
           await game.CharacterLogByIdAsync(targetCharacter.Id, "  戦闘 ターン<num>" + i + "</num> <character>" + character.Name + "</character> <num>" + character.SoldierNumber + "</num> (↓<num>" + myDamage + "</num>) | <character>" + targetCharacter.Name + "</character> <num>" + targetCharacter.SoldierNumber + "</num> (↓<num>" + targetDamage + "</num>)");
+          targetCharacter.BattleKilledCount += myDamage;
+          targetCharacter.BattleBeingKilledCount += targetDamage;
         }
         else
         {
