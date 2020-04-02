@@ -1053,8 +1053,15 @@ namespace SangokuKmy.Models.Updates
           if (!system.IsBattleRoyaleMode && RandomService.Next(0, 70) == 0)
           {
             var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+            var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthAsync();
+
+            if (lastBattleMonth.ToInt() + 12 * 12 * 6 == system.IntGameDateTime)
+            {
+              await AddMapLogAsync(true, EventType.Event, "黄巾が反乱の時期を伺っています");
+            }
+
             if (!wars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
-              (await repo.BattleLog.GetLastBattleMonthAsync()).ToInt() + 12 * 12 * 7 <= system.IntGameDateTime)
+              lastBattleMonth.ToInt() + 12 * 12 * 7 <= system.IntGameDateTime)
             {
               // 候補都市一覧
               var townData = allTowns.Select(t => new { Town = t, AroundTowns = allTowns.GetAroundTowns(t), }).ToArray();
