@@ -59,9 +59,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("money")]
     public int Money { get; set; }
 
-    [JsonProperty("rice")]
-    public int Rice { get; set; }
-
     [JsonProperty("classValue")]
     public int Class { get; set; }
 
@@ -168,8 +165,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       if (level == CharacterShareLevel.AllCharacterList)
       {
         this.DeleteTurn = character.DeleteTurn;
-        this.Money = character.Money;
-        this.Rice = character.Rice;
+        this.Money = character.Money + character.Rice;
         this.Class = character.Class;
         this.Message = character.Message;
         this.BattleBrokeWallSize = character.BattleBrokeWallSize;
