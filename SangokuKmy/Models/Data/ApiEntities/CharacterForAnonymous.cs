@@ -106,6 +106,15 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("battleContinuousCount")]
     public int BattleContinuousCount { get; set; }
 
+    [JsonProperty("battleSchemeCount")]
+    public int BattleSchemeCount { get; set; }
+
+    [JsonProperty("battleKilledCount")]
+    public int BattleKilledCount { get; set; }
+
+    [JsonProperty("battleBeingKilledCount")]
+    public int BattleBeingKilledCount { get; set; }
+
     [JsonProperty("commands")]
     public IEnumerable<CharacterCommand> Commands { get; set; }
 
@@ -173,6 +182,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
         this.BattleDominateCount = character.BattleDominateCount;
         this.BattleLostCount = character.BattleLostCount;
         this.BattleWonCount = character.BattleWonCount;
+        this.BattleSchemeCount = character.BattleSchemeCount;
+        this.BattleKilledCount = character.BattleKilledCount;
+        this.BattleBeingKilledCount = character.BattleBeingKilledCount;
       }
     }
   }
