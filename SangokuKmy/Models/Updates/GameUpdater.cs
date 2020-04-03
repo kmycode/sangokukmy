@@ -863,10 +863,13 @@ namespace SangokuKmy.Models.Updates
 
           // 同盟破棄・戦争開始
           {
-            foreach (var alliance in await repo.CountryDiplomacies.GetBreakingAlliancesAsync())
+            var targetAlliances = system.IsBattleRoyaleMode ?
+              await repo.CountryDiplomacies.GetAllAlliancesAsync() :
+              await repo.CountryDiplomacies.GetBreakingAlliancesAsync();
+            foreach (var alliance in targetAlliances)
             {
               alliance.BreakingDelay--;
-              if (alliance.BreakingDelay <= 0)
+              if (alliance.BreakingDelay <= 0 || system.IsBattleRoyaleMode)
               {
                 alliance.Status = CountryAllianceStatus.Broken;
                 if (alliance.IsPublic && alliance.Status != CountryAllianceStatus.ChangeRequestingValue)

@@ -37,6 +37,12 @@ namespace SangokuKmy.Controllers
         var system = await repo.System.GetAsync();
         self = chara;
 
+        if (system.IsBattleRoyaleMode && param.Status == ReinforcementStatus.Active)
+        {
+          // 全面戦争中は援軍にいけない
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
         var oldTownId = chara.TownId;
 
         if (param.Status == ReinforcementStatus.Requesting || param.Status == ReinforcementStatus.RequestCanceled)

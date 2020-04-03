@@ -38,6 +38,25 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// すべての同盟情報を取得
+    /// </summary>
+    /// <returns>同盟情報</returns>
+    public async Task<IReadOnlyList<CountryAlliance>> GetAllAlliancesAsync()
+    {
+      try
+      {
+        return await this.container.Context.CountryAlliances
+          .Where(ca => ca.Status != CountryAllianceStatus.Broken && ca.Status != CountryAllianceStatus.ChangeRequestingValue)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 特定の国の同盟関係をすべて取得
     /// </summary>
     /// <returns>すべての同盟関係</returns>
