@@ -863,10 +863,13 @@ namespace SangokuKmy.Models.Updates
 
           // 同盟破棄・戦争開始
           {
-            foreach (var alliance in await repo.CountryDiplomacies.GetBreakingAlliancesAsync())
+            var targetAlliances = system.IsBattleRoyaleMode ?
+              await repo.CountryDiplomacies.GetAllAlliancesAsync() :
+              await repo.CountryDiplomacies.GetBreakingAlliancesAsync();
+            foreach (var alliance in targetAlliances)
             {
               alliance.BreakingDelay--;
-              if (alliance.BreakingDelay <= 0)
+              if (alliance.BreakingDelay <= 0 || system.IsBattleRoyaleMode)
               {
                 alliance.Status = CountryAllianceStatus.Broken;
                 if (alliance.IsPublic && alliance.Status != CountryAllianceStatus.ChangeRequestingValue)
@@ -1050,20 +1053,20 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 黄巾の出現とバトルロワイヤルモード
+          var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthAsync();
+          if (!system.IsBattleRoyaleMode &&
+            (lastBattleMonth.ToInt() + 12 * 12 * 6 == system.IntGameDateTime ||
+            (system.GameDateTime.Year == 348 && system.GameDateTime.Month == 1)))
+          {
+            await AddMapLogAsync(true, EventType.Event, "黄巾が反乱の時期を伺っています");
+          }
           if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && RandomService.Next(0, 70) == 0)
           {
             var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-            var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthAsync();
-
-            if (lastBattleMonth.ToInt() + 12 * 12 * 6 == system.IntGameDateTime ||
-              (system.GameDateTime.Year == 348 && system.GameDateTime.Month == 1))
-            {
-              await AddMapLogAsync(true, EventType.Event, "黄巾が反乱の時期を伺っています");
-            }
 
             if ((!wars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
               lastBattleMonth.ToInt() + 12 * 12 * 7 <= system.IntGameDateTime) ||
-              (system.GameDateTime.Year == 360 && system.GameDateTime.Month == 1))
+              (system.GameDateTime.Year >= 360))
             {
               // 候補都市一覧
               var townData = allTowns.Select(t => new { Town = t, AroundTowns = allTowns.GetAroundTowns(t), }).ToArray();

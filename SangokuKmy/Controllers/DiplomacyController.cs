@@ -50,12 +50,19 @@ namespace SangokuKmy.Controllers
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
+        var system = await repo.System.GetAsync();
         var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var posts = await repo.Country.GetPostsAsync(self.CountryId);
         var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
         if (myPost == null || !myPost.Type.CanDiplomacy())
         {
           ErrorCode.NotPermissionError.Throw();
+        }
+
+        if (system.IsBattleRoyaleMode)
+        {
+          // 全国戦争中に同盟操作はできない
+          ErrorCode.InvalidOperationError.Throw();
         }
 
         var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
@@ -241,6 +248,12 @@ namespace SangokuKmy.Controllers
         if (myPost == null || !myPost.Type.CanDiplomacy())
         {
           ErrorCode.NotPermissionError.Throw();
+        }
+
+        if (system.IsBattleRoyaleMode)
+        {
+          // 全国戦争中に戦争操作はできない
+          ErrorCode.InvalidOperationError.Throw();
         }
 
         var towns = await repo.Town.GetAllAsync();
