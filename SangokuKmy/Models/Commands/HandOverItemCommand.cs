@@ -111,7 +111,7 @@ namespace SangokuKmy.Models.Commands
           await ItemService.SetCharacterPendingAsync(repo, item, target);
         }
         await game.CharacterLogAsync($"<character>{target.Name}</character> に資源 {info.Name} を <num>{resourceSize}</num> 譲渡しました");
-        await game.CharacterLogByIdAsync(target.Id, $"<character>{character.Name}</character> から資源 {info.Name} を <num>{resourceSizeOptional.Data.NumberValue}</num> 受け取りました");
+        await game.CharacterLogByIdAsync(target.Id, $"<character>{character.Name}</character> から資源 {info.Name} を <num>{resourceSize}</num> 受け取りました");
       }
     }
 
