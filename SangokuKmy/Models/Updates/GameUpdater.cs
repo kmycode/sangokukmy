@@ -1050,18 +1050,20 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 黄巾の出現とバトルロワイヤルモード
-          if (!system.IsBattleRoyaleMode && RandomService.Next(0, 70) == 0)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && RandomService.Next(0, 70) == 0)
           {
             var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
             var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthAsync();
 
-            if (lastBattleMonth.ToInt() + 12 * 12 * 6 == system.IntGameDateTime)
+            if (lastBattleMonth.ToInt() + 12 * 12 * 6 == system.IntGameDateTime ||
+              (system.GameDateTime.Year == 348 && system.GameDateTime.Month == 1))
             {
               await AddMapLogAsync(true, EventType.Event, "黄巾が反乱の時期を伺っています");
             }
 
-            if (!wars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
-              lastBattleMonth.ToInt() + 12 * 12 * 7 <= system.IntGameDateTime)
+            if ((!wars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
+              lastBattleMonth.ToInt() + 12 * 12 * 7 <= system.IntGameDateTime) ||
+              (system.GameDateTime.Year == 360 && system.GameDateTime.Month == 1))
             {
               // 候補都市一覧
               var townData = allTowns.Select(t => new { Town = t, AroundTowns = allTowns.GetAroundTowns(t), }).ToArray();
@@ -1079,8 +1081,7 @@ namespace SangokuKmy.Models.Updates
               }
 
               system.IsBattleRoyaleMode = true;
-              await AddMapLogAsync(true, EventType.WarStart, "すべての国が戦争状態に突入しました");
-              await AddMapLogAsync(false, EventType.WarStart, "宣戦布告がなくとも、すべての国がお互いに攻め込むことが出来ます");
+              await AddMapLogAsync(true, EventType.WarStart, "全国戦争状態に突入しました");
               await repo.SaveChangesAsync();
             }
           }
