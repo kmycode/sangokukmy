@@ -451,21 +451,65 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           this.soldierTypeCache = SoldierType.Seiran;
         }
-        else if (this.Town.Technology >= 800 && this.Character.Money > this.Character.Leadership * 240 + 45_0000)
+        else if (this.Town.Technology >= 1000 && this.Character.Money > this.Character.Leadership * 240 + 45_0000)
         {
-          this.soldierTypeCache = SoldierType.RepeatingCrossbow;
+          if (this.Character.Id % 3 == 0)
+          {
+            this.soldierTypeCache = SoldierType.RepeatingCrossbow;
+          }
+          else if (this.Character.Id % 3 == 1)
+          {
+            this.soldierTypeCache = SoldierType.Chariot;
+          }
+          else
+          {
+            this.soldierTypeCache = SoldierType.Seishu;
+          }
         }
-        else if (this.Town.Technology >= 700 && this.Character.Money > this.Character.Leadership * 200 + 22_0000)
+        else if (this.Town.Technology >= 800 && this.Character.Money > this.Character.Leadership * 200 + 22_0000)
         {
-          this.soldierTypeCache = SoldierType.HeavyCavalry;
+          if (this.Character.Id % 3 == 0)
+          {
+            this.soldierTypeCache = SoldierType.StrongCrossbow;
+          }
+          else if (this.Character.Id % 3 == 1)
+          {
+            this.soldierTypeCache = SoldierType.HeavyCavalry;
+          }
+          else
+          {
+            this.soldierTypeCache = SoldierType.HeavyInfantry;
+          }
         }
-        else if (this.Town.Technology >= 600 && this.Character.Money > this.Character.Leadership * 160 + 12_0000)
+        else if (this.Town.Technology >= 500 && this.Character.Money > this.Character.Leadership * 160 + 12_0000)
         {
-          this.soldierTypeCache = SoldierType.HeavyInfantry;
+          if (this.Character.Id % 3 == 0)
+          {
+            this.soldierTypeCache = SoldierType.LongArcher;
+          }
+          else if (this.Character.Id % 3 == 1)
+          {
+            this.soldierTypeCache = SoldierType.LightCavalry;
+          }
+          else
+          {
+            this.soldierTypeCache = SoldierType.Infantry;
+          }
         }
-        else if (this.Town.Technology >= 300 && this.Character.Money > this.Character.Leadership * 50 + 6_0000)
+        else if (this.Town.Technology >= 200 && this.Character.Money > this.Character.Leadership * 160 + 12_0000)
         {
-          this.soldierTypeCache = SoldierType.LightCavalry;
+          if (this.Character.Id % 3 == 0)
+          {
+            this.soldierTypeCache = SoldierType.Archer;
+          }
+          else if (this.Character.Id % 3 == 1)
+          {
+            this.soldierTypeCache = SoldierType.Cow;
+          }
+          else
+          {
+            this.soldierTypeCache = SoldierType.LightInfantry;
+          }
         }
         else
         {
@@ -696,16 +740,23 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override SoldierType FindSoldierType()
     {
-      if (this.Town.Technology >= 900 && this.Character.Money > this.Character.Leadership * 300 + 32_0000)
-      {
-        return SoldierType.IntellectHeavyCavalry;
-      }
       if (this.Town.Technology >= 500 && this.Character.Money > this.Character.Leadership * 100 + 12_0000)
       {
-        return SoldierType.LightIntellect;
+        if (this.Character.Id % 3 == 0)
+        {
+          return SoldierType.IntellectArcher;
+        }
+        else if (this.Character.Id % 3 == 1)
+        {
+          return SoldierType.IntellectHeavyCavalry;
+        }
+        else
+        {
+          return SoldierType.LightIntellect;
+        }
       }
 
-      return SoldierType.Common;
+      return SoldierType.IntellectCommon;
     }
 
     protected override int GetSoldierNumberMax(SoldierType type)
@@ -872,7 +923,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override SoldierType FindSoldierType()
     {
-      return SoldierType.Common;
+      return SoldierType.PopularityHalberd;
     }
 
     public override void Initialize(GameDateTime current)
