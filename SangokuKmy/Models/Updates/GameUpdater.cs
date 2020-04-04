@@ -1467,7 +1467,7 @@ namespace SangokuKmy.Models.Updates
         if (oldTownId != character.TownId)
         {
           var townCharacters = await repo.Town.GetCharactersWithIconAsync(character.TownId);
-          await StatusStreaming.Default.SendCharacterAsync(townCharacters.Where(tc => tc.Character.Id != character.Id).Select(tc => ApiData.From(new CharacterForAnonymous(tc.Character, tc.Icon, tc.Character.CountryId == character.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown))), character.Id);
+          await StatusStreaming.Default.SendCharacterAsync(townCharacters.Where(tc => tc.Character.Id != character.Id && (tc.Character.CountryId == character.CountryId || tc.Character.AiType != CharacterAiType.SecretaryScouter)).Select(tc => ApiData.From(new CharacterForAnonymous(tc.Character, tc.Icon, tc.Character.CountryId == character.CountryId ? CharacterShareLevel.SameTownAndSameCountry : CharacterShareLevel.SameTown))), character.Id);
 
           var oldTown = await repo.Town.GetByIdAsync(oldTownId);
           if (oldTown.HasData && oldTown.Data.CountryId != character.CountryId)
