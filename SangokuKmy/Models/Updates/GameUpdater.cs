@@ -1006,6 +1006,11 @@ namespace SangokuKmy.Models.Updates
             {
               var chara = allCharacters.FirstOrDefault(c => c.Id == item.CharacterId);
               await ItemService.ReleaseCharacterAsync(repo, item, chara);
+              var info = CharacterItemInfoes.Get(item.Type);
+              if (info.HasData)
+              {
+                await AddLogAsync(chara.Id, $"アイテム {info.Data.Name} は保留期限を超過したので手放しました");
+              }
             }
           }
 
