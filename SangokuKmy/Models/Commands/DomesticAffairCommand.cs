@@ -208,7 +208,7 @@ namespace SangokuKmy.Models.Commands
     protected override int GetCharacterAssets(Character character) => character.Rice;
     protected override string GetCharacterAssetName() => "米";
     protected override void SetCharacterAssets(Character character, int value) => character.Rice = value;
-    protected override int GetCharacterAttribute(Character character) => !this.IsStrongStartAvailable ? character.Popularity : Math.Max(character.Popularity, character.Strong);
+    protected override int GetCharacterAttribute(Character character) => !this.IsStrongStartAvailable ? character.Popularity : Math.Max(character.Popularity, Math.Max(character.Intellect, character.Strong));
     protected override void AddCharacterAttributeEx(Character character, short ex)
     {
       if (!this.IsStrongStartAvailable)
@@ -217,9 +217,13 @@ namespace SangokuKmy.Models.Commands
       }
       else
       {
-        if (character.Popularity > character.Strong)
+        if (character.Popularity > character.Strong && character.Popularity > character.Intellect)
         {
           character.AddPopularityEx(ex);
+        }
+        else if (character.Intellect > character.Strong)
+        {
+          character.AddIntellectEx(ex);
         }
         else
         {
