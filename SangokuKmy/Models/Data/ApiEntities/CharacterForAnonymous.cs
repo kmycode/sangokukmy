@@ -56,9 +56,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("hasRemoved")]
     public bool HasRemoved { get; set; }
 
-    [JsonProperty("money")]
-    public int Money { get; set; }
-
     [JsonProperty("classValue")]
     public int Class { get; set; }
 
@@ -174,7 +171,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
       if (level == CharacterShareLevel.AllCharacterList)
       {
         this.DeleteTurn = character.DeleteTurn;
-        this.Money = character.Money + character.Rice;
         this.Class = character.Class;
         this.Message = character.Message;
         this.BattleBrokeWallSize = character.BattleBrokeWallSize;
