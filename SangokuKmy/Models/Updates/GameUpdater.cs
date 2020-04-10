@@ -1112,7 +1112,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 戦争状態にないAI国家がどっかに布告するようにする
-          if (allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human && c.AiType != CountryAiType.Managed))
+          if (!system.IsBattleRoyaleMode && allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human && c.AiType != CountryAiType.Managed))
           {
             var month = AiService.GetWarStartDateTime(system.GameDateTime, AiCountryWarStartDatePolicy.First21);
             var nextMonth = AiService.GetWarStartDateTime(system.GameDateTime.NextMonth(), AiCountryWarStartDatePolicy.First21);
