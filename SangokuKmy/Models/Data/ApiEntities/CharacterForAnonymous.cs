@@ -88,6 +88,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonIgnore]
     public int IntLastUpdatedGameDate { get; set; }
 
+    [JsonProperty("isBeginner")]
+    public bool IsBeginner { get; set; }
+
     [JsonProperty("battleWonCount")]
     public int BattleWonCount { get; set; }
 
@@ -141,6 +144,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.HasRemoved = character.HasRemoved;
       this.LastUpdated = character.LastUpdated;
       this.IntLastUpdatedGameDate = character.IntLastUpdatedGameDate;
+      this.IsBeginner = character.IsBeginner;
       if (level == CharacterShareLevel.SameCountry || level == CharacterShareLevel.SameTown || level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountryTownOtherCountry)
       {
         this.TownId = character.TownId;

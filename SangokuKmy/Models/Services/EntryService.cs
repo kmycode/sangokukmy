@@ -79,6 +79,7 @@ namespace SangokuKmy.Models.Services
         TownId = newChara.TownId,
         From = newChara.From,
         FormationPoint = 500,
+        IsBeginner = newChara.IsBeginner,
       };
       chara.SetPassword(password);
 

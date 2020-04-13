@@ -317,6 +317,13 @@ namespace SangokuKmy.Models.Data.Entities
     public int SkillPoint { get; set; }
 
     /// <summary>
+    /// 初心者であるか
+    /// </summary>
+    [Column("is_beginner")]
+    [JsonProperty("isBeginner")]
+    public bool IsBeginner { get; set; }
+
+    /// <summary>
     /// 戦闘勝利数
     /// </summary>
     [Column("battle_won_count")]
