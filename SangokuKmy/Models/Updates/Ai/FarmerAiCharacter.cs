@@ -280,6 +280,22 @@ namespace SangokuKmy.Models.Updates.Ai
             command.Type = CharacterCommandType.Battle;
             return command;
           }
+          else if ((await repo.System.GetAsync()).IsBattleRoyaleMode && !targetTowns.Any())
+          {
+            // 攻撃先と隣接していない、かつ全国戦争中
+            var canAttack = await this.MoveToMyCountryTownNextToCountryAsync(repo, towns, t => true, t => t.People * t.Security, targetCountryIds, command);
+            if (!canAttack)
+            {
+              // 攻撃先と飛び地
+              command.Type = CharacterCommandType.Training;
+              command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 1,
+                NumberValue = 2,
+              });
+            }
+            return command;
+          }
 
           else
           {
