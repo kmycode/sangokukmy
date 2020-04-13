@@ -750,6 +750,10 @@ namespace SangokuKmy.Models.Services
       if (isKokin)
       {
         charaTypes.Add(CharacterAiType.FarmerBattler);
+        charaTypes.Add(CharacterAiType.FarmerBattler);
+        charaTypes.Add(CharacterAiType.FarmerCivilOfficial);
+        charaTypes.Add(CharacterAiType.FarmerBattler);
+        charaTypes.Add(CharacterAiType.FarmerBattler);
         charaTypes.Add(CharacterAiType.FarmerCivilOfficial);
       }
       var country = await CreateCountryAsync(repo, system, town, charaTypes.ToArray());
