@@ -1,4 +1,5 @@
-﻿using SangokuKmy.Common;
+﻿using Microsoft.SqlServer.Server;
+using SangokuKmy.Common;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
@@ -158,6 +159,7 @@ namespace SangokuKmy.Models.Services
         {
           status = param.Status = CountryPolicyStatus.Availabling;
         }
+        await RunCountryPolicyAsync(repo, country, type);
       }
       if (old != null)
       {
@@ -180,6 +182,31 @@ namespace SangokuKmy.Models.Services
       }
 
       return true;
+    }
+
+    private static async Task RunCountryPolicyAsync(MainRepository repo, Country country, CountryPolicyType type)
+    {
+      if (type == CountryPolicyType.TotalMobilization || type == CountryPolicyType.TotalMobilization2)
+      {
+        foreach (var chara in await repo.Country.GetCharactersAsync(country.Id))
+        {
+          chara.SoldierNumber = chara.Leadership;
+          chara.Proficiency = 100;
+          var formation = await repo.Character.GetFormationAsync(chara.Id, chara.FormationType);
+          formation.Experience += 5000;
+          await CharacterService.StreamCharacterAsync(repo, chara);
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(formation), chara.Id);
+        }
+      }
+      if (type == CountryPolicyType.TotalMobilizationWall || type == CountryPolicyType.TotalMobilizationWall2)
+      {
+        foreach (var town in await repo.Town.GetByCountryIdAsync(country.Id))
+        {
+          town.Technology = town.TechnologyMax;
+          town.Wall = town.WallMax;
+          await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
+        }
+      }
     }
 
     public static int GetSecretaryMax(IEnumerable<CountryPolicyType> policies)

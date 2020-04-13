@@ -616,6 +616,36 @@ namespace SangokuKmy.Models.Data.Entities
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart3),
         AvailableDuring = 144,
       },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.TotalMobilization,
+        Name = "国民総動員",
+        BasePoint = 50000,
+        AvailableDuring = 288,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.TotalMobilization2,
+        Name = "国民総動員／弐",
+        BasePoint = 180000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.TotalMobilization),
+        AvailableDuring = 288,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.TotalMobilizationWall,
+        Name = "城壁作業員総動員",
+        BasePoint = 100000,
+        AvailableDuring = 576,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.TotalMobilizationWall2,
+        Name = "城壁作業員総動員／弐",
+        BasePoint = 250000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.TotalMobilizationWall),
+        AvailableDuring = 576,
+      },
 
       new CountryPolicyTypeInfo
       {
