@@ -999,6 +999,25 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
+          // 有効期限の存在する政策
+          {
+            foreach (var country in countryData)
+            {
+              foreach (var policy in country.Policies.Where(p => p.Status == CountryPolicyStatus.Availabling))
+              {
+                var info = CountryPolicyTypeInfoes.Get(policy.Type);
+                if (info.HasData)
+                {
+                  if (system.IntGameDateTime - policy.IntGameDate >= info.Data.AvailableDuring)
+                  {
+                    policy.Status = CountryPolicyStatus.Available;
+                    await StatusStreaming.Default.SendCountryAsync(ApiData.From(policy), country.Country.Id);
+                  }
+                }
+              }
+            }
+          }
+
           // 保留中アイテムの廃棄
           {
             var items = await repo.CharacterItem.GetAllAsync();
@@ -1092,6 +1111,26 @@ namespace SangokuKmy.Models.Updates
               await AddMapLogAsync(true, EventType.WarStart, "全国戦争状態に突入しました");
               await repo.SaveChangesAsync();
             }
+          }
+          if (!system.IsWaitingReset && (system.GameDateTime.Year == 240 || system.GameDateTime.Year == 300) && system.GameDateTime.Month == 1)
+          {
+            foreach (var town in allTowns)
+            {
+              town.WallMax /= 2;
+              town.Wall = Math.Min(town.Wall, town.WallMax);
+            }
+            await AddMapLogAsync(true, EventType.Event, "巨大地震が発生し、全都市の城壁が大幅に破壊されました");
+            await repo.SaveChangesAsync();
+          }
+          if (!system.IsWaitingReset && system.GameDateTime.Year == 360 && system.GameDateTime.Month == 1)
+          {
+            foreach (var town in allTowns)
+            {
+              town.WallMax = 1;
+              town.Wall = Math.Min(town.Wall, town.WallMax);
+            }
+            await AddMapLogAsync(true, EventType.Event, "巨大隕石が落下し、全都市の城壁が修復不可能になりました");
+            await repo.SaveChangesAsync();
           }
 
           // 蛮族

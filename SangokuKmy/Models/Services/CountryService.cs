@@ -153,6 +153,11 @@ namespace SangokuKmy.Models.Services
       if (status == CountryPolicyStatus.Available)
       {
         country.PolicyPoint -= info.Data.GetRequestedPoint(oldStatus);
+
+        if (info.Data.AvailableDuring > 0)
+        {
+          status = param.Status = CountryPolicyStatus.Availabling;
+        }
       }
       if (old != null)
       {

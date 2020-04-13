@@ -65,6 +65,11 @@ namespace SangokuKmy.Models.Data.Entities
     Available = 1,
     Boosting = 2,
     Boosted = 3,
+
+    /// <summary>
+    /// 有効期限の存在する政策で、有効期限の期間中にある状態
+    /// </summary>
+    Availabling = 4,
   }
 
   public enum CountryPolicyType : short
@@ -291,6 +296,8 @@ namespace SangokuKmy.Models.Data.Entities
     public int BasePoint { get; set; }
 
     public bool CanBoost { get; set; } = true;
+
+    public int AvailableDuring { get; set; }
 
     public List<CountryPolicyEffect> Effects { get; set; } = new List<CountryPolicyEffect>();
 
@@ -563,6 +570,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "武官の肇",
         BasePoint = 1000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongCountry),
+        AvailableDuring = 144,
         Effects =
         {
           new CountryPolicyEffect
@@ -578,6 +586,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "武官の肇／弐",
         BasePoint = 5000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart),
+        AvailableDuring = 144,
       },
       new CountryPolicyTypeInfo
       {
@@ -585,6 +594,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "武官の肇／参",
         BasePoint = 25000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart2),
+        AvailableDuring = 144,
       },
       new CountryPolicyTypeInfo
       {
@@ -592,6 +602,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "武官の肇／肆",
         BasePoint = 125000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart3),
+        AvailableDuring = 144,
       },
 
       new CountryPolicyTypeInfo
