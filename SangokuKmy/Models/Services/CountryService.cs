@@ -197,6 +197,7 @@ namespace SangokuKmy.Models.Services
           await CharacterService.StreamCharacterAsync(repo, chara);
           await StatusStreaming.Default.SendCharacterAsync(ApiData.From(formation), chara.Id);
         }
+        await LogService.AddMapLogAsync(repo, true, EventType.Policy, $"<country>{country.Name}</country> は、国民総動員を発動しました");
       }
       if (type == CountryPolicyType.TotalMobilizationWall || type == CountryPolicyType.TotalMobilizationWall2)
       {
@@ -206,6 +207,7 @@ namespace SangokuKmy.Models.Services
           town.Wall = town.WallMax;
           await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
         }
+        await LogService.AddMapLogAsync(repo, true, EventType.Policy, $"<country>{country.Name}</country> は、城壁作業員総動員を発動しました");
       }
     }
 
