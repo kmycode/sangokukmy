@@ -276,6 +276,12 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     TotalMobilizationWall = 43,
     TotalMobilizationWall2 = 44,
+
+    /// <summary>
+    /// 緊縮財政
+    /// </summary>
+    Austerity = 45,
+    Austerity2 = 46,
   }
 
   public enum CountryPolicyEffectType
@@ -622,6 +628,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "国民総動員",
         BasePoint = 50000,
         AvailableDuring = 288,
+        CanBoost = false,
       },
       new CountryPolicyTypeInfo
       {
@@ -630,6 +637,7 @@ namespace SangokuKmy.Models.Data.Entities
         BasePoint = 180000,
         SubjectAppear = list => list.Contains(CountryPolicyType.TotalMobilization),
         AvailableDuring = 288,
+        CanBoost = false,
       },
       new CountryPolicyTypeInfo
       {
@@ -637,6 +645,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "城壁作業員総動員",
         BasePoint = 100000,
         AvailableDuring = 576,
+        CanBoost = false,
       },
       new CountryPolicyTypeInfo
       {
@@ -645,6 +654,23 @@ namespace SangokuKmy.Models.Data.Entities
         BasePoint = 250000,
         SubjectAppear = list => list.Contains(CountryPolicyType.TotalMobilizationWall),
         AvailableDuring = 576,
+        CanBoost = false,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Austerity,
+        Name = "緊縮財政",
+        BasePoint = 50000,
+        AvailableDuring = 288,
+        CanBoost = false,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Austerity2,
+        Name = "緊縮財政／弐",
+        BasePoint = 150000,
+        AvailableDuring = 288,
+        CanBoost = false,
       },
 
       new CountryPolicyTypeInfo

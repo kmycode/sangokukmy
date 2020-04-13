@@ -209,6 +209,15 @@ namespace SangokuKmy.Models.Services
         }
         await LogService.AddMapLogAsync(repo, true, EventType.Policy, $"<country>{country.Name}</country> は、城壁作業員総動員を発動しました");
       }
+      if (type == CountryPolicyType.Austerity || type == CountryPolicyType.Austerity2)
+      {
+        foreach (var chara in await repo.Country.GetCharactersAsync(country.Id))
+        {
+          chara.Money += 20_0000;
+          await CharacterService.StreamCharacterAsync(repo, chara);
+        }
+        await LogService.AddMapLogAsync(repo, true, EventType.Policy, $"<country>{country.Name}</country> は、緊縮財政を発動しました");
+      }
     }
 
     public static int GetSecretaryMax(IEnumerable<CountryPolicyType> policies)
