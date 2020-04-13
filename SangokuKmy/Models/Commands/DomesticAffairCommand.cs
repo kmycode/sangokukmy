@@ -16,16 +16,12 @@ namespace SangokuKmy.Models.Commands
   /// </summary>
   public abstract class DomesticAffairCommand : Command
   {
-    private CommandSystemData Game { get; set; }
-
     protected IEnumerable<CountryPolicy> Policies { get; private set; }
 
-    protected bool IsStrongStartAvailable => this.Policies.Any(p => (p.Type == CountryPolicyType.StrongStart || p.Type == CountryPolicyType.StrongStart2 || p.Type == CountryPolicyType.StrongStart3 || p.Type == CountryPolicyType.StrongStart4) && p.Status == CountryPolicyStatus.Available && p.IntGameDate <= this.Game.GameDateTime.ToInt() && p.IntGameDate + 144 > this.Game.GameDateTime.ToInt());
+    protected bool IsStrongStartAvailable => this.Policies.Any(p => (p.Type == CountryPolicyType.StrongStart || p.Type == CountryPolicyType.StrongStart2 || p.Type == CountryPolicyType.StrongStart3 || p.Type == CountryPolicyType.StrongStart4) && p.Status == CountryPolicyStatus.Availabling);
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
-      this.Game = game;
-
       if (this.GetCharacterAssets(character) < this.UseAssetsLength())
       {
         await game.CharacterLogAsync(this.GetCharacterAssetName() + $"が足りません。<num>{this.UseAssetsLength()}</num> 必要です");
