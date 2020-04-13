@@ -264,6 +264,18 @@ namespace SangokuKmy.Models.Data.Entities
     StrongStart2 = 38,
     StrongStart3 = 39,
     StrongStart4 = 40,
+
+    /// <summary>
+    /// 国民総動員
+    /// </summary>
+    TotalMobilization = 41,
+    TotalMobilization2 = 42,
+
+    /// <summary>
+    /// 城壁強化総動員
+    /// </summary>
+    TotalMobilizationWall = 43,
+    TotalMobilizationWall2 = 44,
   }
 
   public enum CountryPolicyEffectType
@@ -568,7 +580,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.StrongStart,
         Name = "武官の肇",
-        BasePoint = 1000,
+        BasePoint = 5000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongCountry),
         AvailableDuring = 144,
         Effects =
@@ -584,7 +596,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.StrongStart2,
         Name = "武官の肇／弐",
-        BasePoint = 5000,
+        BasePoint = 20000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart),
         AvailableDuring = 144,
       },
@@ -592,7 +604,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.StrongStart3,
         Name = "武官の肇／参",
-        BasePoint = 25000,
+        BasePoint = 80000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart2),
         AvailableDuring = 144,
       },
@@ -600,7 +612,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.StrongStart4,
         Name = "武官の肇／肆",
-        BasePoint = 125000,
+        BasePoint = 240000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart3),
         AvailableDuring = 144,
       },
