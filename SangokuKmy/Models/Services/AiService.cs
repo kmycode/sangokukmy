@@ -50,7 +50,7 @@ namespace SangokuKmy.Models.Services
       return country;
     }
 
-    private static async Task<IEnumerable<Character>> CreateCharacterAsync(MainRepository repo, IEnumerable<CharacterAiType> types, uint countryId, uint townId, SystemData system)
+    public static async Task<IEnumerable<Character>> CreateCharacterAsync(MainRepository repo, IEnumerable<CharacterAiType> types, uint countryId, uint townId, SystemData system)
     {
       var charas = new List<Character>();
       foreach (var type in types)
