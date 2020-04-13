@@ -589,6 +589,7 @@ namespace SangokuKmy.Models.Data.Entities
         BasePoint = 5000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongCountry),
         AvailableDuring = 144,
+        CanBoost = false,
         Effects =
         {
           new CountryPolicyEffect
@@ -605,6 +606,7 @@ namespace SangokuKmy.Models.Data.Entities
         BasePoint = 20000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart),
         AvailableDuring = 144,
+        CanBoost = false,
       },
       new CountryPolicyTypeInfo
       {
@@ -613,6 +615,7 @@ namespace SangokuKmy.Models.Data.Entities
         BasePoint = 80000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart2),
         AvailableDuring = 144,
+        CanBoost = false,
       },
       new CountryPolicyTypeInfo
       {
@@ -621,6 +624,7 @@ namespace SangokuKmy.Models.Data.Entities
         BasePoint = 240000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart3),
         AvailableDuring = 144,
+        CanBoost = false,
       },
       new CountryPolicyTypeInfo
       {
