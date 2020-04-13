@@ -16,16 +16,12 @@ namespace SangokuKmy.Models.Commands
   /// </summary>
   public abstract class DomesticAffairCommand : Command
   {
-    private CommandSystemData Game { get; set; }
-
     protected IEnumerable<CountryPolicy> Policies { get; private set; }
 
-    protected bool IsStrongStartAvailable => this.Policies.Any(p => (p.Type == CountryPolicyType.StrongStart || p.Type == CountryPolicyType.StrongStart2 || p.Type == CountryPolicyType.StrongStart3 || p.Type == CountryPolicyType.StrongStart4) && p.Status == CountryPolicyStatus.Available && p.IntGameDate <= this.Game.GameDateTime.ToInt() && p.IntGameDate + 144 > this.Game.GameDateTime.ToInt());
+    protected bool IsStrongStartAvailable => this.Policies.Any(p => (p.Type == CountryPolicyType.StrongStart || p.Type == CountryPolicyType.StrongStart2 || p.Type == CountryPolicyType.StrongStart3 || p.Type == CountryPolicyType.StrongStart4) && p.Status == CountryPolicyStatus.Availabling);
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
-      this.Game = game;
-
       if (this.GetCharacterAssets(character) < this.UseAssetsLength())
       {
         await game.CharacterLogAsync(this.GetCharacterAssetName() + $"が足りません。<num>{this.UseAssetsLength()}</num> 必要です");
@@ -208,7 +204,7 @@ namespace SangokuKmy.Models.Commands
     protected override int GetCharacterAssets(Character character) => character.Rice;
     protected override string GetCharacterAssetName() => "米";
     protected override void SetCharacterAssets(Character character, int value) => character.Rice = value;
-    protected override int GetCharacterAttribute(Character character) => !this.IsStrongStartAvailable ? character.Popularity : Math.Max(character.Popularity, character.Strong);
+    protected override int GetCharacterAttribute(Character character) => !this.IsStrongStartAvailable ? character.Popularity : Math.Max(character.Popularity, Math.Max(character.Intellect, character.Strong));
     protected override void AddCharacterAttributeEx(Character character, short ex)
     {
       if (!this.IsStrongStartAvailable)
@@ -217,9 +213,13 @@ namespace SangokuKmy.Models.Commands
       }
       else
       {
-        if (character.Popularity > character.Strong)
+        if (character.Popularity > character.Strong && character.Popularity > character.Intellect)
         {
           character.AddPopularityEx(ex);
+        }
+        else if (character.Intellect > character.Strong)
+        {
+          character.AddIntellectEx(ex);
         }
         else
         {

@@ -317,59 +317,66 @@ namespace SangokuKmy.Models.Data.Entities
     public int SkillPoint { get; set; }
 
     /// <summary>
+    /// 初心者であるか
+    /// </summary>
+    [Column("is_beginner")]
+    [JsonProperty("isBeginner")]
+    public bool IsBeginner { get; set; }
+
+    /// <summary>
     /// 戦闘勝利数
     /// </summary>
     [Column("battle_won_count")]
-    [JsonProperty("battleWonCount")]
+    [JsonIgnore]
     public int BattleWonCount { get; set; }
 
     /// <summary>
     /// 戦闘敗北数
     /// </summary>
     [Column("battle_lost_count")]
-    [JsonProperty("battleLostCount")]
+    [JsonIgnore]
     public int BattleLostCount { get; set; }
 
     /// <summary>
     /// 削った城壁の大きさ
     /// </summary>
     [Column("battle_broke_wall_size")]
-    [JsonProperty("battleBrokeWallSize")]
+    [JsonIgnore]
     public int BattleBrokeWallSize { get; set; }
 
     /// <summary>
     /// 支配数
     /// </summary>
     [Column("battle_dominate_count")]
-    [JsonProperty("battleDominateCount")]
+    [JsonIgnore]
     public int BattleDominateCount { get; set; }
 
     /// <summary>
     /// 連戦回数
     /// </summary>
     [Column("battle_continuous_count")]
-    [JsonProperty("battleContinuousCount")]
+    [JsonIgnore]
     public int BattleContinuousCount { get; set; }
 
     /// <summary>
     /// 計略使用回数
     /// </summary>
     [Column("battle_scheme_count")]
-    [JsonProperty("battleSchemeCount")]
+    [JsonIgnore]
     public int BattleSchemeCount { get; set; }
 
     /// <summary>
     /// 戦闘で倒した兵士数
     /// </summary>
     [Column("battle_killed_count")]
-    [JsonProperty("battleKilledCount")]
+    [JsonIgnore]
     public int BattleKilledCount { get; set; }
 
     /// <summary>
     /// 戦闘で倒された兵士数
     /// </summary>
     [Column("battle_being_killed_count")]
-    [JsonProperty("battleBeingKilledCount")]
+    [JsonIgnore]
     public int BattleBeingKilledCount { get; set; }
 
     #endregion

@@ -155,10 +155,6 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        TownTypes = new List<TownType>
-        {
-          TownType.Fortress,
-        },
         Money = 35,
         Technology = 1200,
         CanConscriptWithoutResource = false,
@@ -240,10 +236,6 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        TownTypes = new List<TownType>
-        {
-          TownType.Fortress,
-        },
         Money = 35,
         Technology = 1200,
         CanConscriptWithoutResource = false,
@@ -319,10 +311,6 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        TownTypes = new List<TownType>
-        {
-          TownType.Fortress,
-        },
         Money = 35,
         Technology = 1200,
         CanConscriptWithoutResource = false,
@@ -345,10 +333,6 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        TownTypes = new List<TownType>
-        {
-          TownType.Agriculture,
-        },
         Money = 20,
         Technology = 500,
       },
@@ -370,10 +354,6 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        TownTypes = new List<TownType>
-        {
-          TownType.Commercial,
-        },
         Money = 30,
         Technology = 600,
       },
@@ -394,10 +374,6 @@ namespace SangokuKmy.Models.Data.Entities
           TypeWeapon = 10,
           StrongEx = 1,
           PowerStrong = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Commercial,
         },
         Money = 40,
         Technology = 600,
@@ -505,10 +481,6 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        TownTypes = new List<TownType>
-        {
-          TownType.Agriculture,
-        },
         Money = 25,
         Technology = 800,
         CanConscriptWithoutResource = false,
@@ -525,10 +497,6 @@ namespace SangokuKmy.Models.Data.Entities
           TypeInfantry = 10,
           StrongEx = 1,
           PowerStrong = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Commercial,
         },
         Money = 25,
         Technology = 800,
@@ -666,10 +634,6 @@ namespace SangokuKmy.Models.Data.Entities
           IntellectEx = 1,
           PowerIntellect = 1,
         },
-        TownTypes = new List<TownType>
-        {
-          TownType.Commercial,
-        },
         Money = 22,
         Technology = 1000,
       },
@@ -684,10 +648,6 @@ namespace SangokuKmy.Models.Data.Entities
           TypeInfantry = 5,
           IntellectEx = 1,
           PowerIntellect = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Fortress,
         },
         Money = 22,
         Technology = 1000,
@@ -741,10 +701,6 @@ namespace SangokuKmy.Models.Data.Entities
           PopularityEx = 1,
           PowerPopularity = 1,
         },
-        TownTypes = new List<TownType>
-        {
-          TownType.Agriculture,
-        },
         Money = 15,
         Technology = 300,
         CanConscriptWithoutSkill = false,
@@ -765,10 +721,6 @@ namespace SangokuKmy.Models.Data.Entities
           TypeWeapon = 10,
           PopularityEx = 1,
           PowerPopularity = 1,
-        },
-        TownTypes = new List<TownType>
-        {
-          TownType.Agriculture,
         },
         Money = 40,
         Technology = 700,

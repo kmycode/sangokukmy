@@ -21,10 +21,17 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("name")]
     public string Name { get; set; }
 
+    /// <summary>
+    /// 初心者フラグ
+    /// </summary>
+    [JsonProperty("isBeginner")]
+    public bool IsBeginner { get; set; }
+
     public CharacterChatData(Character character)
     {
       this.Id = character.Id;
       this.Name = character.Name;
+      this.IsBeginner = character.IsBeginner;
     }
   }
 }

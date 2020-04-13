@@ -65,6 +65,11 @@ namespace SangokuKmy.Models.Data.Entities
     Available = 1,
     Boosting = 2,
     Boosted = 3,
+
+    /// <summary>
+    /// 有効期限の存在する政策で、有効期限の期間中にある状態
+    /// </summary>
+    Availabling = 4,
   }
 
   public enum CountryPolicyType : short
@@ -259,6 +264,18 @@ namespace SangokuKmy.Models.Data.Entities
     StrongStart2 = 38,
     StrongStart3 = 39,
     StrongStart4 = 40,
+
+    /// <summary>
+    /// 国民総動員
+    /// </summary>
+    TotalMobilization = 41,
+    TotalMobilization2 = 42,
+
+    /// <summary>
+    /// 城壁強化総動員
+    /// </summary>
+    TotalMobilizationWall = 43,
+    TotalMobilizationWall2 = 44,
   }
 
   public enum CountryPolicyEffectType
@@ -291,6 +308,8 @@ namespace SangokuKmy.Models.Data.Entities
     public int BasePoint { get; set; }
 
     public bool CanBoost { get; set; } = true;
+
+    public int AvailableDuring { get; set; }
 
     public List<CountryPolicyEffect> Effects { get; set; } = new List<CountryPolicyEffect>();
 
@@ -561,8 +580,9 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.StrongStart,
         Name = "武官の肇",
-        BasePoint = 1000,
+        BasePoint = 5000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongCountry),
+        AvailableDuring = 144,
         Effects =
         {
           new CountryPolicyEffect
@@ -576,22 +596,55 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CountryPolicyType.StrongStart2,
         Name = "武官の肇／弐",
-        BasePoint = 5000,
+        BasePoint = 20000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart),
+        AvailableDuring = 144,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.StrongStart3,
         Name = "武官の肇／参",
-        BasePoint = 25000,
+        BasePoint = 80000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart2),
+        AvailableDuring = 144,
       },
       new CountryPolicyTypeInfo
       {
         Type = CountryPolicyType.StrongStart4,
         Name = "武官の肇／肆",
-        BasePoint = 125000,
+        BasePoint = 240000,
         SubjectAppear = list => list.Contains(CountryPolicyType.StrongStart3),
+        AvailableDuring = 144,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.TotalMobilization,
+        Name = "国民総動員",
+        BasePoint = 50000,
+        AvailableDuring = 288,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.TotalMobilization2,
+        Name = "国民総動員／弐",
+        BasePoint = 180000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.TotalMobilization),
+        AvailableDuring = 288,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.TotalMobilizationWall,
+        Name = "城壁作業員総動員",
+        BasePoint = 100000,
+        AvailableDuring = 576,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.TotalMobilizationWall2,
+        Name = "城壁作業員総動員／弐",
+        BasePoint = 250000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.TotalMobilizationWall),
+        AvailableDuring = 576,
       },
 
       new CountryPolicyTypeInfo
