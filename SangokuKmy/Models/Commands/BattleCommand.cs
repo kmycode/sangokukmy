@@ -547,6 +547,16 @@ namespace SangokuKmy.Models.Commands
             mapLogId = await game.MapLogAndSaveAsync(EventType.TakeAway, "<country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <town>" + targetTown.Name + "</town> を支配しました", true);
             await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> を支配しました");
 
+            if (myCountry.AiType == CountryAiType.Farmers)
+            {
+              var cs = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FarmerBattler, }, myCountry.Id, targetTown.Id, system);
+              foreach (var c in cs)
+              {
+                c.Name += c.Id;
+                await game.MapLogAndSaveAsync(EventType.ReinforcementActived, "<country>" + myCountry.Name + "</country> に <character>" + c.Name + "</character> が新たに参加しました", false);
+              }
+            }
+
             // 支配したときのみ匿名ストリーミング
             await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(targetTown)));
 
