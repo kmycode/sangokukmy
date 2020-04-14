@@ -46,9 +46,10 @@ namespace SangokuKmy.Controllers
       ([FromBody] AuthenticateParameter param)
     {
       AuthenticationData authData;
+      var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
       using (var repo = MainRepository.WithReadAndWrite())
       {
-        authData = await AuthenticationService.WithIdAndPasswordAsync(repo, param.Id, param.Password);
+        authData = await AuthenticationService.WithIdAndPasswordAsync(repo, param.Id, param.Password, ip);
       }
       return ApiData.From(authData);
     }

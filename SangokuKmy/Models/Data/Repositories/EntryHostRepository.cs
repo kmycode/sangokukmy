@@ -35,6 +35,22 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 特定武将のデータを取得
+    /// </summary>
+    public async Task<IReadOnlyList<EntryHost>> GetCharacterAsync(uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.EntryHosts.Where(h => h.CharacterId == charaId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 指定したIPアドレスが存在するか調べる
     /// </summary>
     /// <param name="ip">IPアドレス</param>
@@ -43,6 +59,23 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         return await this.container.Context.EntryHosts.AnyAsync(h => h.IpAddress == ip);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
+    /// 指定したIPアドレスが存在するか調べる
+    /// </summary>
+    /// <param name="ip">IPアドレス</param>
+    public async Task<bool> ExistsAsync(string ip, uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.EntryHosts.AnyAsync(h => h.IpAddress == ip && h.CharacterId == charaId);
       }
       catch (Exception ex)
       {

@@ -32,7 +32,7 @@ namespace SangokuKmy.Controllers
         await EntryService.EntryAsync(repo, ip, param.Character, param.Icon, param.Password, param.Country, param.InvitationCode);
         await repo.SaveChangesAsync();
 
-        var authData = await AuthenticationService.WithIdAndPasswordAsync(repo, param.Character.AliasId, param.Password);
+        var authData = await AuthenticationService.WithIdAndPasswordAsync(repo, param.Character.AliasId, param.Password, ip);
         return ApiData.From(authData);
       }
     }
