@@ -127,7 +127,7 @@ namespace SangokuKmy.Controllers
           push.QueueNotification(new ApnsNotification
           {
             DeviceToken = key.Key,
-            Payload = JObject.Parse(@"{""aps"":{""alert"":{""title"":""TITLE"",""body"":""notification test""},""badge"":7}}"),
+            Payload = JObject.Parse(@"{""aps"":{""alert"":{""title"":""放置削除ターンが進んでいます"",""body"":""コマンドを入力しないと、あなたの武将データは約 2 日後に削除されます""},""badge"":7}}"),
           });
         }
       }
