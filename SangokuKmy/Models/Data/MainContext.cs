@@ -275,6 +275,11 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public DbSet<DelayEffect> DelayEffects { get; set; }
 
+    /// <summary>
+    /// プッシュ通知情報
+    /// </summary>
+    public DbSet<PushNotificationKey> PushNotificationKeys { get; set; }
+
     private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
         new DebugLoggerProvider((category, level)
             => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)

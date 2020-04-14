@@ -10,6 +10,8 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Services;
 using SangokuKmy.Models.Data.Entities;
+using PushSharp.Apple;
+using Newtonsoft.Json.Linq;
 
 namespace SangokuKmy.Controllers
 {
@@ -102,6 +104,35 @@ namespace SangokuKmy.Controllers
         str += "|\n";
       }
       return str;
+    }
+
+    [HttpGet("notify")]
+    public async Task Notification()
+    {
+      var push = new ApnsServiceBroker(new ApnsConfiguration(
+        ApnsConfiguration.ApnsServerEnvironment.Sandbox,
+        "/Users/kmy/Develop/_iOSCerts/push_notification_development.p12",
+        "test"));
+      push.OnNotificationFailed += (sender, e) =>
+      {
+
+      };
+      push.Start();
+
+      using (var repo = MainRepository.WithRead())
+      {
+        var keys = await repo.PushNotificationKey.GetAllAsync();
+        foreach (var key in keys)
+        {
+          push.QueueNotification(new ApnsNotification
+          {
+            DeviceToken = key.Key,
+            Payload = JObject.Parse(@"{""aps"":{""alert"":{""title"":""TITLE"",""body"":""notification test""},""badge"":7}}"),
+          });
+        }
+      }
+
+      push.Stop();
     }
   }
 }

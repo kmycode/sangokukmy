@@ -166,6 +166,12 @@ namespace SangokuKmy.Models.Data
     private DelayEffectRepository _delayEffect;
 
     /// <summary>
+    /// プッシュ通知情報
+    /// </summary>
+    public PushNotificationKeyRepository PushNotificationKey => this._pushNotificationKey = this._pushNotificationKey ?? new PushNotificationKeyRepository(this.container);
+    private PushNotificationKeyRepository _pushNotificationKey;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>
