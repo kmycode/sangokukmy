@@ -1564,6 +1564,8 @@ namespace SangokuKmy.Models.Updates
     {
       if (system.IsWaitingReset && system.IntResetGameDateTime == system.IntGameDateTime)
       {
+        await PushNotificationService.TestSend(repo, system, _logger);
+
         await ResetService.ResetAsync(repo);
 
         var sys = await repo.System.GetAsync();
