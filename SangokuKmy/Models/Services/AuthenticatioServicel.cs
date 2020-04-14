@@ -21,12 +21,13 @@ namespace SangokuKmy.Models.Services
     /// </summary>
     /// <param name="token">アクセストークン</param>
     /// <returns>認証結果</returns>
-    public static async Task<AuthenticationData> WithTokenAsync(MainRepository repo, string token)
+    public static async Task<AuthenticationData> WithTokenAsync(MainRepository repo, string token, string ip)
     {
       var data = await repo.AuthenticationData
         .FindByTokenAsync(token)
         .GetOrErrorAsync(ErrorCode.LoginTokenIncorrectError);
 
+      await RecordIpAddressAsymc(repo, data.CharacterId, ip);
       return data;
     }
 
@@ -36,9 +37,30 @@ namespace SangokuKmy.Models.Services
     /// <param name="id">ID</param>
     /// <param name="password">パスワード</param>
     /// <returns>認証結果</returns>
-    public static async Task<AuthenticationData> WithIdAndPasswordAsync(MainRepository repo, string id, string password)
+    public static async Task<AuthenticationData> WithIdAndPasswordAsync(MainRepository repo, string id, string password, string ip)
     {
-      return await LoginAsync(repo, id, password);
+      var data = await LoginAsync(repo, id, password);
+
+      await RecordIpAddressAsymc(repo, data.CharacterId, ip);
+      return data;
+    }
+
+    private static async Task RecordIpAddressAsymc(MainRepository repo, uint charaId, string ip)
+    {
+      if (string.IsNullOrWhiteSpace(ip))
+      {
+        return;
+      }
+
+      var isExists = await repo.EntryHost.ExistsAsync(ip, charaId);
+      if (!isExists)
+      {
+        await repo.EntryHost.AddAsync(new EntryHost
+        {
+          CharacterId = charaId,
+          IpAddress = ip,
+        });
+      }
     }
 
     /// <summary>

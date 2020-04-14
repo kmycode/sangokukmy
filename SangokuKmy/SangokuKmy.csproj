@@ -47,6 +47,7 @@
     <PackageReference Include="Nito.AsyncEx" Version="4.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
     <PackageReference Include="SixLabors.ImageSharp" Version="1.0.0-beta0006" />
+    <PackageReference Include="PushSharp.Core" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>

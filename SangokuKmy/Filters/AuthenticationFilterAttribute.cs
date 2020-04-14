@@ -8,6 +8,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Controllers;
 using SangokuKmy.Common;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Filters
 {
@@ -51,10 +52,16 @@ namespace SangokuKmy.Filters
       using (var repo = MainRepository.WithRead())
       {
         AuthenticationData authData = null;
+        var ip = context.HttpContext.Connection.RemoteIpAddress?.ToString();
         Task.Run(async () => {
-          authData = (await repo.AuthenticationData
-            .FindByTokenAsync(token))
-            .GetOrError(ErrorCode.LoginTokenIncorrectError);
+          //authData = (await repo.AuthenticationData
+          //  .FindByTokenAsync(token))
+          //  .GetOrError(ErrorCode.LoginTokenIncorrectError);
+          authData = await AuthenticationService.WithTokenAsync(repo, token, ip);
+          if (authData == null)
+          {
+            ErrorCode.LoginTokenIncorrectError.Throw();
+          }
         }).Wait();
 
         // 認証データをコントローラに設定
