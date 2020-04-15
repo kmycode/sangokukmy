@@ -33,6 +33,7 @@ namespace SangokuKmy.Models.Updates
       RandomService.Next();
 
       _logger = logger;
+      PushNotificationService.Logger = _logger;
 
       Task.Run(async () =>
       {
@@ -175,6 +176,19 @@ namespace SangokuKmy.Models.Updates
           .GroupJoin(allTowns, c => c.Id, t => t.CountryId, (c, ts) => new { Country = c, Towns = ts, })
           .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, })
           .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, });
+
+        if (system.GameDateTime.Year == Config.UpdateStartYear && system.GameDateTime.Month == 1)
+        {
+          await PushNotificationService.SendAllAsync(repo, "武将更新開始", "武将のコマンド実行が開始されました。以降はコマンドが上から順番に実行されます");
+        }
+        if (system.IntGameDateTime == new GameDateTime
+        {
+          Year = Config.UpdateStartYear,
+          Month = 1,
+        }.AddMonth(Config.CountryBattleStopDuring).ToInt())
+        {
+          await PushNotificationService.SendAllAsync(repo, "戦闘解除", "戦闘が解除されました。以降は戦争が可能です（他国へ攻め込むには宣戦布告が必要です）");
+        }
 
         if (system.GameDateTime.Year >= Config.UpdateStartYear)
         {
@@ -1564,12 +1578,13 @@ namespace SangokuKmy.Models.Updates
     {
       if (system.IsWaitingReset && system.IntResetGameDateTime == system.IntGameDateTime)
       {
-        await PushNotificationService.TestSend(repo, system, _logger);
-
         await ResetService.ResetAsync(repo);
 
         var sys = await repo.System.GetAsync();
         nextMonthStartDateTime = sys.CurrentMonthStartDateTime.AddSeconds(Config.UpdateTime);
+
+        await PushNotificationService.SendAllAsync(repo, "リセット", "第 " + (system.BetaVersion == 0 ? system.Period.ToString() : system.Period + "." + system.BetaVersion) + " 期が始まりました。新規登録して、ゲームを始めましょう！");
+        await repo.PushNotificationKey.ResetAsync();
 
         return true;
       }
