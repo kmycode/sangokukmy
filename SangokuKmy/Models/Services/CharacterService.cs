@@ -194,6 +194,7 @@ namespace SangokuKmy.Models.Services
       repo.Town.RemoveDefender(character.Id);
       repo.EntryHost.RemoveCharacter(character.Id);
       repo.PushNotificationKey.RemoveByCharacterId(character.Id);
+      repo.Mute.RemoveCharacter(character.Id);
       await repo.AuthenticationData.RemoveCharacterAsync(character.Id);
 
       character.PasswordHash = character.AliasId;

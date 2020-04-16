@@ -54,6 +54,19 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public void RemoveCharacter(uint charaId)
+    {
+      try
+      {
+        this.container.Context.Mutes.RemoveRange(this.container.Context.Mutes.Where(m => m.CharacterId == charaId && m.Type == MuteType.Muted));
+        this.container.Context.MuteKeywords.RemoveRange(this.container.Context.MuteKeywords.Where(k => k.CharacterId == charaId));
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     public async Task AddAsync(MuteKeyword keyword)
     {
       try
