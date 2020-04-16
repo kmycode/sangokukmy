@@ -112,5 +112,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<CommandMessage> From(CommandMessage data) => From(38, data);
     public static ApiArrayData<CommandMessage> From(IEnumerable<CommandMessage> data) => From(38, data);
     public static ApiData<TownSubBuilding> From(TownSubBuilding data) => From(39, data);
+    public static ApiData<Mute> From(Mute data) => From(40, data);
+    public static ApiData<MuteKeyword> From(MuteKeyword data) => From(41, data);
   }
 }

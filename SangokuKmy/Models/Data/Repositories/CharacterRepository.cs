@@ -129,6 +129,21 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<Character>> GetAdministratorsAsync()
+    {
+      try
+      {
+        return await this.container.Context.Characters
+          .Where(c => c.AiType == CharacterAiType.Administrator)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     /// <summary>
     /// 指定した名前の武将がいないか調べる
     /// </summary>

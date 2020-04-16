@@ -57,6 +57,8 @@ namespace SangokuKmy.Controllers
       IEnumerable<CharacterSkill> skills;
       IEnumerable<CommandMessage> commandMessages;
       IEnumerable<CharacterCommand> otherCharacterCommands;
+      IEnumerable<Mute> mutes;
+      MuteKeyword muteKeyword;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -85,6 +87,11 @@ namespace SangokuKmy.Controllers
         items = await repo.CharacterItem.GetAllAsync();
         skills = await repo.Character.GetSkillsAsync(chara.Id);
         commandMessages = await repo.CharacterCommand.GetMessagesAsync(chara.CountryId);
+        mutes = await repo.Mute.GetCharacterAsync(chara.Id);
+        muteKeyword = (await repo.Mute.GetCharacterKeywordAsync(chara.Id)).Data ?? new MuteKeyword
+        {
+          Keywords = string.Empty,
+        };
 
         var countryCharacters = await repo.Country.GetCharactersWithIconsAndCommandsAsync(chara.CountryId);
         otherCharacterCommands = countryCharacters.SelectMany(c => c.Commands);
@@ -134,6 +141,8 @@ namespace SangokuKmy.Controllers
         .Concat(myTowns.Select(tw => ApiData.From(tw)))
         .Concat(scoutedTowns.Select(st => ApiData.From(st)))
         .Concat(defenders.Where(d => myTowns.Any(t => t.Id == d.TownId) || d.TownId == chara.TownId).Select(d => ApiData.From(d)))
+        .Concat(mutes.Select(m => ApiData.From(m)))
+        .Append(ApiData.From(muteKeyword))
         .Concat(chatMessages.Select(cm => ApiData.From(cm)))
         .Concat(alliances.Select(ca => ApiData.From(ca)))
         .Concat(wars.Select(cw => ApiData.From(cw)))

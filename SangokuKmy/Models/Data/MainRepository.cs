@@ -172,6 +172,12 @@ namespace SangokuKmy.Models.Data
     private PushNotificationKeyRepository _pushNotificationKey;
 
     /// <summary>
+    /// ミュート
+    /// </summary>
+    public MuteRepository Mute => this._mute = this._mute ?? new MuteRepository(this.container);
+    private MuteRepository _mute;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>
