@@ -937,6 +937,8 @@ namespace SangokuKmy.Models.Updates
                 if (country1 != null && country2 != null)
                 {
                   await AddMapLogAsync(true, EventType.WarStart, "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争が始まりました");
+                  await PushNotificationService.SendCountryAsync(repo, "戦争", $"{country2.Name} との戦争が始まりました", country1.Id);
+                  await PushNotificationService.SendCountryAsync(repo, "戦争", $"{country1.Name} との戦争が始まりました", country2.Id);
                 }
                 war.Status = CountryWarStatus.Available;
                 await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
@@ -1123,6 +1125,7 @@ namespace SangokuKmy.Models.Updates
 
               system.IsBattleRoyaleMode = true;
               await AddMapLogAsync(true, EventType.WarStart, "全国戦争状態に突入しました");
+              await PushNotificationService.SendAllAsync(repo, "全国戦争", "全国戦争状態に突入しました");
               await repo.SaveChangesAsync();
             }
           }
@@ -1358,6 +1361,20 @@ namespace SangokuKmy.Models.Updates
           }
         }
 
+        // 放置削除ターンの確認
+        if (character.DeleteTurn > 0)
+        {
+          if (character.DeleteTurn == 1)
+          {
+            await PushNotificationService.SendCharacterAsync(repo, "コマンド切れ", "入力したすべてのコマンドの実行が完了しました。新しいコマンドを入力してください", character.Id);
+          }
+          else if (Config.DeleteTurns != character.DeleteTurn && (Config.DeleteTurns - character.DeleteTurn) % 144 == 0)
+          {
+            var days = (Config.DeleteTurns - character.DeleteTurn) % 144;
+            await PushNotificationService.SendCharacterAsync(repo, "コマンド切れ", $"入力したすべてのコマンドの実行が完了したため、放置削除が進んでいます。このまま新しいコマンドを入力しないと、あなたの武将は約 {days} 日後に削除されます", character.Id);
+          }
+        }
+
         // 管理人だけの特別処理
         if (character.AiType == CharacterAiType.Administrator)
         {
@@ -1381,6 +1398,7 @@ namespace SangokuKmy.Models.Updates
         // 放置削除の確認
         if (character.DeleteTurn >= Config.DeleteTurns)
         {
+          await PushNotificationService.SendCharacterAsync(repo, "放置削除", "あなたの武将は放置削除されました。ゲームを続行するには、再度新規登録が必要です", character.Id);
           var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
           await CharacterService.RemoveAsync(repo, character);
           if (character.AiType == CharacterAiType.Human)
