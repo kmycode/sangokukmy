@@ -280,6 +280,16 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public DbSet<PushNotificationKey> PushNotificationKeys { get; set; }
 
+    /// <summary>
+    /// ミュート
+    /// </summary>
+    public DbSet<Mute> Mutes { get; set; }
+
+    /// <summary>
+    /// ミュートするキーワード
+    /// </summary>
+    public DbSet<MuteKeyword> MuteKeywords { get; set; }
+
     private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
         new DebugLoggerProvider((category, level)
             => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)
