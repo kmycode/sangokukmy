@@ -98,6 +98,9 @@ namespace SangokuKmy.Models.Services
           mapLog.Message = "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争は停戦しました";
         }
         await repo.MapLog.AddAsync(mapLog);
+
+        await PushNotificationService.SendCountryAsync(repo, "宣戦布告", $"{war.StartGameDate.ToString()} より {country2.Name} と戦争します", country1.Id);
+        await PushNotificationService.SendCountryAsync(repo, "宣戦布告", $"{war.StartGameDate.ToString()} より {country1.Name} と戦争します", country2.Id);
       }
 
       await repo.SaveChangesAsync();
