@@ -38,6 +38,12 @@ namespace SangokuKmy.Controllers
         await this.RemoveMuteAsync(mute);
         return;
       }
+      if (!((mute.TargetCharacterId != 0 && mute.ChatMessageId == 0 && mute.ThreadBbsItemId == 0) ||
+            (mute.TargetCharacterId == 0 && mute.ChatMessageId != 0 && mute.ThreadBbsItemId == 0) ||
+            (mute.TargetCharacterId == 0 && mute.ChatMessageId == 0 && mute.ThreadBbsItemId != 0)))
+      {
+        ErrorCode.InvalidParameterError.Throw();
+      }
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
@@ -53,6 +59,31 @@ namespace SangokuKmy.Controllers
           ErrorCode.MeaninglessOperationError.Throw();
         }
 
+        var targetMessage = string.Empty;
+        var targetCharacter = default(Character);
+        var targetType = string.Empty;
+        if (mute.ChatMessageId != 0)
+        {
+          var item = await repo.ChatMessage.GetByIdAsync(mute.ChatMessageId).GetOrErrorAsync(ErrorCode.InvalidOperationError);
+          targetMessage = item.Message;
+          targetCharacter = await repo.Character.GetByIdAsync(item.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+          targetType = item.Type == ChatMessageType.Global ? "全国宛" :
+                       item.Type == ChatMessageType.OtherCountry ? "他国宛" :
+                       item.Type == ChatMessageType.Private ? "個宛" :
+                       item.Type == ChatMessageType.Promotion ? "登用" :
+                       item.Type == ChatMessageType.PromotionAccepted ? "登用" :
+                       item.Type == ChatMessageType.PromotionDenied ? "登用" :
+                       item.Type == ChatMessageType.PromotionRefused ? "登用" :
+                       item.Type == ChatMessageType.SelfCountry ? "国宛" : "未定義";
+        }
+        else if (mute.ThreadBbsItemId != 0)
+        {
+          var item = await repo.ThreadBbs.GetByIdAsync(mute.ThreadBbsItemId).GetOrErrorAsync(ErrorCode.InvalidOperationError);
+          targetMessage = item.Text;
+          targetCharacter = await repo.Character.GetByIdAsync(item.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+          targetType = item.Type == BbsType.CountryBbs ? "会議室" : "全国会議室";
+        }
+
         mute.CharacterId = chara.Id;
         await repo.Mute.AddAsync(mute);
         await repo.SaveChangesAsync();
@@ -65,7 +96,7 @@ namespace SangokuKmy.Controllers
           {
             chats.Add(await ChatService.PostChatMessageAsync(repo, new ChatMessage
             {
-              Message = $"[r][s]【報告】[-s][-r]\n\nMute ID: {mute.Id}\n\n追加でメッセージがある場合は、続けて個宛してください（右下の再送ボタンより送れます）",
+              Message = $"[r][s]【報告】[-s][-r]\n\nMute ID: {mute.Id}\n\n武将名: {targetCharacter?.Name}\n\n{targetType}: {targetMessage}\n\n追加でメッセージがある場合は、続けて個宛してください（右下の再送ボタンより送れます）",
             }, chara, ChatMessageType.Private, chara.Id, admin.Id));
           }
           await repo.SaveChangesAsync();
