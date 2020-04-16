@@ -275,6 +275,11 @@
     <None Include="wwwroot\images\character-default-icons\98.gif" />
     <None Include="wwwroot\images\character-default-icons\wiz.gif" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="PushSharp.Common">
+      <HintPath>Libraries\PushSharp.Common.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>
