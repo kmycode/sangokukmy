@@ -40,7 +40,7 @@ namespace SangokuKmy.Models.Services
           "test"));
         push.OnNotificationFailed += (sender, e) =>
         {
-          Logger.LogError(e, "プッシュ通知送信時にエラーが発生しました");
+          Logger?.LogError(e, "プッシュ通知送信時にエラーが発生しました");
         };
         push.Start();
 
