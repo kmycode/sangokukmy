@@ -110,12 +110,41 @@ namespace SangokuKmy.Controllers
     public async Task Notification()
     {
       var push = new ApnsServiceBroker(new ApnsConfiguration(
-        ApnsConfiguration.ApnsServerEnvironment.Sandbox,
-        "/Users/kmy/Develop/_iOSCerts/push_notification_development.p12",
+        ApnsConfiguration.ApnsServerEnvironment.Production,
+        "/Users/kmy/Develop/_iOSCerts/push_notification_product.p12",
         "test"));
       push.OnNotificationFailed += (sender, e) =>
       {
+        var s = e.ToString();
+      };
+      push.Start();
 
+      using (var repo = MainRepository.WithRead())
+      {
+        var keys = await repo.PushNotificationKey.GetAllAsync();
+        foreach (var key in keys)
+        {
+          push.QueueNotification(new ApnsNotification
+          {
+            DeviceToken = key.Key,
+            Payload = JObject.Parse(@"{""aps"":{""alert"":{""title"":""放置削除ターンが進んでいます"",""body"":""コマンドを入力しないと、あなたの武将データは約 2 日後に削除されます""},""badge"":7}}"),
+          });
+        }
+      }
+
+      push.Stop();
+    }
+
+    [HttpGet("notify2")]
+    public async Task Notification2()
+    {
+      var push = new ApnsServiceBroker(new ApnsConfiguration(
+        ApnsConfiguration.ApnsServerEnvironment.Production,
+        "/home/sangokukmy/push_notification_product.p12",
+        "test"));
+      push.OnNotificationFailed += (sender, e) =>
+      {
+        var s = e.ToString();
       };
       push.Start();
 
