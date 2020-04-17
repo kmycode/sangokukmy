@@ -39,11 +39,12 @@ namespace SangokuKmy.Models.Services
         Message = string.Empty,
         CountryId = 0,
       };
-      foreach (var targetCountryCharacter in await repo.Country.GetCharactersWithIconsAndCommandsAsync(country.Id))
+      foreach (var targetCountryCharacter in await repo.Country.GetCharactersAsync(country.Id))
       {
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCountryCharacter.Character), targetCountryCharacter.Character.Id);
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), targetCountryCharacter.Character.Id);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(targetCountryCharacter), targetCountryCharacter.Id);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), targetCountryCharacter.Id);
       }
+      await PushNotificationService.SendCountryAsync(repo, "滅亡", "あなたの国は滅亡しました。どこかの国に仕官するか、登用に応じることでゲームを続行できます", country.Id);
 
       // 登用分を無効化
       await ChatService.DenyCountryPromotions(repo, country);
@@ -65,6 +66,10 @@ namespace SangokuKmy.Models.Services
           {
             await LogService.AddMapLogAsync(repo, true, EventType.Unified, "大陸は、<country>" + unifiedCountry.Name + "</country> によって統一されました");
             await ResetService.RequestResetAsync(repo);
+
+            await repo.SaveChangesAsync();
+            system = await repo.System.GetAsync();
+            await PushNotificationService.SendAllAsync(repo, "統一", $"{unifiedCountry.Name} は、大陸を統一しました。ゲームは {system.ResetGameDateTime.ToString()} にリセットされます");
           }
         }
       }
