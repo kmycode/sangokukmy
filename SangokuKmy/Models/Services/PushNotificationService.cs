@@ -50,7 +50,7 @@ namespace SangokuKmy.Models.Services
           push.QueueNotification(new ApnsNotification
           {
             DeviceToken = key.Key,
-            Payload = JObject.Parse(@"{""aps"":{""alert"":{""title"":""" + title + @""",""body"":""" + message + @"""},""badge"":1}}"),
+            Payload = JObject.Parse(@"{""aps"":{""alert"":{""title"":""" + title + @""",""body"":""" + message + @"""},""badge"":1,""sound"":""default""}}"),
           });
         }
 
