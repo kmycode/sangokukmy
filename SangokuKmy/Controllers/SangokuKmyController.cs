@@ -189,6 +189,10 @@ namespace SangokuKmy.Controllers
           {
             repo.ErrorWithCustomCode(ex);
           }
+          else
+          {
+            repo.Error(ex);
+          }
         }
         catch (Exception ex)
         {
