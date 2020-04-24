@@ -424,7 +424,7 @@ namespace SangokuKmy.Models.Updates.Ai
         else if (this.ForceDefendPolicy == ForceDefendPolicyLevel.Aggressive)
         {
           this.data.IsDefendForce = (!targets.Any() &&
-            myAttacks.Min(h => h.RestDefenderCount) >= 1)
+            myAttacks.Any() && myAttacks.Min(h => h.RestDefenderCount) >= 1)
             || targetsUsedMoneyAverage < 1_2000;
           money = 26_0000;
           minMoney = 10_0000;
@@ -688,7 +688,7 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       var availableWars = wars
-        .Where(w => w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady));
+        .Where(w => w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting));
       if (availableWars.Any())
       {
         return availableWars.Min(w => w.IntStartGameDate);

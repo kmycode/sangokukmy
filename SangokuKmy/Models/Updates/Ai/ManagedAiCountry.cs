@@ -282,10 +282,12 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       this.Management.VirtualEnemyCountryId = 0;
+      var allCountries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown);
 
       var aroundCountries = allTowns
         .GetAroundCountries(allTowns.Where(t => t.CountryId == this.Country.Id))
         .OrderBy(c => GetCountrySize(c))
+        .Where(c => allCountries.Any(cc => cc.Id == c && cc.AiType != CountryAiType.Terrorists))
         .ToArray();
       if (!aroundCountries.Any(c => c != this.Country.Id))
       {
@@ -877,7 +879,7 @@ namespace SangokuKmy.Models.Updates.Ai
       var type = chara.GetCharacterType();
       if (type == CharacterType.Strong || type == CharacterType.Intellect)
       {
-        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 45_0000 : 40_0000);
+        return chara.Money + chara.Rice >= (this.Management.WarPolicy == AiCountryWarPolicy.GoodFight ? 100_0000 : 90_0000);
       }
       if (type == CharacterType.Popularity)
       {

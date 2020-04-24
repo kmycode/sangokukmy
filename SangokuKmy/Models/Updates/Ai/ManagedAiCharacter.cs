@@ -434,6 +434,8 @@ namespace SangokuKmy.Models.Updates.Ai
     {
       if (this.soldierTypeCache == SoldierType.Unknown)
       {
+        var soldierTypeNumber = this.Character.Id + this.GameDateTime.Year / 20;
+
         if (this.Town.Technology >= 500 &&
           this.Character.Money > this.Character.Leadership * 300 + 5_0000 &&
           (this.AttackType == AttackMode.BreakWall ||
@@ -451,13 +453,13 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           this.soldierTypeCache = SoldierType.Seiran;
         }
-        else if (this.Town.Technology >= 1000 && this.Character.Money > this.Character.Leadership * 240 + 45_0000)
+        else if (this.Town.Technology >= 1000 && this.Character.Money > this.Character.Leadership * 240 + 45_0000 && this.GameDateTime.Year >= 140)
         {
-          if (this.Character.Id % 3 == 0)
+          if (soldierTypeNumber % 3 == 0)
           {
             this.soldierTypeCache = SoldierType.RepeatingCrossbow;
           }
-          else if (this.Character.Id % 3 == 1)
+          else if (soldierTypeNumber % 3 == 1)
           {
             this.soldierTypeCache = SoldierType.Chariot;
           }
@@ -468,11 +470,11 @@ namespace SangokuKmy.Models.Updates.Ai
         }
         else if (this.Town.Technology >= 800 && this.Character.Money > this.Character.Leadership * 200 + 22_0000)
         {
-          if (this.Character.Id % 3 == 0)
+          if (soldierTypeNumber % 3 == 0)
           {
             this.soldierTypeCache = SoldierType.StrongCrossbow;
           }
-          else if (this.Character.Id % 3 == 1)
+          else if (soldierTypeNumber % 3 == 1)
           {
             this.soldierTypeCache = SoldierType.HeavyCavalry;
           }
@@ -483,11 +485,11 @@ namespace SangokuKmy.Models.Updates.Ai
         }
         else if (this.Town.Technology >= 500 && this.Character.Money > this.Character.Leadership * 160 + 12_0000)
         {
-          if (this.Character.Id % 3 == 0)
+          if (soldierTypeNumber % 3 == 0)
           {
             this.soldierTypeCache = SoldierType.LongArcher;
           }
-          else if (this.Character.Id % 3 == 1)
+          else if (soldierTypeNumber % 3 == 1)
           {
             this.soldierTypeCache = SoldierType.LightCavalry;
           }
@@ -498,11 +500,11 @@ namespace SangokuKmy.Models.Updates.Ai
         }
         else if (this.Town.Technology >= 200 && this.Character.Money > this.Character.Leadership * 160 + 12_0000)
         {
-          if (this.Character.Id % 3 == 0)
+          if (soldierTypeNumber == 0)
           {
             this.soldierTypeCache = SoldierType.Archer;
           }
-          else if (this.Character.Id % 3 == 1)
+          else if (soldierTypeNumber == 1)
           {
             this.soldierTypeCache = SoldierType.Cow;
           }
@@ -545,8 +547,8 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Name = "武将";
       this.Character.Strong = 100;
       this.Character.Leadership = 100;
-      this.Character.Money = 20000;
-      this.Character.Rice = 10000;
+      this.Character.Money = 12_0000;
+      this.Character.Rice = 6_0000;
     }
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
@@ -776,8 +778,8 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Name = "文官";
       this.Character.Intellect = 100;
       this.Character.Leadership = 100;
-      this.Character.Money = 20000;
-      this.Character.Rice = 10000;
+      this.Character.Money = 12_0000;
+      this.Character.Rice = 6_0000;
     }
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
@@ -932,8 +934,8 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Intellect = 90;
       this.Character.Popularity = 100;
       this.Character.Leadership = 10;
-      this.Character.Money = 20000;
-      this.Character.Rice = 10000;
+      this.Character.Money = 12_0000;
+      this.Character.Rice = 6_0000;
     }
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
