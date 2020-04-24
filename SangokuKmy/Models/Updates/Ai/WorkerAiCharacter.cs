@@ -688,7 +688,7 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       var availableWars = wars
-        .Where(w => w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady));
+        .Where(w => w.IntStartGameDate > this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting));
       if (availableWars.Any())
       {
         return availableWars.Min(w => w.IntStartGameDate);
