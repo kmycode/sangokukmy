@@ -210,7 +210,7 @@ namespace SangokuKmy.Models.Data.Entities
         OnBuilt = t => t.WallMax += 500,
         OnRemoving = t =>
         {
-          t.WallMax -= 500;
+          t.WallMax = Math.Max(t.WallMax - 500, 1);
           t.Wall = Math.Min(t.Wall, t.WallMax);
         },
         BuildSubject = c => c.Strong >= 100,
