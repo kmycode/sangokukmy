@@ -955,17 +955,17 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
+      if (await this.InputMoveToBorderTownInNotWarAndSecurityNotMaxAsync(repo))
+      {
+        return;
+      }
+
       if (this.InputMoveToCountryTown(this.Country.Id))
       {
         return;
       }
 
       if (this.InputSecurity())
-      {
-        return;
-      }
-
-      if (await this.InputMoveToDevelopTownAsync(repo))
       {
         return;
       }

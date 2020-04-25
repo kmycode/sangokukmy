@@ -1239,9 +1239,9 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
-      async Task<bool> RunAsync(Town town)
+      async Task<bool> RunAsync(Town town, DefendLevel lv)
       {
-        if (level == DefendLevel.Always)
+        if (lv == DefendLevel.Always)
         {
           this.command.Type = CharacterCommandType.Defend;
           return true;
@@ -1250,16 +1250,16 @@ namespace SangokuKmy.Models.Updates.Ai
         var defends = await repo.Town.GetDefendersAsync(town.Id);
         if (!defends.Any(d => d.Character.Id == this.Character.Id))
         {
-          if (level == DefendLevel.NeedMyDefend)
+          if (lv == DefendLevel.NeedMyDefend)
           {
             this.command.Type = CharacterCommandType.Defend;
             return true;
           }
 
           var size = 0;
-          if (level == DefendLevel.NeedThreeDefend) size = 3;
-          if (level == DefendLevel.NeedTwoDefend) size = 2;
-          if (level == DefendLevel.NeedAnyDefends) size = 1;
+          if (lv == DefendLevel.NeedThreeDefend) size = 3;
+          if (lv == DefendLevel.NeedTwoDefend) size = 2;
+          if (lv == DefendLevel.NeedAnyDefends) size = 1;
           if (defends.Count() < size)
           {
             this.command.Type = CharacterCommandType.Defend;
@@ -1270,12 +1270,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
-      if (this.Town.CountryId != this.Character.CountryId)
-      {
-        return false;
-      }
-
-      if (!this.GetWaringCountries().Any() && !this.GetReadyForWarCountries().Any())
+      if (!this.GetWaringCountries().Any() && !this.GetNearReadyForWarCountries().Any())
       {
         // 戦争状態にない場合
         if (this.data.BorderTown == null)
@@ -1294,9 +1289,10 @@ namespace SangokuKmy.Models.Updates.Ai
           }
           return await this.InputMoveToBorderTownAsync(repo);
         }
+        level = DefendLevel.NeedMyDefend;
       }
 
-      if (this.Character.SoldierNumber <= 0)
+      if (this.Town.CountryId != this.Character.CountryId)
       {
         return false;
       }
@@ -1304,6 +1300,11 @@ namespace SangokuKmy.Models.Updates.Ai
       if (isGetSoldiers && await this.InputGetSoldiersAsync(repo))
       {
         return true;
+      }
+
+      if (this.Character.SoldierNumber <= 0)
+      {
+        return false;
       }
 
       if (this.data.BorderTown == null)
@@ -1316,7 +1317,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
-      return await RunAsync(this.Town);
+      return await RunAsync(this.Town, level);
     }
 
     protected async Task<bool> InputCountryForceDefendLoopAsync(MainRepository repo)
@@ -1482,6 +1483,23 @@ namespace SangokuKmy.Models.Updates.Ai
     protected async Task<bool> InputMoveToBorderTownInWarAsync(MainRepository repo)
     {
       if (!this.GetWaringCountries().Any() && !this.GetNearReadyForWarCountries().Any())
+      {
+        return false;
+      }
+      return await this.InputMoveToBorderTownAsync(repo);
+    }
+
+    protected async Task<bool> InputMoveToBorderTownInNotWarAndSecurityNotMaxAsync(MainRepository repo)
+    {
+      if (this.GetWaringCountries().Any() || this.GetNearReadyForWarCountries().Any())
+      {
+        return false;
+      }
+      if (this.data.BorderTown == null)
+      {
+        return false;
+      }
+      if (this.data.BorderTown.Security >= 100)
       {
         return false;
       }
