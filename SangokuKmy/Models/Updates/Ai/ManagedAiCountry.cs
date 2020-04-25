@@ -366,6 +366,7 @@ namespace SangokuKmy.Models.Updates.Ai
       var townsInReady = towns.Where(t => this.IsReadyForWar(t));
       var charactersInReady = characters.Where(c => this.IsReadyForWar(c));
       var characterGroupInReady = charactersInReady.GroupBy(c => c.GetCharacterType());
+      var storageOptional = await repo.AiCountry.GetStorategyByCountryIdAsync(this.Country.Id);
 
       if (!characterGroupInReady.Any(g => g.Key == CharacterType.Strong || g.Key == CharacterType.Intellect))
       {
@@ -397,6 +398,13 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           return false;
         }
+      }
+
+      if (storageOptional.HasData &&
+        ((storageOptional.Data.BorderTownId != 0 && !townsInReady.Any(t => t.Id == storageOptional.Data.BorderTownId)) ||
+         (storageOptional.Data.MainTownId != 0 && !townsInReady.Any(t => t.Id == storageOptional.Data.MainTownId))))
+      {
+        return false;
       }
 
       Country target = null;
