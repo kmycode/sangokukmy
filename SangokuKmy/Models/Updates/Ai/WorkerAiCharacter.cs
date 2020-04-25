@@ -853,10 +853,7 @@ namespace SangokuKmy.Models.Updates.Ai
     private async Task<bool> IsNeedSoldiersAsync(MainRepository repo)
     {
       var will = await this.GetBattleTargetTownAsync(repo);
-      return this.Character.SoldierNumber < Math.Min(30, this.GetSoldierNumberMax(await this.FindSoldierTypeAsync(repo, will.Town))) &&
-          (this.GetWaringCountries().Any() ||
-           this.GetNearReadyForWarCountries().Any() ||
-           this.data.WillTownWarTown != null);
+      return this.Character.SoldierNumber < Math.Min(30, this.GetSoldierNumberMax(await this.FindSoldierTypeAsync(repo, will.Town)));
     }
 
     private Town GetTownForSoldiers(int num = -1, Func<TownBase, bool> predicate = null)
