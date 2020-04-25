@@ -1275,9 +1275,25 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
-      if (!this.GetWaringCountries().Any() && !this.GetNearReadyForWarCountries().Any())
+      if (!this.GetWaringCountries().Any() && !this.GetReadyForWarCountries().Any())
       {
-        return false;
+        // 戦争状態にない場合
+        if (this.data.BorderTown == null)
+        {
+          return false;
+        }
+        if ((await repo.Town.GetDefendersAsync(this.data.BorderTown.Id)).Any(d => d.Character.Id == this.Character.Id))
+        {
+          return false;
+        }
+        if (this.Character.TownId != this.data.BorderTown.Id)
+        {
+          if (isGetSoldiers && await this.InputGetSoldiersAsync(repo))
+          {
+            return true;
+          }
+          return await this.InputMoveToBorderTownAsync(repo);
+        }
       }
 
       if (this.Character.SoldierNumber <= 0)
@@ -1454,6 +1470,11 @@ namespace SangokuKmy.Models.Updates.Ai
       if (this.data.DevelopTown == null)
       {
         return false;
+      }
+      if (this.data.BorderTown != null && (this.data.BorderTown.Technology < this.data.BorderTown.TechnologyMax ||
+                                           this.data.BorderTown.Wall < this.data.BorderTown.WallMax))
+      {
+        return await this.InputMoveOrJoinUnitAsync(repo, this.data.BorderTown.Id);
       }
       return await this.InputMoveOrJoinUnitAsync(repo, this.data.DevelopTown.Id);
     }
