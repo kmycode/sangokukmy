@@ -1283,11 +1283,11 @@ namespace SangokuKmy.Models.Updates.Ai
         }
         if (this.Character.TownId != this.data.BorderTown.Id)
         {
-          if (isGetSoldiers && await this.InputGetSoldiersAsync(repo))
-          {
-            return true;
-          }
           return await this.InputMoveToBorderTownAsync(repo);
+        }
+        if (this.Character.SoldierNumber <= 0 && isGetSoldiers && await this.InputGetSoldiersAsync(repo))
+        {
+          return true;
         }
         level = DefendLevel.NeedMyDefend;
       }
