@@ -57,6 +57,21 @@ namespace SangokuKmy.Models.Commands
           add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.SecurityCommandMulPercentage) / 100.0f));
         }
 
+        if (skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentageInWar) > 0 ||
+          skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentageInNotWar) > 0)
+        {
+          var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+          var isWar = wars.Any(w => (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting) && w.IsJoin(character.CountryId));
+          if (isWar)
+          {
+            add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentageInWar) / 100.0f));
+          }
+          else
+          {
+            add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentageInNotWar) / 100.0f));
+          }
+        }
+
         if (!this.IsMinus())
         {
           if (current + add >= max)

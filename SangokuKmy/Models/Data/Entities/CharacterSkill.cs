@@ -133,6 +133,8 @@ namespace SangokuKmy.Models.Data.Entities
     RiceBuyMax,
     RiceBuyContribution,
     DomesticAffairMulPercentage,
+    DomesticAffairMulPercentageInWar,
+    DomesticAffairMulPercentageInNotWar,
     SecurityCommandMulPercentage,
     PolicyBoostProbabilityThousandth,
     GenerateItem,
