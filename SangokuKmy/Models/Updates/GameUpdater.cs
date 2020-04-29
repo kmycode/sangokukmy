@@ -1090,6 +1090,10 @@ namespace SangokuKmy.Models.Updates
             {
               await repo.SaveChangesAsync();
             }
+            else
+            {
+              _logger.LogInformation("農民反乱の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
+            }
           }
 
           // 黄巾の出現とバトルロワイヤルモード
