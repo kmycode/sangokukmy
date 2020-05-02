@@ -228,7 +228,7 @@ namespace SangokuKmy.Models.Data.Repositories
       try
       {
         return await this.container.Context.Characters
-          .CountAsync(c => c.CountryId == countryId && !c.HasRemoved && (!isHumanOnly || c.AiType == CharacterAiType.Human));
+          .CountAsync(c => c.CountryId == countryId && !c.HasRemoved && (!isHumanOnly || (c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator)));
       }
       catch (Exception ex)
       {
