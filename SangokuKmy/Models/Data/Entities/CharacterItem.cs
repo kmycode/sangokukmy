@@ -1716,7 +1716,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterItemEffect
           {
             Type = CharacterItemEffectType.SkillPoint,
-            Value = 12,
+            Value = 72,
           },
         },
       },
