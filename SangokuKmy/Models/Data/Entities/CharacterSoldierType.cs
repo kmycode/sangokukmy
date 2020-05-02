@@ -294,6 +294,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 20,
         Technology = 800,
+        CanConscriptWithoutResource = false,
       },
       new CharacterSoldierTypePart
       {

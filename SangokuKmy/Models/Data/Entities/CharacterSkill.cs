@@ -525,7 +525,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.GenerateItem,
-            Value = (int)CharacterItemType.EquippedRepeatingCrossbow,
+            Value = (int)CharacterItemType.EquippedStrongCrossbow,
           },
         },
       },
@@ -561,6 +561,11 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.GenerateItem,
             Value = (int)CharacterItemType.EquippedChariot,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.EquippedRepeatingCrossbow,
           },
         },
       },
