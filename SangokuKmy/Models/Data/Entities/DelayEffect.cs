@@ -62,5 +62,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// アイテム生成
     /// </summary>
     GenerateItem = 3,
+
+    /// <summary>
+    /// 黄巾出現
+    /// </summary>
+    AppearKokin = 4,
   }
 }

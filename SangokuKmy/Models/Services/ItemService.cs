@@ -126,6 +126,14 @@ namespace SangokuKmy.Models.Services
             });
             logs.Add($"異民族敵性化");
           }
+          if (effect.Type == CharacterItemEffectType.AppearKokin)
+          {
+            await repo.DelayEffect.AddAsync(new DelayEffect
+            {
+              Type = DelayEffectType.AppearKokin,
+            });
+            logs.Add($"黄巾出現");
+          }
           if (effect.Type == CharacterItemEffectType.DiscountSoldierPercentageWithResource)
           {
             logs.Add("特定兵種割引");
