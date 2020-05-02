@@ -1103,7 +1103,7 @@ namespace SangokuKmy.Models.Updates
 
           // 黄巾の出現とバトルロワイヤルモード
           var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthAsync();
-          if (!system.IsBattleRoyaleMode &&
+          if (!system.IsBattleRoyaleMode && !system.IsWaitingReset &&
             (lastBattleMonth.ToInt() + 12 * 12 * 6 == system.IntGameDateTime ||
             (system.GameDateTime.Year == 348 && system.GameDateTime.Month == 1)))
           {
@@ -1115,7 +1115,7 @@ namespace SangokuKmy.Models.Updates
 
             if ((!wars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
               lastBattleMonth.ToInt() + 12 * 12 * 7 <= system.IntGameDateTime) ||
-              (system.GameDateTime.Year >= 360))
+              (system.GameDateTime.Year >= 360) || isKokinForce)
             {
               // 候補都市一覧
               var townData = allTowns.Select(t => new { Town = t, AroundTowns = allTowns.GetAroundTowns(t), }).ToArray();
