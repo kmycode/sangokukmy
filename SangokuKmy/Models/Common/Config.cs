@@ -10,6 +10,8 @@ namespace SangokuKmy.Models.Common
     public static class Database
     {
       public static string MySqlConnectionString { get; set; }
+
+      public static string GcmServerKey { get; set; }
     }
 
     public static class Admin

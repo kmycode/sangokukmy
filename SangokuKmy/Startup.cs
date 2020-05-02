@@ -40,6 +40,7 @@ namespace SangokuKmy
 
       // データベースの設定
       Config.Database.MySqlConnectionString = this.Configuration.GetConnectionString("MySql");
+      Config.Database.GcmServerKey = this.Configuration.GetSection("ConnectionStrings")["GcmServerKey"];
 
       // 管理人の設定
       Config.Admin.Name = this.Configuration.GetSection("AdminSettings")["Name"];
