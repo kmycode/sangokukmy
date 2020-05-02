@@ -790,7 +790,7 @@ namespace SangokuKmy.Controllers
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         charas = (await repo.Country.GetCharactersWithIconsAndCommandsAsync(countryId))
           .GroupJoin(await repo.Reinforcement.GetByCountryIdAsync(countryId), c => c.Character.Id, r => r.CharacterId, (c, rs) => new { CharacterData = c, Reinforcements = rs })
-          .Select(c => new CharacterForAnonymous(c.CharacterData.Character, c.CharacterData.Icon, c.Reinforcements.FirstOrDefault(f => f.Status != ReinforcementStatus.Returned), c.CharacterData.Character.AiType == CharacterAiType.Human ? c.CharacterData.Commands : null, chara.CountryId == c.CharacterData.Character.CountryId ? CharacterShareLevel.SameCountry : CharacterShareLevel.Anonymous));
+          .Select(c => new CharacterForAnonymous(c.CharacterData.Character, c.CharacterData.Icon, c.Reinforcements.FirstOrDefault(f => f.Status != ReinforcementStatus.Returned), (c.CharacterData.Character.AiType == CharacterAiType.Human || c.CharacterData.Character.AiType == CharacterAiType.Administrator) ? c.CharacterData.Commands : null, chara.CountryId == c.CharacterData.Character.CountryId ? CharacterShareLevel.SameCountry : CharacterShareLevel.Anonymous));
       }
       return ApiData.From(charas);
     }
