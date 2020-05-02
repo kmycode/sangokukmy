@@ -177,6 +177,7 @@ namespace SangokuKmy.Models.Data.Entities
     EquippedCrossbow = 80,
     SkillBook = 81,
     KokinFlag = 82,
+    EquippedStrongCrossbow = 83,
   }
 
   public enum CharacterItemEffectType
@@ -1590,6 +1591,25 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterItemEffectType.AddSoldierType,
             Value = (int)SoldierType.HeavyCavalry,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.EquippedStrongCrossbow,
+        Name = "強弩装備",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 20,
+        InitializeNumber = 6,
+        DefaultResource = 1000,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterResourceItemEffect
+          {
+            Type = CharacterItemEffectType.AddSoldierType,
+            Value = (int)SoldierType.StrongCrossbow,
           },
         },
       },
