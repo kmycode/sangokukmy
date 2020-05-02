@@ -176,6 +176,7 @@ namespace SangokuKmy.Models.Data.Entities
     EquippedCavalry = 79,
     EquippedCrossbow = 80,
     SkillBook = 81,
+    KokinFlag = 82,
   }
 
   public enum CharacterItemEffectType
@@ -189,6 +190,7 @@ namespace SangokuKmy.Models.Data.Entities
     Money,
     SkillPoint,
     TerroristEnemy,
+    AppearKokin,
     DiscountSoldierPercentageWithResource,
     DiscountInfantrySoldierPercentage,
     DiscountCavalrySoldierPercentage,
@@ -1316,6 +1318,28 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterItemInfo
       {
+        Type = CharacterItemType.KokinFlag,
+        Name = "黄巾の旗",
+        Money = 500_000,
+        InitializeNumber = 1,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
+        CanHandOver = false,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.AppearKokin,
+          },
+        },
+        DiscoverFroms = new List<CharacterFrom>
+        {
+          CharacterFrom.People,
+        },
+      },
+      new CharacterItemInfo
+      {
         Type = CharacterItemType.EquippedGeki,
         Name = "装備戟",
         IsResource = true,
@@ -1692,7 +1716,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterItemEffect
           {
             Type = CharacterItemEffectType.SkillPoint,
-            Value = 12,
+            Value = 72,
           },
         },
       },

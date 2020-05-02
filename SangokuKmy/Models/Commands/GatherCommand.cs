@@ -24,6 +24,11 @@ namespace SangokuKmy.Models.Commands
       }
 
       var town = townOptional.Data;
+      if (town.CountryId != character.CountryId)
+      {
+        await game.CharacterLogAsync("自国の都市以外で集合することはできません");
+        return;
+      }
       var unitData = await repo.Unit.GetByMemberIdAsync(character.Id);
       if (!unitData.Unit.HasData || !unitData.Member.HasData)
       {

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Server.Kestrel;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using PushSharp.Apple;
+using PushSharp.Google;
+using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.Entities;
 
@@ -32,8 +34,11 @@ namespace SangokuKmy.Models.Services
 
     private static async Task SendAsync(MainRepository repo, string title, string message, Predicate<PushNotificationKey> predicate)
     {
+      var keys = await repo.PushNotificationKey.GetAllAsync();
+
       try
       {
+        // iOS
         var push = new ApnsServiceBroker(new ApnsConfiguration(
           ApnsConfiguration.ApnsServerEnvironment.Production,
           "/home/sangokukmy/push_notification_product.p12",
@@ -44,7 +49,6 @@ namespace SangokuKmy.Models.Services
         };
         push.Start();
 
-        var keys = await repo.PushNotificationKey.GetAllAsync();
         foreach (var key in keys.Where(k => k.Platform == PushNotificationPlatform.iOS && predicate(k)))
         {
           push.QueueNotification(new ApnsNotification
@@ -55,6 +59,33 @@ namespace SangokuKmy.Models.Services
         }
 
         push.Stop();
+      }
+      catch (Exception ex)
+      {
+        Logger?.LogError(ex, "プッシュ通知で例外が発生しました");
+      }
+
+      try
+      {
+        // Android
+        var config = new GcmConfiguration(Config.Database.GcmServerKey)
+        {
+          GcmUrl = "https://fcm.googleapis.com/fcm/send",
+        };
+        var gcmBroker = new GcmServiceBroker(config);
+        gcmBroker.OnNotificationFailed += (notification, aggregateEx) =>
+        {
+          Logger?.LogError(aggregateEx, "プッシュ通知送信時にエラーが発生しました");
+        };
+        gcmBroker.Start();
+
+        gcmBroker.QueueNotification(new GcmNotification
+        {
+          RegistrationIds = keys.Where(k => k.Platform == PushNotificationPlatform.Android && predicate(k)).Select(k => k.Key).ToList(),
+          Notification = JObject.Parse(@"{""title"":""" + title + @""",""body"":""" + message + @"""}"),
+        });
+
+        gcmBroker.Stop();
       }
       catch (Exception ex)
       {

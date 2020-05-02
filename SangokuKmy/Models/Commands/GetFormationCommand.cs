@@ -46,11 +46,6 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync($"陣形 {info.Data.Name} は、コマンドからは獲得できません");
           return;
         }
-        if (info.Data.RequiredPoint > character.FormationPoint)
-        {
-          await game.CharacterLogAsync($"陣形 {info.Data.Name} の獲得に必要なポイントが足りません。<num>{info.Data.RequiredPoint}</num> 必要ですが、現在の手持ちは <num>{character.FormationPoint}</num> しかありません");
-          return;
-        }
 
         var formations = await repo.Character.GetFormationsAsync(character.Id);
         if (formations.Any(f => f.Type == type))
@@ -63,6 +58,11 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync($"陣形 {info.Data.Name} の獲得に必要な条件を満たしていません");
           return;
         }
+        if (formations.Count(f => f.Type != FormationType.Normal) + 1 > 3)
+        {
+          await game.CharacterLogAsync($"陣形 {info.Data.Name} を獲得しようとしましたが、１人が一度に所有できる陣形は 3 までです");
+          return;
+        }
 
         if (countryOptional.HasData)
         {
@@ -70,7 +70,6 @@ namespace SangokuKmy.Models.Commands
         }
         character.AddLeadershipEx(50);
         //character.Money -= 1000;
-        character.FormationPoint -= info.Data.RequiredPoint;
         character.SkillPoint++;
 
         var formation = new Formation

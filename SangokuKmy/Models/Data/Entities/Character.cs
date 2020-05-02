@@ -308,10 +308,6 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("hasRemoved")]
     public bool HasRemoved { get; set; }
 
-    [Column("formation_point")]
-    [JsonProperty("formationPoint")]
-    public int FormationPoint { get; set; }
-
     [Column("skill_point")]
     [JsonProperty("skillPoint")]
     public int SkillPoint { get; set; }

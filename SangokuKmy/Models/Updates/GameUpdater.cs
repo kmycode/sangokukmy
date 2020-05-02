@@ -340,8 +340,7 @@ namespace SangokuKmy.Models.Updates
                       break;
                   }
                   var newAddMax = 1500 + newLank * lankSalary;
-                  character.FormationPoint += 20;
-                  await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました。陣形P <num>+20</num>");
+                  await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました");
                   if (currentLank != newLank)
                   {
                     await AddLogAsync(character.Id, "【昇格】最大収入が <num>" + newAddMax + "</num> になりました");
@@ -977,6 +976,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 遅延効果
+          var isKokinForce = false;
           {
             var delays = await repo.DelayEffect.GetAllAsync();
             foreach (var delay in delays)
@@ -1007,6 +1007,11 @@ namespace SangokuKmy.Models.Updates
                   await AddMapLogAsync(true, EventType.AppendTerrorists, $"異民族 <country>{c.Name}</country> は敵対化しました");
                   isRemove = true;
                 }
+              }
+              if (delay.Type == DelayEffectType.AppearKokin)
+              {
+                isKokinForce = true;
+                isRemove = true;
               }
               if (isRemove)
               {
@@ -1104,7 +1109,7 @@ namespace SangokuKmy.Models.Updates
           {
             await AddMapLogAsync(true, EventType.Event, "黄巾が反乱の時期を伺っています");
           }
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && RandomService.Next(0, 70) == 0)
+          if (!system.IsWaitingReset && (!system.IsBattleRoyaleMode && RandomService.Next(0, 70) == 0 || isKokinForce))
           {
             var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
