@@ -108,6 +108,7 @@ namespace SangokuKmy.Models.Data.Entities
     People3b = 51,
     People4b = 52,
     People5b = 53,
+    Intellect3b = 54,
   }
 
   public enum CharacterSkillEffectType
@@ -290,13 +291,33 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.Intellect3,
         RequestedPoint = 320,
-        Name = "官吏 Lv.3",
-        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect2),
+        Name = "官吏 Lv.a3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect2) && !skills.Any(s => s.Type == CharacterSkillType.Intellect3b),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
+            Type = CharacterSkillEffectType.DomesticAffairMulPercentageInNotWar,
+            Value = 50,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.PolicyBoostProbabilityThousandth,
+            Value = 50,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Intellect3b,
+        RequestedPoint = 320,
+        Name = "官吏 Lv.b3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect2) && !skills.Any(s => s.Type == CharacterSkillType.Intellect3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.DomesticAffairMulPercentageInWar,
             Value = 50,
           },
           new CharacterSkillEffect
@@ -311,7 +332,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterSkillType.Intellect4,
         RequestedPoint = 360,
         Name = "官吏 Lv.4",
-        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect3),
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect3 || s.Type == CharacterSkillType.Intellect3b),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
