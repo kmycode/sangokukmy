@@ -138,7 +138,6 @@ namespace SangokuKmy.Models.Commands
               TownPatrolResult.TownBuilding,
               TownPatrolResult.Policy,
               TownPatrolResult.Money,
-              TownPatrolResult.FormationPoint,
             };
           }
           var result = RandomService.Next(targets);
@@ -261,11 +260,6 @@ namespace SangokuKmy.Models.Commands
             await game.CharacterLogAsync($"金 <num>{m}</num> を発見しました");
             character.Money += m;
           }
-          else if (result == TownPatrolResult.FormationPoint)
-          {
-            await game.CharacterLogAsync($"陣形ポイント <num>2</num> を獲得しました");
-            character.FormationPoint += 2;
-          }
           else if (result == TownPatrolResult.FormationExperience)
           {
             var formation = await repo.Character.GetFormationAsync(character.Id, character.FormationType);
@@ -325,7 +319,6 @@ namespace SangokuKmy.Models.Commands
       WallMaxForIntellect,
       Policy,
       Money,
-      FormationPoint,
       FormationExperience,
       CountrySafe,
     }

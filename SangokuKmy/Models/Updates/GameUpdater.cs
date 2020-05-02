@@ -340,8 +340,7 @@ namespace SangokuKmy.Models.Updates
                       break;
                   }
                   var newAddMax = 1500 + newLank * lankSalary;
-                  character.FormationPoint += 20;
-                  await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました。陣形P <num>+20</num>");
+                  await AddLogAsync(character.Id, "【昇格】" + tecName + " が <num>+1</num> 上がりました");
                   if (currentLank != newLank)
                   {
                     await AddLogAsync(character.Id, "【昇格】最大収入が <num>" + newAddMax + "</num> になりました");

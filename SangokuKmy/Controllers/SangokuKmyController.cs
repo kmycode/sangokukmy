@@ -485,10 +485,6 @@ namespace SangokuKmy.Controllers
         {
           ErrorCode.MeaninglessOperationError.Throw();
         }
-        if (chara.FormationPoint < 0)
-        {
-          ErrorCode.InvalidOperationError.Throw();
-        }
 
         var formations = await repo.Character.GetFormationsAsync(chara.Id);
         if (param.Type != FormationType.Normal && !formations.Any(f => f.Type == param.Type))
@@ -496,7 +492,6 @@ namespace SangokuKmy.Controllers
           ErrorCode.InvalidOperationError.Throw();
         }
 
-        chara.FormationPoint -= 0;
         chara.FormationType = param.Type;
 
         log = new CharacterLog

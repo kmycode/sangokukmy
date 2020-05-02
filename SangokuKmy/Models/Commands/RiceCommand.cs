@@ -56,7 +56,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       var contributon = skills.GetSumOfValues(CharacterSkillEffectType.RiceBuyContribution);
-      if (contributon > 0 && (await repo.Country.GetAliveByIdAsync(character.CountryId)).HasData)
+      if (contributon > 0)
       {
         character.Contribution += contributon;
         character.SkillPoint++;
