@@ -1342,36 +1342,52 @@ namespace SangokuKmy.Models.Updates
           }
         }
 
-        // コマンドの実行
-        var ai = AiCharacterFactory.Create(character);
-        var commandOptional = await ai.GetCommandAsync(repo, currentMonth);
-        if (currentMonth.Year >= Config.UpdateStartYear)
+        var blockTypes = await repo.BlockAction.GetAvailableTypesAsync(character.Id);
+        var isBlockedCommand = false;
+        if (blockTypes.Contains(BlockActionType.StopCommand))
         {
-          var isCommandExecuted = false;
-          if (commandOptional.HasData)
+          character.DeleteTurn++;
+          isBlockedCommand = true;
+          await AddLogAsync("管理人により行動を制限されています。コマンド実行をスキップし、放置削除が進行しました");
+        }
+        else if (blockTypes.Contains(BlockActionType.StopCommandAndDeleteTurn))
+        {
+          isBlockedCommand = true;
+          await AddLogAsync("管理人により行動を制限されています。コマンド実行をスキップしました");
+        }
+        else
+        {
+          // コマンドの実行
+          var ai = AiCharacterFactory.Create(character);
+          var commandOptional = await ai.GetCommandAsync(repo, currentMonth);
+          if (currentMonth.Year >= Config.UpdateStartYear)
           {
-            var command = commandOptional.Data;
-            var commandRunnerOptional = Commands.Commands.Get(command.Type);
-            if (commandRunnerOptional.HasData)
+            var isCommandExecuted = false;
+            if (commandOptional.HasData)
             {
-              var commandRunner = commandRunnerOptional.Data;
-              await commandRunner.ExecuteAsync(repo, character, command.Parameters, gameObj);
-              isCommandExecuted = true;
-
-              if (commandRunner.Type != CharacterCommandType.None)
+              var command = commandOptional.Data;
+              var commandRunnerOptional = Commands.Commands.Get(command.Type);
+              if (commandRunnerOptional.HasData)
               {
-                character.DeleteTurn = 0;
+                var commandRunner = commandRunnerOptional.Data;
+                await commandRunner.ExecuteAsync(repo, character, command.Parameters, gameObj);
+                isCommandExecuted = true;
+
+                if (commandRunner.Type != CharacterCommandType.None)
+                {
+                  character.DeleteTurn = 0;
+                }
               }
             }
-          }
-          if (!isCommandExecuted)
-          {
-            await Commands.Commands.EmptyCommand.ExecuteAsync(repo, character, new CharacterCommandParameter[] { }, gameObj);
+            if (!isCommandExecuted)
+            {
+              await Commands.Commands.EmptyCommand.ExecuteAsync(repo, character, new CharacterCommandParameter[] { }, gameObj);
+            }
           }
         }
 
-        // 放置削除ターンの確認
-        if (character.DeleteTurn > 0)
+        // 放置削除ターンが進んでいることを通知する
+        if (character.DeleteTurn > 0 && !isBlockedCommand)
         {
           if (character.DeleteTurn == 1)
           {

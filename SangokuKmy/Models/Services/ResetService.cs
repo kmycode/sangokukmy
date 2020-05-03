@@ -57,6 +57,7 @@ namespace SangokuKmy.Models.Services
       await repo.DelayEffect.ResetAsync();
       await repo.Mute.ResetAsync();
       // await repo.PushNotificationKey.ResetAsync();
+      await repo.BlockAction.ResetAsync();
 
       // ファイル削除
       try
