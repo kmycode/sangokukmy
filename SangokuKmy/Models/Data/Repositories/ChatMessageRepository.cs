@@ -209,6 +209,31 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 武将IDから既読を取得する
+    /// </summary>
+    public async Task<ChatMessageRead> GetReadByCharacterIdAsync(uint charaId)
+    {
+      try
+      {
+        var read = await this.container.Context.ChatMessagesRead.FirstOrDefaultAsync(c => c.CharacterId == charaId);
+        if (read == null)
+        {
+          read = new ChatMessageRead
+          {
+            CharacterId = charaId,
+          };
+          await this.container.Context.ChatMessagesRead.AddAsync(read);
+        }
+        return read;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// 内容をすべてリセットする
     /// </summary>
     public async Task ResetAsync()

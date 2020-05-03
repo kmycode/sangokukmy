@@ -59,6 +59,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<CharacterCommand> otherCharacterCommands;
       IEnumerable<Mute> mutes;
       MuteKeyword muteKeyword;
+      ChatMessageRead read;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -92,6 +93,7 @@ namespace SangokuKmy.Controllers
         {
           Keywords = string.Empty,
         };
+        read = await repo.ChatMessage.GetReadByCharacterIdAsync(chara.Id);
 
         var countryCharacters = await repo.Country.GetCharactersWithIconsAndCommandsAsync(chara.CountryId);
         otherCharacterCommands = countryCharacters.SelectMany(c => c.Commands);
@@ -164,6 +166,7 @@ namespace SangokuKmy.Controllers
       {
         Type = SignalType.EndOfStreamingInitializeData,
       }));
+      sendData.Add(ApiData.From(read));
 
       // 初期データを送信する
       var initializeData = new StringBuilder();
