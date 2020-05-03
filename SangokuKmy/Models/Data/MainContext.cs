@@ -290,6 +290,11 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public DbSet<MuteKeyword> MuteKeywords { get; set; }
 
+    /// <summary>
+    /// ユーザの行動制限
+    /// </summary>
+    public DbSet<BlockAction> BlockActions { get; set; }
+
     private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
         new DebugLoggerProvider((category, level)
             => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)

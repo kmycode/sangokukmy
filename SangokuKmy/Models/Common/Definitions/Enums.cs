@@ -271,6 +271,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode NotSupportedError { get; } = new ErrorCode(501, 49);
 
+    /// <summary>
+    /// ユーザの制限された行動エラー
+    /// </summary>
+    public static ErrorCode BlockedActionError { get; } = new ErrorCode(403, 50);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

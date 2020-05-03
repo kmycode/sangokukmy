@@ -48,6 +48,15 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+
+        if (mute.Type == MuteType.Reported)
+        {
+          if (await repo.BlockAction.IsBlockedAsync(chara.Id, BlockActionType.StopReporting))
+          {
+            ErrorCode.BlockedActionError.Throw();
+          }
+        }
+
         var mutes = await repo.Mute.GetCharacterAsync(chara.Id);
 
         var target = mutes.FirstOrDefault(m => m.Id == mute.Id ||

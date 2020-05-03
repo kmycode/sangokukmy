@@ -55,6 +55,12 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+
+        if (await repo.BlockAction.IsBlockedAsync(chara.Id, BlockActionType.StopCountryChat))
+        {
+          ErrorCode.BlockedActionError.Throw();
+        }
+
         message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.SelfCountry, chara.CountryId);
         await repo.SaveChangesAsync();
       }
@@ -93,6 +99,12 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+
+        if (await repo.BlockAction.IsBlockedAsync(chara.Id, BlockActionType.StopGlobalChat))
+        {
+          ErrorCode.BlockedActionError.Throw();
+        }
+
         message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.Global, param.TypeData);
         await repo.SaveChangesAsync();
       }
@@ -173,6 +185,12 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+
+        if (await repo.BlockAction.IsBlockedAsync(chara.Id, BlockActionType.StopCountryChat))
+        {
+          ErrorCode.BlockedActionError.Throw();
+        }
+
         var to = await repo.Country.GetAliveByIdAsync(id).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
         var country = await repo.Country.GetAliveByIdAsync(id).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
 

@@ -178,6 +178,12 @@ namespace SangokuKmy.Models.Data
     private MuteRepository _mute;
 
     /// <summary>
+    /// ユーザの行動制限
+    /// </summary>
+    public BlockActionRepository BlockAction => this._blockAction = this._blockAction ?? new BlockActionRepository(this.container);
+    private BlockActionRepository _blockAction;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>
