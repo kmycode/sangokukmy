@@ -161,6 +161,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<ChatMessage> ChatMessages { get; set; }
 
     /// <summary>
+    /// チャットのメッセージ既読
+    /// </summary>
+    public DbSet<ChatMessageRead> ChatMessagesRead { get; set; }
+
+    /// <summary>
     /// 都市
     /// </summary>
     public DbSet<Town> Towns { get; set; }

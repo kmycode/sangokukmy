@@ -114,5 +114,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<TownSubBuilding> From(TownSubBuilding data) => From(39, data);
     public static ApiData<Mute> From(Mute data) => From(40, data);
     public static ApiData<MuteKeyword> From(MuteKeyword data) => From(41, data);
+    public static ApiData<ChatMessageRead> From(ChatMessageRead data) => From(42, data);
   }
 }

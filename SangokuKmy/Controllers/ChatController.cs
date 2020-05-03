@@ -169,6 +169,54 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("chat/country/read/{id}")]
+    public async Task SetCountryChatMessagesReadAsync([FromRoute] uint id = 0)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var read = await repo.ChatMessage.GetReadByCharacterIdAsync(this.AuthData.CharacterId);
+        read.LastCountryChatMessageId = id;
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("chat/global/{channel}/read/{id}")]
+    public async Task SetGlobalChatMessagesReadAsync([FromRoute] int channel = 0, [FromRoute] uint id = 0)
+    {
+      if (channel != 0 && channel != 1)
+      {
+        ErrorCode.InvalidParameterError.Throw();
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var read = await repo.ChatMessage.GetReadByCharacterIdAsync(this.AuthData.CharacterId);
+        if (channel == 0)
+        {
+          read.LastGlobalChatMessageId = id;
+        }
+        else if (channel == 1)
+        {
+          read.LastGlobal2ChatMessageId = id;
+        }
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("chat/promotion/read/{id}")]
+    public async Task SetPromotionChatMessagesReadAsync([FromRoute] uint id = 0)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var read = await repo.ChatMessage.GetReadByCharacterIdAsync(this.AuthData.CharacterId);
+        read.LastPromotionChatMessageId = id;
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpPost("chat/country/{id}")]
     public async Task PostOtherCountryChatMessageAsync(
       [FromRoute] uint id,
