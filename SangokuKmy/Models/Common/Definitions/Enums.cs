@@ -276,6 +276,26 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode BlockedActionError { get; } = new ErrorCode(403, 50);
 
+    /// <summary>
+    /// アカウントが見つからないエラー
+    /// </summary>
+    public static ErrorCode AccountNotFoundError { get; } = new ErrorCode(404, 51);
+
+    /// <summary>
+    /// アカウントのパスワードが違うエラー
+    /// </summary>
+    public static ErrorCode AccountLoginPasswordIncorrectError { get; } = new ErrorCode(403, 52);
+
+    /// <summary>
+    /// すでに同じ情報が存在するエラー
+    /// </summary>
+    public static ErrorCode DuplicateAccountNameOrAliasIdError { get; } = new ErrorCode(403, 53);
+
+    /// <summary>
+    /// 同じ武将にすでにアカウントが作成されているエラー
+    /// </summary>
+    public static ErrorCode DuplicateAccountOfCharacterError { get; } = new ErrorCode(403, 54);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

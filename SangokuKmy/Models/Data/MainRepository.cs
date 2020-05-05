@@ -184,6 +184,12 @@ namespace SangokuKmy.Models.Data
     private BlockActionRepository _blockAction;
 
     /// <summary>
+    /// アカウント
+    /// </summary>
+    public AccountRepository Account => this._account = this._account ?? new AccountRepository(this.container);
+    private AccountRepository _account;
+
+    /// <summary>
     /// 読み込みロックをかけた状態のリポジトリを入手する
     /// </summary>
     /// <returns>リポジトリ</returns>

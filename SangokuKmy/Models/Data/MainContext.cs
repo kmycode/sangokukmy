@@ -300,6 +300,11 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public DbSet<BlockAction> BlockActions { get; set; }
 
+    /// <summary>
+    /// アカウント
+    /// </summary>
+    public DbSet<Account> Accounts { get; set; }
+
     private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
         new DebugLoggerProvider((category, level)
             => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)
