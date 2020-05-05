@@ -115,5 +115,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<Mute> From(Mute data) => From(40, data);
     public static ApiData<MuteKeyword> From(MuteKeyword data) => From(41, data);
     public static ApiData<ChatMessageRead> From(ChatMessageRead data) => From(42, data);
+    public static ApiData<IssueBbsItem> From(IssueBbsItem data) => From(43, data);
   }
 }

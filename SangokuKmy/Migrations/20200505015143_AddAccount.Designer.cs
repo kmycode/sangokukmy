@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20200505015143_AddAccount")]
+    partial class AddAccount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1357,45 +1359,6 @@ namespace SangokuKmy.Migrations
                     b.ToTable("invitation_code");
                 });
 
-            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.IssueBbsItem", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<uint>("AccountId")
-                        .HasColumnName("account_id");
-
-                    b.Property<short>("Category")
-                        .HasColumnName("category");
-
-                    b.Property<DateTime>("LastModified")
-                        .HasColumnName("last_modified");
-
-                    b.Property<uint>("ParentId")
-                        .HasColumnName("parent_id");
-
-                    b.Property<short>("Priority")
-                        .HasColumnName("priority");
-
-                    b.Property<short>("Status")
-                        .HasColumnName("status");
-
-                    b.Property<string>("Text")
-                        .HasColumnName("text");
-
-                    b.Property<string>("Title")
-                        .HasColumnName("title")
-                        .HasColumnType("varchar(120)");
-
-                    b.Property<DateTime>("Written")
-                        .HasColumnName("written");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("issue_bbs_items");
-                });
-
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.LogCharacterCache", b =>
                 {
                     b.Property<uint>("Id")
@@ -1493,9 +1456,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<uint>("ChatMessageId")
                         .HasColumnName("chat_message_id");
-
-                    b.Property<uint>("IssueBbsItemId")
-                        .HasColumnName("issue_bbs_item_id");
 
                     b.Property<uint>("TargetCharacterId")
                         .HasColumnName("target_character_id");

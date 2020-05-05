@@ -58,6 +58,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("thread_bbs_item_id")]
     [JsonProperty("threadBbsItemId")]
     public uint ThreadBbsItemId { get; set; }
+
+    /// <summary>
+    /// 対象イシューBBSID（もしあれば）
+    /// </summary>
+    [Column("issue_bbs_item_id")]
+    [JsonProperty("issueBbsItemId")]
+    public uint IssueBbsItemId { get; set; }
   }
 
   public enum MuteType : short

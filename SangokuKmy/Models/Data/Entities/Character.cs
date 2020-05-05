@@ -454,7 +454,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     /// <returns>生成されたハッシュ</returns>
     /// <param name="password">パスワード</param>
-    private static string GeneratePasswordHash(string password)
+    public static string GeneratePasswordHash(string password)
     {
       var hash = new SHA256CryptoServiceProvider()
         .ComputeHash(Encoding.UTF8.GetBytes($"{password} hello, for you"))

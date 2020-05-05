@@ -38,9 +38,10 @@ namespace SangokuKmy.Controllers
         await this.RemoveMuteAsync(mute);
         return;
       }
-      if (!((mute.TargetCharacterId != 0 && mute.ChatMessageId == 0 && mute.ThreadBbsItemId == 0) ||
-            (mute.TargetCharacterId == 0 && mute.ChatMessageId != 0 && mute.ThreadBbsItemId == 0) ||
-            (mute.TargetCharacterId == 0 && mute.ChatMessageId == 0 && mute.ThreadBbsItemId != 0)))
+      if (!((mute.TargetCharacterId != 0 && mute.ChatMessageId == 0 && mute.ThreadBbsItemId == 0 && mute.IssueBbsItemId == 0) ||
+            (mute.TargetCharacterId == 0 && mute.ChatMessageId != 0 && mute.ThreadBbsItemId == 0 && mute.IssueBbsItemId == 0) ||
+            (mute.TargetCharacterId == 0 && mute.ChatMessageId == 0 && mute.ThreadBbsItemId != 0 && mute.IssueBbsItemId == 0) ||
+            (mute.TargetCharacterId == 0 && mute.ChatMessageId == 0 && mute.ThreadBbsItemId == 0 && mute.IssueBbsItemId != 0)))
       {
         ErrorCode.InvalidParameterError.Throw();
       }
@@ -62,20 +63,21 @@ namespace SangokuKmy.Controllers
         var target = mutes.FirstOrDefault(m => m.Id == mute.Id ||
                                               (m.TargetCharacterId != 0 && m.TargetCharacterId == mute.TargetCharacterId) ||
                                               (m.ChatMessageId != 0 && m.ChatMessageId == mute.ChatMessageId) ||
-                                              (m.ThreadBbsItemId != 0 && m.ThreadBbsItemId == mute.ThreadBbsItemId));
+                                              (m.ThreadBbsItemId != 0 && m.ThreadBbsItemId == mute.ThreadBbsItemId) ||
+                                              (m.IssueBbsItemId != 0 && m.IssueBbsItemId == mute.IssueBbsItemId));
         if (target != null)
         {
           ErrorCode.MeaninglessOperationError.Throw();
         }
 
         var targetMessage = string.Empty;
-        var targetCharacter = default(Character);
+        var targetCharacterName = string.Empty;
         var targetType = string.Empty;
         if (mute.ChatMessageId != 0)
         {
           var item = await repo.ChatMessage.GetByIdAsync(mute.ChatMessageId).GetOrErrorAsync(ErrorCode.InvalidOperationError);
           targetMessage = item.Message;
-          targetCharacter = await repo.Character.GetByIdAsync(item.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+          targetCharacterName = (await repo.Character.GetByIdAsync(item.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError)).Name;
           targetType = item.Type == ChatMessageType.Global ? "全国宛" :
                        item.Type == ChatMessageType.OtherCountry ? "他国宛" :
                        item.Type == ChatMessageType.Private ? "個宛" :
@@ -89,8 +91,15 @@ namespace SangokuKmy.Controllers
         {
           var item = await repo.ThreadBbs.GetByIdAsync(mute.ThreadBbsItemId).GetOrErrorAsync(ErrorCode.InvalidOperationError);
           targetMessage = item.Text;
-          targetCharacter = await repo.Character.GetByIdAsync(item.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+          targetCharacterName = (await repo.Character.GetByIdAsync(item.CharacterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError)).Name;
           targetType = item.Type == BbsType.CountryBbs ? "会議室" : "全国会議室";
+        }
+        else if (mute.IssueBbsItemId != 0)
+        {
+          var item = await repo.IssueBbs.GetByIdAsync(mute.IssueBbsItemId).GetOrErrorAsync(ErrorCode.InvalidOperationError);
+          targetMessage = item.Text;
+          targetCharacterName = item.AccountName;
+          targetType = "イシュー";
         }
 
         mute.CharacterId = chara.Id;
@@ -105,7 +114,7 @@ namespace SangokuKmy.Controllers
           {
             chats.Add(await ChatService.PostChatMessageAsync(repo, new ChatMessage
             {
-              Message = $"[r][s]【報告】[-s][-r]\n\nMute ID: {mute.Id}\n\n武将名: {targetCharacter?.Name}\n\n{targetType}: {targetMessage}\n\n追加でメッセージがある場合は、続けて個宛してください（右下の再送ボタンより送れます）",
+              Message = $"[r][s]【報告】[-s][-r]\n\nMute ID: {mute.Id}\n\n武将名: {targetCharacterName}\n\n{targetType}: {targetMessage}\n\n追加でメッセージがある場合は、続けて個宛してください（右下の再送ボタンより送れます）",
             }, chara, ChatMessageType.Private, chara.Id, admin.Id));
           }
           await repo.SaveChangesAsync();
@@ -138,7 +147,8 @@ namespace SangokuKmy.Controllers
         var target = mutes.FirstOrDefault(m => m.Id == mute.Id ||
                                               (m.TargetCharacterId != 0 && m.TargetCharacterId == mute.TargetCharacterId) ||
                                               (m.ChatMessageId != 0 && m.ChatMessageId == mute.ChatMessageId) ||
-                                              (m.ThreadBbsItemId != 0 && m.ThreadBbsItemId == mute.ThreadBbsItemId));
+                                              (m.ThreadBbsItemId != 0 && m.ThreadBbsItemId == mute.ThreadBbsItemId) ||
+                                              (m.IssueBbsItemId != 0 && m.IssueBbsItemId == mute.IssueBbsItemId));
         if (target == null)
         {
           ErrorCode.InvalidOperationError.Throw();
