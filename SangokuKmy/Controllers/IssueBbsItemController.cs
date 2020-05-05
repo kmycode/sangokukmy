@@ -85,6 +85,7 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
 
         message.AccountName = account.Name;
+        message.LastWriterAccountName = account.Name;
       }
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(message));
