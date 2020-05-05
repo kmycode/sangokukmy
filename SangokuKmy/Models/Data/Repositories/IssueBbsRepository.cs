@@ -24,7 +24,7 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         var item = await this.container.Context.IssueBbsItems
           .Where(ii => ii.Id == id)
-          .Join(this.container.Context.Accounts, i => i.AccountId, a => a.Id, (ii, a) => new { Item = ii, Account = a, })
+          .Join(this.container.Context.Accounts, ii => ii.AccountId, a => a.Id, (ii, a) => new { Item = ii, Account = a, })
           .ToArrayAsync();
         if (!item.Any())
         {
