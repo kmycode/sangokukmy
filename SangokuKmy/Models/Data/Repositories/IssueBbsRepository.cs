@@ -72,6 +72,7 @@ namespace SangokuKmy.Models.Data.Repositories
         return (await this.container.Context.IssueBbsItems
           .Where(i => i.ParentId == 0)
           .Join(this.container.Context.Accounts, i => i.AccountId, a => a.Id, (i, a) => new { Issue = i, Account = a, })
+          .Join(this.container.Context.Accounts, i => i.Issue.LastWriterAccountId, a => a.Id, (i, a) => new { i.Issue, i.Account, LastWriterAccount = a, })
           .OrderByDescending(i => i.Issue.LastModified)
           .Skip(page * count)
           .Take(count)
@@ -79,6 +80,7 @@ namespace SangokuKmy.Models.Data.Repositories
           .Select(i =>
           {
             i.Issue.AccountName = i.Account.Name;
+            i.Issue.LastWriterAccountName = i.LastWriterAccount.Name;
             return i.Issue;
           })
           .ToArray();

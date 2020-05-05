@@ -36,6 +36,20 @@ namespace SangokuKmy.Models.Data.Entities
     public string AccountName { get; set; }
 
     /// <summary>
+    /// 最後に書き込んだ人のID
+    /// </summary>
+    [Column("last_writer_account_id")]
+    [JsonProperty("lastWriterAccountId")]
+    public uint LastWriterAccountId { get; set; }
+
+    /// <summary>
+    /// 最後に書き込んだ人の名前
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("lastWriterAccountName")]
+    public string LastWriterAccountName { get; set; }
+
+    /// <summary>
     /// 記事のタイトル
     /// </summary>
     [Column("title", TypeName = "varchar(120)")]
@@ -145,6 +159,7 @@ namespace SangokuKmy.Models.Data.Entities
     Composite = 9,
     Invalid = 10,
     Wontfix = 11,
+    Pending = 12,
   }
 
   public enum IssuePriority : short

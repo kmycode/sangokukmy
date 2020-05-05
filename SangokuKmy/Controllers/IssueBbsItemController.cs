@@ -64,6 +64,7 @@ namespace SangokuKmy.Controllers
         message = new IssueBbsItem
         {
           AccountId = account.Id,
+          LastWriterAccountId = account.Id,
           ParentId = param.ParentId,
           Title = param.Title,
           Text = param.Text,
@@ -78,6 +79,7 @@ namespace SangokuKmy.Controllers
         if (parent != null)
         {
           parent.LastModified = DateTime.Now;
+          parent.LastWriterAccountId = account.Id;
         }
 
         await repo.SaveChangesAsync();
