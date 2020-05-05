@@ -145,6 +145,7 @@ namespace SangokuKmy.Models.Data.Entities
     Composite = 9,
     Invalid = 10,
     Wontfix = 11,
+    Pending = 12,
   }
 
   public enum IssuePriority : short
