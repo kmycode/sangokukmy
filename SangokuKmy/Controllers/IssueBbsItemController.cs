@@ -71,7 +71,7 @@ namespace SangokuKmy.Controllers
           LastModified = DateTime.Now,
           Status = IssueStatus.New,
           Category = IssueCategory.New,
-          Priority = IssuePriority.New,
+          Priority = IssuePriority.Normal,
         };
         await repo.IssueBbs.AddAsync(message);
 
