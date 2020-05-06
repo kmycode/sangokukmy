@@ -119,6 +119,20 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("is_read")]
     [JsonProperty("isRead")]
     public bool IsRead { get; set; }
+
+    /// <summary>
+    /// BASE64の画像データ
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("imageBase64")]
+    public string ImageBase64 { get; set; }
+
+    /// <summary>
+    /// 画像のキー
+    /// </summary>
+    [Column("image_key")]
+    [JsonProperty("imageKey")]
+    public int ImageKey { get; set; }
   }
 
   public enum ChatMessageType : short

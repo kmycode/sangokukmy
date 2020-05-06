@@ -192,6 +192,19 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public void RemoveMessage(ChatMessage message)
+    {
+      try
+      {
+        this.container.Context.ChatMessages
+          .Remove(message);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     public void RemoveByCountryId(uint countryId)
     {
       try
