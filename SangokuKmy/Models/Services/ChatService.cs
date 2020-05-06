@@ -134,13 +134,13 @@ namespace SangokuKmy.Models.Services
 
           if (width > 1200)
           {
-            height = (int)(height * ((float)height / width));
+            height = (int)(height * ((float)1200 / width));
             width = 1200;
             isResize = true;
           }
           if (height > 1200)
           {
-            width = (int)(width * ((float)width / height));
+            width = (int)(width * ((float)1200 / height));
             height = 1200;
             isResize = true;
           }
