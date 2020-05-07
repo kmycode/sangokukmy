@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SangokuKmy.Common;
@@ -65,12 +66,31 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
-    public async Task<IReadOnlyList<IssueBbsItem>> GetPageThreadsAsync(int page, int count)
+    public async Task<IReadOnlyList<IssueBbsItem>> GetPageThreadsAsync(int page, int count, short period = 0, short betaVersion = 0, IssueStatus status = IssueStatus.Undefined)
     {
       try
       {
+        Expression<Func<IssueBbsItem, bool>> predicate;
+        if (period != 0 && status == IssueStatus.Undefined)
+        {
+          predicate = item => item.Period == period && item.BetaVersion == betaVersion;
+        }
+        else if (period == 0 && status != IssueStatus.Undefined)
+        {
+          predicate = item => item.Status == status;
+        }
+        else if (period != 0 && status != IssueStatus.Undefined)
+        {
+          predicate = item => item.Period == period && item.BetaVersion == betaVersion && item.Status == status;
+        }
+        else
+        {
+          predicate = item => true;
+        }
+
         return (await this.container.Context.IssueBbsItems
           .Where(i => i.ParentId == 0)
+          .Where(predicate)
           .Join(this.container.Context.Accounts, i => i.AccountId, a => a.Id, (i, a) => new { Issue = i, Account = a, })
           .Join(this.container.Context.Accounts, i => i.Issue.LastWriterAccountId, a => a.Id, (i, a) => new { i.Issue, i.Account, LastWriterAccount = a, })
           .OrderByDescending(i => i.Issue.LastModified)
