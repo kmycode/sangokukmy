@@ -311,6 +311,7 @@ namespace SangokuKmy.Controllers
             }
           }
 
+          param.RequestedStopCountryId = o.RequestedStopCountryId;
           if (param.Status == CountryWarStatus.StopRequesting)
           {
             param.RequestedStopCountryId = self.CountryId;
