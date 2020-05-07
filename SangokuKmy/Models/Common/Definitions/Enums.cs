@@ -296,6 +296,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode DuplicateAccountOfCharacterError { get; } = new ErrorCode(403, 54);
 
+    /// <summary>
+    /// 画像のアップロードに失敗したエラー
+    /// </summary>
+    public static ErrorCode UploadImageFailedError { get; } = new ErrorCode(400, 55);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]
