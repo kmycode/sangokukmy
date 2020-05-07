@@ -72,7 +72,6 @@ namespace SangokuKmy.Controllers
           LastModified = DateTime.Now,
           Status = IssueStatus.New,
           Category = IssueCategory.New,
-          Priority = IssuePriority.Normal,
         };
         await repo.IssueBbs.AddAsync(message);
 
@@ -143,13 +142,35 @@ namespace SangokuKmy.Controllers
         {
           message.Status = param.Status;
         }
-        if (param.Priority != IssuePriority.Undefined)
-        {
-          message.Priority = param.Priority;
-        }
         if (param.Category != IssueCategory.Undefined)
         {
           message.Category = param.Category;
+        }
+        if (param.Period != 0 || param.Milestone != IssueMilestone.Unknown)
+        {
+          var system = await repo.System.GetAsync();
+          if (param.Milestone == IssueMilestone.CurrentPeriod)
+          {
+            message.Period = system.Period;
+            message.BetaVersion = system.BetaVersion;
+          }
+          else if (param.Milestone == IssueMilestone.NextPeriod)
+          {
+            var period = system.IsNextPeriodBeta ? system.Period : system.Period + 1;
+            var beta = system.IsNextPeriodBeta ? system.BetaVersion + 1 : 0;
+            message.Period = (short)period;
+            message.BetaVersion = (short)beta;
+          }
+          else if (param.Milestone == IssueMilestone.Clear)
+          {
+            message.Period = 0;
+            message.BetaVersion = 0;
+          }
+          else
+          {
+            message.Period = param.Period;
+            message.BetaVersion = param.BetaVersion;
+          }
         }
 
         await repo.SaveChangesAsync();

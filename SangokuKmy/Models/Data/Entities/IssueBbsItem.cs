@@ -115,21 +115,6 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
-    /// 重要度
-    /// </summary>
-    [Column("priority")]
-    [JsonIgnore]
-    public IssuePriority Priority { get; set; }
-
-    [NotMapped]
-    [JsonProperty("priority")]
-    public short ApiPriority
-    {
-      get => (short)this.Priority;
-      set => this.Priority = (IssuePriority)value;
-    }
-
-    /// <summary>
     /// 分類
     /// </summary>
     [Column("category")]
@@ -142,6 +127,32 @@ namespace SangokuKmy.Models.Data.Entities
     {
       get => (short)this.Category;
       set => this.Category = (IssueCategory)value;
+    }
+
+    /// <summary>
+    /// マイルストーンの期
+    /// </summary>
+    [Column("period")]
+    [JsonProperty("period")]
+    public short Period { get; set; }
+
+    /// <summary>
+    /// マイルストーンのベータのバージョン。0で正式な期
+    /// </summary>
+    [Column("beta_version")]
+    [JsonProperty("betaVersion")]
+    public short BetaVersion { get; set; }
+
+    [NotMapped]
+    [JsonIgnore]
+    public IssueMilestone Milestone { get; set; }
+
+    [NotMapped]
+    [JsonProperty("milestone")]
+    public short ApiMilestone
+    {
+      get => (short)this.Milestone;
+      set => this.Milestone = (IssueMilestone)value;
     }
   }
 
@@ -162,15 +173,6 @@ namespace SangokuKmy.Models.Data.Entities
     Pending = 12,
   }
 
-  public enum IssuePriority : short
-  {
-    Undefined = 0,
-    New = 1,
-    Low = 2,
-    Normal = 3,
-    High = 4,
-  }
-
   public enum IssueCategory : short
   {
     Undefined = 0,
@@ -179,5 +181,13 @@ namespace SangokuKmy.Models.Data.Entities
     Bug = 3,
     Rule = 4,
     Other = 5,
+  }
+
+  public enum IssueMilestone : short
+  {
+    Unknown = 0,
+    CurrentPeriod = 1,
+    NextPeriod = 2,
+    Clear = 3,
   }
 }
