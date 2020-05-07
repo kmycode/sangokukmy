@@ -72,7 +72,6 @@ namespace SangokuKmy.Controllers
           LastModified = DateTime.Now,
           Status = IssueStatus.New,
           Category = IssueCategory.New,
-          Priority = IssuePriority.Normal,
         };
         await repo.IssueBbs.AddAsync(message);
 
@@ -100,12 +99,32 @@ namespace SangokuKmy.Controllers
 
     [HttpGet("issue/page/{page}")]
     public async Task<IReadOnlyList<IssueBbsItem>> GetPageAsync(
-      [FromRoute] int page = default)
+      [FromRoute] int page = default,
+      [FromQuery] IssueMilestone milestone = default,
+      [FromQuery] IssueStatus status = default)
     {
       using (var repo = MainRepository.WithRead())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        return await repo.IssueBbs.GetPageThreadsAsync(page, 20);
+
+        var period = (short)0;
+        var betaVersion = (short)0;
+        if (milestone != default)
+        {
+          var system = await repo.System.GetAsync();
+          if (milestone == IssueMilestone.CurrentPeriod)
+          {
+            period = system.Period;
+            betaVersion = system.BetaVersion;
+          }
+          else if (milestone == IssueMilestone.NextPeriod)
+          {
+            period = system.IsNextPeriodBeta ? system.Period : (short)(system.Period + 1);
+            betaVersion = system.IsNextPeriodBeta ? (short)(system.BetaVersion + 1) : (short)0;
+          }
+        }
+
+        return await repo.IssueBbs.GetPageThreadsAsync(page, 20, period, betaVersion, status);
       }
     }
 
@@ -143,13 +162,35 @@ namespace SangokuKmy.Controllers
         {
           message.Status = param.Status;
         }
-        if (param.Priority != IssuePriority.Undefined)
-        {
-          message.Priority = param.Priority;
-        }
         if (param.Category != IssueCategory.Undefined)
         {
           message.Category = param.Category;
+        }
+        if (param.Period != 0 || param.Milestone != IssueMilestone.Unknown)
+        {
+          var system = await repo.System.GetAsync();
+          if (param.Milestone == IssueMilestone.CurrentPeriod)
+          {
+            message.Period = system.Period;
+            message.BetaVersion = system.BetaVersion;
+          }
+          else if (param.Milestone == IssueMilestone.NextPeriod)
+          {
+            var period = system.IsNextPeriodBeta ? system.Period : system.Period + 1;
+            var beta = system.IsNextPeriodBeta ? system.BetaVersion + 1 : 0;
+            message.Period = (short)period;
+            message.BetaVersion = (short)beta;
+          }
+          else if (param.Milestone == IssueMilestone.Clear)
+          {
+            message.Period = 0;
+            message.BetaVersion = 0;
+          }
+          else
+          {
+            message.Period = param.Period;
+            message.BetaVersion = param.BetaVersion;
+          }
         }
 
         await repo.SaveChangesAsync();

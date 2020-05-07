@@ -75,7 +75,7 @@ namespace SangokuKmy.Models.Services
         {
           repo.ChatMessage.RemoveMessage(message);
           await repo.SaveChangesAsync();
-          throw ex;
+          ErrorCode.UploadImageFailedError.Throw(ex);
         }
       }
 
