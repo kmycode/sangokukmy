@@ -94,18 +94,23 @@ namespace SangokuKmy.Models.Services
         };
         if (war.Status == CountryWarStatus.InReady)
         {
-          mapLog.EventType = EventType.WarInReady;
-          mapLog.Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> へ侵攻します";
+          if (war.RequestedStopCountryId == 0)
+          {
+            mapLog.EventType = EventType.WarInReady;
+            mapLog.Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> へ侵攻します";
+            await PushNotificationService.SendCountryAsync(repo, "宣戦布告", $"{war.StartGameDate.ToString()} より {country2.Name} と戦争します", country1.Id);
+            await PushNotificationService.SendCountryAsync(repo, "宣戦布告", $"{war.StartGameDate.ToString()} より {country1.Name} と戦争します", country2.Id);
+          }
         }
         else if (war.Status == CountryWarStatus.Stoped)
         {
           mapLog.EventType = EventType.WarStopped;
           mapLog.Message = "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争は停戦しました";
+          await PushNotificationService.SendCountryAsync(repo, "停戦", $"{country2.Name} との戦争は停戦しました", country1.Id);
+          await PushNotificationService.SendCountryAsync(repo, "停戦", $"{country1.Name} との戦争は停戦しました", country2.Id);
         }
         await repo.MapLog.AddAsync(mapLog);
 
-        await PushNotificationService.SendCountryAsync(repo, "宣戦布告", $"{war.StartGameDate.ToString()} より {country2.Name} と戦争します", country1.Id);
-        await PushNotificationService.SendCountryAsync(repo, "宣戦布告", $"{war.StartGameDate.ToString()} より {country1.Name} と戦争します", country2.Id);
       }
 
       await repo.SaveChangesAsync();

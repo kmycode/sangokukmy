@@ -368,7 +368,7 @@ namespace SangokuKmy.Controllers
           InsistedCountryId = param.InsistedCountryId,
           StartGameDate = param.StartGameDate,
           Status = param.Status,
-          RequestedStopCountryId = param.RequestedStopCountryId,
+          RequestedStopCountryId = old.Data?.RequestedStopCountryId ?? param.RequestedStopCountryId,
         };
 
         await CountryService.SendWarAndSaveAsync(repo, war);
