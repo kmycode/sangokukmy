@@ -311,6 +311,7 @@ namespace SangokuKmy.Controllers
             }
           }
 
+          param.RequestedStopCountryId = o.RequestedStopCountryId;
           if (param.Status == CountryWarStatus.StopRequesting)
           {
             param.RequestedStopCountryId = self.CountryId;
@@ -368,7 +369,7 @@ namespace SangokuKmy.Controllers
           InsistedCountryId = param.InsistedCountryId,
           StartGameDate = param.StartGameDate,
           Status = param.Status,
-          RequestedStopCountryId = old.Data?.RequestedStopCountryId ?? param.RequestedStopCountryId,
+          RequestedStopCountryId = param.RequestedStopCountryId,
         };
 
         await CountryService.SendWarAndSaveAsync(repo, war);
