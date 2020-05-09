@@ -67,6 +67,15 @@ namespace SangokuKmy.Models.Commands
         new GenerateItemInfo
         {
           From = CharacterFrom.Engineer,
+          ItemType = CharacterItemType.EquippedStrongCrossbow,
+          ResourceAttribute = c => c.Strong,
+          AddExAttribute = c => c.AddStrongEx(200),
+          Length = 12,
+          Contribution = 80,
+        },
+        new GenerateItemInfo
+        {
+          From = CharacterFrom.Engineer,
           ItemType = CharacterItemType.EquippedRepeatingCrossbow,
           ResourceAttribute = c => c.Strong,
           AddExAttribute = c => c.AddStrongEx(200),
