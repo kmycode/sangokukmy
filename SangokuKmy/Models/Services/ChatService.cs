@@ -106,7 +106,7 @@ namespace SangokuKmy.Models.Services
       else if (message.ImageBase64.StartsWith("data:image"))
       {
         // data:image/png;base64,iVB
-        var strs = new string[] { "data:image/png;base64,", "data:image/jpg;base64,", "data:image/jpeg;base64,", "data:image/bmp;base64,", };
+        var strs = new string[] { "data:image/png;base64,", "data:image/jpg;base64,", "data:image/jpeg;base64,", "data:image/gif;base64,", "data:image/bmp;base64,", };
         foreach (var str in strs)
         {
           if (message.ImageBase64.StartsWith(str))
