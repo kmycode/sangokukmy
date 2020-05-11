@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
+using NLog.Config;
+using NLog.Extensions.Logging;
 using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Data.Entities;
 using System;
@@ -310,9 +312,10 @@ namespace SangokuKmy.Models.Data
     /// </summary>
     public DbSet<IssueBbsItem> IssueBbsItems { get; set; }
 
-    private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new[] {
-        new DebugLoggerProvider((category, level)
-            => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)
+    private static readonly LoggerFactory LoggerFactory = new LoggerFactory(new ILoggerProvider[] {
+      new NLogLoggerProvider(),
+      // new DebugLoggerProvider((category, level)
+      //     => category == DbLoggerCategory.Database.Command.Name && level == LogLevel.Information)
     });
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -321,6 +324,7 @@ namespace SangokuKmy.Models.Data
       {
         optionsBuilder.UseMySql(Config.Database.MySqlConnectionString);
       }
+      optionsBuilder.UseLoggerFactory(LoggerFactory);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

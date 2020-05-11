@@ -69,7 +69,7 @@ namespace SangokuKmy.Models.Services
       {
         try
         {
-          await UploadImageAsync(message);
+          await Task.Run(async () => await UploadImageAsync(message));
         }
         catch (Exception ex)
         {
