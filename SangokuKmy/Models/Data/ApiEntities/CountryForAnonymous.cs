@@ -37,6 +37,12 @@ namespace SangokuKmy.Models.Data.ApiEntities
       set => this.AiType = (CountryAiType)value;
     }
 
+    [JsonProperty("isHaveGyokuji")]
+    public bool IsHaveGyokuji { get; set; }
+
+    [JsonProperty("gyokujiGameDate")]
+    public GameDateTime GyokujiGameDate { get; set; }
+
     public CountryForAnonymous(Country country)
     {
       this.Id = country.Id;
@@ -46,6 +52,8 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.HasOverthrown = country.HasOverthrown;
       this.OverthrownGameDate = country.OverthrownGameDate;
       this.AiType = country.AiType;
+      this.IsHaveGyokuji = country.IsHaveGyokuji;
+      this.GyokujiGameDate = country.GyokujiGameDate;
     }
   }
 }

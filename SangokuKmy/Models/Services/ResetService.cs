@@ -142,7 +142,7 @@ namespace SangokuKmy.Models.Services
       }));
     }
 
-    public static async Task RequestResetAsync(MainRepository repo)
+    public static async Task RequestResetAsync(MainRepository repo, uint unifiedCountryId)
     {
       var system = await repo.System.GetAsync();
       system.IsWaitingReset = true;
@@ -155,12 +155,12 @@ namespace SangokuKmy.Models.Services
       var resetTurn = (int)Math.Round(sinceResetTime.TotalMinutes / 10.0f);
       system.ResetGameDateTime = GameDateTime.FromInt(system.GameDateTime.ToInt() + resetTurn);
 
-      await RecordHistoryAsync(repo, system);
+      await RecordHistoryAsync(repo, system, unifiedCountryId);
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(system));
     }
 
-    private static async Task RecordHistoryAsync(MainRepository repo, SystemData system)
+    private static async Task RecordHistoryAsync(MainRepository repo, SystemData system, uint unifiedCountryId)
     {
       await repo.SaveChangesAsync();
       
@@ -169,7 +169,7 @@ namespace SangokuKmy.Models.Services
       var maplogs = await repo.MapLog.GetAllImportantsAsync();
       var towns = await repo.Town.GetAllAsync();
 
-      var unifiedCountry = countries.FirstOrDefault(c => !c.HasOverthrown);
+      var unifiedCountry = countries.FirstOrDefault(c => c.Id == unifiedCountryId);
       var posts = Enumerable.Empty<CountryPost>();
       if (unifiedCountry != null)
       {
@@ -196,6 +196,7 @@ namespace SangokuKmy.Models.Services
         Countries = countries.Select(c =>
         {
           var country = HistoricalCountry.FromCountry(c);
+          country.HasOverthrown = c.Id != unifiedCountryId;
           return country;
         }).ToArray(),
         MapLogs = maplogs.Select(m =>

@@ -273,5 +273,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 降伏
     /// </summary>
     Surrender = 36,
+
+    /// <summary>
+    /// 玉璽
+    /// </summary>
+    Gyokuji = 37,
   }
 }

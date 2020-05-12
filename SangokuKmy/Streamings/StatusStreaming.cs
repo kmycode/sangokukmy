@@ -151,7 +151,7 @@ namespace SangokuKmy.Streamings
     /// 特定のIDを持った武将とその国以外の武将に送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>
-    public async Task SendCountryExceptForCountryAsync<T>(ApiData<T> data, uint countryId) => await this.SendAsync(data, c => c.ExtraData.CountryId != countryId);
+    public async Task SendAllExceptForCountryAsync<T>(ApiData<T> data, uint countryId) => await this.SendAsync(data, c => c.ExtraData.CountryId != countryId);
 
     /// <summary>
     /// 特定のIDを持った武将以外の武将に送信する
@@ -169,7 +169,7 @@ namespace SangokuKmy.Streamings
     /// 特定のIDを持った武将以外の武将に送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>
-    public async Task SendCharacterExceptForCharactersAndCountryAsync<T>(ApiData<T> data, IEnumerable<uint> charaIds, IEnumerable<uint> countryIds) => await this.SendAsync(data, c => !charaIds.Contains(c.ExtraData.Id) && !countryIds.Contains(c.ExtraData.CountryId));
+    public async Task SendAllExceptForCharactersAndCountryAsync<T>(ApiData<T> data, IEnumerable<uint> charaIds, IEnumerable<uint> countryIds) => await this.SendAsync(data, c => !charaIds.Contains(c.ExtraData.Id) && !countryIds.Contains(c.ExtraData.CountryId));
 
     /// <summary>
     /// 特定の国の武将にのみ送信する

@@ -1176,6 +1176,72 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
+          // 玉璽
+          if (!system.IsWaitingReset)
+          {
+            var isSave = false;
+            foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 14 <= system.IntGameDateTime))
+            {
+              country.GyokujiStatus = CountryGyokujiStatus.NotHave;
+              await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> の持っている玉璽はまがい物でした");
+              await StatusStreaming.Default.SendAllExceptForCountryAsync(ApiData.From(new CountryForAnonymous(country)), country.Id);
+              isSave = true;
+            }
+
+            var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 12 * 12 * 14 <= system.IntGameDateTime);
+            if (gyokujiWinner != null)
+            {
+              var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+              if (!wars.Any(w => w.IsJoinAvailable(gyokujiWinner.Id)))
+              {
+                await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{gyokujiWinner.Name}</country> は玉璽を行使し、天下に覇を唱えました");
+                await CountryService.UnifyCountryAsync(repo, gyokujiWinner);
+                isSave = true;
+              }
+            }
+
+            if (isSave)
+            {
+              await repo.SaveChangesAsync();
+            }
+          }
+
+          // 玉璽の配布
+          if (allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave) && system.GameDateTime.Year <= Config.UpdateStartYear + 24)
+          {
+            // 異民族や経営国家を含めるため、改めて取得して確認し直す
+            var countries = (await repo.Country.GetAllAsync()).Where(c => c.AiType != CountryAiType.Terrorists);
+            if (countries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave))
+            {
+              var gets = new List<Country>();
+              var num = Math.Min(countries.Count(), RandomService.Next(3, 6));
+              for (var i = 0; i < num; i++)
+              {
+                var isHit = false;
+                while (!isHit)
+                {
+                  var tmp = RandomService.Next(countries);
+                  if (!gets.Any(c => c.Id == tmp.Id))
+                  {
+                    gets.Add(tmp);
+                    isHit = true;
+                  }
+                }
+              }
+
+              foreach (var country in gets)
+              {
+                country.GyokujiStatus = CountryGyokujiStatus.HasFake;
+                country.IntGyokujiGameDate = system.IntGameDateTime;
+                await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> は玉璽を手に入れました");
+                await StatusStreaming.Default.SendAllExceptForCountryAsync(ApiData.From(new CountryForAnonymous(country)), country.Id);
+              }
+              RandomService.Next(gets).GyokujiStatus = CountryGyokujiStatus.HasGenuine;
+
+              await repo.SaveChangesAsync();
+            }
+          }
+
           // 戦争状態にないAI国家がどっかに布告するようにする
           if (!system.IsBattleRoyaleMode && allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human && c.AiType != CountryAiType.Managed))
           {
