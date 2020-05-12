@@ -64,15 +64,20 @@ namespace SangokuKmy.Models.Services
           var unifiedCountry = humanCountry != null ? allCountries.FirstOrDefault(c => c.Id == humanCountry.CountryId) : allCountries.FirstOrDefault(c => !c.HasOverthrown);
           if (unifiedCountry != null)
           {
-            await LogService.AddMapLogAsync(repo, true, EventType.Unified, "大陸は、<country>" + unifiedCountry.Name + "</country> によって統一されました");
-            await ResetService.RequestResetAsync(repo);
-
-            await repo.SaveChangesAsync();
-            system = await repo.System.GetAsync();
-            await PushNotificationService.SendAllAsync(repo, "統一", $"{unifiedCountry.Name} は、大陸を統一しました。ゲームは {system.ResetGameDateTime.ToString()} にリセットされます");
+            await UnifyCountryAsync(repo, unifiedCountry);
           }
         }
       }
+    }
+
+    public static async Task UnifyCountryAsync(MainRepository repo, Country country)
+    {
+      await LogService.AddMapLogAsync(repo, true, EventType.Unified, "大陸は、<country>" + country.Name + "</country> によって統一されました");
+      await ResetService.RequestResetAsync(repo, country.Id);
+
+      await repo.SaveChangesAsync();
+      var system = await repo.System.GetAsync();
+      await PushNotificationService.SendAllAsync(repo, "統一", $"{country.Name} は、大陸を統一しました。ゲームは {system.ResetGameDateTime.ToString()} にリセットされます");
     }
 
     public static async Task SendWarAndSaveAsync(MainRepository repo, CountryWar war)
