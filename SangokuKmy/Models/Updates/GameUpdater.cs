@@ -1214,7 +1214,7 @@ namespace SangokuKmy.Models.Updates
             if (countries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave))
             {
               var gets = new List<Country>();
-              var num = Math.Min(countries.Count(), RandomService.Next(3, 6));
+              var num = Math.Min(countries.Count(), RandomService.Next(2, 4));
               for (var i = 0; i < num; i++)
               {
                 var isHit = false;
