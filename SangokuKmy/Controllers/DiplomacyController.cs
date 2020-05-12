@@ -541,7 +541,7 @@ namespace SangokuKmy.Controllers
         if (isSurrender)
         {
           // 降伏
-          await CountryService.OverThrowAsync(repo, country);
+          await CountryService.OverThrowAsync(repo, country, targetCountry);
           await LogService.AddMapLogAsync(repo, true, EventType.Surrender, $"<country>{country.Name}</country> は、<country>{targetCountry.Name}</country> に降伏しました");
         }
       }

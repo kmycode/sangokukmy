@@ -15,11 +15,13 @@ namespace SangokuKmy.Models.Services
 {
   public static class CountryService
   {
-    public static async Task OverThrowAsync(MainRepository repo, Country country)
+    public static async Task OverThrowAsync(MainRepository repo, Country country, Country winnerCountry)
     {
       var system = await repo.System.GetAsync();
       country.HasOverthrown = true;
       country.OverthrownGameDate = system.GameDateTime;
+
+      await LogService.AddMapLogAsync(repo, true, EventType.Overthrown, $"<country>{country.Name}</country> は滅亡しました");
 
       var targetCountryCharacters = await repo.Character.RemoveCountryAsync(country.Id);
       repo.Unit.RemoveUnitsByCountryId(country.Id);
@@ -27,6 +29,27 @@ namespace SangokuKmy.Models.Services
       repo.ChatMessage.RemoveByCountryId(country.Id);
       repo.CountryDiplomacies.RemoveByCountryId(country.Id);
       repo.Country.RemoveDataByCountryId(country.Id);
+
+      // 玉璽
+      if (winnerCountry != null)
+      {
+        if (country.GyokujiStatus != CountryGyokujiStatus.NotHave)
+        {
+          if (winnerCountry.GyokujiStatus == CountryGyokujiStatus.NotHave)
+          {
+            winnerCountry.IntGyokujiGameDate = system.IntGameDateTime;
+            await LogService.AddMapLogAsync(repo, true, EventType.Gyokuji, $"<country>{winnerCountry.Name} は玉璽を手に入れました");
+          }
+
+          if (winnerCountry.GyokujiStatus != CountryGyokujiStatus.HasGenuine)
+          {
+            winnerCountry.GyokujiStatus = country.GyokujiStatus;
+          }
+          country.GyokujiStatus = CountryGyokujiStatus.NotHave;
+          await StatusStreaming.Default.SendAllExceptForCountryAsync(ApiData.From(new CountryForAnonymous(winnerCountry)), winnerCountry.Id);
+          await StatusStreaming.Default.SendCountryAsync(ApiData.From(winnerCountry), winnerCountry.Id);
+        }
+      }
 
       await StatusStreaming.Default.SendAllAsync(ApiData.From(country));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));

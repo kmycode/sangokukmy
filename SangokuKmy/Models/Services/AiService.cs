@@ -721,13 +721,13 @@ namespace SangokuKmy.Models.Services
         }
       }
 
+      var isOverthrowOldCountry = false;
       if (targetCountryOptional.HasData && await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1)
       {
         if (isForce)
         {
           // 滅亡させる
-          await CountryService.OverThrowAsync(repo, targetCountryOptional.Data);
-          await mapLogAsync(EventType.Overthrown, "<country>" + targetCountryOptional.Data.Name + "</country> は滅亡しました", true);
+          isOverthrowOldCountry = true;
         }
         else
         {
@@ -765,6 +765,12 @@ namespace SangokuKmy.Models.Services
       foreach (var chara in myCharas)
       {
         chara.Name = $"{chara.Name}{chara.Id}";
+      }
+
+      if (isOverthrowOldCountry)
+      {
+        // 蜂起した都市が既存の国の唯一の支配地であれば、国を滅亡させる
+        await CountryService.OverThrowAsync(repo, targetCountryOptional.Data, country);
       }
 
       if (targetCountryOptional.HasData)

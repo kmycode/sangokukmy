@@ -574,8 +574,7 @@ namespace SangokuKmy.Models.Commands
                   await CountryService.SetPolicyAndSaveAsync(repo, myCountry, CountryPolicyType.GetTerrorists, isCheckSubjects: false);
                 }
 
-                await CountryService.OverThrowAsync(repo, targetCountry);
-                await game.MapLogAsync(EventType.Overthrown, "<country>" + targetCountry.Name + "</country> は滅亡しました", true);
+                await CountryService.OverThrowAsync(repo, targetCountry, myCountry);
 
                 await StatusStreaming.Default.SendCountryAsync(ApiData.From(myCountry), myCountry.Id);
               }

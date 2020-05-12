@@ -151,7 +151,7 @@ namespace SangokuKmy.Streamings
     /// 特定のIDを持った武将とその国以外の武将に送信する
     /// </summary>
     /// <param name="data">送信するデータ</param>
-    public async Task SendCountryExceptForCountryAsync<T>(ApiData<T> data, uint countryId) => await this.SendAsync(data, c => c.ExtraData.CountryId != countryId);
+    public async Task SendAllExceptForCountryAsync<T>(ApiData<T> data, uint countryId) => await this.SendAsync(data, c => c.ExtraData.CountryId != countryId);
 
     /// <summary>
     /// 特定のIDを持った武将以外の武将に送信する

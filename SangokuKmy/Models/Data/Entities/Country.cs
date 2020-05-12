@@ -133,11 +133,40 @@ namespace SangokuKmy.Models.Data.Entities
     public int PolicyPoint { get; set; }
 
     /// <summary>
-    /// 宗主国
+    /// 玉璽の状態
     /// </summary>
-    [Column("suzerain_country_id")]
-    [JsonProperty("suzerainCountryId")]
-    public uint SuzerainCountryId { get; set; }
+    [Column("gyokuji_status")]
+    [JsonIgnore]
+    public CountryGyokujiStatus GyokujiStatus { get; set; }
+
+    /// <summary>
+    /// 玉璽を持っているか
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("isHaveGyokuji")]
+    public bool IsHaveGyokuji
+    {
+      get => this.GyokujiStatus != CountryGyokujiStatus.NotHave;
+      set { }
+    }
+
+    /// <summary>
+    /// 玉璽を手に入れた、ゲーム内の年月（DB用）
+    /// </summary>
+    [Column("gyokuji_game_date")]
+    [JsonIgnore]
+    public int IntGyokujiGameDate { get; set; }
+
+    /// <summary>
+    /// 玉璽を手に入れた、ゲーム内の年月
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("gyokujiGameDate")]
+    public GameDateTime GyokujiGameDate
+    {
+      get => GameDateTime.FromInt(this.IntGyokujiGameDate);
+      set => this.IntGyokujiGameDate = value.ToInt();
+    }
   }
 
   public enum CountryAiType : short
@@ -149,5 +178,23 @@ namespace SangokuKmy.Models.Data.Entities
     Managed = 4,
     Puppet = 5,
     TerroristsEnemy = 6,
+  }
+
+  public enum CountryGyokujiStatus : short
+  {
+    /// <summary>
+    /// 玉璽を持っていない
+    /// </summary>
+    NotHave = 0,
+
+    /// <summary>
+    /// 本物を持っている
+    /// </summary>
+    HasGenuine = 1,
+
+    /// <summary>
+    /// まがい物を持っている
+    /// </summary>
+    HasFake = 2,
   }
 }

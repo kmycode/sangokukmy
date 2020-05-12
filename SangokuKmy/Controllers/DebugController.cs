@@ -55,7 +55,8 @@ namespace SangokuKmy.Controllers
     {
       using (var repo = MainRepository.WithReadAndWrite())
       {
-        await ResetService.RequestResetAsync(repo);
+        var countries = await repo.Country.GetAllAsync();
+        await ResetService.RequestResetAsync(repo, countries.First(c => !c.HasOverthrown).Id);
         await repo.SaveChangesAsync();
       }
     }
