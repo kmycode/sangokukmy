@@ -1194,7 +1194,7 @@ namespace SangokuKmy.Models.Updates
               var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
               if (!wars.Any(w => w.IsJoinAvailable(gyokujiWinner.Id)))
               {
-                await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{gyokujiWinner.Name}</country> は玉璽を行使し、覇を唱えました");
+                await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{gyokujiWinner.Name}</country> は玉璽を行使し、天下に覇を唱えました");
                 await CountryService.UnifyCountryAsync(repo, gyokujiWinner);
                 isSave = true;
               }
