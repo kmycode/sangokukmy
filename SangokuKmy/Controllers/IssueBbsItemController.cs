@@ -107,7 +107,7 @@ namespace SangokuKmy.Controllers
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
 
-        var period = (short)0;
+        var period = (short)-1;
         var betaVersion = (short)0;
         if (milestone != default)
         {
@@ -121,6 +121,11 @@ namespace SangokuKmy.Controllers
           {
             period = system.IsNextPeriodBeta ? system.Period : (short)(system.Period + 1);
             betaVersion = system.IsNextPeriodBeta ? (short)(system.BetaVersion + 1) : (short)0;
+          }
+          else if (milestone == IssueMilestone.PeriodUnset)
+          {
+            period = 0;
+            betaVersion = 0;
           }
         }
 

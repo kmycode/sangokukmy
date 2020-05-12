@@ -66,20 +66,20 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
-    public async Task<IReadOnlyList<IssueBbsItem>> GetPageThreadsAsync(int page, int count, short period = 0, short betaVersion = 0, IssueStatus status = IssueStatus.Undefined)
+    public async Task<IReadOnlyList<IssueBbsItem>> GetPageThreadsAsync(int page, int count, short period = -1, short betaVersion = 0, IssueStatus status = IssueStatus.Undefined)
     {
       try
       {
         Expression<Func<IssueBbsItem, bool>> predicate;
-        if (period != 0 && status == IssueStatus.Undefined)
+        if (period >= 0 && status == IssueStatus.Undefined)
         {
           predicate = item => item.Period == period && item.BetaVersion == betaVersion;
         }
-        else if (period == 0 && status != IssueStatus.Undefined)
+        else if (period < 0 && status != IssueStatus.Undefined)
         {
           predicate = item => item.Status == status;
         }
-        else if (period != 0 && status != IssueStatus.Undefined)
+        else if (period >= 0 && status != IssueStatus.Undefined)
         {
           predicate = item => item.Period == period && item.BetaVersion == betaVersion && item.Status == status;
         }
