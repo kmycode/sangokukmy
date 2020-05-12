@@ -189,5 +189,6 @@ namespace SangokuKmy.Models.Data.Entities
     CurrentPeriod = 1,
     NextPeriod = 2,
     Clear = 3,
+    PeriodUnset = 4,
   }
 }
