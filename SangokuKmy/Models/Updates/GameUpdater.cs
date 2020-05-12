@@ -1180,7 +1180,7 @@ namespace SangokuKmy.Models.Updates
           if (!system.IsWaitingReset)
           {
             var isSave = false;
-            foreach (var country in allCountries.Where(c => c.GyokujiStatus != CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 14 <= system.IntGameDateTime))
+            foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 14 <= system.IntGameDateTime))
             {
               country.GyokujiStatus = CountryGyokujiStatus.NotHave;
               await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> の持っている玉璽はまがい物でした");
