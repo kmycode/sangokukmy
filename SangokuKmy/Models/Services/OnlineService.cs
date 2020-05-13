@@ -81,6 +81,7 @@ namespace SangokuKmy.Models.Services
           catch (Exception ex)
           {
             logger.LogError(ex, "オンライン状態処理中にエラーが発生しました");
+            await Task.Delay(5000);
           }
         }
       });

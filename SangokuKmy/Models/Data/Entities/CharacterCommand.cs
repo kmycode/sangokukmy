@@ -366,5 +366,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 建築物の撤去
     /// </summary>
     RemoveSubBuilding = 64,
+
+    /// <summary>
+    /// 静養
+    /// </summary>
+    ChangeTime = 65,
   }
 }

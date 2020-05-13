@@ -1583,7 +1583,12 @@ namespace SangokuKmy.Models.Updates
         notifies.Add(ApiData.From(new ApiSignal
         {
           Type = SignalType.CurrentCharacterUpdated,
-          Data = new { gameDate = character.LastUpdatedGameDate, secondsNextCommand = (int)((character.LastUpdated.AddSeconds(Config.UpdateTime) - DateTime.Now).TotalSeconds), },
+          Data = new
+          {
+            gameDate = character.LastUpdatedGameDate,
+            secondsNextCommand = (int)((character.LastUpdated.AddSeconds(Config.UpdateTime) - DateTime.Now).TotalSeconds),
+            lastUpdated = ApiDateTime.FromDateTime(character.LastUpdated),
+          },
         }));
 
         // ログイン中のユーザに新しい情報を通知する

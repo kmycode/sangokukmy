@@ -178,6 +178,7 @@ namespace SangokuKmy.Models.Data.Entities
     SkillBook = 81,
     KokinFlag = 82,
     EquippedStrongCrossbow = 83,
+    TimeChanger = 84,
   }
 
   public enum CharacterItemEffectType
@@ -1739,6 +1740,17 @@ namespace SangokuKmy.Models.Data.Entities
             Value = 72,
           },
         },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.TimeChanger,
+        Name = "時の番人",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 10000,
+        InitializeNumber = 4,
+        DefaultResource = 10,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
       },
     };
 
