@@ -103,7 +103,7 @@ namespace SangokuKmy.Models.Services
       await ReleaseCharacterAsync(repo, item, chara, CharacterItemStatus.CharacterSpent);
 
       var info = item.GetInfo();
-      if (info.HasData)
+      if (info.HasData && info.Data.UsingEffects != null)
       {
         var logs = new List<string>();
         foreach (var effect in info.Data.UsingEffects)
@@ -160,7 +160,7 @@ namespace SangokuKmy.Models.Services
           }
         }
 
-        return string.Join("と", logs);
+        return logs.Count > 0 ? string.Join("と", logs) : string.Empty;
       }
 
       return string.Empty;

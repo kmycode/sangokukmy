@@ -60,6 +60,7 @@ namespace SangokuKmy.Models.Commands
       new ExamineCommand(),
       new BuildSubBuildingCommand(),
       new RemoveSubBuildingCommand(),
+      new ChangeTimeCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)
