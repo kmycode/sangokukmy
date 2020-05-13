@@ -1177,7 +1177,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽
-          if (!system.IsWaitingReset)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode)
           {
             var isSave = false;
             foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 14 <= system.IntGameDateTime))
@@ -1214,7 +1214,7 @@ namespace SangokuKmy.Models.Updates
             if (countries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave))
             {
               var gets = new List<Country>();
-              var num = Math.Min(countries.Count(), RandomService.Next(3, 6));
+              var num = Math.Min(countries.Count(), RandomService.Next(2, 4));
               for (var i = 0; i < num; i++)
               {
                 var isHit = false;

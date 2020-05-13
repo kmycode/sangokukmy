@@ -876,6 +876,18 @@ namespace SangokuKmy.Controllers
           {
             ErrorCode.InvalidOperationError.Throw();
           }
+
+          var histories = await repo.History.GetAllAsync();
+          var history = histories.FirstOrDefault(h => h.Period == system.Period && h.BetaVersion == system.BetaVersion);
+          if (history == null)
+          {
+            ErrorCode.InvalidOperationError.Throw();
+          }
+          var historyData = await repo.History.GetAsync(history.Id).GetOrErrorAsync(ErrorCode.InvalidOperationError);
+          if (!historyData.Countries.Any(c => c.Id == chara.CountryId && !c.HasOverthrown))
+          {
+            ErrorCode.NotPermissionError.Throw();
+          }
         }
 
         CharacterIcon icon;

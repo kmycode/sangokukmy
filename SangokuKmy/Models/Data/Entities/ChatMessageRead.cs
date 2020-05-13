@@ -47,5 +47,19 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("last_promotion_id")]
     [JsonProperty("lastPromotionChatMessageId")]
     public uint LastPromotionChatMessageId { get; set; }
+
+    /// <summary>
+    /// 最後に読んだ国内会議室
+    /// </summary>
+    [Column("last_country_bbs_id")]
+    [JsonProperty("lastCountryBbsId")]
+    public uint LastCountryBbsId { get; set; }
+
+    /// <summary>
+    /// 最後に読んだ全国会議室
+    /// </summary>
+    [Column("last_global_bbs_id")]
+    [JsonProperty("lastGlobalBbsId")]
+    public uint LastGlobalBbsId { get; set; }
   }
 }
