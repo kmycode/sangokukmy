@@ -1177,7 +1177,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽
-          if (!system.IsWaitingReset)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode)
           {
             var isSave = false;
             foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 14 <= system.IntGameDateTime))

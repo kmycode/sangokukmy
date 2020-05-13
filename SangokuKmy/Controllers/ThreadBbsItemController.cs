@@ -125,6 +125,18 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("bbs/country/read/{id}")]
+    public async Task SetCountryBbsReadAsync([FromRoute] uint id = 0)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var read = await repo.ChatMessage.GetReadByCharacterIdAsync(this.AuthData.CharacterId);
+        read.LastCountryBbsId = id;
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpPost("bbs/global")]
     public async Task PostGlobalBbsAsync(
       [FromBody] ThreadBbsItem param)
@@ -203,6 +215,18 @@ namespace SangokuKmy.Controllers
 
       message.IsRemove = true;
       await StatusStreaming.Default.SendAllAsync(ApiData.From(message));
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("bbs/global/read/{id}")]
+    public async Task SetGlobalBbsReadAsync([FromRoute] uint id = 0)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var read = await repo.ChatMessage.GetReadByCharacterIdAsync(this.AuthData.CharacterId);
+        read.LastGlobalBbsId = id;
+        await repo.SaveChangesAsync();
+      }
     }
   }
 }
