@@ -324,7 +324,7 @@ namespace SangokuKmy.Models.Data
       {
         optionsBuilder.UseMySql(Config.Database.MySqlConnectionString);
       }
-      optionsBuilder.UseLoggerFactory(LoggerFactory);
+      // optionsBuilder.UseLoggerFactory(LoggerFactory);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
