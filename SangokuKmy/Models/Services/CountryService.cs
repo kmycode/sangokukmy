@@ -38,7 +38,10 @@ namespace SangokuKmy.Models.Services
           if (winnerCountry.GyokujiStatus == CountryGyokujiStatus.NotHave)
           {
             winnerCountry.IntGyokujiGameDate = system.IntGameDateTime;
-            await LogService.AddMapLogAsync(repo, true, EventType.Gyokuji, $"<country>{winnerCountry.Name} は玉璽を手に入れました");
+            if (!system.IsBattleRoyaleMode)
+            {
+              await LogService.AddMapLogAsync(repo, true, EventType.Gyokuji, $"<country>{winnerCountry.Name} は玉璽を手に入れました");
+            }
           }
 
           if (winnerCountry.GyokujiStatus != CountryGyokujiStatus.HasGenuine)
