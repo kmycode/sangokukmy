@@ -174,6 +174,7 @@ namespace SangokuKmy.Models.Data.Entities
           t.Technology = Math.Min(t.Technology, t.TechnologyMax);
         },
       },
+      /*
       new TownSubBuildingTypeInfo
       {
         Type = TownSubBuildingType.LargeWorkshop,
@@ -183,6 +184,7 @@ namespace SangokuKmy.Models.Data.Entities
         BuildDuring = 12,
         BuildSubject = c => c.From == CharacterFrom.Engineer || c.From == CharacterFrom.Tactician || c.From == CharacterFrom.Staff,
       },
+      */
       new TownSubBuildingTypeInfo
       {
         Type = TownSubBuildingType.Houses,

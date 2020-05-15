@@ -364,7 +364,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "投石器",
         Data = new CharacterSoldierTypeData
         {
-          WallAttack = 20,
+          WallAttack = 25,
           WallDefend = 15,
           InfantryAttack = -2,
           InfantryDefend = -2,
@@ -378,8 +378,6 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 40,
         Technology = 600,
-        CanConscriptWithoutSubBuilding = false,
-        NeededSubBuildingType = TownSubBuildingType.LargeWorkshop,
       },
       new CharacterSoldierTypePart
       {
