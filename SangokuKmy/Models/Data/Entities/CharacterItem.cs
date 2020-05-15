@@ -235,6 +235,7 @@ namespace SangokuKmy.Models.Data.Entities
     public CharacterItemRareType RareType { get; set; }
     public int DefaultResource { get; set; } = 0;
     public bool IsResource { get; set; } = false;
+    public bool IsResourceItem { get; set; } = false;
     public int ResourceLevel { get; set; }
     public bool CanSell { get; set; } = true;
     public bool CanHandOver { get; set; } = true;
@@ -1746,6 +1747,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.TimeChanger,
         Name = "時の番人",
         IsResource = true,
+        IsResourceItem = true,
         ResourceLevel = 1,
         MoneyPerResource = 10000,
         InitializeNumber = 4,

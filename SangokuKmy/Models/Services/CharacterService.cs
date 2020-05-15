@@ -222,7 +222,7 @@ namespace SangokuKmy.Models.Services
 
     public static int CountLimitedItems(IEnumerable<CharacterItem> items)
     {
-      return items.Where(i => i.Status == CharacterItemStatus.CharacterHold).GetInfos().Count(i => !i.IsResource);
+      return items.Where(i => i.Status == CharacterItemStatus.CharacterHold).GetInfos().Count(i => !i.IsResource || i.IsResourceItem);
     }
   }
 }
