@@ -61,11 +61,26 @@ namespace SangokuKmy.Models.Updates
 
     private static async Task UpdateLoop()
     {
+      DateTime last = DateTime.Now;
+      DateTime currentMonthStart;
+      using (var repo = MainRepository.WithRead())
+      {
+        var system = await repo.System.GetAsync();
+        currentMonthStart = system.CurrentMonthStartDateTime;
+      }
+
       while (true)
       {
         try
         {
+          // 9分59秒更新の武将が月更新より後に処理されないようにする
           var current = DateTime.Now;
+          var nextMonthStart = currentMonthStart.AddSeconds(Config.UpdateTime);
+          if (last < nextMonthStart && current > nextMonthStart)
+          {
+            current = nextMonthStart.AddMilliseconds(-1);
+          }
+          last = current;
 
           // 月を更新
           if (current >= nextMonthStartDateTime)
@@ -1118,12 +1133,17 @@ namespace SangokuKmy.Models.Updates
               (system.GameDateTime.Year >= 360) || isKokinForce)
             {
               // 候補都市一覧
-              var townData = allTowns.Select(t => new { Town = t, AroundTowns = allTowns.GetAroundTowns(t), }).ToArray();
+              var townData = allTowns.Select(t => new
+              {
+                Town = t,
+                AroundTowns = allTowns.GetAroundTowns(t),
+                CountryTownCount = allTowns.Count(tt => t.CountryId == tt.CountryId),
+              }).ToArray();
               var aroundTownsCountMax = townData.Max(t => t.AroundTowns.Count());
               var candidateBorderCount = Math.Min(aroundTownsCountMax, 4);
 
               // 対象都市
-              var targetTownData = RandomService.Next(townData.Where(td => td.AroundTowns.Count() >= candidateBorderCount));
+              var targetTownData = RandomService.Next(townData.Where(td => td.AroundTowns.Count() >= candidateBorderCount && td.CountryTownCount > 1));
 
               // 蜂起
               await AiService.CreateFarmerCountryAsync(repo, targetTownData.Town, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message), true, true);
