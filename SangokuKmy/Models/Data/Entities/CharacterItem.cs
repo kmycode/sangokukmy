@@ -233,6 +233,7 @@ namespace SangokuKmy.Models.Data.Entities
     public int MoneyPerResource { get; set; }
     public int InitializeNumber { get; set; }
     public CharacterItemRareType RareType { get; set; }
+    public int RarePerPeriod { get; set; } = 1;
     public int DefaultResource { get; set; } = 0;
     public bool IsResource { get; set; } = false;
     public bool IsResourceItem { get; set; } = false;
@@ -1326,6 +1327,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 500_000,
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        RarePerPeriod = 10,
         CanUse = true,
         CanSell = false,
         CanHandOver = false,
@@ -1339,6 +1341,7 @@ namespace SangokuKmy.Models.Data.Entities
         DiscoverFroms = new List<CharacterFrom>
         {
           CharacterFrom.People,
+          CharacterFrom.Merchant,
         },
       },
       new CharacterItemInfo

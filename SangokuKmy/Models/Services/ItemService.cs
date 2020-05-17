@@ -269,54 +269,63 @@ namespace SangokuKmy.Models.Services
       var items = new List<CharacterItem>();
       foreach (var info in infos)
       {
-        if (info.RareType == CharacterItemRareType.EventOnly)
+        var num = info.InitializeNumber;
+        if (info.RarePerPeriod > 1 && RandomService.Next(0, info.RarePerPeriod) > 0)
         {
-          for (var i = 0; i < info.InitializeNumber; i++)
-          {
-            items.Add(new CharacterItem
-            {
-              Type = info.Type,
-              Status = CharacterItemStatus.Hidden,
-            });
-          }
+          num = 0;
         }
-        else
-        {
-          var hiddenCount = 0;
-          var saleCount = 0;
-          if (info.RareType == CharacterItemRareType.TownHiddenOnly)
-          {
-            hiddenCount = info.InitializeNumber;
-          }
-          else if (info.RareType == CharacterItemRareType.TownOnSaleOnly)
-          {
-            saleCount = info.InitializeNumber;
-          }
-          else if (info.RareType == CharacterItemRareType.TownOnSaleOrHidden)
-          {
-            hiddenCount = RandomService.Next(0, info.InitializeNumber + 1);
-            saleCount = info.InitializeNumber - hiddenCount;
-          }
 
-          for (var i = 0; i < hiddenCount; i++)
+        if (num > 0)
+        {
+          if (info.RareType == CharacterItemRareType.EventOnly)
           {
-            items.Add(new CharacterItem
+            for (var i = 0; i < num; i++)
             {
-              Type = info.Type,
-              Status = CharacterItemStatus.TownHidden,
-              TownId = RandomService.Next(towns).Id,
-              Resource = (ushort)info.DefaultResource,
-            });
+              items.Add(new CharacterItem
+              {
+                Type = info.Type,
+                Status = CharacterItemStatus.Hidden,
+              });
+            }
           }
-          for (var i = 0; i < saleCount; i++)
+          else
           {
-            items.Add(new CharacterItem
+            var hiddenCount = 0;
+            var saleCount = 0;
+            if (info.RareType == CharacterItemRareType.TownHiddenOnly)
             {
-              Type = info.Type,
-              Status = CharacterItemStatus.TownOnSale,
-              TownId = RandomService.Next(towns).Id,
-              Resource = (ushort)info.DefaultResource,
-            });
+              hiddenCount = num;
+            }
+            else if (info.RareType == CharacterItemRareType.TownOnSaleOnly)
+            {
+              saleCount = num;
+            }
+            else if (info.RareType == CharacterItemRareType.TownOnSaleOrHidden)
+            {
+              hiddenCount = RandomService.Next(0, num + 1);
+              saleCount = num - hiddenCount;
+            }
+
+            for (var i = 0; i < hiddenCount; i++)
+            {
+              items.Add(new CharacterItem
+              {
+                Type = info.Type,
+                Status = CharacterItemStatus.TownHidden,
+                TownId = RandomService.Next(towns).Id,
+                Resource = (ushort)info.DefaultResource,
+              });
+            }
+            for (var i = 0; i < saleCount; i++)
+            {
+              items.Add(new CharacterItem
+              {
+                Type = info.Type,
+                Status = CharacterItemStatus.TownOnSale,
+                TownId = RandomService.Next(towns).Id,
+                Resource = (ushort)info.DefaultResource,
+              });
+            }
           }
         }
       }
