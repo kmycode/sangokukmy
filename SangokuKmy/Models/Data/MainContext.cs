@@ -123,6 +123,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<AiCountryManagement> AiCountryManagements { get; set; }
 
     /// <summary>
+    /// AI武将の戦略
+    /// </summary>
+    public DbSet<AiCharacterManagement> AiCharacterManagements { get; set; }
+
+    /// <summary>
     /// AIの先頭履歴
     /// </summary>
     public DbSet<AiBattleHistory> AiBattleHistories { get; set; }

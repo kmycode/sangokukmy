@@ -819,6 +819,8 @@ namespace SangokuKmy.Models.Data.Entities
     SecretaryUnitLeader = 27,
     Administrator = 28,
     SecretaryScouter = 29,
+    FlyingColumn = 30,
+    RemovedFlyingColumn = 31,
   }
 
   public static class CharacterAiTypeExtensions

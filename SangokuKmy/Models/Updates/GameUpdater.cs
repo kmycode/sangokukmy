@@ -1485,6 +1485,27 @@ namespace SangokuKmy.Models.Updates
             await PushNotificationService.SendCharacterAsync(repo, "コマンド切れ", $"入力したすべてのコマンドの実行が完了したため、放置削除が進んでいます。このまま新しいコマンドを入力しないと、あなたの武将は約 {days} 日後に削除されます", character.Id);
           }
         }
+        else
+        {
+          // 別働隊へ給与
+          var ais = await repo.Character.GetManagementByHolderCharacterIdAsync(character.Id);
+          foreach (var ai in ais)
+          {
+            if (character.Money > 2000)
+            {
+              character.Money -= 2000;
+            }
+            else
+            {
+              var aiChara = await repo.Character.GetByIdAsync(ai.CharacterId);
+              if (aiChara.HasData)
+              {
+                aiChara.Data.AiType = CharacterAiType.RemovedFlyingColumn;
+                aiChara.Data.DeleteTurn = (short)Config.DeleteTurns;
+              }
+            }
+          }
+        }
 
         // 管理人だけの特別処理
         if (character.AiType == CharacterAiType.Administrator)
@@ -1505,6 +1526,12 @@ namespace SangokuKmy.Models.Updates
           character.DeleteTurn = (short)Config.DeleteTurns;
           await AddMapLogAsync(EventType.SecretaryRemoved, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、解雇されました", false);
         }
+        if (character.AiType == CharacterAiType.RemovedFlyingColumn)
+        {
+          var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
+          character.DeleteTurn = (short)Config.DeleteTurns;
+          await AddMapLogAsync(EventType.SecretaryRemoved, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、削除されました", false);
+        }
 
         // 放置削除の確認
         if (character.DeleteTurn >= Config.DeleteTurns)
@@ -1516,7 +1543,7 @@ namespace SangokuKmy.Models.Updates
           {
             await AddMapLogAsync(EventType.CharacterRemoved, "<country>" + (countryOptional.Data?.Name ?? "無所属") + "</country> の <character>" + character.Name + "</character> は放置削除されました", false);
           }
-          else if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary)
+          else if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary && character.AiType != CharacterAiType.RemovedFlyingColumn)
           {
             await AddMapLogAsync(EventType.AiCharacterRemoved, "<character>" + character.Name + "</character> は削除されました", false);
           }

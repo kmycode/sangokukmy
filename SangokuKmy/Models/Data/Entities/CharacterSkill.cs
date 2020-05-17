@@ -109,6 +109,8 @@ namespace SangokuKmy.Models.Data.Entities
     People4b = 52,
     People5b = 53,
     Intellect3b = 54,
+    Merchant4b = 55,
+    Merchant5b = 56,
   }
 
   public enum CharacterSkillEffectType
@@ -435,8 +437,8 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.Merchant4,
         RequestedPoint = 400,
-        Name = "商人 Lv.4",
-        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant3),
+        Name = "商人 Lv.a4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant3) && !skills.Any(s => s.Type == CharacterSkillType.Merchant4b),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
@@ -448,9 +450,24 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterSkillInfo
       {
+        Type = CharacterSkillType.Merchant4b,
+        RequestedPoint = 400,
+        Name = "商人 Lv.b4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant3) && !skills.Any(s => s.Type == CharacterSkillType.Merchant4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.Spy,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
         Type = CharacterSkillType.Merchant5,
         RequestedPoint = 360,
-        Name = "商人 Lv.5",
+        Name = "商人 Lv.a5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant4),
         Effects = new List<CharacterSkillEffect>
         {
@@ -458,6 +475,31 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.RiceBuyMax,
             Value = 8000,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Merchant5b,
+        RequestedPoint = 360,
+        Name = "商人 Lv.b5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant4b),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.AddFlyingColumn,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.CustomizeFlyingColumn,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.RemoveFlyingColumn,
           },
         },
       },

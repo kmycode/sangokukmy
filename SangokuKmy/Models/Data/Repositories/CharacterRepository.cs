@@ -487,6 +487,56 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<Optional<AiCharacterManagement>> GetManagementByAiCharacterIdAsync(uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.AiCharacterManagements.FirstOrDefaultAsync(m => m.CharacterId == charaId).ToOptionalAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<IReadOnlyList<AiCharacterManagement>> GetManagementByHolderCharacterIdAsync(uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.AiCharacterManagements.Where(m => m.HolderCharacterId == charaId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task AddManagementAsync(AiCharacterManagement item)
+    {
+      try
+      {
+        await this.container.Context.AiCharacterManagements.AddAsync(item);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public void RemoveManagement(AiCharacterManagement item)
+    {
+      try
+      {
+        this.container.Context.AiCharacterManagements.Remove(item);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     public async Task AddSkillAsync(CharacterSkill skill)
     {
       try

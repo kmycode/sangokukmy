@@ -1,5 +1,6 @@
 ﻿using SangokuKmy.Common;
 using SangokuKmy.Models.Commands;
+using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
@@ -201,6 +202,17 @@ namespace SangokuKmy.Models.Services
       foreach (var item in items)
       {
         await ItemService.ReleaseCharacterAsync(repo, item, character);
+      }
+
+      var ais = await repo.Character.GetManagementByHolderCharacterIdAsync(character.Id);
+      foreach (var ai in ais)
+      {
+        var aiChara = await repo.Character.GetByIdAsync(ai.CharacterId);
+        if (aiChara.HasData && !aiChara.Data.HasRemoved)
+        {
+          aiChara.Data.DeleteTurn = (short)Config.DeleteTurns;
+        }
+        repo.Character.RemoveManagement(ai);
       }
 
       repo.ScoutedTown.RemoveCharacter(character.Id);
