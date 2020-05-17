@@ -53,10 +53,10 @@ namespace SangokuKmy.Models.Commands
       await repo.SaveChangesAsync();
       await AiService.SetIconAsync(repo, ai.Character);
       ai.Character.Name = character.Name + "_" + ai.Character.Name + ai.Character.Id;
-      ai.Character.Strong = (short)(character.Strong * 0.9f);
-      ai.Character.Intellect = (short)(character.Intellect * 0.9f);
-      ai.Character.Leadership = (short)(character.Leadership * 0.9f);
-      ai.Character.Popularity = (short)(character.Popularity * 0.9f);
+      ai.Character.Strong = (short)(character.Strong * 0.8f);
+      ai.Character.Intellect = (short)(character.Intellect * 0.8f);
+      ai.Character.Leadership = (short)(character.Leadership * 0.8f);
+      ai.Character.Popularity = (short)(character.Popularity * 0.8f);
 
       var management = new AiCharacterManagement
       {
