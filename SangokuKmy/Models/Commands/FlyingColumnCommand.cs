@@ -52,7 +52,7 @@ namespace SangokuKmy.Models.Commands
 
       await repo.SaveChangesAsync();
       await AiService.SetIconAsync(repo, ai.Character);
-      ai.Character.Name += "_" + ai.Character.Id;
+      ai.Character.Name = character.Name + "_" + ai.Character.Name + ai.Character.Id;
 
       var management = new AiCharacterManagement
       {
