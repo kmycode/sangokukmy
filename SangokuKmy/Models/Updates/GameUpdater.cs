@@ -1200,7 +1200,7 @@ namespace SangokuKmy.Models.Updates
           if (!system.IsWaitingReset && !system.IsBattleRoyaleMode)
           {
             var isSave = false;
-            foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 14 <= system.IntGameDateTime))
+            foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 12 <= system.IntGameDateTime))
             {
               country.GyokujiStatus = CountryGyokujiStatus.NotHave;
               await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> の持っている玉璽はまがい物でした");
@@ -1208,7 +1208,7 @@ namespace SangokuKmy.Models.Updates
               isSave = true;
             }
 
-            var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 12 * 12 * 14 <= system.IntGameDateTime);
+            var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 12 * 12 * 12 <= system.IntGameDateTime);
             if (gyokujiWinner != null)
             {
               var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
@@ -1227,7 +1227,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽の配布
-          if (allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave) && system.GameDateTime.Year <= Config.UpdateStartYear + 24)
+          if (allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave) && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
           {
             // 異民族や経営国家を含めるため、改めて取得して確認し直す
             var countries = (await repo.Country.GetAllAsync()).Where(c => c.AiType != CountryAiType.Terrorists);
