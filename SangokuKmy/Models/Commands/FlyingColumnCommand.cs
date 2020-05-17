@@ -81,12 +81,6 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
-      var skills = await repo.Character.GetSkillsAsync(characterId);
-      if (!skills.AnySkillEffects(CharacterSkillEffectType.Command, (int)this.Type))
-      {
-        ErrorCode.NotSkillError.Throw();
-      }
-
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates, options);
     }
   }
@@ -197,12 +191,6 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
-      var skills = await repo.Character.GetSkillsAsync(characterId);
-      if (!skills.AnySkillEffects(CharacterSkillEffectType.Command, (int)this.Type))
-      {
-        ErrorCode.NotSkillError.Throw();
-      }
-
       var aiId = (uint)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var action = (AiCharacterAction)options.FirstOrDefault(p => p.Type == 2).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var soldierType = (AiCharacterSoldierType?)options.FirstOrDefault(p => p.Type == 3)?.NumberValue;
@@ -284,12 +272,6 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
-      var skills = await repo.Character.GetSkillsAsync(characterId);
-      if (!skills.AnySkillEffects(CharacterSkillEffectType.Command, (int)this.Type))
-      {
-        ErrorCode.NotSkillError.Throw();
-      }
-
       var aiId = (uint)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
 
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates, options);
