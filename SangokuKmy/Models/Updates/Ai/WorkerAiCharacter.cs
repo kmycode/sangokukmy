@@ -1130,7 +1130,7 @@ namespace SangokuKmy.Models.Updates.Ai
         foreach (var town in enemyTowns)
         {
           var charas = await repo.Town.GetCharactersAsync(town.Id);
-          foreach (var c in charas.Where(c => c.SoldierNumber >= 10))
+          foreach (var c in charas.Where(c => c.SoldierNumber >= 10 && c.CountryId == town.CountryId))
           {
             if (c.SoldierType.IsForWall())
             {
