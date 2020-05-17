@@ -1618,7 +1618,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected bool InputDevelop()
     {
-      var isDevelopIncome = this.Country.LastMoneyIncomes < 10000 || this.Country.LastRiceIncomes < 10000;
+      var isDevelopIncome = this.Character.AiType != CharacterAiType.FlyingColumn &&
+        (this.Country.LastMoneyIncomes < 10000 || this.Country.LastRiceIncomes < 10000);
 
       var v = this.GameDateTime.Month % 2;
       if (v == 0)
@@ -1664,7 +1665,12 @@ namespace SangokuKmy.Models.Updates.Ai
       if (command.Type == CharacterCommandType.TownBuilding &&
         (this.Town.TownBuildingValue >= Config.TownBuildingMax ||
          (this.Town.TownBuilding != TownBuilding.RepairWall &&
-          this.Town.TownBuilding != TownBuilding.TerroristHouse)))
+          this.Town.TownBuilding != TownBuilding.TerroristHouse &&
+          this.Town.TownBuilding != TownBuilding.Houses &&
+          this.Town.TownBuilding != TownBuilding.OpenWall &&
+          this.Town.TownBuilding != TownBuilding.TrainingBuilding &&
+          this.Town.TownBuilding != TownBuilding.School &&
+          this.Town.TownBuilding != TownBuilding.Palace)))
       {
         return false;
       }

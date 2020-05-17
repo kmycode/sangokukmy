@@ -43,9 +43,6 @@ namespace SangokuKmy.Models.Updates.Ai
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "別動隊";
-      this.Character.Strong = (short)(100 + current.Year / 3.3f);
-      this.Character.Intellect = (short)(100 + current.Year / 3.3f);
-      this.Character.Leadership = 100;
       this.Character.Money = 12_0000;
       this.Character.Rice = 12_0000;
     }
