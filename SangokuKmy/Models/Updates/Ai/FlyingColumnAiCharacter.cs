@@ -24,9 +24,22 @@ namespace SangokuKmy.Models.Updates.Ai
     {
       if (this.Management != null)
       {
-        return this.Management.SoldierType == AiCharacterSoldierType.Infancty ? SoldierType.HeavyInfantry :
-          this.Management.SoldierType == AiCharacterSoldierType.Cavalry ? SoldierType.HeavyCavalry :
-          this.Management.SoldierType == AiCharacterSoldierType.Archer ? SoldierType.StrongCrossbow : SoldierType.Common;
+        if (this.Character.Strong >= this.Character.Intellect && this.Character.Strong >= this.Character.Popularity)
+        {
+          return this.Management.SoldierType == AiCharacterSoldierType.Infancty ? SoldierType.HeavyInfantry :
+            this.Management.SoldierType == AiCharacterSoldierType.Cavalry ? SoldierType.HeavyCavalry :
+            this.Management.SoldierType == AiCharacterSoldierType.Archer ? SoldierType.StrongCrossbow : SoldierType.Common;
+        }
+        else if (this.Character.Intellect >= this.Character.Popularity)
+        {
+          return this.Management.SoldierType == AiCharacterSoldierType.Infancty ? SoldierType.LightIntellect :
+            this.Management.SoldierType == AiCharacterSoldierType.Cavalry ? SoldierType.IntellectHeavyCavalry :
+            this.Management.SoldierType == AiCharacterSoldierType.Archer ? SoldierType.IntellectArcher : SoldierType.IntellectCommon;
+        }
+        else
+        {
+          return SoldierType.Military;
+        }
       }
       return SoldierType.Common;
     }
