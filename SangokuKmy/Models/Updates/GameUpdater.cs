@@ -886,8 +886,10 @@ namespace SangokuKmy.Models.Updates
               await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(subBuilding), repo, town);
             }
 
-            // 建築物の効果
-            foreach (var subBuilding in subBuildings.Where(s => s.Status == TownSubBuildingStatus.Available))
+            // 建築物の効果（謀略建築物含む）
+            var wars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting);
+            var availableSubBuildings = subBuildings.Where(s => s.Status == TownSubBuildingStatus.Available);
+            foreach (var subBuilding in availableSubBuildings)
             {
               var town = allTowns.FirstOrDefault(t => t.Id == subBuilding.TownId);
               if (town == null)
@@ -900,6 +902,7 @@ namespace SangokuKmy.Models.Updates
                 continue;
               }
               var aroundTowns = allTowns.GetAroundTowns(town);
+              var countryWarTargets = wars.Where(w => w.IsJoin(country.Country.Id)).Select(w => w.GetEnemy(country.Country.Id));
 
               if (subBuilding.Type == TownSubBuildingType.CommercialUnion)
               {
@@ -909,6 +912,32 @@ namespace SangokuKmy.Models.Updates
                   if (country.Country.SafeMoney < max)
                   {
                     country.Country.SafeMoney = Math.Min(max, country.Country.SafeMoney + RandomService.Next(4000, 8001));
+                  }
+                }
+              }
+              else if (subBuilding.Type == TownSubBuildingType.BreakWall)
+              {
+                if (system.GameDateTime.Month % 2 == 0)
+                {
+                  foreach (var atown in aroundTowns.Where(at => countryWarTargets.Contains(at.CountryId)))
+                  {
+                    var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
+                    var value = 7 / (isDefense ? 3 : 1);
+                    atown.Wall -= value;
+                  }
+                }
+              }
+              else if (subBuilding.Type == TownSubBuildingType.Agitation)
+              {
+                if (system.GameDateTime.Month % 2 == 0)
+                {
+                  foreach (var atown in aroundTowns.Where(at => countryWarTargets.Contains(at.CountryId)))
+                  {
+                    var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
+                    var value = Math.Max(2 / (isDefense ? 3 : 1), 1);
+                    var value2 = 100 / (isDefense ? 3 : 1);
+                    atown.Security -= (short)value;
+                    atown.People -= value2;
                   }
                 }
               }

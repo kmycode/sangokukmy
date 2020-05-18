@@ -108,6 +108,21 @@ namespace SangokuKmy.Models.Data.Entities
     /// 商業組合
     /// </summary>
     CommercialUnion = 7,
+
+    /// <summary>
+    /// 破壊所
+    /// </summary>
+    BreakWall = 8,
+
+    /// <summary>
+    /// 扇動所
+    /// </summary>
+    Agitation = 9,
+
+    /// <summary>
+    /// 防衛拠点
+    /// </summary>
+    DefenseStation = 10,
   }
 
   public class TownSubBuildingTypeInfo
@@ -234,6 +249,36 @@ namespace SangokuKmy.Models.Data.Entities
         BuildDuring = 48,
         BuildSubject = c => c.From == CharacterFrom.Merchant,
         BuildSubjectSkills = ss => ss.AnySkillEffects(CharacterSkillEffectType.Command, (int)TownSubBuildingType.CommercialUnion),
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.BreakWall,
+        Name = "破壊所",
+        Size = 2,
+        Money = 30000,
+        CanBuildMultiple = true,
+        BuildDuring = 24,
+        BuildSubject = c => c.Intellect >= 100,
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.Agitation,
+        Name = "扇動所",
+        Size = 2,
+        Money = 30000,
+        CanBuildMultiple = true,
+        BuildDuring = 24,
+        BuildSubject = c => c.Intellect >= 100,
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.DefenseStation,
+        Name = "防衛拠点",
+        Size = 2,
+        Money = 30000,
+        CanBuildMultiple = true,
+        BuildDuring = 36,
+        BuildSubject = c => c.Intellect >= 100,
       },
     };
 
