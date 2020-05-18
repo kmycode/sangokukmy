@@ -72,6 +72,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<ApiError> From(ApiError data) => From(7, data);
     public static ApiData<Character> From(Character data) => From(9, data);
     public static ApiData<CharacterForAnonymous> From(CharacterForAnonymous data) => From(9, data);
+    public static ApiData<CharacterDetail> From(CharacterDetail data) => From(9, data);
     public static ApiArrayData<CharacterForAnonymous> From(IEnumerable<CharacterForAnonymous> data) => From(9, data);
     public static ApiData<Country> From(Country data) => From(10, data);
     public static ApiData<CountryForAnonymous> From(CountryForAnonymous data) => From(10, data);

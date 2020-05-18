@@ -101,6 +101,19 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpGet("character/{id}/detail")]
+    public async Task<ApiData<CharacterDetail>> GetCharacterDetailAsync(
+      [FromRoute] uint id = default)
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var chara = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var skills = await repo.Character.GetSkillsAsync(id);
+        return ApiData.From(new CharacterDetail(chara, skills));
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpGet("commands")]
     public async Task<GetCharacterAllCommandsResponse> GetCharacterAllCommandsAsync(
       [FromQuery] string months = "")
