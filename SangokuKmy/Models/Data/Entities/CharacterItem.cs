@@ -179,6 +179,7 @@ namespace SangokuKmy.Models.Data.Entities
     KokinFlag = 82,
     EquippedStrongCrossbow = 83,
     TimeChanger = 84,
+    GodOfMilitaryArts = 85,
   }
 
   public enum CharacterItemEffectType
@@ -1756,6 +1757,28 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 4,
         DefaultResource = 10,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.GodOfMilitaryArts,
+        Name = "武神（仮）",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 100,
+        InitializeNumber = 16,
+        DefaultResource = 100,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        Effects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.SoldierCorrectionResource,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 40,
+            },
+          },
+        },
       },
     };
 
