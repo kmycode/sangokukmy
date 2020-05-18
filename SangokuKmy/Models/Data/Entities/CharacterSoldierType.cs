@@ -490,7 +490,9 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "藤甲兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseDefend = 16,
+          BaseDefend = 18,
+          CavalryAttack = 6,
+          CavalryDefend = 12,
           GogyoDefend = 5,
           RushDefend = 5,
           TypeInfantry = 10,
