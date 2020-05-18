@@ -68,30 +68,6 @@ namespace SangokuKmy.Models.Commands
             character.AddIntellectEx(300);
           }
         }
-        else if (RandomService.Next(0, 1000) == 0)
-        {
-          var formations = await repo.Character.GetFormationsAsync(character.Id);
-          var allFormations = FormationTypeInfoes.GetAllGettables(formations);
-          var notFormations = allFormations.Where(f => !formations.Any(ff => f.Type == ff.Type));
-          if (notFormations.Any())
-          {
-            var info = RandomService.Next(notFormations);
-            var formation = new Formation
-            {
-              CharacterId = character.Id,
-              Level = 1,
-              Type = info.Type,
-            };
-            await repo.Character.AddFormationAsync(formation);
-            await StatusStreaming.Default.SendCharacterAsync(ApiData.From(formation), character.Id);
-            await game.CharacterLogAsync($"陣形 {info.Name} を獲得しました");
-          }
-          else
-          {
-            await game.CharacterLogAsync($"金 <num>10000</num> を入手しました");
-            character.Money += 10000;
-          }
-        }
         else
         {
           var targets = default(List<TownPatrolResult>);
