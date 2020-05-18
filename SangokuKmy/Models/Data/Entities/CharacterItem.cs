@@ -1325,7 +1325,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.KokinFlag,
         Name = "黄巾の旗",
         Money = 500_000,
-        InitializeNumber = 1,
+        InitializeNumber = 0,
         RareType = CharacterItemRareType.TownHiddenOnly,
         RarePerPeriod = 10,
         CanUse = true,
