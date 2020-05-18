@@ -103,6 +103,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 城塞
     /// </summary>
     Wall = 6,
+
+    /// <summary>
+    /// 商業組合
+    /// </summary>
+    CommercialUnion = 7,
   }
 
   public class TownSubBuildingTypeInfo
@@ -120,6 +125,8 @@ namespace SangokuKmy.Models.Data.Entities
     public int BuildDuring { get; set; } = 24;
 
     public Predicate<Character> BuildSubject { get; set; }
+
+    public Predicate<IEnumerable<CharacterSkill>> BuildSubjectSkills { get; set; }
 
     public Action<Town> OnBuilt { get; set; }
 
@@ -164,7 +171,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = TownSubBuildingType.Workshop,
         Name = "工房",
-        Size = 1,
+        Size = 2,
         Money = 20000,
         BuildDuring = 12,
         OnBuilt = t => t.TechnologyMax += 300,
@@ -216,6 +223,17 @@ namespace SangokuKmy.Models.Data.Entities
           t.Wall = Math.Min(t.Wall, t.WallMax);
         },
         BuildSubject = c => c.Strong >= 100,
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.CommercialUnion,
+        Name = "商業組合",
+        Size = 2,
+        Money = 50000,
+        CanBuildMultiple = true,
+        BuildDuring = 48,
+        BuildSubject = c => c.From == CharacterFrom.Merchant,
+        BuildSubjectSkills = ss => ss.AnySkillEffects(CharacterSkillEffectType.Command, (int)TownSubBuildingType.CommercialUnion),
       },
     };
 

@@ -886,6 +886,34 @@ namespace SangokuKmy.Models.Updates
               await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(subBuilding), repo, town);
             }
 
+            // 建築物の効果
+            foreach (var subBuilding in subBuildings.Where(s => s.Status == TownSubBuildingStatus.Available))
+            {
+              var town = allTowns.FirstOrDefault(t => t.Id == subBuilding.TownId);
+              if (town == null)
+              {
+                continue;
+              }
+              var country = countryData.FirstOrDefault(c => c.Country.Id == town.CountryId);
+              if (country == null)
+              {
+                continue;
+              }
+              var aroundTowns = allTowns.GetAroundTowns(town);
+
+              if (subBuilding.Type == TownSubBuildingType.CommercialUnion)
+              {
+                if (system.GameDateTime.Month == 1 || system.GameDateTime.Month == 7)
+                {
+                  var max = CountryService.GetCountrySafeMax(country.Policies.GetAvailableTypes());
+                  if (country.Country.SafeMoney < max)
+                  {
+                    country.Country.SafeMoney = Math.Min(max, country.Country.SafeMoney + RandomService.Next(4000, 8001));
+                  }
+                }
+              }
+            }
+
             await repo.SaveChangesAsync();
           }
 

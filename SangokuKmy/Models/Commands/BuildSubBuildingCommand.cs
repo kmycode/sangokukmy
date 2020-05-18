@@ -61,6 +61,12 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      if (info.BuildSubjectSkills?.Invoke(await repo.Character.GetSkillsAsync(character.Id)) == false)
+      {
+        await game.CharacterLogAsync($"建築物 {info.Name} の建築条件を満たしていません");
+        return;
+      }
+
       if (country.SafeMoney + character.Money < info.Money)
       {
         await game.CharacterLogAsync($"{info.Name} (金: <num>{info.Money}</num>) を建設しようとしましたが、金が足りません");

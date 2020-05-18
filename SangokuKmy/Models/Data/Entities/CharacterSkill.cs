@@ -141,6 +141,7 @@ namespace SangokuKmy.Models.Data.Entities
     SecurityCommandMulPercentage,
     PolicyBoostProbabilityThousandth,
     GenerateItem,
+    TownSubBuilding,
   }
 
   public class CharacterSkillEffect
@@ -474,7 +475,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.RiceBuyMax,
-            Value = 8000,
+            Value = 15000,
           },
         },
       },
@@ -488,18 +489,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.AddFlyingColumn,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.CustomizeFlyingColumn,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.RemoveFlyingColumn,
+            Type = CharacterSkillEffectType.TownSubBuilding,
+            Value = (int)TownSubBuildingType.CommercialUnion,
           },
         },
       },
