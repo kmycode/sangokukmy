@@ -716,7 +716,7 @@ namespace SangokuKmy.Models.Commands
         }
         else
         {
-          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), character.Id);
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), item.CharacterId);
         }
       }
     }
