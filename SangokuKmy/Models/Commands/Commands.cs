@@ -61,9 +61,9 @@ namespace SangokuKmy.Models.Commands
       new BuildSubBuildingCommand(),
       new RemoveSubBuildingCommand(),
       new ChangeTimeCommand(),
-      new AddFlyingColumnCommand(),
-      new CustomizeFlyingColumnCommand(),
-      new RemoveFlyingColumnCommand(),
+      // new AddFlyingColumnCommand(),
+      // new CustomizeFlyingColumnCommand(),
+      // new RemoveFlyingColumnCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)
