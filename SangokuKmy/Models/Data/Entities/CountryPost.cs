@@ -127,6 +127,10 @@ namespace SangokuKmy.Models.Data.Entities
     {
       return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
     }
+    public static bool CanPunishment(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch;
+    }
 
     /// <summary>
     /// 国庫権限があるか確認する

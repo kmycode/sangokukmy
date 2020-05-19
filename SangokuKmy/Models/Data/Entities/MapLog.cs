@@ -278,5 +278,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 玉璽
     /// </summary>
     Gyokuji = 37,
+
+    /// <summary>
+    /// 解雇
+    /// </summary>
+    Dismissal = 38,
   }
 }

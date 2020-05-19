@@ -1485,24 +1485,36 @@ namespace SangokuKmy.Models.Updates
           }
         }
 
+        var ai = AiCharacterFactory.Create(character);
+        var commandOptional = await ai.GetCommandAsync(repo, currentMonth);
         var blockTypes = await repo.BlockAction.GetAvailableTypesAsync(character.Id);
         var isBlockedCommand = false;
         if (blockTypes.Contains(BlockActionType.StopCommand))
         {
-          character.DeleteTurn++;
+          if (!commandOptional.HasData || commandOptional.Data.Type == CharacterCommandType.None)
+          {
+            character.DeleteTurn++;
+          }
           isBlockedCommand = true;
-          await AddLogAsync("管理人により行動を制限されています。コマンド実行をスキップし、放置削除が進行しました");
+          await AddLogAsync("管理人により行動を制限されています。コマンド実行をスキップしました。放置削除が進行することがあります");
         }
         else if (blockTypes.Contains(BlockActionType.StopCommandAndDeleteTurn))
         {
           isBlockedCommand = true;
           await AddLogAsync("管理人により行動を制限されています。コマンド実行をスキップしました");
         }
+        else if (blockTypes.Contains(BlockActionType.StopCommandByMonarch))
+        {
+          if (!commandOptional.HasData || commandOptional.Data.Type == CharacterCommandType.None)
+          {
+            character.DeleteTurn++;
+          }
+          isBlockedCommand = true;
+          await AddLogAsync("君主によりコマンド実行が制限されています。コマンド実行をスキップしました。放置削除が進行することがあります");
+        }
         else
         {
           // コマンドの実行
-          var ai = AiCharacterFactory.Create(character);
-          var commandOptional = await ai.GetCommandAsync(repo, currentMonth);
           if (currentMonth.Year >= Config.UpdateStartYear)
           {
             var isCommandExecuted = false;
@@ -1546,7 +1558,7 @@ namespace SangokuKmy.Models.Updates
         {
           // 別働隊へ給与
           var ais = await repo.Character.GetManagementByHolderCharacterIdAsync(character.Id);
-          foreach (var ai in ais)
+          foreach (var aii in ais)
           {
             if (character.Money > 2000)
             {
@@ -1554,7 +1566,7 @@ namespace SangokuKmy.Models.Updates
             }
             else
             {
-              var aiChara = await repo.Character.GetByIdAsync(ai.CharacterId);
+              var aiChara = await repo.Character.GetByIdAsync(aii.CharacterId);
               if (aiChara.HasData)
               {
                 aiChara.Data.AiType = CharacterAiType.RemovedFlyingColumn;

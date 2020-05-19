@@ -86,5 +86,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// コマンド実行禁止（放置削除を進める）
     /// </summary>
     StopCommand = 5,
+
+    /// <summary>
+    /// 謹慎
+    /// </summary>
+    StopCommandByMonarch = 6,
   }
 }

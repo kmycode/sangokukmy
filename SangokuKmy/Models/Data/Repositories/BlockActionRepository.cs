@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using SangokuKmy.Common;
 using SangokuKmy.Models.Data.Entities;
 
 namespace SangokuKmy.Models.Data.Repositories
@@ -30,6 +31,20 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<Optional<BlockAction>> GetAsync(uint charaId, BlockActionType type)
+    {
+      try
+      {
+        var now = DateTime.Now;
+        return await this.container.Context.BlockActions.FirstOrDefaultAsync(b => b.ExpiryDate > now && b.CharacterId == charaId && b.Type == type).ToOptionalAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     public async Task<bool> IsBlockedAsync(uint charaId, BlockActionType type)
     {
       try
@@ -41,6 +56,30 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         this.container.Error(ex);
         return default;
+      }
+    }
+
+    public async Task AddAsync(BlockAction action)
+    {
+      try
+      {
+        await this.container.Context.BlockActions.AddAsync(action);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public void Remove(BlockAction action)
+    {
+      try
+      {
+        this.container.Context.BlockActions.Remove(action);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
       }
     }
 

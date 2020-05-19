@@ -81,5 +81,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// コマンドコメントが更新された
     /// </summary>
     CommandCommentUpdated = 9,
+
+    /// <summary>
+    /// 謹慎された
+    /// </summary>
+    StopCommand = 10,
   }
 }

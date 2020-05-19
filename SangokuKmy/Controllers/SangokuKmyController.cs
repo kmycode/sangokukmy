@@ -113,7 +113,8 @@ namespace SangokuKmy.Controllers
         {
           var skills = await repo.Character.GetSkillsAsync(id);
           var formation = await repo.Character.GetFormationAsync(chara.Id, chara.FormationType);
-          return ApiData.From(new CharacterDetail(chara, skills, formation));
+          var isStopCommand = await repo.BlockAction.IsBlockedAsync(chara.Id, BlockActionType.StopCommandByMonarch);
+          return ApiData.From(new CharacterDetail(chara, skills, formation, isStopCommand));
         }
         else
         {
@@ -203,6 +204,13 @@ namespace SangokuKmy.Controllers
               await cmd.InputAsync(repo, this.AuthData.CharacterId, sameCommandParamsGroup.Select(c => c.GameDateTime), sameCommandParamsGroup.First().Parameters.ToArray());
             }
           }
+
+          var block = await repo.BlockAction.GetAsync(chara.Id, BlockActionType.StopCommandByMonarch);
+          if (block.HasData)
+          {
+            repo.BlockAction.Remove(block.Data);
+          }
+
           await repo.SaveChangesAsync();
         }
         catch (SangokuKmyException ex)
@@ -332,6 +340,12 @@ namespace SangokuKmy.Controllers
         if (removeCommands.Any())
         {
           repo.CharacterCommand.Remove(removeCommands);
+        }
+
+        var block = await repo.BlockAction.GetAsync(chara.Id, BlockActionType.StopCommandByMonarch);
+        if (block.HasData)
+        {
+          repo.BlockAction.Remove(block.Data);
         }
 
         await repo.SaveChangesAsync();
@@ -993,6 +1007,83 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
       await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("country/stopcommand/{id}")]
+    public async Task StopCharacterCommandAsync(
+      [FromRoute] uint id)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var country = await repo.Country.GetByIdAsync(self.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(self.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
+        if (myPost == null || !myPost.Type.CanPunishment())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var target = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        if (target.CountryId != self.CountryId)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        if ((await repo.BlockAction.GetAvailableTypesAsync(id)).Contains(BlockActionType.StopCommandByMonarch))
+        {
+          ErrorCode.MeaninglessOperationError.Throw();
+        }
+
+        await repo.BlockAction.AddAsync(new BlockAction
+        {
+          CharacterId = target.Id,
+          ExpiryDate = new DateTime(2200, 1, 1),
+          Type = BlockActionType.StopCommandByMonarch,
+        });
+
+        await repo.SaveChangesAsync();
+
+        await PushNotificationService.SendCharacterAsync(repo, "謹慎", "あなたは謹慎されました。指示に従い、新しくコマンドを入れ直してください", target.Id);
+      }
+
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
+      {
+        Type = SignalType.StopCommand,
+      }), id);
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("country/dismissal/{id}")]
+    public async Task DismissalCharacterAsync(
+      [FromRoute] uint id)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var country = await repo.Country.GetByIdAsync(self.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(self.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
+        if (myPost == null || !myPost.Type.CanPunishment())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var target = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        if (target.CountryId != self.CountryId)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        await CharacterService.ChangeCountryAsync(repo, 0, new Character[] { target, });
+        await LogService.AddMapLogAsync(repo, false, EventType.Dismissal, $"<country>{country.Name}</country> は <character>{target.Name}</character> を解雇しました");
+
+        await repo.SaveChangesAsync();
+
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(target), target.Id);
+        await PushNotificationService.SendCharacterAsync(repo, "解雇", $"あなたは {country.Name} から解雇されました", target.Id);
+      }
     }
 
     [AuthenticationFilter]

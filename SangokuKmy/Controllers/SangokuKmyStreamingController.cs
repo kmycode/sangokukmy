@@ -61,6 +61,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<Mute> mutes;
       MuteKeyword muteKeyword;
       ChatMessageRead read;
+      BlockAction blockAction;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -96,6 +97,7 @@ namespace SangokuKmy.Controllers
           Keywords = string.Empty,
         };
         read = await repo.ChatMessage.GetReadByCharacterIdAsync(chara.Id);
+        blockAction = (await repo.BlockAction.GetAsync(chara.Id, BlockActionType.StopCommandByMonarch)).Data;
 
         var countryCharacters = await repo.Country.GetCharactersWithIconsAndCommandsAsync(chara.CountryId);
         otherCharacterCommands = countryCharacters.SelectMany(c => c.Commands);
@@ -165,6 +167,13 @@ namespace SangokuKmy.Controllers
         .Concat(aiCharacterManagements.Select(m => ApiData.From(m)))
         .Concat(subBuildings.Select(s => ApiData.From(s)))
         .ToList();
+      if (blockAction != null)
+      {
+        sendData.Add(ApiData.From(new ApiSignal
+        {
+          Type = SignalType.StopCommand,
+        }));
+      }
       sendData.Add(ApiData.From(new ApiSignal
       {
         Type = SignalType.EndOfStreamingInitializeData,

@@ -25,13 +25,16 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("rice")]
     public int Rice { get; set; }
 
+    [JsonProperty("isStopCommand")]
+    public bool IsStopCommand { get; set; }
+
     public CharacterDetail(Character chara)
     {
       this.Id = chara.Id;
       this.Message = chara.Message;
     }
 
-    public CharacterDetail(Character chara, IEnumerable<CharacterSkill> skills, Formation formation)
+    public CharacterDetail(Character chara, IEnumerable<CharacterSkill> skills, Formation formation, bool isStopCommand)
     {
       this.Skills = skills;
       this.Id = chara.Id;
@@ -39,6 +42,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.Money = chara.Money;
       this.Rice = chara.Rice;
       this.Formation = formation;
+      this.IsStopCommand = isStopCommand;
     }
   }
 }
