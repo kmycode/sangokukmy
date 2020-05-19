@@ -142,6 +142,7 @@ namespace SangokuKmy.Models.Data.Entities
     PolicyBoostProbabilityThousandth,
     GenerateItem,
     TownSubBuilding,
+    FormationMax,
   }
 
   public class CharacterSkillEffect
@@ -359,8 +360,11 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.SoldierType,
-            Value = (int)SoldierType.IntellectCommon,
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              TypeWallDisorderProbability = 1000,   // 壁守兵は壁属性0.5なので、この指定で5%になる
+            },
           },
           new CharacterSkillEffect
           {
@@ -911,8 +915,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.FormationExRegularly,
-            Value = 4,
+            Type = CharacterSkillEffectType.FormationMax,
+            Value = 2,
           },
         },
       },

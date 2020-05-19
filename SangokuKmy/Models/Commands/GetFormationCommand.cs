@@ -58,9 +58,12 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync($"陣形 {info.Data.Name} の獲得に必要な条件を満たしていません");
           return;
         }
-        if (formations.Count(f => f.Type != FormationType.Normal) + 1 > 3)
+
+        var skills = await repo.Character.GetSkillsAsync(character.Id);
+        var formationMax = 3 + skills.GetSumOfValues(CharacterSkillEffectType.FormationMax);
+        if (formations.Count(f => f.Type != FormationType.Normal) + 1 > formationMax)
         {
-          await game.CharacterLogAsync($"陣形 {info.Data.Name} を獲得しようとしましたが、１人が一度に所有できる陣形は 3 までです");
+          await game.CharacterLogAsync($"陣形 {info.Data.Name} を獲得しようとしましたが、あなたが一度に所有できる陣形は {formationMax} までです");
           return;
         }
 

@@ -83,6 +83,8 @@ namespace SangokuKmy.Models.Data.Entities
 
     public short DisorderProbability { get; set; }
 
+    public short TypeWallDisorderProbability { get; set; }
+
     public short FriendlyFireProbability { get; set; }
     
     public short ContinuousProbability { get; set; }
@@ -268,7 +270,7 @@ namespace SangokuKmy.Models.Data.Entities
 
     public bool IsDisorder()
     {
-      return this.CalcProbability(this.DisorderProbability);
+      return this.CalcProbability((short)(this.DisorderProbability + this.TypeWall / 100.0f * this.TypeWallDisorderProbability));
     }
 
     public bool IsFriendlyFire()
@@ -351,6 +353,7 @@ namespace SangokuKmy.Models.Data.Entities
       self.RushAttack += d.RushAttack;
       self.RushDefend += d.RushDefend;
       self.DisorderProbability += d.DisorderProbability;
+      self.TypeWallDisorderProbability += d.TypeWallDisorderProbability;
       self.FriendlyFireProbability += d.FriendlyFireProbability;
       self.StrongEx += d.StrongEx;
       self.IntellectEx += d.IntellectEx;

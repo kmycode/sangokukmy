@@ -109,13 +109,12 @@ namespace SangokuKmy.Models.Services
       {
         skills.Add(CharacterSkillType.Terrorist1);
         chara.Strong += 15;
-        chara.Rice += 50000;
+        chara.Leadership += 5;
       }
       else if (chara.From == CharacterFrom.People)
       {
         skills.Add(CharacterSkillType.People1);
-        chara.Popularity += 15;
-        chara.Rice += 50000;
+        chara.Popularity += 20;
       }
       else if (chara.From == CharacterFrom.Tactician)
       {
