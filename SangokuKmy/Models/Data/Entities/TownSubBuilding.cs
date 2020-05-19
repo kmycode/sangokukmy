@@ -243,7 +243,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = TownSubBuildingType.CommercialUnion,
         Name = "商業組合",
-        Size = 2,
+        Size = 1,
         Money = 50000,
         CanBuildMultiple = true,
         BuildDuring = 48,
