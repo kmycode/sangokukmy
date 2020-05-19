@@ -109,7 +109,7 @@ namespace SangokuKmy.Controllers
       {
         var myChara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var chara = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        if (myChara.CountryId == chara.CountryId)
+        if (myChara.CountryId == chara.CountryId && chara.CountryId != 0)
         {
           var skills = await repo.Character.GetSkillsAsync(id);
           var formation = await repo.Character.GetFormationAsync(chara.Id, chara.FormationType);
