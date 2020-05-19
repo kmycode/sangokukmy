@@ -1160,7 +1160,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱
-          if (!system.IsWaitingReset && RandomService.Next(0, 40) == 0)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && RandomService.Next(0, 40) == 0)
           {
             var isCreated = await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
             if (isCreated)
