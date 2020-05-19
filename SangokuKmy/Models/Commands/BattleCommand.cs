@@ -306,8 +306,8 @@ namespace SangokuKmy.Models.Commands
       var myProficiency = myTown.TownBuilding == TownBuilding.Camp ? character.Proficiency * myCampValue : character.Proficiency;
       var targetProficiency = (targetTown.TownBuilding == TownBuilding.Camp && !isWall) ? targetCharacter.Proficiency * targetCampValue : targetCharacter.Proficiency;
 
-      var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetProficiency / 2.5f) / 8), 0);
-      var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - myProficiency / 2.5f) / 8), 0);
+      var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetProficiency / 2.5f * ((game.GameDateTime.Year - Config.UpdateStartYear + 200) / 200.0f)) / 8), 0);
+      var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - myProficiency / 2.5f * ((game.GameDateTime.Year - Config.UpdateStartYear + 200) / 200.0f)) / 8), 0);
 
       log.AttackerAttackPower = myAttack;
       log.DefenderAttackPower = targetAttack;
