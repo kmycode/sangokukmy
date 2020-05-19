@@ -1,5 +1,6 @@
 ﻿using SangokuKmy.Common;
 using SangokuKmy.Models.Commands;
+using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
@@ -203,6 +204,17 @@ namespace SangokuKmy.Models.Services
         await ItemService.ReleaseCharacterAsync(repo, item, character);
       }
 
+      var ais = await repo.Character.GetManagementByHolderCharacterIdAsync(character.Id);
+      foreach (var ai in ais)
+      {
+        var aiChara = await repo.Character.GetByIdAsync(ai.CharacterId);
+        if (aiChara.HasData && !aiChara.Data.HasRemoved)
+        {
+          aiChara.Data.DeleteTurn = (short)Config.DeleteTurns;
+        }
+        repo.Character.RemoveManagement(ai);
+      }
+
       repo.ScoutedTown.RemoveCharacter(character.Id);
       repo.Town.RemoveDefender(character.Id);
       repo.EntryHost.RemoveCharacter(character.Id);
@@ -222,7 +234,7 @@ namespace SangokuKmy.Models.Services
 
     public static int CountLimitedItems(IEnumerable<CharacterItem> items)
     {
-      return items.Where(i => i.Status == CharacterItemStatus.CharacterHold).GetInfos().Count(i => !i.IsResource);
+      return items.Where(i => i.Status == CharacterItemStatus.CharacterHold).GetInfos().Count(i => !i.IsResource || i.IsResourceItem);
     }
   }
 }

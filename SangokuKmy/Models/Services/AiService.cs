@@ -724,12 +724,12 @@ namespace SangokuKmy.Models.Services
       var isOverthrowOldCountry = false;
       if (targetCountryOptional.HasData && await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1)
       {
-        if (isForce)
-        {
+        // if (isForce)
+        // {
           // 滅亡させる
-          isOverthrowOldCountry = true;
-        }
-        else
+          // isOverthrowOldCountry = true;
+        // }
+        // else
         {
           return false;
         }

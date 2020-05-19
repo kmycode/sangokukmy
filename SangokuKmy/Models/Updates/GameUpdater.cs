@@ -61,11 +61,26 @@ namespace SangokuKmy.Models.Updates
 
     private static async Task UpdateLoop()
     {
+      DateTime last = DateTime.Now;
+      DateTime currentMonthStart;
+      using (var repo = MainRepository.WithRead())
+      {
+        var system = await repo.System.GetAsync();
+        currentMonthStart = system.CurrentMonthStartDateTime;
+      }
+
       while (true)
       {
         try
         {
+          // 9分59秒更新の武将が月更新より後に処理されないようにする
           var current = DateTime.Now;
+          var nextMonthStart = currentMonthStart.AddSeconds(Config.UpdateTime);
+          if (last < nextMonthStart && current > nextMonthStart)
+          {
+            current = nextMonthStart.AddMilliseconds(-1);
+          }
+          last = current;
 
           // 月を更新
           if (current >= nextMonthStartDateTime)
@@ -871,6 +886,63 @@ namespace SangokuKmy.Models.Updates
               await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(subBuilding), repo, town);
             }
 
+            // 建築物の効果（謀略建築物含む）
+            var wars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting);
+            var availableSubBuildings = subBuildings.Where(s => s.Status == TownSubBuildingStatus.Available);
+            foreach (var subBuilding in availableSubBuildings)
+            {
+              var town = allTowns.FirstOrDefault(t => t.Id == subBuilding.TownId);
+              if (town == null)
+              {
+                continue;
+              }
+              var country = countryData.FirstOrDefault(c => c.Country.Id == town.CountryId);
+              if (country == null)
+              {
+                continue;
+              }
+              var aroundTowns = allTowns.GetAroundTowns(town);
+              var countryWarTargets = wars.Where(w => w.IsJoin(country.Country.Id)).Select(w => w.GetEnemy(country.Country.Id));
+
+              if (subBuilding.Type == TownSubBuildingType.CommercialUnion)
+              {
+                if (system.GameDateTime.Month == 1 || system.GameDateTime.Month == 7)
+                {
+                  var max = CountryService.GetCountrySafeMax(country.Policies.GetAvailableTypes());
+                  if (country.Country.SafeMoney < max)
+                  {
+                    country.Country.SafeMoney = Math.Min(max, country.Country.SafeMoney + RandomService.Next(4000, 8001));
+                  }
+                }
+              }
+              else if (subBuilding.Type == TownSubBuildingType.BreakWall)
+              {
+                if (system.GameDateTime.Month % 2 == 0)
+                {
+                  foreach (var atown in aroundTowns.Where(at => countryWarTargets.Contains(at.CountryId)))
+                  {
+                    var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
+                    var value = 7 / (isDefense ? 3 : 1);
+                    atown.Wall -= value;
+                  }
+                }
+              }
+              else if (subBuilding.Type == TownSubBuildingType.Agitation)
+              {
+                if (system.GameDateTime.Month % 2 == 0)
+                {
+                  foreach (var atown in aroundTowns.Where(at => countryWarTargets.Contains(at.CountryId)))
+                  {
+                    var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
+                    var value = Math.Max(2 / (isDefense ? 3 : 1), 1);
+                    var value2 = 100 / (isDefense ? 3 : 1);
+                    atown.Security -= (short)value;
+                    atown.People -= value2;
+                  }
+                }
+              }
+            }
+
             await repo.SaveChangesAsync();
           }
 
@@ -1088,7 +1160,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱
-          if (!system.IsWaitingReset && RandomService.Next(0, 40) == 0)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && RandomService.Next(0, 40) == 0)
           {
             var isCreated = await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
             if (isCreated)
@@ -1118,12 +1190,17 @@ namespace SangokuKmy.Models.Updates
               (system.GameDateTime.Year >= 360) || isKokinForce)
             {
               // 候補都市一覧
-              var townData = allTowns.Select(t => new { Town = t, AroundTowns = allTowns.GetAroundTowns(t), }).ToArray();
+              var townData = allTowns.Select(t => new
+              {
+                Town = t,
+                AroundTowns = allTowns.GetAroundTowns(t),
+                CountryTownCount = allTowns.Count(tt => t.CountryId == tt.CountryId),
+              }).ToArray();
               var aroundTownsCountMax = townData.Max(t => t.AroundTowns.Count());
               var candidateBorderCount = Math.Min(aroundTownsCountMax, 4);
 
               // 対象都市
-              var targetTownData = RandomService.Next(townData.Where(td => td.AroundTowns.Count() >= candidateBorderCount));
+              var targetTownData = RandomService.Next(townData.Where(td => td.AroundTowns.Count() >= candidateBorderCount && td.CountryTownCount > 1));
 
               // 蜂起
               await AiService.CreateFarmerCountryAsync(repo, targetTownData.Town, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message), true, true);
@@ -1180,7 +1257,7 @@ namespace SangokuKmy.Models.Updates
           if (!system.IsWaitingReset && !system.IsBattleRoyaleMode)
           {
             var isSave = false;
-            foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 14 <= system.IntGameDateTime))
+            foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 12 <= system.IntGameDateTime))
             {
               country.GyokujiStatus = CountryGyokujiStatus.NotHave;
               await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> の持っている玉璽はまがい物でした");
@@ -1188,7 +1265,7 @@ namespace SangokuKmy.Models.Updates
               isSave = true;
             }
 
-            var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 12 * 12 * 14 <= system.IntGameDateTime);
+            var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 12 * 12 * 12 <= system.IntGameDateTime);
             if (gyokujiWinner != null)
             {
               var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
@@ -1207,7 +1284,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽の配布
-          if (allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave) && system.GameDateTime.Year <= Config.UpdateStartYear + 24)
+          if (allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave) && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
           {
             // 異民族や経営国家を含めるため、改めて取得して確認し直す
             var countries = (await repo.Country.GetAllAsync()).Where(c => c.AiType != CountryAiType.Terrorists);
@@ -1408,24 +1485,36 @@ namespace SangokuKmy.Models.Updates
           }
         }
 
+        var ai = AiCharacterFactory.Create(character);
+        var commandOptional = await ai.GetCommandAsync(repo, currentMonth);
         var blockTypes = await repo.BlockAction.GetAvailableTypesAsync(character.Id);
         var isBlockedCommand = false;
         if (blockTypes.Contains(BlockActionType.StopCommand))
         {
-          character.DeleteTurn++;
+          if (!commandOptional.HasData || commandOptional.Data.Type == CharacterCommandType.None)
+          {
+            character.DeleteTurn++;
+          }
           isBlockedCommand = true;
-          await AddLogAsync("管理人により行動を制限されています。コマンド実行をスキップし、放置削除が進行しました");
+          await AddLogAsync("管理人により行動を制限されています。コマンド実行をスキップしました。放置削除が進行することがあります");
         }
         else if (blockTypes.Contains(BlockActionType.StopCommandAndDeleteTurn))
         {
           isBlockedCommand = true;
           await AddLogAsync("管理人により行動を制限されています。コマンド実行をスキップしました");
         }
+        else if (blockTypes.Contains(BlockActionType.StopCommandByMonarch))
+        {
+          if (!commandOptional.HasData || commandOptional.Data.Type == CharacterCommandType.None)
+          {
+            character.DeleteTurn++;
+          }
+          isBlockedCommand = true;
+          await AddLogAsync("君主によりコマンド実行が制限されています。コマンド実行をスキップしました。放置削除が進行することがあります");
+        }
         else
         {
           // コマンドの実行
-          var ai = AiCharacterFactory.Create(character);
-          var commandOptional = await ai.GetCommandAsync(repo, currentMonth);
           if (currentMonth.Year >= Config.UpdateStartYear)
           {
             var isCommandExecuted = false;
@@ -1465,6 +1554,27 @@ namespace SangokuKmy.Models.Updates
             await PushNotificationService.SendCharacterAsync(repo, "コマンド切れ", $"入力したすべてのコマンドの実行が完了したため、放置削除が進んでいます。このまま新しいコマンドを入力しないと、あなたの武将は約 {days} 日後に削除されます", character.Id);
           }
         }
+        else
+        {
+          // 別働隊へ給与
+          var ais = await repo.Character.GetManagementByHolderCharacterIdAsync(character.Id);
+          foreach (var aii in ais)
+          {
+            if (character.Money > 2000)
+            {
+              character.Money -= 2000;
+            }
+            else
+            {
+              var aiChara = await repo.Character.GetByIdAsync(aii.CharacterId);
+              if (aiChara.HasData)
+              {
+                aiChara.Data.AiType = CharacterAiType.RemovedFlyingColumn;
+                aiChara.Data.DeleteTurn = (short)Config.DeleteTurns;
+              }
+            }
+          }
+        }
 
         // 管理人だけの特別処理
         if (character.AiType == CharacterAiType.Administrator)
@@ -1485,6 +1595,12 @@ namespace SangokuKmy.Models.Updates
           character.DeleteTurn = (short)Config.DeleteTurns;
           await AddMapLogAsync(EventType.SecretaryRemoved, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、解雇されました", false);
         }
+        if (character.AiType == CharacterAiType.RemovedFlyingColumn)
+        {
+          var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
+          character.DeleteTurn = (short)Config.DeleteTurns;
+          await AddMapLogAsync(EventType.SecretaryRemoved, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、削除されました", false);
+        }
 
         // 放置削除の確認
         if (character.DeleteTurn >= Config.DeleteTurns)
@@ -1496,7 +1612,7 @@ namespace SangokuKmy.Models.Updates
           {
             await AddMapLogAsync(EventType.CharacterRemoved, "<country>" + (countryOptional.Data?.Name ?? "無所属") + "</country> の <character>" + character.Name + "</character> は放置削除されました", false);
           }
-          else if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary)
+          else if (!character.AiType.IsSecretary() && character.AiType != CharacterAiType.RemovedSecretary && character.AiType != CharacterAiType.RemovedFlyingColumn)
           {
             await AddMapLogAsync(EventType.AiCharacterRemoved, "<character>" + character.Name + "</character> は削除されました", false);
           }

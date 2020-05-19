@@ -38,7 +38,7 @@ namespace SangokuKmy.Models.Commands
             }
           }
 
-          var money = RandomService.Next(chara.Data.Intellect * 2, Math.Max(chara.Data.Intellect * 4, system.GameDateTime.Year * 550 + 10000));
+          var money = RandomService.Next(chara.Data.Intellect * 32, Math.Max(chara.Data.Intellect * 48, system.GameDateTime.Year * 650 + 10000));
           chara.Data.Money += money;
           results.Add($"金 <num>{money}</num>");
 

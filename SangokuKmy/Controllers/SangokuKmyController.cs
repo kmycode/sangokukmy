@@ -101,6 +101,29 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpGet("character/{id}/detail")]
+    public async Task<ApiData<CharacterDetail>> GetCharacterDetailAsync(
+      [FromRoute] uint id = default)
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var myChara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var chara = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        if (myChara.CountryId == chara.CountryId)
+        {
+          var skills = await repo.Character.GetSkillsAsync(id);
+          var formation = await repo.Character.GetFormationAsync(chara.Id, chara.FormationType);
+          var isStopCommand = await repo.BlockAction.IsBlockedAsync(chara.Id, BlockActionType.StopCommandByMonarch);
+          return ApiData.From(new CharacterDetail(chara, skills, formation, isStopCommand));
+        }
+        else
+        {
+          return ApiData.From(new CharacterDetail(chara));
+        }
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpGet("commands")]
     public async Task<GetCharacterAllCommandsResponse> GetCharacterAllCommandsAsync(
       [FromQuery] string months = "")
@@ -181,6 +204,13 @@ namespace SangokuKmy.Controllers
               await cmd.InputAsync(repo, this.AuthData.CharacterId, sameCommandParamsGroup.Select(c => c.GameDateTime), sameCommandParamsGroup.First().Parameters.ToArray());
             }
           }
+
+          var block = await repo.BlockAction.GetAsync(chara.Id, BlockActionType.StopCommandByMonarch);
+          if (block.HasData)
+          {
+            repo.BlockAction.Remove(block.Data);
+          }
+
           await repo.SaveChangesAsync();
         }
         catch (SangokuKmyException ex)
@@ -201,6 +231,129 @@ namespace SangokuKmy.Controllers
       }
 
       var streamingCommands = commands.Where(c => c.IntGameDateTime <= (system.GameDateTime.Year >= Config.UpdateStartYear ? system.IntGameDateTime : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, }.ToInt()) + 5).ToArray();
+      if (streamingCommands.Any())
+      {
+        await StatusStreaming.Default.SendCountryAsync(streamingCommands.Select(s => ApiData.From(s)), chara.CountryId);
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("commands/ex/{cmd}")]
+    public async Task InsertCommandAsync(
+      [FromBody] int[] months = default,
+      [FromRoute] string cmd = default)
+    {
+      if (months == null || !months.Any())
+      {
+        ErrorCode.LackOfParameterError.Throw();
+      }
+      if (string.IsNullOrEmpty(cmd))
+      {
+        cmd = "insert";
+      }
+
+      Character chara;
+      SystemData system;
+      IEnumerable<CharacterCommand> commands;
+      var insertedEmpties = new List<CharacterCommand>();
+
+      // 月を連続した数字のグループに分ける
+      var lastMonth = -1;
+      var monthGroups = new List<List<int>>
+      {
+        new List<int>
+        {
+          months[0],
+        },
+      };
+      foreach (var month in months.OrderBy(m => m))
+      {
+        if (lastMonth >= 0)
+        {
+          if (month == lastMonth + 1)
+          {
+            monthGroups.Last().Add(month);
+          }
+          else
+          {
+            monthGroups.Add(new List<int>
+            {
+              month,
+            });
+          }
+        }
+        lastMonth = month;
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        system = await repo.System.GetAsync();
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var isCurrentMonthExecuted = chara.LastUpdated >= system.CurrentMonthStartDateTime;
+        var firstMonth = isCurrentMonthExecuted ? system.GameDateTime.NextMonth() : system.GameDateTime;
+
+        commands = await repo.CharacterCommand.GetAllAsync(chara.Id, firstMonth);
+        var removeCommands = new List<CharacterCommand>();
+
+        foreach (var command in commands.OrderBy(c => c.IntGameDateTime))
+        {
+          var isSelected = months.Any(m => command.IntGameDateTime == m);
+          var count = 0;
+          if (months.Contains(command.IntGameDateTime))
+          {
+            if (cmd == "insert")
+            {
+              insertedEmpties.Add(new CharacterCommand
+              {
+                IntGameDateTime = command.IntGameDateTime,
+                Type = CharacterCommandType.None,
+                CharacterId = chara.Id,
+              });
+
+              count = monthGroups.TakeWhile(g => !g.Contains(command.IntGameDateTime)).Sum(g => g.Count) +
+                  monthGroups.First(g => g.Contains(command.IntGameDateTime)).Count;
+              command.IntGameDateTime += count;
+            }
+            else
+            {
+              removeCommands.Add(command);
+            }
+          }
+          else
+          {
+            var gs = monthGroups.TakeWhile(g => g.Last() < command.IntGameDateTime);
+            if (gs.Any())
+            {
+              count = gs.Sum(g => g.Count);
+              if (cmd == "insert")
+              {
+                command.IntGameDateTime += count;
+              }
+              else
+              {
+                command.IntGameDateTime -= count;
+              }
+            }
+          }
+        }
+
+        if (removeCommands.Any())
+        {
+          repo.CharacterCommand.Remove(removeCommands);
+        }
+
+        var block = await repo.BlockAction.GetAsync(chara.Id, BlockActionType.StopCommandByMonarch);
+        if (block.HasData)
+        {
+          repo.BlockAction.Remove(block.Data);
+        }
+
+        await repo.SaveChangesAsync();
+      }
+
+      var streamingCommands = commands
+        .Concat(insertedEmpties)
+        .Where(c => c.IntGameDateTime <= (system.GameDateTime.Year >= Config.UpdateStartYear ? system.IntGameDateTime : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, }.ToInt()) + 5).ToArray();
       if (streamingCommands.Any())
       {
         await StatusStreaming.Default.SendCountryAsync(streamingCommands.Select(s => ApiData.From(s)), chara.CountryId);
@@ -517,6 +670,7 @@ namespace SangokuKmy.Controllers
       Character chara;
       CharacterItem item;
       var info = CharacterItemInfoes.Get(param.Type).GetOrError(ErrorCode.InvalidParameterError);
+      var isParamChanged = false;
 
       if (param.Status != CharacterItemStatus.CharacterHold && param.Status != CharacterItemStatus.TownOnSale)
       {
@@ -529,21 +683,36 @@ namespace SangokuKmy.Controllers
         var items = await repo.Character.GetItemsAsync(chara.Id);
         item = items
           .OrderBy(i => i.IntLastStatusChangedGameDate)
-          .FirstOrDefault(i => i.Status == CharacterItemStatus.CharacterPending && i.Type == param.Type && (param.Id == default || i.Id == param.Id));
-        if (item == null)
+          .FirstOrDefault(i => i.Type == param.Type && (param.Id == default || i.Id == param.Id));
+        if (item == null || !(item.Status == CharacterItemStatus.CharacterPending || item.Status == CharacterItemStatus.CharacterHold))
         {
           ErrorCode.MeaninglessOperationError.Throw();
         }
 
+        if (item.Status != param.Status)
+        {
+          if (!(item.Status == CharacterItemStatus.CharacterHold && param.Status == CharacterItemStatus.CharacterHold) &&
+              !(item.Status == CharacterItemStatus.CharacterPending && param.Status == CharacterItemStatus.CharacterHold) &&
+              !(item.Status == CharacterItemStatus.CharacterPending && param.Status == CharacterItemStatus.TownOnSale))
+          {
+            ErrorCode.InvalidOperationError.Throw();
+          }
+          isParamChanged = true;
+        }
+
         if (param.Status == CharacterItemStatus.CharacterHold)
         {
-          var skills = await repo.Character.GetSkillsAsync(chara.Id);
-          if (!info.IsResource && CharacterService.CountLimitedItems(items) >= CharacterService.GetItemMax(skills))
+          if (item.Status != CharacterItemStatus.CharacterHold)
           {
-            ErrorCode.NotMoreItemsError.Throw();
-          }
+            var skills = await repo.Character.GetSkillsAsync(chara.Id);
+            if ((!info.IsResource || info.IsResourceItem) && CharacterService.CountLimitedItems(items) >= CharacterService.GetItemMax(skills))
+            {
+              ErrorCode.NotMoreItemsError.Throw();
+            }
 
-          await ItemService.SetCharacterAsync(repo, item, chara);
+            await ItemService.SetCharacterAsync(repo, item, chara);
+          }
+          item.IsAvailable = param.IsAvailable;
         }
         else if (param.Status == CharacterItemStatus.TownOnSale)
         {
@@ -553,7 +722,10 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
-      // await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), chara.Id);
+      if (!isParamChanged)
+      {
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), chara.Id);
+      }
     }
 
     [HttpPost("items/all")]
@@ -835,6 +1007,93 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
       await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("country/stopcommand/{id}")]
+    public async Task StopCharacterCommandAsync(
+      [FromRoute] uint id)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var country = await repo.Country.GetByIdAsync(self.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(self.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
+        if (myPost == null || !myPost.Type.CanPunishment())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        if (await repo.BlockAction.IsBlockedAsync(self.Id, BlockActionType.StopPunishment))
+        {
+          ErrorCode.BlockedActionError.Throw();
+        }
+
+        var target = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        if (target.CountryId != self.CountryId)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        if ((await repo.BlockAction.GetAvailableTypesAsync(id)).Contains(BlockActionType.StopCommandByMonarch))
+        {
+          ErrorCode.MeaninglessOperationError.Throw();
+        }
+
+        await repo.BlockAction.AddAsync(new BlockAction
+        {
+          CharacterId = target.Id,
+          ExpiryDate = new DateTime(2200, 1, 1),
+          Type = BlockActionType.StopCommandByMonarch,
+        });
+
+        await repo.SaveChangesAsync();
+
+        await PushNotificationService.SendCharacterAsync(repo, "謹慎", "あなたは謹慎されました。指示に従い、新しくコマンドを入れ直してください", target.Id);
+      }
+
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
+      {
+        Type = SignalType.StopCommand,
+      }), id);
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("country/dismissal/{id}")]
+    public async Task DismissalCharacterAsync(
+      [FromRoute] uint id)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var country = await repo.Country.GetByIdAsync(self.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(self.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
+        if (myPost == null || !myPost.Type.CanPunishment())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        if (await repo.BlockAction.IsBlockedAsync(self.Id, BlockActionType.StopPunishment))
+        {
+          ErrorCode.BlockedActionError.Throw();
+        }
+
+        var target = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
+        if (target.CountryId != self.CountryId)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        await CharacterService.ChangeCountryAsync(repo, 0, new Character[] { target, });
+        await LogService.AddMapLogAsync(repo, false, EventType.Dismissal, $"<country>{country.Name}</country> は <character>{target.Name}</character> を解雇しました");
+
+        await repo.SaveChangesAsync();
+
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(target), target.Id);
+        await PushNotificationService.SendCharacterAsync(repo, "解雇", $"あなたは {country.Name} から解雇されました", target.Id);
+      }
     }
 
     [AuthenticationFilter]

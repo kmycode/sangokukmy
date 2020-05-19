@@ -109,6 +109,8 @@ namespace SangokuKmy.Models.Data.Entities
     People4b = 52,
     People5b = 53,
     Intellect3b = 54,
+    Merchant4b = 55,
+    Merchant5b = 56,
   }
 
   public enum CharacterSkillEffectType
@@ -139,6 +141,8 @@ namespace SangokuKmy.Models.Data.Entities
     SecurityCommandMulPercentage,
     PolicyBoostProbabilityThousandth,
     GenerateItem,
+    TownSubBuilding,
+    FormationMax,
   }
 
   public class CharacterSkillEffect
@@ -356,8 +360,11 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.SoldierType,
-            Value = (int)SoldierType.IntellectCommon,
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              TypeWallDisorderProbability = 1000,   // 壁守兵は壁属性0.5なので、この指定で5%になる
+            },
           },
           new CharacterSkillEffect
           {
@@ -381,8 +388,8 @@ namespace SangokuKmy.Models.Data.Entities
           },
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.MoneyRegularly,
-            Value = 100,
+            Type = CharacterSkillEffectType.RiceBuyContribution,
+            Value = 15,
           },
         },
       },
@@ -396,13 +403,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.RiceBuyMax,
-            Value = 5000,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.RiceBuyContribution,
-            Value = 15,
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.TownInvest,
           },
         },
       },
@@ -416,18 +418,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.ItemDiscountPercentage,
-            Value = 20,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.ItemAppearOnDomesticAffairThousandth,
-            Value = 4,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.ItemMax,
-            Value = 2,
+            Type = CharacterSkillEffectType.RiceBuyMax,
+            Value = 10000,
           },
         },
       },
@@ -435,14 +427,34 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.Merchant4,
         RequestedPoint = 400,
-        Name = "商人 Lv.4",
-        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant3),
+        Name = "商人 Lv.a4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant3) && !skills.Any(s => s.Type == CharacterSkillType.Merchant4b),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.TownInvest,
+            Type = CharacterSkillEffectType.ItemMax,
+            Value = 2,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.ItemAppearOnDomesticAffairThousandth,
+            Value = 80,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Merchant4b,
+        RequestedPoint = 400,
+        Name = "商人 Lv.b4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant3) && !skills.Any(s => s.Type == CharacterSkillType.Merchant4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.RiceBuyMax,
+            Value = 10000,
           },
         },
       },
@@ -450,14 +462,34 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.Merchant5,
         RequestedPoint = 360,
-        Name = "商人 Lv.5",
+        Name = "商人 Lv.a5",
         SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant4),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.RiceBuyMax,
-            Value = 8000,
+            Type = CharacterSkillEffectType.ItemMax,
+            Value = 2,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.ItemDiscountPercentage,
+            Value = 20,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Merchant5b,
+        RequestedPoint = 360,
+        Name = "商人 Lv.b5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Merchant4b),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.TownSubBuilding,
+            Value = (int)TownSubBuildingType.CommercialUnion,
           },
         },
       },
@@ -684,7 +716,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              BaseAttack = 30,
+              TypeCavalryAttack = 30,
             },
           },
         },
@@ -883,8 +915,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.FormationExRegularly,
-            Value = 4,
+            Type = CharacterSkillEffectType.FormationMax,
+            Value = 2,
           },
         },
       },

@@ -371,5 +371,20 @@ namespace SangokuKmy.Models.Data.Entities
     /// 静養
     /// </summary>
     ChangeTime = 65,
+
+    /// <summary>
+    /// 別動隊雇用
+    /// </summary>
+    AddFlyingColumn = 66,
+
+    /// <summary>
+    /// 別動隊指示
+    /// </summary>
+    CustomizeFlyingColumn = 67,
+
+    /// <summary>
+    /// 別動隊削除
+    /// </summary>
+    RemoveFlyingColumn = 68,
   }
 }

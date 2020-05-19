@@ -57,9 +57,11 @@ namespace SangokuKmy.Controllers
       IEnumerable<CharacterSkill> skills;
       IEnumerable<CommandMessage> commandMessages;
       IEnumerable<CharacterCommand> otherCharacterCommands;
+      IEnumerable<AiCharacterManagement> aiCharacterManagements;
       IEnumerable<Mute> mutes;
       MuteKeyword muteKeyword;
       ChatMessageRead read;
+      BlockAction blockAction;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -88,12 +90,14 @@ namespace SangokuKmy.Controllers
         items = await repo.CharacterItem.GetAllAsync();
         skills = await repo.Character.GetSkillsAsync(chara.Id);
         commandMessages = await repo.CharacterCommand.GetMessagesAsync(chara.CountryId);
+        aiCharacterManagements = await repo.Character.GetManagementByHolderCharacterIdAsync(chara.Id);
         mutes = await repo.Mute.GetCharacterAsync(chara.Id);
         muteKeyword = (await repo.Mute.GetCharacterKeywordAsync(chara.Id)).Data ?? new MuteKeyword
         {
           Keywords = string.Empty,
         };
         read = await repo.ChatMessage.GetReadByCharacterIdAsync(chara.Id);
+        blockAction = (await repo.BlockAction.GetAsync(chara.Id, BlockActionType.StopCommandByMonarch)).Data;
 
         var countryCharacters = await repo.Country.GetCharactersWithIconsAndCommandsAsync(chara.CountryId);
         otherCharacterCommands = countryCharacters.SelectMany(c => c.Commands);
@@ -160,8 +164,16 @@ namespace SangokuKmy.Controllers
         .Concat(skills.Select(s => ApiData.From(s)))
         .Concat(commandMessages.Select(m => ApiData.From(m)))
         .Concat(otherCharacterCommands.Select(c => ApiData.From(c)))
+        .Concat(aiCharacterManagements.Select(m => ApiData.From(m)))
         .Concat(subBuildings.Select(s => ApiData.From(s)))
         .ToList();
+      if (blockAction != null)
+      {
+        sendData.Add(ApiData.From(new ApiSignal
+        {
+          Type = SignalType.StopCommand,
+        }));
+      }
       sendData.Add(ApiData.From(new ApiSignal
       {
         Type = SignalType.EndOfStreamingInitializeData,

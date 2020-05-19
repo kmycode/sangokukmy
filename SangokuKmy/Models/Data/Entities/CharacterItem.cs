@@ -79,6 +79,10 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("resource")]
     [JsonProperty("resource")]
     public int Resource { get; set; }
+
+    [Column("is_available")]
+    [JsonProperty("isAvailable")]
+    public bool IsAvailable { get; set; }
   }
 
   public enum CharacterItemStatus : short
@@ -179,6 +183,7 @@ namespace SangokuKmy.Models.Data.Entities
     KokinFlag = 82,
     EquippedStrongCrossbow = 83,
     TimeChanger = 84,
+    GodOfMilitaryArts = 85,
   }
 
   public enum CharacterItemEffectType
@@ -233,8 +238,10 @@ namespace SangokuKmy.Models.Data.Entities
     public int MoneyPerResource { get; set; }
     public int InitializeNumber { get; set; }
     public CharacterItemRareType RareType { get; set; }
+    public int RarePerPeriod { get; set; } = 1;
     public int DefaultResource { get; set; } = 0;
     public bool IsResource { get; set; } = false;
+    public bool IsResourceItem { get; set; } = false;
     public int ResourceLevel { get; set; }
     public bool CanSell { get; set; } = true;
     public bool CanHandOver { get; set; } = true;
@@ -311,7 +318,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Ohkanaduchi,
         Name = "大金槌",
         Money = 5000,
-        InitializeNumber = 3,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -327,7 +334,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Sansenryohato,
         Name = "三尖両刃刀",
         Money = 15000,
-        InitializeNumber = 4,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -343,7 +350,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Satekkyu,
         Name = "鎖鉄球",
         Money = 15000,
-        InitializeNumber = 3,
+        InitializeNumber = 6,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -359,7 +366,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Kiringa,
         Name = "麒麟牙",
         Money = 15000,
-        InitializeNumber = 3,
+        InitializeNumber = 6,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -375,7 +382,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Ryuseitsuchi,
         Name = "流星槌",
         Money = 15000,
-        InitializeNumber = 3,
+        InitializeNumber = 6,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -391,7 +398,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Kinjaken,
         Name = "金蛇剣",
         Money = 15000,
-        InitializeNumber = 3,
+        InitializeNumber = 6,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -407,7 +414,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Hien,
         Name = "飛燕",
         Money = 28000,
-        InitializeNumber = 3,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -423,7 +430,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Kojoto,
         Name = "古錠刀",
         Money = 28000,
-        InitializeNumber = 3,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -439,7 +446,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Ryuyoto,
         Name = "柳葉刀",
         Money = 28000,
-        InitializeNumber = 3,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -455,7 +462,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Hosuto,
         Name = "鳳嘴刀",
         Money = 28000,
-        InitializeNumber = 3,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -471,7 +478,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Shiyusai,
         Name = "蚩尤砕",
         Money = 55000,
-        InitializeNumber = 2,
+        InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
         Effects = new List<CharacterItemEffect>
         {
@@ -487,7 +494,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Gentetsuken,
         Name = "玄鉄剣",
         Money = 55000,
-        InitializeNumber = 2,
+        InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
         Effects = new List<CharacterItemEffect>
         {
@@ -503,7 +510,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Hekimeiken,
         Name = "碧銘剣",
         Money = 55000,
-        InitializeNumber = 2,
+        InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
         Effects = new List<CharacterItemEffect>
         {
@@ -519,7 +526,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Seikonoken,
         Name = "青紅の剣",
         Money = 55000,
-        InitializeNumber = 2,
+        InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
         Effects = new List<CharacterItemEffect>
         {
@@ -535,7 +542,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Kitenken,
         Name = "倚天剣",
         Money = 55000,
-        InitializeNumber = 2,
+        InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
         Effects = new List<CharacterItemEffect>
         {
@@ -551,7 +558,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Shiyuittsuinoken,
         Name = "雌雄一対の剣",
         Money = 78000,
-        InitializeNumber = 2,
+        InitializeNumber = 3,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
         Effects = new List<CharacterItemEffect>
@@ -568,7 +575,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Ryotan,
         Name = "竜胆",
         Money = 78000,
-        InitializeNumber = 2,
+        InitializeNumber = 3,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
         Effects = new List<CharacterItemEffect>
@@ -585,7 +592,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Seiryusekigetsuto,
         Name = "青龍堰月刀",
         Money = 78000,
-        InitializeNumber = 2,
+        InitializeNumber = 3,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
         Effects = new List<CharacterItemEffect>
@@ -640,7 +647,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Heibanshishozu,
         Name = "平蛮指掌図",
         Money = 5000,
-        InitializeNumber = 4,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -656,7 +663,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Taiheiyoushutsunosho,
         Name = "太平妖術の書",
         Money = 5000,
-        InitializeNumber = 4,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -672,7 +679,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Bokushi,
         Name = "墨子",
         Money = 15000,
-        InitializeNumber = 4,
+        InitializeNumber = 6,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -688,7 +695,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Rokkan,
         Name = "六韜",
         Money = 15000,
-        InitializeNumber = 4,
+        InitializeNumber = 6,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -704,7 +711,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Seishokuchikeizu,
         Name = "西蜀地形図",
         Money = 28000,
-        InitializeNumber = 4,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -720,7 +727,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Tonkotensho,
         Name = "遁甲天書",
         Money = 28000,
-        InitializeNumber = 4,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -736,7 +743,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Sonshinoheihosho,
         Name = "孫子の兵法書",
         Money = 28000,
-        InitializeNumber = 4,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -752,7 +759,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Jurokkokushunshu,
         Name = "十六国春秋",
         Money = 28000,
-        InitializeNumber = 4,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -768,7 +775,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Shunshusashiden,
         Name = "春秋左氏伝",
         Money = 28000,
-        InitializeNumber = 4,
+        InitializeNumber = 8,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -784,7 +791,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Ryoshishunshu,
         Name = "呂氏春秋",
         Money = 55000,
-        InitializeNumber = 4,
+        InitializeNumber = 5,
         RareType = CharacterItemRareType.TownHiddenOnly,
         Effects = new List<CharacterItemEffect>
         {
@@ -800,7 +807,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Goetsushunshu,
         Name = "呉越春秋",
         Money = 55000,
-        InitializeNumber = 4,
+        InitializeNumber = 5,
         RareType = CharacterItemRareType.TownHiddenOnly,
         Effects = new List<CharacterItemEffect>
         {
@@ -816,7 +823,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Seinosho,
         Name = "青嚢書",
         Money = 55000,
-        InitializeNumber = 4,
+        InitializeNumber = 5,
         RareType = CharacterItemRareType.TownHiddenOnly,
         Effects = new List<CharacterItemEffect>
         {
@@ -832,7 +839,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Motokushinsho,
         Name = "孟徳新書",
         Money = 55000,
-        InitializeNumber = 3,
+        InitializeNumber = 4,
         RareType = CharacterItemRareType.TownHiddenOnly,
         Effects = new List<CharacterItemEffect>
         {
@@ -864,7 +871,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Heihonijuyompen,
         Name = "兵法二十四編",
         Money = 78000,
-        InitializeNumber = 2,
+        InitializeNumber = 3,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
         Effects = new List<CharacterItemEffect>
@@ -881,7 +888,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Sengokusaku,
         Name = "戦国策",
         Money = 78000,
-        InitializeNumber = 2,
+        InitializeNumber = 3,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
         Effects = new List<CharacterItemEffect>
@@ -953,7 +960,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Shokanron,
         Name = "傷寒論",
         Money = 36000,
-        InitializeNumber = 8,
+        InitializeNumber = 12,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         Effects = new List<CharacterItemEffect>
         {
@@ -961,6 +968,23 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterItemEffectType.Popularity,
             Value = 10,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.Rongo,
+        Name = "論語",
+        Money = 100000,
+        InitializeNumber = 2,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanSell = false,
+        Effects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.Popularity,
+            Value = 20,
           },
         },
       },
@@ -1050,11 +1074,29 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterItemInfo
       {
+        Type = CharacterItemType.Shimingetsurei,
+        Name = "四民月令",
+        Money = 100000,
+        InitializeNumber = 2,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanSell = false,
+        Effects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.Leadership,
+            Value = 20,
+          },
+        },
+      },
+
+      new CharacterItemInfo
+      {
         Type = CharacterItemType.AnnotationBook,
         Name = "注釈書",
         Money = 48000,
         InitializeNumber = 8,
-        RareType = CharacterItemRareType.TownHiddenOnly,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
         CanUse = true,
         UsingEffects = new List<CharacterItemEffect>
         {
@@ -1071,7 +1113,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "兵法書",
         Money = 48000,
         InitializeNumber = 8,
-        RareType = CharacterItemRareType.TownHiddenOnly,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
         CanUse = true,
         UsingEffects = new List<CharacterItemEffect>
         {
@@ -1084,10 +1126,28 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterItemInfo
       {
+        Type = CharacterItemType.SkillBook,
+        Name = "技能書",
+        Money = 80000,
+        InitializeNumber = 6,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        CanUse = true,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.SkillPoint,
+            Value = 72,
+          },
+        },
+      },
+
+      new CharacterItemInfo
+      {
         Type = CharacterItemType.Cha,
         Name = "茶",
         Money = 10000,
-        InitializeNumber = 8,
+        InitializeNumber = 12,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
         CanSell = false,
@@ -1105,7 +1165,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Seiyukokusokan,
         Name = "青釉穀倉罐",
         Money = 10000,
-        InitializeNumber = 8,
+        InitializeNumber = 12,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
         CanSell = false,
@@ -1123,7 +1183,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Shuhai,
         Name = "酒杯",
         Money = 10000,
-        InitializeNumber = 8,
+        InitializeNumber = 12,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
         CanSell = false,
@@ -1141,7 +1201,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Samban,
         Name = "算盤",
         Money = 20000,
-        InitializeNumber = 4,
+        InitializeNumber = 6,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
         CanSell = false,
@@ -1159,7 +1219,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Ryoshikyo,
         Name = "呂氏鏡",
         Money = 20000,
-        InitializeNumber = 4,
+        InitializeNumber = 6,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
         CanSell = false,
@@ -1177,7 +1237,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Hakusanro,
         Name = "博山炉",
         Money = 30000,
-        InitializeNumber = 2,
+        InitializeNumber = 3,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
         CanSell = false,
@@ -1195,7 +1255,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Kinzokannoko,
         Name = "金象嵌の壺",
         Money = 30000,
-        InitializeNumber = 2,
+        InitializeNumber = 3,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
         CanSell = false,
@@ -1266,6 +1326,7 @@ namespace SangokuKmy.Models.Data.Entities
           CharacterFrom.Merchant,
         },
       },
+
       new CharacterItemInfo
       {
         Type = CharacterItemType.Chukoetsu,
@@ -1323,8 +1384,9 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.KokinFlag,
         Name = "黄巾の旗",
         Money = 500_000,
-        InitializeNumber = 1,
+        InitializeNumber = 0,
         RareType = CharacterItemRareType.TownHiddenOnly,
+        RarePerPeriod = 10,
         CanUse = true,
         CanSell = false,
         CanHandOver = false,
@@ -1338,8 +1400,45 @@ namespace SangokuKmy.Models.Data.Entities
         DiscoverFroms = new List<CharacterFrom>
         {
           CharacterFrom.People,
+          CharacterFrom.Merchant,
         },
       },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.TimeChanger,
+        Name = "時の番人",
+        IsResource = true,
+        IsResourceItem = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 10000,
+        InitializeNumber = 4,
+        DefaultResource = 10,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+      },
+
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.GodOfMilitaryArts,
+        Name = "武神（仮）",
+        IsResource = true,
+        ResourceLevel = 1,
+        MoneyPerResource = 30,
+        InitializeNumber = 16,
+        DefaultResource = 100,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        Effects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.SoldierCorrectionResource,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 40,
+            },
+          },
+        },
+      },
+
       new CharacterItemInfo
       {
         Type = CharacterItemType.EquippedGeki,
@@ -1690,68 +1789,6 @@ namespace SangokuKmy.Models.Data.Entities
           },
         },
       },
-      new CharacterItemInfo
-      {
-        Type = CharacterItemType.Shimingetsurei,
-        Name = "四民月令",
-        Money = 100000,
-        InitializeNumber = 2,
-        RareType = CharacterItemRareType.TownHiddenOnly,
-        CanSell = false,
-        Effects = new List<CharacterItemEffect>
-        {
-          new CharacterItemEffect
-          {
-            Type = CharacterItemEffectType.Leadership,
-            Value = 20,
-          },
-        },
-      },
-      new CharacterItemInfo
-      {
-        Type = CharacterItemType.Rongo,
-        Name = "論語",
-        Money = 100000,
-        InitializeNumber = 2,
-        RareType = CharacterItemRareType.TownHiddenOnly,
-        CanSell = false,
-        Effects = new List<CharacterItemEffect>
-        {
-          new CharacterItemEffect
-          {
-            Type = CharacterItemEffectType.Popularity,
-            Value = 20,
-          },
-        },
-      },
-      new CharacterItemInfo
-      {
-        Type = CharacterItemType.SkillBook,
-        Name = "技能書",
-        Money = 80000,
-        InitializeNumber = 6,
-        RareType = CharacterItemRareType.TownHiddenOnly,
-        CanUse = true,
-        UsingEffects = new List<CharacterItemEffect>
-        {
-          new CharacterItemEffect
-          {
-            Type = CharacterItemEffectType.SkillPoint,
-            Value = 72,
-          },
-        },
-      },
-      new CharacterItemInfo
-      {
-        Type = CharacterItemType.TimeChanger,
-        Name = "時の番人",
-        IsResource = true,
-        ResourceLevel = 1,
-        MoneyPerResource = 10000,
-        InitializeNumber = 4,
-        DefaultResource = 10,
-        RareType = CharacterItemRareType.TownOnSaleOrHidden,
-      },
     };
 
     public static IReadOnlyList<CharacterItemInfo> GetAll()
@@ -1835,6 +1872,11 @@ namespace SangokuKmy.Models.Data.Entities
           break;
         }
       }
+    }
+
+    public static IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> GetResourcesAvailable(this IEnumerable<CharacterItem> item, CharacterItemEffectType type, Predicate<CharacterResourceItemEffect> subject, int size)
+    {
+      return GetResources(item, type, subject, size).Where(i => i.Item.IsAvailable);
     }
   }
 }

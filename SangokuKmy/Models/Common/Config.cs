@@ -46,7 +46,7 @@ namespace SangokuKmy.Models.Common
 
     public static short StartMonth { get; } = 1;
 
-    public static short UpdateStartYear { get; } = 24;
+    public static short UpdateStartYear { get; } = 12;
 
     /// <summary>
     /// 階級の数（新規登録直後に与えられる階級も含まれるので注意）
@@ -86,7 +86,7 @@ namespace SangokuKmy.Models.Common
 
     public static int ScouterCost { get; } = 2000;
 
-    public static float SoldierPeopleCost { get; } = 5.45f;
+    public static float SoldierPeopleCost { get; } = 5.0f;
 
     public static float RicePriceBase { get; } = 1000000.0f;
   }

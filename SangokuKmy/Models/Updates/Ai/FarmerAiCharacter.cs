@@ -54,7 +54,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected virtual SoldierType FindSoldierType()
     {
-      return SoldierType.Common;
+      return this.Character.StrongEx >= 920 ? SoldierType.Chariot : SoldierType.Common;
     }
 
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)

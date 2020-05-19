@@ -126,6 +126,10 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         ai = new ManagedMoneyInflaterAiCharacter(chara);
       }
+      else if (chara.AiType == CharacterAiType.FlyingColumn)
+      {
+        ai = new FlyingColumnAiCharacter(chara);
+      }
       else
       {
         ai = new HumanCharacter(chara);

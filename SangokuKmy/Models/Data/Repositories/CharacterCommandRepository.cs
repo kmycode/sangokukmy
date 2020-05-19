@@ -91,8 +91,13 @@ namespace SangokuKmy.Models.Data.Repositories
           .GroupJoin(this.container.Context.CharacterCommandParameters,
             c => c.Id,
             cp => cp.CharacterCommandId,
-            (c, cps) => c.SetParameters(cps))
-          .ToArrayAsync());
+            (c, cps) => new { Command = c, Parameters = cps, })
+          .ToArrayAsync())
+          .Select(c =>
+          {
+            c.Command.SetParameters(c.Parameters);
+            return c.Command;
+          });
       }
       catch (Exception ex)
       {
@@ -183,6 +188,20 @@ namespace SangokuKmy.Models.Data.Repositories
             }));
           await this.container.Context.CharacterCommandParameters.AddRangeAsync(newParameters);
         }
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public void Remove(IEnumerable<CharacterCommand> commands)
+    {
+      try
+      {
+        this.container.Context.CharacterCommands.RemoveRange(commands);
+        this.container.Context.CharacterCommandParameters.RemoveRange(
+          this.container.Context.CharacterCommandParameters.Where(cp => commands.Any(cc => cc.Id == cp.CharacterCommandId)));
       }
       catch (Exception ex)
       {

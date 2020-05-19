@@ -194,18 +194,13 @@ namespace SangokuKmy.Models.Commands
 
       var myBattleResources = myItems
         .Select(i => new { Item = i, Info = i.GetInfo().Data, })
-        .Where(i => i.Info != null && i.Info.Effects != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
+        .Where(i => i.Item.IsAvailable && i.Info != null && i.Info.Effects != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
 
       mySoldierType
         .Append(myFormation.GetDataFromLevel(myFormationData.Level))
         .Append(mySkills.GetSoldierTypeData())
         .Append(myItems.GetSoldierTypeData())
         .Append(myBattleResources.SelectMany(r => r.Info.Effects.Where(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource).Select(e => e.SoldierTypeData)));
-
-      foreach (var myr in myBattleResources)
-      {
-        await SpendResourceAsync(myr.Item, myr.Info, myr.Item.Resource - 1);
-      }
 
       var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
       if (myPostOptional.HasData)
@@ -248,14 +243,9 @@ namespace SangokuKmy.Models.Commands
         targetItems = await repo.Character.GetItemsAsync(targetCharacter.Id);
         var targetBattleResources = targetItems
           .Select(i => new { Item = i, Info = i.GetInfo().Data, })
-          .Where(i => i.Info != null && i.Info.Effects != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
+          .Where(i => i.Item.IsAvailable && i.Info != null && i.Info.Effects != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
         targetSoldierType.Append(targetItems.GetSoldierTypeData())
           .Append(targetBattleResources.SelectMany(r => r.Info.Effects.Where(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource).Select(e => e.SoldierTypeData)));
-
-        foreach (var myr in targetBattleResources)
-        {
-          await SpendResourceAsync(myr.Item, myr.Info, myr.Item.Resource - 1);
-        }
 
         isWall = false;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
@@ -322,9 +312,11 @@ namespace SangokuKmy.Models.Commands
       log.AttackerAttackPower = myAttack;
       log.DefenderAttackPower = targetAttack;
 
+      var currentBattleTurns = 0;
       for (var i = continuousTurns; i <= 50 && targetCharacter.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
       {
         continuousTurns = i;
+        currentBattleTurns++;
 
         var targetDamage = Math.Max(RandomService.Next(myAttack + 1), 1);
         var myDamage = Math.Max(RandomService.Next(targetAttack + 1), 1);
@@ -547,16 +539,6 @@ namespace SangokuKmy.Models.Commands
             mapLogId = await game.MapLogAndSaveAsync(EventType.TakeAway, "<country>" + myCountry.Name + "</country> の <character>" + character.Name + "</character> は <country>" + targetCountry.Name + "</country> の <town>" + targetTown.Name + "</town> を支配しました", true);
             await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> を支配しました");
 
-            if (myCountry.AiType == CountryAiType.Farmers)
-            {
-              var cs = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FarmerBattler, }, myCountry.Id, targetTown.Id, system);
-              foreach (var c in cs)
-              {
-                c.Name += c.Id;
-                await game.MapLogAndSaveAsync(EventType.ReinforcementActived, "<country>" + myCountry.Name + "</country> に <character>" + c.Name + "</character> が新たに参加しました", false);
-              }
-            }
-
             // 支配したときのみ匿名ストリーミング
             await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(targetTown)));
 
@@ -641,6 +623,10 @@ namespace SangokuKmy.Models.Commands
       }
 
       // 貢献、経験値の設定
+      foreach (var myr in myBattleResources)
+      {
+        await SpendResourceAsync(myr.Item, myr.Info, myr.Item.Resource - currentBattleTurns);
+      }
       myFormationExperience = Math.Max(1, (int)myFormationExperience);
       myContribution += myExperience;
       character.Contribution += (int)(myContribution);
@@ -665,6 +651,14 @@ namespace SangokuKmy.Models.Commands
           Type = SignalType.DefenderBattled,
           Data = new { townName = targetTown.Name, targetName = character.Name, isWin = targetCharacter.SoldierNumber > 0, },
         }), targetCharacter.Id);
+
+        var targetBattleResources = targetItems
+          .Select(i => new { Item = i, Info = i.GetInfo().Data, })
+          .Where(i => i.Item.IsAvailable && i.Info != null && i.Info.Effects != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
+        foreach (var myr in targetBattleResources)
+        {
+          await SpendResourceAsync(myr.Item, myr.Info, myr.Item.Resource - currentBattleTurns);
+        }
 
         targetFormationData.Experience += (int)targetFormationExperience;
         if (targetFormation.CheckLevelUp(targetFormationData))
@@ -722,7 +716,7 @@ namespace SangokuKmy.Models.Commands
         }
         else
         {
-          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), character.Id);
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), item.CharacterId);
         }
       }
     }

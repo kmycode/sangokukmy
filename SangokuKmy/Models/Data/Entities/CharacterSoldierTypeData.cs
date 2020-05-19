@@ -57,6 +57,8 @@ namespace SangokuKmy.Models.Data.Entities
 
     public short TypeInfantryDefend { get; set; }
 
+    public short TypeCavalryAttack { get; set; }
+
     public short TypeGuardAttack { get; set; }
 
     public short TypeGuardDefend { get; set; }
@@ -82,6 +84,8 @@ namespace SangokuKmy.Models.Data.Entities
     public ushort RushDefend { get; set; }
 
     public short DisorderProbability { get; set; }
+
+    public short TypeWallDisorderProbability { get; set; }
 
     public short FriendlyFireProbability { get; set; }
     
@@ -169,8 +173,9 @@ namespace SangokuKmy.Models.Data.Entities
       a += this.WeaponAttack * enemyType.TypeWeapon / 100.0f;
       d += this.WeaponDefend * enemyType.TypeWeapon / 100.0f;
 
-      a += this.TypeInfantryAttack * (this.TypeGuard / 100.0f) * (1 - typeWall);
-      d += this.TypeInfantryDefend * (this.TypeGuard / 100.0f) * (1 - typeWall);
+      a += this.TypeInfantryAttack * (this.TypeInfantry / 100.0f) * (1 - typeWall);
+      d += this.TypeInfantryDefend * (this.TypeInfantry / 100.0f) * (1 - typeWall);
+      a += this.TypeCavalryAttack * (this.TypeCavalry / 100.0f) * (1 - typeWall);
       a += this.TypeGuardAttack * (this.TypeGuard / 100.0f) * (1 - typeWall);
       d += this.TypeGuardDefend * (this.TypeGuard / 100.0f) * (1 - typeWall);
 
@@ -268,7 +273,7 @@ namespace SangokuKmy.Models.Data.Entities
 
     public bool IsDisorder()
     {
-      return this.CalcProbability(this.DisorderProbability);
+      return this.CalcProbability((short)(this.DisorderProbability + this.TypeWall / 100.0f * this.TypeWallDisorderProbability));
     }
 
     public bool IsFriendlyFire()
@@ -351,6 +356,7 @@ namespace SangokuKmy.Models.Data.Entities
       self.RushAttack += d.RushAttack;
       self.RushDefend += d.RushDefend;
       self.DisorderProbability += d.DisorderProbability;
+      self.TypeWallDisorderProbability += d.TypeWallDisorderProbability;
       self.FriendlyFireProbability += d.FriendlyFireProbability;
       self.StrongEx += d.StrongEx;
       self.IntellectEx += d.IntellectEx;
@@ -364,6 +370,7 @@ namespace SangokuKmy.Models.Data.Entities
       self.TypeGuard += d.TypeGuard;
       self.TypeInfantryAttack += d.TypeInfantryAttack;
       self.TypeInfantryDefend += d.TypeInfantryDefend;
+      self.TypeCavalryAttack += d.TypeCavalryAttack;
       self.TypeGuardAttack += d.TypeGuardAttack;
       self.TypeGuardDefend += d.TypeGuardDefend;
       self.GogyoFire += d.GogyoFire;

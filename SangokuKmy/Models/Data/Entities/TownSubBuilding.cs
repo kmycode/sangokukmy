@@ -103,6 +103,26 @@ namespace SangokuKmy.Models.Data.Entities
     /// 城塞
     /// </summary>
     Wall = 6,
+
+    /// <summary>
+    /// 商業組合
+    /// </summary>
+    CommercialUnion = 7,
+
+    /// <summary>
+    /// 破壊所
+    /// </summary>
+    BreakWall = 8,
+
+    /// <summary>
+    /// 扇動所
+    /// </summary>
+    Agitation = 9,
+
+    /// <summary>
+    /// 防衛拠点
+    /// </summary>
+    DefenseStation = 10,
   }
 
   public class TownSubBuildingTypeInfo
@@ -120,6 +140,8 @@ namespace SangokuKmy.Models.Data.Entities
     public int BuildDuring { get; set; } = 24;
 
     public Predicate<Character> BuildSubject { get; set; }
+
+    public Predicate<IEnumerable<CharacterSkill>> BuildSubjectSkills { get; set; }
 
     public Action<Town> OnBuilt { get; set; }
 
@@ -164,7 +186,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = TownSubBuildingType.Workshop,
         Name = "工房",
-        Size = 1,
+        Size = 2,
         Money = 20000,
         BuildDuring = 12,
         OnBuilt = t => t.TechnologyMax += 300,
@@ -174,6 +196,7 @@ namespace SangokuKmy.Models.Data.Entities
           t.Technology = Math.Min(t.Technology, t.TechnologyMax);
         },
       },
+      /*
       new TownSubBuildingTypeInfo
       {
         Type = TownSubBuildingType.LargeWorkshop,
@@ -183,6 +206,7 @@ namespace SangokuKmy.Models.Data.Entities
         BuildDuring = 12,
         BuildSubject = c => c.From == CharacterFrom.Engineer || c.From == CharacterFrom.Tactician || c.From == CharacterFrom.Staff,
       },
+      */
       new TownSubBuildingTypeInfo
       {
         Type = TownSubBuildingType.Houses,
@@ -214,6 +238,46 @@ namespace SangokuKmy.Models.Data.Entities
           t.Wall = Math.Min(t.Wall, t.WallMax);
         },
         BuildSubject = c => c.Strong >= 100,
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.CommercialUnion,
+        Name = "商業組合",
+        Size = 1,
+        Money = 50000,
+        CanBuildMultiple = true,
+        BuildDuring = 48,
+        BuildSubject = c => c.From == CharacterFrom.Merchant,
+        BuildSubjectSkills = ss => ss.AnySkillEffects(CharacterSkillEffectType.Command, (int)TownSubBuildingType.CommercialUnion),
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.BreakWall,
+        Name = "破壊所",
+        Size = 2,
+        Money = 30000,
+        CanBuildMultiple = true,
+        BuildDuring = 24,
+        BuildSubject = c => c.Intellect >= 100,
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.Agitation,
+        Name = "扇動所",
+        Size = 2,
+        Money = 30000,
+        CanBuildMultiple = true,
+        BuildDuring = 24,
+        BuildSubject = c => c.Intellect >= 100,
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.DefenseStation,
+        Name = "防衛拠点",
+        Size = 2,
+        Money = 30000,
+        BuildDuring = 36,
+        BuildSubject = c => c.Intellect >= 100,
       },
     };
 

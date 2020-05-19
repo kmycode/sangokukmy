@@ -111,6 +111,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
       var targetOrder = BattleTargetOrder.Defenders;
 
+      // 経営国家
       var old = await repo.AiCountry.GetStorategyByCountryIdAsync(this.Character.CountryId);
       if (old.HasData)
       {
@@ -173,6 +174,32 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           this.data.NextBattleTown = nextTarget;
         }
+      }
+
+      // 別働隊
+      var charaManagementOptional = await repo.Character.GetManagementByAiCharacterIdAsync(this.Character.Id);
+      if (charaManagementOptional.HasData)
+      {
+        var holder = await repo.Character.GetByIdAsync(charaManagementOptional.Data.HolderCharacterId);
+        if (holder.HasData)
+        {
+          this.data.MainTown = this.towns.FirstOrDefault(t => t.Id == this.Country.CapitalTownId && t.CountryId == this.Country.Id);
+          this.data.BorderTown = this.towns.FirstOrDefault(t => t.Id == holder.Data.TownId);
+
+          if (charaManagementOptional.Data.Action != AiCharacterAction.Assault)
+          {
+            this.data.TargetTown = this.data.NextBattleTown = this.towns.FirstOrDefault(t => t.Id == charaManagementOptional.Data.TargetTownId && t.CountryId != this.Country.Id);
+            if (charaManagementOptional.Data.Action == AiCharacterAction.DomesticAffairs ||
+              charaManagementOptional.Data.Action == AiCharacterAction.Defend)
+            {
+              this.data.BorderTown = this.data.DevelopTown = this.towns.FirstOrDefault(t => t.Id == charaManagementOptional.Data.TargetTownId);
+            }
+          }
+
+          // 武将の指定が上書きされないよう、ここで処理を強制的にぶった切る
+          return true;
+        }
+        return false;
       }
 
       if (this.data.BorderTown != null && this.data.MainTown != null && this.data.BorderTown.Id != this.data.MainTown.Id)
@@ -1103,7 +1130,7 @@ namespace SangokuKmy.Models.Updates.Ai
         foreach (var town in enemyTowns)
         {
           var charas = await repo.Town.GetCharactersAsync(town.Id);
-          foreach (var c in charas.Where(c => c.SoldierNumber >= 10))
+          foreach (var c in charas.Where(c => c.SoldierNumber >= 10 && c.CountryId == town.CountryId))
           {
             if (c.SoldierType.IsForWall())
             {
@@ -1465,6 +1492,11 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         return false;
       }
+      return await this.InputMoveToDevelopTownForceAsync(repo);
+    }
+
+    protected async Task<bool> InputMoveToDevelopTownForceAsync(MainRepository repo)
+    {
       if (this.data.DevelopTown == null)
       {
         return false;
@@ -1586,7 +1618,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected bool InputDevelop()
     {
-      var isDevelopIncome = this.Country.LastMoneyIncomes < 10000 || this.Country.LastRiceIncomes < 10000;
+      var isDevelopIncome = this.Character.AiType != CharacterAiType.FlyingColumn &&
+        (this.Country.LastMoneyIncomes < 10000 || this.Country.LastRiceIncomes < 10000);
 
       var v = this.GameDateTime.Month % 2;
       if (v == 0)
@@ -1632,12 +1665,18 @@ namespace SangokuKmy.Models.Updates.Ai
       if (command.Type == CharacterCommandType.TownBuilding &&
         (this.Town.TownBuildingValue >= Config.TownBuildingMax ||
          (this.Town.TownBuilding != TownBuilding.RepairWall &&
-          this.Town.TownBuilding != TownBuilding.TerroristHouse)))
+          this.Town.TownBuilding != TownBuilding.TerroristHouse &&
+          this.Town.TownBuilding != TownBuilding.Houses &&
+          this.Town.TownBuilding != TownBuilding.OpenWall &&
+          this.Town.TownBuilding != TownBuilding.TrainingBuilding &&
+          this.Town.TownBuilding != TownBuilding.School &&
+          this.Town.TownBuilding != TownBuilding.Palace)))
       {
         return false;
       }
 
-      if ((this.Town.Security < 60 && this.Character.Popularity < 50) || (this.Town.Security < 100 && this.Character.Popularity >= 50))
+      if (this.Character.AiType != CharacterAiType.FlyingColumn &&
+        ((this.Town.Security < 60 && this.Character.Popularity < 50) || (this.Town.Security < 100 && this.Character.Popularity >= 50)))
       {
         command.Type = CharacterCommandType.Security;
       }
@@ -1679,11 +1718,16 @@ namespace SangokuKmy.Models.Updates.Ai
     {
       if (this.Country.PolicyPoint < 10000)
       {
-        this.command.Type = CharacterCommandType.Policy;
+        this.InputPolicyForce();
         return true;
       }
 
       return false;
+    }
+
+    protected void InputPolicyForce()
+    {
+      this.command.Type = CharacterCommandType.Policy;
     }
 
     protected bool InputTownBuilding()

@@ -364,7 +364,7 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "投石器",
         Data = new CharacterSoldierTypeData
         {
-          WallAttack = 20,
+          WallAttack = 25,
           WallDefend = 15,
           InfantryAttack = -2,
           InfantryDefend = -2,
@@ -378,8 +378,6 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 40,
         Technology = 600,
-        CanConscriptWithoutSubBuilding = false,
-        NeededSubBuildingType = TownSubBuildingType.LargeWorkshop,
       },
       new CharacterSoldierTypePart
       {
@@ -492,7 +490,9 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "藤甲兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseDefend = 16,
+          BaseDefend = 18,
+          CavalryAttack = 6,
+          CavalryDefend = 12,
           GogyoDefend = 5,
           RushDefend = 5,
           TypeInfantry = 10,
@@ -523,16 +523,16 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "梓歩兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 2,
-          BaseDefend = 2,
-          CavalryAttack = 3,
-          CavalryDefend = 3,
+          BaseAttack = 6,
+          BaseDefend = 6,
+          CavalryAttack = 6,
+          CavalryDefend = 6,
           DisorderProbability = 100,
           TypeInfantry = 10,
           IntellectEx = 1,
           PowerIntellect = 1,
         },
-        Money = 15,
+        Money = 18,
         Technology = 600,
       },
       new CharacterSoldierTypePart
@@ -541,10 +541,10 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "梓馬兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 2,
-          BaseDefend = 2,
-          CrossbowAttack = 3,
-          CrossbowDefend = 3,
+          BaseAttack = 6,
+          BaseDefend = 6,
+          CrossbowAttack = 6,
+          CrossbowDefend = 6,
           RushProbability = 50,
           RushAttack = 6,
           DisorderProbability = 100,
@@ -552,7 +552,7 @@ namespace SangokuKmy.Models.Data.Entities
           IntellectEx = 1,
           PowerIntellect = 1,
         },
-        Money = 15,
+        Money = 18,
         Technology = 600,
       },
       new CharacterSoldierTypePart
@@ -561,16 +561,16 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "梓弓兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 2,
-          BaseDefend = 2,
-          InfantryAttack = 3,
-          InfantryDefend = 3,
+          BaseAttack = 6,
+          BaseDefend = 6,
+          InfantryAttack = 6,
+          InfantryDefend = 6,
           DisorderProbability = 100,
           TypeCrossbow = 10,
           IntellectEx = 1,
           PowerIntellect = 1,
         },
-        Money = 15,
+        Money = 18,
         Technology = 600,
       },
       new CharacterSoldierTypePart
