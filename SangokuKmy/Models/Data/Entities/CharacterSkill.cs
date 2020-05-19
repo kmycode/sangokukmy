@@ -716,7 +716,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              BaseAttack = 30,
+              TypeCavalryAttack = 30,
             },
           },
         },

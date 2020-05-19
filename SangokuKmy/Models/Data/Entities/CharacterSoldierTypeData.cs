@@ -57,6 +57,8 @@ namespace SangokuKmy.Models.Data.Entities
 
     public short TypeInfantryDefend { get; set; }
 
+    public short TypeCavalryAttack { get; set; }
+
     public short TypeGuardAttack { get; set; }
 
     public short TypeGuardDefend { get; set; }
@@ -173,6 +175,7 @@ namespace SangokuKmy.Models.Data.Entities
 
       a += this.TypeInfantryAttack * (this.TypeInfantry / 100.0f) * (1 - typeWall);
       d += this.TypeInfantryDefend * (this.TypeInfantry / 100.0f) * (1 - typeWall);
+      a += this.TypeCavalryAttack * (this.TypeCavalry / 100.0f) * (1 - typeWall);
       a += this.TypeGuardAttack * (this.TypeGuard / 100.0f) * (1 - typeWall);
       d += this.TypeGuardDefend * (this.TypeGuard / 100.0f) * (1 - typeWall);
 
@@ -367,6 +370,7 @@ namespace SangokuKmy.Models.Data.Entities
       self.TypeGuard += d.TypeGuard;
       self.TypeInfantryAttack += d.TypeInfantryAttack;
       self.TypeInfantryDefend += d.TypeInfantryDefend;
+      self.TypeCavalryAttack += d.TypeCavalryAttack;
       self.TypeGuardAttack += d.TypeGuardAttack;
       self.TypeGuardDefend += d.TypeGuardDefend;
       self.GogyoFire += d.GogyoFire;
