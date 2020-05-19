@@ -384,8 +384,8 @@ namespace SangokuKmy.Models.Data.Entities
           },
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.MoneyRegularly,
-            Value = 100,
+            Type = CharacterSkillEffectType.RiceBuyContribution,
+            Value = 15,
           },
         },
       },
@@ -399,13 +399,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.RiceBuyMax,
-            Value = 5000,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.RiceBuyContribution,
-            Value = 15,
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.TownInvest,
           },
         },
       },
@@ -419,18 +414,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.ItemDiscountPercentage,
-            Value = 20,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.ItemAppearOnDomesticAffairThousandth,
-            Value = 4,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.ItemMax,
-            Value = 2,
+            Type = CharacterSkillEffectType.RiceBuyMax,
+            Value = 10000,
           },
         },
       },
@@ -444,8 +429,13 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.TownInvest,
+            Type = CharacterSkillEffectType.ItemMax,
+            Value = 2,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.ItemAppearOnDomesticAffairThousandth,
+            Value = 80,
           },
         },
       },
@@ -459,8 +449,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.Command,
-            Value = (int)CharacterCommandType.Spy,
+            Type = CharacterSkillEffectType.RiceBuyMax,
+            Value = 10000,
           },
         },
       },
@@ -474,8 +464,13 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.RiceBuyMax,
-            Value = 15000,
+            Type = CharacterSkillEffectType.ItemMax,
+            Value = 2,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.ItemDiscountPercentage,
+            Value = 20,
           },
         },
       },
