@@ -169,8 +169,8 @@ namespace SangokuKmy.Models.Data.Entities
       a += this.WeaponAttack * enemyType.TypeWeapon / 100.0f;
       d += this.WeaponDefend * enemyType.TypeWeapon / 100.0f;
 
-      a += this.TypeInfantryAttack * (this.TypeGuard / 100.0f) * (1 - typeWall);
-      d += this.TypeInfantryDefend * (this.TypeGuard / 100.0f) * (1 - typeWall);
+      a += this.TypeInfantryAttack * (this.TypeInfantry / 100.0f) * (1 - typeWall);
+      d += this.TypeInfantryDefend * (this.TypeInfantry / 100.0f) * (1 - typeWall);
       a += this.TypeGuardAttack * (this.TypeGuard / 100.0f) * (1 - typeWall);
       d += this.TypeGuardDefend * (this.TypeGuard / 100.0f) * (1 - typeWall);
 

@@ -230,6 +230,123 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("commands/ex/{cmd}")]
+    public async Task InsertCommandAsync(
+      [FromBody] int[] months = default,
+      [FromRoute] string cmd = default)
+    {
+      if (months == null || !months.Any())
+      {
+        ErrorCode.LackOfParameterError.Throw();
+      }
+      if (string.IsNullOrEmpty(cmd))
+      {
+        cmd = "insert";
+      }
+
+      Character chara;
+      SystemData system;
+      IEnumerable<CharacterCommand> commands;
+      var insertedEmpties = new List<CharacterCommand>();
+
+      // 月を連続した数字のグループに分ける
+      var lastMonth = -1;
+      var monthGroups = new List<List<int>>
+      {
+        new List<int>
+        {
+          months[0],
+        },
+      };
+      foreach (var month in months.OrderBy(m => m))
+      {
+        if (lastMonth >= 0)
+        {
+          if (month == lastMonth + 1)
+          {
+            monthGroups.Last().Add(month);
+          }
+          else
+          {
+            monthGroups.Add(new List<int>
+            {
+              month,
+            });
+          }
+        }
+        lastMonth = month;
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        system = await repo.System.GetAsync();
+        chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var isCurrentMonthExecuted = chara.LastUpdated >= system.CurrentMonthStartDateTime;
+        var firstMonth = isCurrentMonthExecuted ? system.GameDateTime.NextMonth() : system.GameDateTime;
+
+        commands = await repo.CharacterCommand.GetAllAsync(chara.Id, firstMonth);
+        var removeCommands = new List<CharacterCommand>();
+
+        foreach (var command in commands.OrderBy(c => c.IntGameDateTime))
+        {
+          var isSelected = months.Any(m => command.IntGameDateTime == m);
+          var count = 0;
+          if (months.Contains(command.IntGameDateTime))
+          {
+            if (cmd == "insert")
+            {
+              insertedEmpties.Add(new CharacterCommand
+              {
+                IntGameDateTime = command.IntGameDateTime,
+                Type = CharacterCommandType.None,
+                CharacterId = chara.Id,
+              });
+
+              count = monthGroups.TakeWhile(g => !g.Contains(command.IntGameDateTime)).Sum(g => g.Count) +
+                  monthGroups.First(g => g.Contains(command.IntGameDateTime)).Count;
+              command.IntGameDateTime += count;
+            }
+            else
+            {
+              removeCommands.Add(command);
+            }
+          }
+          else
+          {
+            var gs = monthGroups.TakeWhile(g => g.Last() < command.IntGameDateTime);
+            if (gs.Any())
+            {
+              count = gs.Sum(g => g.Count);
+              if (cmd == "insert")
+              {
+                command.IntGameDateTime += count;
+              }
+              else
+              {
+                command.IntGameDateTime -= count;
+              }
+            }
+          }
+        }
+
+        if (removeCommands.Any())
+        {
+          repo.CharacterCommand.Remove(removeCommands);
+        }
+
+        await repo.SaveChangesAsync();
+      }
+
+      var streamingCommands = commands
+        .Concat(insertedEmpties)
+        .Where(c => c.IntGameDateTime <= (system.GameDateTime.Year >= Config.UpdateStartYear ? system.IntGameDateTime : new GameDateTime { Year = Config.UpdateStartYear, Month = 1, }.ToInt()) + 5).ToArray();
+      if (streamingCommands.Any())
+      {
+        await StatusStreaming.Default.SendCountryAsync(streamingCommands.Select(s => ApiData.From(s)), chara.CountryId);
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpPut("commands/comments")]
     public async Task SetCommandCommentsAsync(
       [FromBody] IReadOnlyList<CommandMessage> comments)
