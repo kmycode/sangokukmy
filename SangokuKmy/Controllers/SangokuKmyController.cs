@@ -539,6 +539,7 @@ namespace SangokuKmy.Controllers
       Character chara;
       CharacterItem item;
       var info = CharacterItemInfoes.Get(param.Type).GetOrError(ErrorCode.InvalidParameterError);
+      var isParamChanged = false;
 
       if (param.Status != CharacterItemStatus.CharacterHold && param.Status != CharacterItemStatus.TownOnSale)
       {
@@ -551,21 +552,36 @@ namespace SangokuKmy.Controllers
         var items = await repo.Character.GetItemsAsync(chara.Id);
         item = items
           .OrderBy(i => i.IntLastStatusChangedGameDate)
-          .FirstOrDefault(i => i.Status == CharacterItemStatus.CharacterPending && i.Type == param.Type && (param.Id == default || i.Id == param.Id));
-        if (item == null)
+          .FirstOrDefault(i => i.Type == param.Type && (param.Id == default || i.Id == param.Id));
+        if (item == null || !(item.Status == CharacterItemStatus.CharacterPending || item.Status == CharacterItemStatus.CharacterHold))
         {
           ErrorCode.MeaninglessOperationError.Throw();
         }
 
+        if (item.Status != param.Status)
+        {
+          if (!(item.Status == CharacterItemStatus.CharacterHold && param.Status == CharacterItemStatus.CharacterHold) &&
+              !(item.Status == CharacterItemStatus.CharacterPending && param.Status == CharacterItemStatus.CharacterHold) &&
+              !(item.Status == CharacterItemStatus.CharacterPending && param.Status == CharacterItemStatus.TownOnSale))
+          {
+            ErrorCode.InvalidOperationError.Throw();
+          }
+          isParamChanged = true;
+        }
+
         if (param.Status == CharacterItemStatus.CharacterHold)
         {
-          var skills = await repo.Character.GetSkillsAsync(chara.Id);
-          if ((!info.IsResource || info.IsResourceItem) && CharacterService.CountLimitedItems(items) >= CharacterService.GetItemMax(skills))
+          if (item.Status != CharacterItemStatus.CharacterHold)
           {
-            ErrorCode.NotMoreItemsError.Throw();
-          }
+            var skills = await repo.Character.GetSkillsAsync(chara.Id);
+            if ((!info.IsResource || info.IsResourceItem) && CharacterService.CountLimitedItems(items) >= CharacterService.GetItemMax(skills))
+            {
+              ErrorCode.NotMoreItemsError.Throw();
+            }
 
-          await ItemService.SetCharacterAsync(repo, item, chara);
+            await ItemService.SetCharacterAsync(repo, item, chara);
+          }
+          item.IsAvailable = param.IsAvailable;
         }
         else if (param.Status == CharacterItemStatus.TownOnSale)
         {
@@ -575,7 +591,10 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
-      // await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), chara.Id);
+      if (!isParamChanged)
+      {
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), chara.Id);
+      }
     }
 
     [HttpPost("items/all")]

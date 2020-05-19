@@ -79,6 +79,10 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("resource")]
     [JsonProperty("resource")]
     public int Resource { get; set; }
+
+    [Column("is_available")]
+    [JsonProperty("isAvailable")]
+    public bool IsAvailable { get; set; }
   }
 
   public enum CharacterItemStatus : short
@@ -1868,6 +1872,11 @@ namespace SangokuKmy.Models.Data.Entities
           break;
         }
       }
+    }
+
+    public static IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> GetResourcesAvailable(this IEnumerable<CharacterItem> item, CharacterItemEffectType type, Predicate<CharacterResourceItemEffect> subject, int size)
+    {
+      return GetResources(item, type, subject, size).Where(i => i.Item.IsAvailable);
     }
   }
 }

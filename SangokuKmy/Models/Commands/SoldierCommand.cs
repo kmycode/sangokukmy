@@ -103,7 +103,7 @@ namespace SangokuKmy.Models.Commands
         if (!type.CanConscriptWithoutResource && character.AiType == CharacterAiType.Human)
         {
           // 資源による徴兵可能判定
-          var resources = items.GetResources(CharacterItemEffectType.AddSoldierType, ef => ef.Value == (int)soldierType, (int)soldierNumber);
+          var resources = items.GetResourcesAvailable(CharacterItemEffectType.AddSoldierType, ef => ef.Value == (int)soldierType, (int)soldierNumber);
           var needResources = add;
           foreach (var resource in resources)
           {
@@ -162,19 +162,19 @@ namespace SangokuKmy.Models.Commands
           IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> resources = null;
           if (soldierTypeData.TypeInfantry > 0)
           {
-            resources = items.GetResources(CharacterItemEffectType.DiscountInfantrySoldierPercentage, ef => true, add);
+            resources = items.GetResourcesAvailable(CharacterItemEffectType.DiscountInfantrySoldierPercentage, ef => true, add);
           }
           else if (soldierTypeData.TypeCavalry > 0)
           {
-            resources = items.GetResources(CharacterItemEffectType.DiscountCavalrySoldierPercentage, ef => true, add);
+            resources = items.GetResourcesAvailable(CharacterItemEffectType.DiscountCavalrySoldierPercentage, ef => true, add);
           }
           else if (soldierTypeData.TypeCrossbow > 0)
           {
-            resources = items.GetResources(CharacterItemEffectType.DiscountCrossbowSoldierPercentage, ef => true, add);
+            resources = items.GetResourcesAvailable(CharacterItemEffectType.DiscountCrossbowSoldierPercentage, ef => true, add);
           }
           if (resources == null || !resources.Any())
           {
-            resources = items.GetResources(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), add);
+            resources = items.GetResourcesAvailable(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), add);
           }
 
           var needResources = add;
@@ -200,7 +200,7 @@ namespace SangokuKmy.Models.Commands
           {
             // 資源による訓練値下限
             var minProficiency = (short)0;
-            resources = items.GetResources(CharacterItemEffectType.ProficiencyMinimum, ef => true, add);
+            resources = items.GetResourcesAvailable(CharacterItemEffectType.ProficiencyMinimum, ef => true, add);
             needResources = add;
             foreach (var resource in resources)
             {
