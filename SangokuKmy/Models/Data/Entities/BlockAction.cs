@@ -91,5 +91,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 謹慎
     /// </summary>
     StopCommandByMonarch = 6,
+
+    /// <summary>
+    /// 謹慎・解雇の禁止
+    /// </summary>
+    StopPunishment = 7,
   }
 }

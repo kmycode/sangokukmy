@@ -1025,6 +1025,11 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
+        if (await repo.BlockAction.IsBlockedAsync(self.Id, BlockActionType.StopPunishment))
+        {
+          ErrorCode.BlockedActionError.Throw();
+        }
+
         var target = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
         if (target.CountryId != self.CountryId)
         {
@@ -1068,6 +1073,11 @@ namespace SangokuKmy.Controllers
         if (myPost == null || !myPost.Type.CanPunishment())
         {
           ErrorCode.NotPermissionError.Throw();
+        }
+
+        if (await repo.BlockAction.IsBlockedAsync(self.Id, BlockActionType.StopPunishment))
+        {
+          ErrorCode.BlockedActionError.Throw();
         }
 
         var target = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
