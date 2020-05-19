@@ -887,7 +887,7 @@ namespace SangokuKmy.Models.Updates
             }
 
             // 建築物の効果（謀略建築物含む）
-            var wars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting);
+            var wars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting);
             var availableSubBuildings = subBuildings.Where(s => s.Status == TownSubBuildingStatus.Available);
             foreach (var subBuilding in availableSubBuildings)
             {
