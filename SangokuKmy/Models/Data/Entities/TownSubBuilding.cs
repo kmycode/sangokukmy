@@ -276,7 +276,6 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "防衛拠点",
         Size = 2,
         Money = 30000,
-        CanBuildMultiple = true,
         BuildDuring = 36,
         BuildSubject = c => c.Intellect >= 100,
       },
