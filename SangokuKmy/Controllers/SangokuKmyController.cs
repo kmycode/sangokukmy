@@ -1091,7 +1091,7 @@ namespace SangokuKmy.Controllers
 
         await repo.SaveChangesAsync();
 
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(target), target.Id);
+        await CharacterService.StreamCharacterAsync(repo, target);
         await PushNotificationService.SendCharacterAsync(repo, "解雇", $"あなたは {country.Name} から解雇されました", target.Id);
       }
     }
