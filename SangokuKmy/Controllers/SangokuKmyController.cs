@@ -109,7 +109,7 @@ namespace SangokuKmy.Controllers
       {
         var myChara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var chara = await repo.Character.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        if (myChara.CountryId == chara.CountryId)
+        if (myChara.CountryId == chara.CountryId && chara.CountryId != 0)
         {
           var skills = await repo.Character.GetSkillsAsync(id);
           var formation = await repo.Character.GetFormationAsync(chara.Id, chara.FormationType);
@@ -1091,7 +1091,7 @@ namespace SangokuKmy.Controllers
 
         await repo.SaveChangesAsync();
 
-        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(target), target.Id);
+        await CharacterService.StreamCharacterAsync(repo, target);
         await PushNotificationService.SendCharacterAsync(repo, "解雇", $"あなたは {country.Name} から解雇されました", target.Id);
       }
     }
@@ -1143,7 +1143,7 @@ namespace SangokuKmy.Controllers
             ErrorCode.InvalidOperationError.Throw();
           }
           var historyData = await repo.History.GetAsync(history.Id).GetOrErrorAsync(ErrorCode.InvalidOperationError);
-          if (!historyData.Countries.Any(c => c.Id == chara.CountryId && !c.HasOverthrown))
+          if (!historyData.Countries.Any(c => c.CountryId == chara.CountryId && !c.HasOverthrown))
           {
             ErrorCode.NotPermissionError.Throw();
           }
