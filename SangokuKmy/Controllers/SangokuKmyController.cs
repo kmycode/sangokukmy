@@ -1143,7 +1143,7 @@ namespace SangokuKmy.Controllers
             ErrorCode.InvalidOperationError.Throw();
           }
           var historyData = await repo.History.GetAsync(history.Id).GetOrErrorAsync(ErrorCode.InvalidOperationError);
-          if (!historyData.Countries.Any(c => c.Id == chara.CountryId && !c.HasOverthrown))
+          if (!historyData.Countries.Any(c => c.CountryId == chara.CountryId && !c.HasOverthrown))
           {
             ErrorCode.NotPermissionError.Throw();
           }
