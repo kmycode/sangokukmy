@@ -18,6 +18,8 @@ namespace SangokuKmy.Models.Services
 {
   public static class ChatService
   {
+    private static bool isUploadingImage = false;
+
     public static async Task<ChatMessage> PostChatMessageAsync(MainRepository repo, ChatMessage param, Character chara, ChatMessageType type, uint typeData = default, uint typeData2 = default)
     {
       ChatMessage message;
@@ -95,6 +97,12 @@ namespace SangokuKmy.Models.Services
 
     private static async Task UploadImageAsync(ChatMessage message)
     {
+      if (isUploadingImage || message.ImageBase64.Length > 10_000_000)
+      {
+        throw new Exception();
+      }
+      isUploadingImage = true;
+
       byte[] binary = null;
       if (message.ImageBase64.StartsWith("http://") || message.ImageBase64.StartsWith("https://"))
       {
@@ -166,6 +174,14 @@ namespace SangokuKmy.Models.Services
       {
         message.ImageKey = 0;
         throw ex;
+      }
+      finally
+      {
+        Task.Run(() =>
+        {
+          Task.Delay(10_000).Wait();
+          isUploadingImage = false;
+        });
       }
     }
   }
