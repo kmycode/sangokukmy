@@ -1120,6 +1120,15 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierType,
             Value = (int)SoldierType.IntellectCommon,
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseDefend = 20,
+              FriendlyFireProbability = 200,
+            },
+          },
         },
       },
       new CharacterSkillInfo
