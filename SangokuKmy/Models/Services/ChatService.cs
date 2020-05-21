@@ -179,7 +179,7 @@ namespace SangokuKmy.Models.Services
       {
         Task.Run(() =>
         {
-          Task.Delay(5_000).Wait();
+          Task.Delay(10_000).Wait();
           isUploadingImage = false;
         });
       }
