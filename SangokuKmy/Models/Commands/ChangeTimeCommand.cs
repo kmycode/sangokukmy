@@ -31,7 +31,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       var system = await repo.System.GetAsync();
-      var time = RandomService.Next(0, Config.UpdateTime);
+      var time = RandomService.Next(0, Config.UpdateTime * 100_000) / 100_000.0;
       character.LastUpdated = system.CurrentMonthStartDateTime.AddSeconds(time - Config.UpdateTime);
 
       item.Resource--;
@@ -44,7 +44,7 @@ namespace SangokuKmy.Models.Commands
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(item), character.Id);
       }
 
-      await game.CharacterLogAsync($"更新時刻を月開始の <num>{time}</num> 秒後に変更しました。アイテム残り: <num>{item.Resource}</num>");
+      await game.CharacterLogAsync($"更新時刻を月開始の <num>{(int)time}</num> 秒後に変更しました。アイテム残り: <num>{item.Resource}</num>");
     }
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)

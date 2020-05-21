@@ -1014,7 +1014,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
-            Value = 30,
+            Value = 40,
           },
         },
       },
@@ -1119,6 +1119,15 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.SoldierType,
             Value = (int)SoldierType.IntellectCommon,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseDefend = 20,
+              FriendlyFireProbability = 200,
+            },
           },
         },
       },

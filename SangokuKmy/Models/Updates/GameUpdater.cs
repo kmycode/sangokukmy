@@ -62,12 +62,6 @@ namespace SangokuKmy.Models.Updates
     private static async Task UpdateLoop()
     {
       DateTime last = DateTime.Now;
-      DateTime currentMonthStart;
-      using (var repo = MainRepository.WithRead())
-      {
-        var system = await repo.System.GetAsync();
-        currentMonthStart = system.CurrentMonthStartDateTime;
-      }
 
       while (true)
       {
@@ -75,12 +69,15 @@ namespace SangokuKmy.Models.Updates
         {
           // 9分59秒更新の武将が月更新より後に処理されないようにする
           var current = DateTime.Now;
-          var nextMonthStart = currentMonthStart.AddSeconds(Config.UpdateTime);
-          if (last < nextMonthStart && current > nextMonthStart)
+          if (last < nextMonthStartDateTime && current > nextMonthStartDateTime)
           {
-            current = nextMonthStart.AddMilliseconds(-1);
+            last = current;
+            current = nextMonthStartDateTime.AddMilliseconds(-1);
           }
-          last = current;
+          else
+          {
+            last = current;
+          }
 
           // 月を更新
           if (current >= nextMonthStartDateTime)
