@@ -1014,7 +1014,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
-            Value = 30,
+            Value = 40,
           },
         },
       },
