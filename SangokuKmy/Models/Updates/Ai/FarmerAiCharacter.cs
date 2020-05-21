@@ -54,7 +54,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected virtual SoldierType FindSoldierType()
     {
-      return this.Character.StrongEx >= 920 ? SoldierType.Chariot : SoldierType.Common;
+      return SoldierType.Common;
     }
 
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
@@ -299,7 +299,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
           else
           {
-            if ((isDefending && this.Character.SoldierNumber < 30) || (!isDefending && this.Character.SoldierNumber <= 0))
+            if (this.Character.Money > 30000 &&
+              ((isDefending && this.Character.SoldierNumber < 30) || (!isDefending && this.Character.SoldierNumber <= 0)))
             {
               // 兵を補充
               if (this.CanSoldierForce)
@@ -326,7 +327,7 @@ namespace SangokuKmy.Models.Updates.Ai
               command.Type = CharacterCommandType.Soldier;
               return command;
             }
-            else if (!isDefending)
+            else if (!isDefending && this.Character.Money >= 30000)
             {
               // 守備してなければ守備
               command.Type = CharacterCommandType.Defend;
