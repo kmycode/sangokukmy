@@ -920,7 +920,7 @@ namespace SangokuKmy.Models.Updates
                   {
                     var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
                     var value = 7 / (isDefense ? 3 : 1);
-                    atown.Wall -= value;
+                    atown.Wall = Math.Max(0, atown.Wall - value);
                   }
                 }
               }
@@ -933,8 +933,8 @@ namespace SangokuKmy.Models.Updates
                     var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
                     var value = Math.Max(2 / (isDefense ? 3 : 1), 1);
                     var value2 = 100 / (isDefense ? 3 : 1);
-                    atown.Security -= (short)value;
-                    atown.People -= value2;
+                    atown.Security = (short)Math.Max(0, atown.Security - value);
+                    atown.People = Math.Max(0, atown.People - value2);
                   }
                 }
               }
