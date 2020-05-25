@@ -40,7 +40,7 @@ namespace SangokuKmy.Models.Services
             winnerCountry.IntGyokujiGameDate = system.IntGameDateTime;
             if (!system.IsBattleRoyaleMode)
             {
-              await LogService.AddMapLogAsync(repo, true, EventType.Gyokuji, $"<country>{winnerCountry.Name} は玉璽を手に入れました");
+              await LogService.AddMapLogAsync(repo, true, EventType.Gyokuji, $"<country>{winnerCountry.Name}</country> は玉璽を手に入れました");
             }
           }
 
