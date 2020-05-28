@@ -172,9 +172,11 @@ namespace SangokuKmy.Models.Commands
           {
             resources = items.GetResourcesAvailable(CharacterItemEffectType.DiscountCrossbowSoldierPercentage, ef => true, add);
           }
-          if (resources == null || !resources.Any())
+
+          // 特定兵種の割引
           {
-            resources = items.GetResourcesAvailable(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), add);
+            var discountResources = items.GetResourcesAvailable(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), add);
+            resources = resources?.Concat(discountResources) ?? discountResources;
           }
 
           var needResources = add;
