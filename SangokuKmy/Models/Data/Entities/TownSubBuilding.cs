@@ -248,7 +248,7 @@ namespace SangokuKmy.Models.Data.Entities
         CanBuildMultiple = true,
         BuildDuring = 48,
         BuildSubject = c => c.From == CharacterFrom.Merchant,
-        BuildSubjectSkills = ss => ss.AnySkillEffects(CharacterSkillEffectType.Command, (int)TownSubBuildingType.CommercialUnion),
+        BuildSubjectSkills = ss => ss.AnySkillEffects(CharacterSkillEffectType.TownSubBuilding, (int)TownSubBuildingType.CommercialUnion),
       },
       new TownSubBuildingTypeInfo
       {
