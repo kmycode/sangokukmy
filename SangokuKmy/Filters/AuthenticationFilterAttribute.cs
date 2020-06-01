@@ -49,7 +49,7 @@ namespace SangokuKmy.Filters
       }
 
       // アクセストークンを保存済のデータと照合する
-      using (var repo = MainRepository.WithRead())
+      using (var repo = MainRepository.WithReadAndWrite())
       {
         AuthenticationData authData = null;
         var ip = context.HttpContext.Connection.RemoteIpAddress?.ToString();
@@ -62,6 +62,8 @@ namespace SangokuKmy.Filters
           {
             ErrorCode.LoginTokenIncorrectError.Throw();
           }
+
+          await repo.SaveChangesAsync();
         }).Wait();
 
         // 認証データをコントローラに設定
