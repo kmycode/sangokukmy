@@ -48,6 +48,10 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("name")]
     public string Name { get; set; }
 
+    [Column("login_count")]
+    [JsonProperty("loginCount")]
+    public int LoginCount { get; set; }
+
     /// <summary>
     /// パスワードを設定する。平文のパラメータを指定し、実際はハッシュに変換されたパスワードが保存される
     /// </summary>
