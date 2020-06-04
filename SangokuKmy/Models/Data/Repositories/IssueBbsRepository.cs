@@ -66,11 +66,12 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
-    public async Task<IReadOnlyList<IssueBbsItem>> GetPageThreadsAsync(int page, int count, short period = -1, short betaVersion = 0, IssueStatus status = IssueStatus.Undefined)
+    public async Task<IReadOnlyList<IssueBbsItem>> GetPageThreadsAsync(int page, int count, short period = -1, short betaVersion = 0, IssueStatus status = IssueStatus.Undefined, string keyword = default)
     {
       try
       {
         Expression<Func<IssueBbsItem, bool>> predicate;
+        Expression<Func<IssueBbsItem, bool>> predicate2;
         if (period >= 0 && status == IssueStatus.Undefined)
         {
           predicate = item => item.Period == period && item.BetaVersion == betaVersion;
@@ -87,10 +88,19 @@ namespace SangokuKmy.Models.Data.Repositories
         {
           predicate = item => true;
         }
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+          predicate2 = item => item.Title.Contains(keyword);
+        }
+        else
+        {
+          predicate2 = item => true;
+        }
 
         return (await this.container.Context.IssueBbsItems
           .Where(i => i.ParentId == 0)
           .Where(predicate)
+          .Where(predicate2)
           .Join(this.container.Context.Accounts, i => i.AccountId, a => a.Id, (i, a) => new { Issue = i, Account = a, })
           .Join(this.container.Context.Accounts, i => i.Issue.LastWriterAccountId, a => a.Id, (i, a) => new { i.Issue, i.Account, LastWriterAccount = a, })
           .OrderByDescending(i => i.Issue.LastModified)
