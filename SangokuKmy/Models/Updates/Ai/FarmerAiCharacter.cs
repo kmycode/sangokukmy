@@ -6,6 +6,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Common;
+using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Updates.Ai
 {
@@ -144,9 +145,7 @@ namespace SangokuKmy.Models.Updates.Ai
             targetTownsData.Add(((Town)town, defenders.Select(td => td.Character)));
           }
 
-          var targetTown = this.CanWall ?
-            targetTownsData.OrderBy(td => td.Defenders.Count()).First() :
-            targetTownsData.OrderByDescending(td => td.Defenders.Count()).First();
+          var targetTown = targetTownsData.OrderBy(td => td.Defenders.Count()).First();
 
           // 侵攻
           command.Parameters.Add(new CharacterCommandParameter
@@ -205,6 +204,8 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Name = "農民_武将";
       this.Character.Strong = (short)Math.Max(current.ToInt() * 0.9f / 12 + 100, 100);
       this.Character.Leadership = 100;
+      this.Character.SoldierNumber = this.Character.Leadership;
+      this.Character.SoldierType = SoldierType.Guard;
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;
     }
@@ -225,6 +226,8 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Name = "農民_文官";
       this.Character.Intellect = (short)Math.Max(current.ToInt() * 0.9f / 12 + 100, 100);
       this.Character.Leadership = 100;
+      this.Character.SoldierNumber = this.Character.Leadership;
+      this.Character.SoldierType = this.SoldierType;
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;
     }
@@ -270,7 +273,7 @@ namespace SangokuKmy.Models.Updates.Ai
               targetTownsData.Add(((Town)town, defenders.Select(td => td.Character)));
             }
 
-            var targetTown = targetTownsData.OrderByDescending(td => td.Defenders.Count()).First();
+            var targetTown = targetTownsData.OrderBy(td => td.Defenders.Count()).First();
 
             command.Parameters.Add(new CharacterCommandParameter
             {
