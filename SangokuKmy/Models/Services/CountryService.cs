@@ -33,9 +33,9 @@ namespace SangokuKmy.Models.Services
       // 玉璽
       if (winnerCountry != null)
       {
-        if (country.GyokujiStatus != CountryGyokujiStatus.NotHave)
+        if (country.GyokujiStatus != CountryGyokujiStatus.NotHave && country.GyokujiStatus != CountryGyokujiStatus.Refused)
         {
-          if (winnerCountry.GyokujiStatus == CountryGyokujiStatus.NotHave)
+          if (winnerCountry.GyokujiStatus == CountryGyokujiStatus.NotHave && winnerCountry.GyokujiStatus == CountryGyokujiStatus.Refused)
           {
             winnerCountry.IntGyokujiGameDate = system.IntGameDateTime;
             if (!system.IsBattleRoyaleMode)

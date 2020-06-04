@@ -1010,6 +1010,41 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("country/gyokuji/{value}")]
+    public async Task SetCountryGyokujiAsync(
+      [FromRoute] string value)
+    {
+      if (string.IsNullOrEmpty(value))
+      {
+        ErrorCode.LackOfParameterError.Throw();
+      }
+
+      Country country;
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var system = await repo.System.GetAsync();
+        if (system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(self.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
+        if (myPost == null || !myPost.Type.CanAppoint())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        country = await repo.Country.GetAliveByIdAsync(self.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        country.GyokujiStatus = value == "true" ? CountryGyokujiStatus.NotHave : CountryGyokujiStatus.Refused;
+
+        await repo.SaveChangesAsync();
+      }
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
+    }
+
+    [AuthenticationFilter]
     [HttpPut("country/stopcommand/{id}")]
     public async Task StopCharacterCommandAsync(
       [FromRoute] uint id)
