@@ -1675,8 +1675,12 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterResourceItemEffect
           {
-            Type = CharacterItemEffectType.AddSoldierType,
-            Value = (int)SoldierType.HeavyInfantry,
+            Type = CharacterItemEffectType.DiscountSoldierPercentageWithResource,
+            Value = 50,
+            DiscountSoldierTypes = new List<SoldierType>
+            {
+              SoldierType.HeavyInfantry,
+            },
           },
         },
       },
@@ -1694,8 +1698,12 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterResourceItemEffect
           {
-            Type = CharacterItemEffectType.AddSoldierType,
-            Value = (int)SoldierType.HeavyCavalry,
+            Type = CharacterItemEffectType.DiscountSoldierPercentageWithResource,
+            Value = 50,
+            DiscountSoldierTypes = new List<SoldierType>
+            {
+              SoldierType.HeavyCavalry,
+            },
           },
         },
       },
@@ -1713,8 +1721,12 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterResourceItemEffect
           {
-            Type = CharacterItemEffectType.AddSoldierType,
-            Value = (int)SoldierType.StrongCrossbow,
+            Type = CharacterItemEffectType.DiscountSoldierPercentageWithResource,
+            Value = 50,
+            DiscountSoldierTypes = new List<SoldierType>
+            {
+              SoldierType.StrongCrossbow,
+            },
           },
         },
       },
