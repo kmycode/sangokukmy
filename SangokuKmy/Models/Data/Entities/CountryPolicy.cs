@@ -282,6 +282,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     Austerity = 45,
     Austerity2 = 46,
+
+    /// <summary>
+    /// 城内拡張
+    /// </summary>
+    ExpandCastle = 47,
   }
 
   public enum CountryPolicyEffectType
@@ -290,6 +295,7 @@ namespace SangokuKmy.Models.Data.Entities
     CountrySafeMax,
     CountrySafeCollectionMax,
     BoostWith,
+    SubBuildingSizeMax,
   }
 
   public enum CountryPolicyEffectCalcType
@@ -713,10 +719,25 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CountryPolicyTypeInfo
       {
+        Type = CountryPolicyType.ExpandCastle,
+        Name = "城内拡張",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.JusticeMessage),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.SubBuildingSizeMax,
+            Value = 1,
+          },
+        },
+      },
+      new CountryPolicyTypeInfo
+      {
         Type = CountryPolicyType.Shosha,
         Name = "衝車常備",
         BasePoint = 4000,
-        SubjectAppear = list => list.Contains(CountryPolicyType.JusticeMessage),
+        SubjectAppear = list => list.Contains(CountryPolicyType.ExpandCastle),
       },
 
       new CountryPolicyTypeInfo

@@ -73,12 +73,14 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      var policies = await repo.Country.GetPoliciesAsync(country.Id);
       var subBuildings = await repo.Town.GetSubBuildingsAsync();
       var townSubBuildings = subBuildings.Where(s => s.TownId == town.Id);
       var sizeMax = town.Type == TownType.Agriculture ? 2 :
         town.Type == TownType.Commercial ? 2 :
         town.Type == TownType.Fortress ? 3 :
         town.Type == TownType.Large ? 4 : 0;
+      sizeMax += policies.GetSumOfValues(CountryPolicyEffectType.SubBuildingSizeMax);
       var currentSize = townSubBuildings.GetInfoes().Sum(i => i.Size);
       if (currentSize + info.Size > sizeMax)
       {
