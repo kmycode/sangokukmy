@@ -204,6 +204,9 @@ namespace SangokuKmy.Models.Updates
 
         if (system.GameDateTime.Year >= Config.UpdateStartYear)
         {
+          // アイテムの再生成
+          await ItemService.RegenerateItemOnTownsAsync(repo, allTowns);
+
           // 収入
           if (system.GameDateTime.Month == 1 || system.GameDateTime.Month == 7)
           {

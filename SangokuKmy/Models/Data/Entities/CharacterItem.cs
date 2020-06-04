@@ -250,6 +250,7 @@ namespace SangokuKmy.Models.Data.Entities
     public IList<CharacterItemEffect> Effects { get; set; }
     public IList<CharacterItemEffect> UsingEffects { get; set; }
     public IList<CharacterFrom> DiscoverFroms { get; set; }
+    public IList<int> RegenerateYears { get; set; }
 
     public int GetMoney(CharacterItem item)
     {
@@ -1437,6 +1438,10 @@ namespace SangokuKmy.Models.Data.Entities
             },
           },
         },
+        RegenerateYears = new List<int>
+        {
+          100, 200, 300, 400, 500,
+        }
       },
 
       new CharacterItemInfo
