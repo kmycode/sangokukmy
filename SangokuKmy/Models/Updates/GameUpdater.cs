@@ -1256,10 +1256,14 @@ namespace SangokuKmy.Models.Updates
             var isSave = false;
             foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 12 <= system.IntGameDateTime))
             {
-              country.GyokujiStatus = CountryGyokujiStatus.NotHave;
-              await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> の持っている玉璽はまがい物でした");
-              await StatusStreaming.Default.SendAllExceptForCountryAsync(ApiData.From(new CountryForAnonymous(country)), country.Id);
-              isSave = true;
+              var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+              if (!wars.Any(w => w.IsJoinAvailable(country.Id)))
+              {
+                country.GyokujiStatus = CountryGyokujiStatus.NotHave;
+                await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> の持っている玉璽はまがい物でした");
+                await StatusStreaming.Default.SendAllExceptForCountryAsync(ApiData.From(new CountryForAnonymous(country)), country.Id);
+                isSave = true;
+              }
             }
 
             var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 12 * 12 * 12 <= system.IntGameDateTime);
