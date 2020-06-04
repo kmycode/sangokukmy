@@ -468,6 +468,11 @@ namespace SangokuKmy.Models.Commands
             {
               targetExperience += 10_000;
             }
+            if (character.AiType == CharacterAiType.FarmerBattler ||
+              character.AiType == CharacterAiType.FarmerCivilOfficial)
+            {
+              myExperience += (int)((character.Strong * 1000 + character.StrongEx) * 1.02f) / 1000;
+            }
             await game.CharacterLogByIdAsync(targetCharacter.Id, "<character>" + character.Name + "</character> を撃退しました");
           }
         }
@@ -493,6 +498,11 @@ namespace SangokuKmy.Models.Commands
           if (character.AiType == CharacterAiType.TerroristRyofu)
           {
             myExperience += 10_000;
+          }
+          if (targetCharacter.AiType == CharacterAiType.FarmerBattler ||
+            targetCharacter.AiType == CharacterAiType.FarmerCivilOfficial)
+          {
+            targetExperience += (int)((targetCharacter.Strong * 1000 + targetCharacter.StrongEx) * 1.02f) / 1000;
           }
 
           if (!isWall)
