@@ -294,6 +294,8 @@ namespace SangokuKmy.Models.Services
       if (items.Any())
       {
         await repo.CharacterItem.AddAsync(items);
+        await repo.SaveChangesAsync();
+        await StatusStreaming.Default.SendAllAsync(items.Select(i => ApiData.From(i)));
       }
     }
 
