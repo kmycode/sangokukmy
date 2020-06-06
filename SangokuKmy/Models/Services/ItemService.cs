@@ -158,6 +158,19 @@ namespace SangokuKmy.Models.Services
             chara.AddIntellectEx((short)effect.Value);
             logs.Add($"知力経験値 <num>{effect.Value}</num>");
           }
+          if (effect.Type == CharacterItemEffectType.CheckGyokuji)
+          {
+            var countries = await repo.Country.GetAllAsync();
+            var country = countries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine);
+            if (country != null)
+            {
+              logs.Add($"本物の玉璽を所持する国: <country>{country.Name}</country>");
+            }
+            else
+            {
+              logs.Add("本物の玉璽を所持する国: なし");
+            }
+          }
         }
 
         return logs.Count > 0 ? string.Join("と", logs) : string.Empty;

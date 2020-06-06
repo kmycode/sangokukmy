@@ -184,6 +184,7 @@ namespace SangokuKmy.Models.Data.Entities
     EquippedStrongCrossbow = 83,
     TimeChanger = 84,
     GodOfMilitaryArts = 85,
+    MirrorOfTruth = 86,
   }
 
   public enum CharacterItemEffectType
@@ -207,6 +208,7 @@ namespace SangokuKmy.Models.Data.Entities
     JoinableAiCountry,
     SoldierCorrection,
     SoldierCorrectionResource,
+    CheckGyokuji,
   }
 
   public enum CharacterItemRareType
@@ -1401,6 +1403,29 @@ namespace SangokuKmy.Models.Data.Entities
         DiscoverFroms = new List<CharacterFrom>
         {
           CharacterFrom.People,
+          CharacterFrom.Merchant,
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.MirrorOfTruth,
+        Name = "真実の鏡",
+        Money = 500_000,
+        InitializeNumber = 1,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
+        CanHandOver = false,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.CheckGyokuji,
+          },
+        },
+        DiscoverFroms = new List<CharacterFrom>
+        {
+          CharacterFrom.Scholar,
           CharacterFrom.Merchant,
         },
       },
