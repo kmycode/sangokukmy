@@ -158,6 +158,19 @@ namespace SangokuKmy.Models.Services
             chara.AddIntellectEx((short)effect.Value);
             logs.Add($"知力経験値 <num>{effect.Value}</num>");
           }
+          if (effect.Type == CharacterItemEffectType.CheckGyokuji)
+          {
+            var countries = await repo.Country.GetAllAsync();
+            var country = countries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine);
+            if (country != null)
+            {
+              logs.Add($"本物の玉璽を所持する国: <country>{country.Name}</country>");
+            }
+            else
+            {
+              logs.Add("本物の玉璽を所持する国: なし");
+            }
+          }
         }
 
         return logs.Count > 0 ? string.Join("と", logs) : string.Empty;
@@ -267,70 +280,103 @@ namespace SangokuKmy.Models.Services
       var infos = CharacterItemInfoes.GetAll();
 
       var items = new List<CharacterItem>();
-      foreach (var info in infos)
+      foreach (var item in infos.SelectMany(i => GenerateItems(i, towns)))
       {
-        var num = info.InitializeNumber;
-        if (info.RarePerPeriod > 1 && RandomService.Next(0, info.RarePerPeriod) > 0)
-        {
-          num = 0;
-        }
+        items.Add(item);
+      }
 
-        if (num > 0)
+      await repo.CharacterItem.AddAsync(items);
+    }
+
+    public static async Task RegenerateItemOnTownsAsync(MainRepository repo, IReadOnlyList<Town> towns)
+    {
+      var system = await repo.System.GetAsync();
+      if (system.GameDateTime.Month != 1)
+      {
+        return;
+      }
+
+      var infos = CharacterItemInfoes.GetAll();
+
+      var items = new List<CharacterItem>();
+      foreach (var item in infos.Where(i => i.RegenerateYears != null && i.RegenerateYears.Contains(system.GameDateTime.Year)).SelectMany(i => GenerateItems(i, towns)))
+      {
+        items.Add(item);
+      }
+
+      if (items.Any())
+      {
+        await repo.CharacterItem.AddAsync(items);
+        await repo.SaveChangesAsync();
+        await StatusStreaming.Default.SendAllAsync(items.Select(i => ApiData.From(i)));
+      }
+    }
+
+    private static IReadOnlyList<CharacterItem> GenerateItems(CharacterItemInfo info, IReadOnlyList<Town> towns)
+    {
+      var items = new List<CharacterItem>();
+
+      var num = info.InitializeNumber;
+      if (info.RarePerPeriod > 1 && RandomService.Next(0, info.RarePerPeriod) > 0)
+      {
+        num = 0;
+      }
+
+      if (num > 0)
+      {
+        if (info.RareType == CharacterItemRareType.EventOnly)
         {
-          if (info.RareType == CharacterItemRareType.EventOnly)
+          for (var i = 0; i < num; i++)
           {
-            for (var i = 0; i < num; i++)
+            items.Add(new CharacterItem
             {
-              items.Add(new CharacterItem
-              {
-                Type = info.Type,
-                Status = CharacterItemStatus.Hidden,
-              });
-            }
+              Type = info.Type,
+              Status = CharacterItemStatus.Hidden,
+            });
           }
-          else
+        }
+        else
+        {
+          var hiddenCount = 0;
+          var saleCount = 0;
+          if (info.RareType == CharacterItemRareType.TownHiddenOnly)
           {
-            var hiddenCount = 0;
-            var saleCount = 0;
-            if (info.RareType == CharacterItemRareType.TownHiddenOnly)
-            {
-              hiddenCount = num;
-            }
-            else if (info.RareType == CharacterItemRareType.TownOnSaleOnly)
-            {
-              saleCount = num;
-            }
-            else if (info.RareType == CharacterItemRareType.TownOnSaleOrHidden)
-            {
-              hiddenCount = RandomService.Next(0, num + 1);
-              saleCount = num - hiddenCount;
-            }
+            hiddenCount = num;
+          }
+          else if (info.RareType == CharacterItemRareType.TownOnSaleOnly)
+          {
+            saleCount = num;
+          }
+          else if (info.RareType == CharacterItemRareType.TownOnSaleOrHidden)
+          {
+            hiddenCount = RandomService.Next(0, num + 1);
+            saleCount = num - hiddenCount;
+          }
 
-            for (var i = 0; i < hiddenCount; i++)
+          for (var i = 0; i < hiddenCount; i++)
+          {
+            items.Add(new CharacterItem
             {
-              items.Add(new CharacterItem
-              {
-                Type = info.Type,
-                Status = CharacterItemStatus.TownHidden,
-                TownId = RandomService.Next(towns).Id,
-                Resource = (ushort)info.DefaultResource,
-              });
-            }
-            for (var i = 0; i < saleCount; i++)
+              Type = info.Type,
+              Status = CharacterItemStatus.TownHidden,
+              TownId = RandomService.Next(towns).Id,
+              Resource = (ushort)info.DefaultResource,
+            });
+          }
+          for (var i = 0; i < saleCount; i++)
+          {
+            items.Add(new CharacterItem
             {
-              items.Add(new CharacterItem
-              {
-                Type = info.Type,
-                Status = CharacterItemStatus.TownOnSale,
-                TownId = RandomService.Next(towns).Id,
-                Resource = (ushort)info.DefaultResource,
-              });
-            }
+              Type = info.Type,
+              Status = CharacterItemStatus.TownOnSale,
+              TownId = RandomService.Next(towns).Id,
+              Resource = (ushort)info.DefaultResource,
+            });
           }
         }
       }
 
-      await repo.CharacterItem.AddAsync(items);
+      return items;
     }
 
     public static async Task GenerateItemAndSaveAsync(MainRepository repo, CharacterItem item)

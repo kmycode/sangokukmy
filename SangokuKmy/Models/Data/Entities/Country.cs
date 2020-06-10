@@ -146,7 +146,15 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("isHaveGyokuji")]
     public bool IsHaveGyokuji
     {
-      get => this.GyokujiStatus != CountryGyokujiStatus.NotHave;
+      get => this.GyokujiStatus != CountryGyokujiStatus.NotHave && this.GyokujiStatus != CountryGyokujiStatus.Refused;
+      set { }
+    }
+
+    [NotMapped]
+    [JsonProperty("isGyokujiRefused")]
+    public bool IsGyokujiRefused
+    {
+      get => this.GyokujiStatus == CountryGyokujiStatus.Refused;
       set { }
     }
 
@@ -196,5 +204,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// まがい物を持っている
     /// </summary>
     HasFake = 2,
+
+    /// <summary>
+    /// 配布時に拒否する
+    /// </summary>
+    Refused = 3,
   }
 }

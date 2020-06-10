@@ -204,6 +204,9 @@ namespace SangokuKmy.Models.Updates
 
         if (system.GameDateTime.Year >= Config.UpdateStartYear)
         {
+          // アイテムの再生成
+          await ItemService.RegenerateItemOnTownsAsync(repo, allTowns);
+
           // 収入
           if (system.GameDateTime.Month == 1 || system.GameDateTime.Month == 7)
           {
@@ -1256,10 +1259,14 @@ namespace SangokuKmy.Models.Updates
             var isSave = false;
             foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 12 <= system.IntGameDateTime))
             {
-              country.GyokujiStatus = CountryGyokujiStatus.NotHave;
-              await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> の持っている玉璽はまがい物でした");
-              await StatusStreaming.Default.SendAllExceptForCountryAsync(ApiData.From(new CountryForAnonymous(country)), country.Id);
-              isSave = true;
+              var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+              if (!wars.Any(w => w.IsJoinAvailable(country.Id)))
+              {
+                country.GyokujiStatus = CountryGyokujiStatus.NotHave;
+                await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> の持っている玉璽はまがい物でした");
+                await StatusStreaming.Default.SendAllExceptForCountryAsync(ApiData.From(new CountryForAnonymous(country)), country.Id);
+                isSave = true;
+              }
             }
 
             var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 12 * 12 * 12 <= system.IntGameDateTime);
@@ -1284,22 +1291,34 @@ namespace SangokuKmy.Models.Updates
           if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave) && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
           {
             // 異民族や経営国家を含めるため、改めて取得して確認し直す
-            var countries = (await repo.Country.GetAllAsync()).Where(c => c.AiType != CountryAiType.Terrorists);
-            if (countries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave))
+            var countries2 = await repo.Country.GetAllAsync();
+            var countries = countries2.Where(c => c.AiType != CountryAiType.Terrorists);
+            if (countries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave || c.GyokujiStatus == CountryGyokujiStatus.Refused))
             {
+              var targetCountries = countries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave);
               var gets = new List<Country>();
-              var num = Math.Min(countries.Count(), RandomService.Next(2, 4));
+              var num = Math.Min(targetCountries.Count(), RandomService.Next(2, 4));
               for (var i = 0; i < num; i++)
               {
                 var isHit = false;
                 while (!isHit)
                 {
-                  var tmp = RandomService.Next(countries);
+                  var tmp = RandomService.Next(targetCountries);
                   if (!gets.Any(c => c.Id == tmp.Id))
                   {
                     gets.Add(tmp);
                     isHit = true;
                   }
+                }
+              }
+
+              // 人間の国がなければ異民族にも玉璽をもたせる
+              if (!targetCountries.Any(c => c.AiType == CountryAiType.Human))
+              {
+                var terrorist = countries2.FirstOrDefault(c => c.AiType == CountryAiType.Terrorists);
+                if (terrorist != null)
+                {
+                  gets.Add(terrorist);
                 }
               }
 
@@ -1311,6 +1330,11 @@ namespace SangokuKmy.Models.Updates
                 await StatusStreaming.Default.SendAllExceptForCountryAsync(ApiData.From(new CountryForAnonymous(country)), country.Id);
               }
               RandomService.Next(gets).GyokujiStatus = CountryGyokujiStatus.HasGenuine;
+
+              foreach (var country in countries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.Refused))
+              {
+                country.GyokujiStatus = CountryGyokujiStatus.NotHave;
+              }
 
               await repo.SaveChangesAsync();
             }

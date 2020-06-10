@@ -116,6 +116,7 @@ namespace SangokuKmy.Controllers
         }
 
         account.CharacterId = chara.Id;
+        account.LoginCount++;
         await repo.SaveChangesAsync();
 
         return account;
@@ -170,6 +171,7 @@ namespace SangokuKmy.Controllers
           AliasId = data.AliasId,
           Name = data.Name,
           CharacterId = chara.Id,
+          LoginCount = 1,
         };
         account.SetPassword(data.Password);
         await repo.Account.AddAsync(account);

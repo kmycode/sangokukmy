@@ -184,6 +184,7 @@ namespace SangokuKmy.Models.Data.Entities
     EquippedStrongCrossbow = 83,
     TimeChanger = 84,
     GodOfMilitaryArts = 85,
+    MirrorOfTruth = 86,
   }
 
   public enum CharacterItemEffectType
@@ -207,6 +208,7 @@ namespace SangokuKmy.Models.Data.Entities
     JoinableAiCountry,
     SoldierCorrection,
     SoldierCorrectionResource,
+    CheckGyokuji,
   }
 
   public enum CharacterItemRareType
@@ -250,6 +252,7 @@ namespace SangokuKmy.Models.Data.Entities
     public IList<CharacterItemEffect> Effects { get; set; }
     public IList<CharacterItemEffect> UsingEffects { get; set; }
     public IList<CharacterFrom> DiscoverFroms { get; set; }
+    public IList<int> RegenerateYears { get; set; }
 
     public int GetMoney(CharacterItem item)
     {
@@ -1405,6 +1408,29 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterItemInfo
       {
+        Type = CharacterItemType.MirrorOfTruth,
+        Name = "真実の鏡",
+        Money = 500_000,
+        InitializeNumber = 1,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        CanSell = false,
+        CanHandOver = false,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.CheckGyokuji,
+          },
+        },
+        DiscoverFroms = new List<CharacterFrom>
+        {
+          CharacterFrom.Scholar,
+          CharacterFrom.Merchant,
+        },
+      },
+      new CharacterItemInfo
+      {
         Type = CharacterItemType.TimeChanger,
         Name = "時の番人",
         IsResource = true,
@@ -1437,6 +1463,10 @@ namespace SangokuKmy.Models.Data.Entities
             },
           },
         },
+        RegenerateYears = new List<int>
+        {
+          100, 200, 300, 400, 500,
+        }
       },
 
       new CharacterItemInfo
@@ -1670,8 +1700,12 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterResourceItemEffect
           {
-            Type = CharacterItemEffectType.AddSoldierType,
-            Value = (int)SoldierType.HeavyInfantry,
+            Type = CharacterItemEffectType.DiscountSoldierPercentageWithResource,
+            Value = 50,
+            DiscountSoldierTypes = new List<SoldierType>
+            {
+              SoldierType.HeavyInfantry,
+            },
           },
         },
       },
@@ -1689,8 +1723,12 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterResourceItemEffect
           {
-            Type = CharacterItemEffectType.AddSoldierType,
-            Value = (int)SoldierType.HeavyCavalry,
+            Type = CharacterItemEffectType.DiscountSoldierPercentageWithResource,
+            Value = 50,
+            DiscountSoldierTypes = new List<SoldierType>
+            {
+              SoldierType.HeavyCavalry,
+            },
           },
         },
       },
@@ -1708,8 +1746,12 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterResourceItemEffect
           {
-            Type = CharacterItemEffectType.AddSoldierType,
-            Value = (int)SoldierType.StrongCrossbow,
+            Type = CharacterItemEffectType.DiscountSoldierPercentageWithResource,
+            Value = 50,
+            DiscountSoldierTypes = new List<SoldierType>
+            {
+              SoldierType.StrongCrossbow,
+            },
           },
         },
       },

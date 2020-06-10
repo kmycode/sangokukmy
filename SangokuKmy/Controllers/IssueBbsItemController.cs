@@ -101,7 +101,8 @@ namespace SangokuKmy.Controllers
     public async Task<IReadOnlyList<IssueBbsItem>> GetPageAsync(
       [FromRoute] int page = default,
       [FromQuery] IssueMilestone milestone = default,
-      [FromQuery] IssueStatus status = default)
+      [FromQuery] IssueStatus status = default,
+      [FromQuery] string keyword = default)
     {
       using (var repo = MainRepository.WithRead())
       {
@@ -129,7 +130,7 @@ namespace SangokuKmy.Controllers
           }
         }
 
-        return await repo.IssueBbs.GetPageThreadsAsync(page, 20, period, betaVersion, status);
+        return await repo.IssueBbs.GetPageThreadsAsync(page, 20, period, betaVersion, status, keyword);
       }
     }
 
