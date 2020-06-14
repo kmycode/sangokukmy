@@ -1288,7 +1288,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽の配布
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave) && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave || c.GyokujiStatus == CountryGyokujiStatus.Refused) && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
           {
             // 異民族や経営国家を含めるため、改めて取得して確認し直す
             var countries2 = await repo.Country.GetAllAsync();
