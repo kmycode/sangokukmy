@@ -178,8 +178,10 @@ namespace SangokuKmy.Models.Commands
             var discountResources = items.GetResourcesAvailable(CharacterItemEffectType.DiscountSoldierPercentageWithResource, ef => ef.DiscountSoldierTypes.Contains(soldierType), add);
             resources = resources?.Concat(discountResources) ?? discountResources;
           }
+          resources = resources.OrderByDescending(r => r.Info.ResourceLevel);
 
           var needResources = add;
+          var lastResourceLevel = resources.FirstOrDefault().Info?.ResourceLevel ?? 0;
           foreach (var resource in resources)
           {
             discountMoney += (int)(Math.Min(resource.Item.Resource, needResources) * moneyPerSoldier * (resource.Effect.Value / 100.0f));
@@ -187,7 +189,11 @@ namespace SangokuKmy.Models.Commands
             var newResource = Math.Max(0, resource.Item.Resource - needResources);
             onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
 
-            needResources -= resource.Item.Resource;
+            if (lastResourceLevel != resource.Info.ResourceLevel)
+            {
+              needResources -= resource.Item.Resource;
+              lastResourceLevel = resource.Info.ResourceLevel;
+            }
           }
 
           var needMoney = add * moneyPerSoldier - discountMoney;
@@ -204,12 +210,17 @@ namespace SangokuKmy.Models.Commands
             var minProficiency = (short)0;
             resources = items.GetResourcesAvailable(CharacterItemEffectType.ProficiencyMinimum, ef => true, add);
             needResources = add;
+            lastResourceLevel = resources.FirstOrDefault().Info?.ResourceLevel ?? 0;
             foreach (var resource in resources)
             {
               var newResource = Math.Max(0, resource.Item.Resource - needResources);
               onSucceeds.Add(async () => await SpendResourceAsync(resource.Item, resource.Info, newResource));
 
-              needResources -= resource.Item.Resource;
+              if (lastResourceLevel != resource.Info.ResourceLevel)
+              {
+                needResources -= resource.Item.Resource;
+                lastResourceLevel = resource.Info.ResourceLevel;
+              }
 
               if (resource.Effect.Type == CharacterItemEffectType.ProficiencyMinimum && minProficiency < resource.Effect.Value)
               {
