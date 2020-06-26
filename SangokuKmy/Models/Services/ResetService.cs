@@ -230,7 +230,7 @@ namespace SangokuKmy.Models.Services
 
     private static async Task ResetTownsAndSaveAsync(MainRepository repo)
     {
-      var initialTowns = MapService.CreateMap(RandomService.Next(12, 17));
+      var initialTowns = MapService.CreateMap(RandomService.Next(14, 19));
       var towns = new List<Town>();
       foreach (var itown in initialTowns)
       {
