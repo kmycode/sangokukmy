@@ -423,7 +423,8 @@ namespace SangokuKmy.Models.Updates.Ai
       var nextStartMonth = AiService.GetWarStartDateTime(this.Game.GameDateTime.NextMonth(), this.Management.WarStartDatePolicy);
       if (startMonth.ToInt() != nextStartMonth.ToInt())
       {
-        isCreated = await AiService.CreateWarIfNotWarAsync(repo, this.Country, target, startMonth);
+        // isCreated = await AiService.CreateWarIfNotWarAsync(repo, this.Country, target, startMonth);
+        isCreated = await AiService.CreateWarAsync(repo, this.Country, target, startMonth);
         if (isCreated)
         {
           this.Management.VirtualEnemyCountryId = 0;
