@@ -1257,7 +1257,7 @@ namespace SangokuKmy.Models.Updates
           if (!system.IsWaitingReset && !system.IsBattleRoyaleMode)
           {
             var isSave = false;
-            foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 12 * 12 * 12 <= system.IntGameDateTime))
+            foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 10 * 12 * 12 <= system.IntGameDateTime))
             {
               var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
               if (!wars.Any(w => w.IsJoinAvailable(country.Id)))
@@ -1269,7 +1269,7 @@ namespace SangokuKmy.Models.Updates
               }
             }
 
-            var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 12 * 12 * 12 <= system.IntGameDateTime);
+            var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 10 * 12 * 12 <= system.IntGameDateTime);
             if (gyokujiWinner != null)
             {
               var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
