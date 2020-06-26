@@ -865,7 +865,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterItemEffect
           {
             Type = CharacterItemEffectType.Intellect,
-            Value = 10,
+            Value = 15,
           },
         },
       },
