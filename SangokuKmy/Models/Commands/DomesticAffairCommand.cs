@@ -17,6 +17,7 @@ namespace SangokuKmy.Models.Commands
   public abstract class DomesticAffairCommand : Command
   {
     protected IEnumerable<CountryPolicy> Policies { get; private set; }
+    protected IEnumerable<CharacterSkill> Skills { get; private set; }
 
     protected bool IsStrongStartAvailable => this.Policies.Any(p => (p.Type == CountryPolicyType.StrongStart || p.Type == CountryPolicyType.StrongStart2 || p.Type == CountryPolicyType.StrongStart3 || p.Type == CountryPolicyType.StrongStart4) && p.Status == CountryPolicyStatus.Availabling);
 
@@ -40,6 +41,7 @@ namespace SangokuKmy.Models.Commands
 
         this.Policies = await repo.Country.GetPoliciesAsync(character.CountryId);
         var skills = await repo.Character.GetSkillsAsync(character.Id);
+        this.Skills = skills;
 
         // 内政値に加算する
         // $znouadd = int(($kint+$kprodmg)/20 + rand(($kint+$kprodmg)) / 40);
@@ -190,6 +192,27 @@ namespace SangokuKmy.Models.Commands
     protected override int GetCurrentValue(Town town) => town.Technology;
     protected override int GetMaxValue(Town town) => town.TechnologyMax;
     protected override void SetValue(Town town, int value) => town.Technology = value;
+    protected override int GetCharacterAttribute(Character character)
+    {
+      if (this.Skills.AnySkillEffects(CharacterSkillEffectType.TechnologyCommandWithStrong))
+      {
+        // 武官の肇を考慮して知力とは比較しない
+        return Math.Max(character.Strong, base.GetCharacterAttribute(character));
+      }
+      return base.GetCharacterAttribute(character);
+    }
+    protected override void AddCharacterAttributeEx(Character character, short ex)
+    {
+      // 技能と武官の肇に注意
+      if (this.Skills.AnySkillEffects(CharacterSkillEffectType.TechnologyCommandWithStrong) && character.Strong > character.Intellect)
+      {
+        character.AddStrongEx(ex);
+      }
+      else
+      {
+        base.AddCharacterAttributeEx(character, ex);
+      }
+    }
   }
 
   /// <summary>

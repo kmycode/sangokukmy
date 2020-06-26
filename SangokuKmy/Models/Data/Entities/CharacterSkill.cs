@@ -138,6 +138,7 @@ namespace SangokuKmy.Models.Data.Entities
     DomesticAffairMulPercentage,
     DomesticAffairMulPercentageInWar,
     DomesticAffairMulPercentageInNotWar,
+    TechnologyCommandWithStrong,
     SecurityCommandMulPercentage,
     PolicyBoostProbabilityThousandth,
     GenerateItem,
@@ -546,18 +547,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.GenerateItem,
-            Value = (int)CharacterItemType.EquippedHeavyGeki,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.GenerateItem,
-            Value = (int)CharacterItemType.EquippedHeavyHorse,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.GenerateItem,
-            Value = (int)CharacterItemType.EquippedStrongCrossbow,
+            Type = CharacterSkillEffectType.TechnologyCommandWithStrong,
           },
         },
       },
