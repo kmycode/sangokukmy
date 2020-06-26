@@ -1693,9 +1693,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 1,
         MoneyPerResource = 20,
-        InitializeNumber = 6,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownHiddenOnly,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect
@@ -1716,9 +1716,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 1,
         MoneyPerResource = 20,
-        InitializeNumber = 6,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownHiddenOnly,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect
@@ -1739,9 +1739,9 @@ namespace SangokuKmy.Models.Data.Entities
         IsResource = true,
         ResourceLevel = 1,
         MoneyPerResource = 20,
-        InitializeNumber = 6,
+        InitializeNumber = 0,
         DefaultResource = 1000,
-        RareType = CharacterItemRareType.TownHiddenOnly,
+        RareType = CharacterItemRareType.NotExists,
         UsingEffects = new List<CharacterItemEffect>
         {
           new CharacterResourceItemEffect

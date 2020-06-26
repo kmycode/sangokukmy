@@ -135,7 +135,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 40,
+        Money = 20,
         Technology = 800,
       },
       new CharacterSoldierTypePart
@@ -214,7 +214,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 40,
+        Money = 20,
         Technology = 800,
       },
       new CharacterSoldierTypePart
@@ -290,7 +290,7 @@ namespace SangokuKmy.Models.Data.Entities
           StrongEx = 1,
           PowerStrong = 1,
         },
-        Money = 40,
+        Money = 20,
         Technology = 800,
       },
       new CharacterSoldierTypePart
