@@ -111,6 +111,7 @@ namespace SangokuKmy.Models.Data.Entities
     Intellect3b = 54,
     Merchant4b = 55,
     Merchant5b = 56,
+    Intellect2b = 57,
   }
 
   public enum CharacterSkillEffectType
@@ -138,6 +139,7 @@ namespace SangokuKmy.Models.Data.Entities
     DomesticAffairMulPercentage,
     DomesticAffairMulPercentageInWar,
     DomesticAffairMulPercentageInNotWar,
+    TechnologyCommandWithStrong,
     SecurityCommandMulPercentage,
     PolicyBoostProbabilityThousandth,
     GenerateItem,
@@ -275,14 +277,34 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = CharacterSkillType.Intellect2,
         RequestedPoint = 320,
-        Name = "官吏 Lv.2",
-        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect1),
+        Name = "官吏 Lv.a2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect1) && !skills.Any(s => s.Type == CharacterSkillType.Intellect2b),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.DomesticAffairMulPercentage,
+            Type = CharacterSkillEffectType.DomesticAffairMulPercentageInNotWar,
             Value = 50,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.TownPatrol,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Intellect2b,
+        RequestedPoint = 320,
+        Name = "官吏 Lv.b2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect1) && !skills.Any(s => s.Type == CharacterSkillType.Intellect2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.DomesticAffairMulPercentageInWar,
+            Value = 40,
           },
           new CharacterSkillEffect
           {
@@ -296,7 +318,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterSkillType.Intellect3,
         RequestedPoint = 320,
         Name = "官吏 Lv.a3",
-        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect2) && !skills.Any(s => s.Type == CharacterSkillType.Intellect3b),
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect2 || s.Type == CharacterSkillType.Intellect2b) && !skills.Any(s => s.Type == CharacterSkillType.Intellect3b),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
@@ -316,13 +338,13 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterSkillType.Intellect3b,
         RequestedPoint = 320,
         Name = "官吏 Lv.b3",
-        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect2) && !skills.Any(s => s.Type == CharacterSkillType.Intellect3),
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Intellect2 || s.Type == CharacterSkillType.Intellect2b) && !skills.Any(s => s.Type == CharacterSkillType.Intellect3),
         Effects = new List<CharacterSkillEffect>
         {
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.DomesticAffairMulPercentageInWar,
-            Value = 50,
+            Value = 40,
           },
           new CharacterSkillEffect
           {
@@ -546,18 +568,7 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
-            Type = CharacterSkillEffectType.GenerateItem,
-            Value = (int)CharacterItemType.EquippedHeavyGeki,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.GenerateItem,
-            Value = (int)CharacterItemType.EquippedHeavyHorse,
-          },
-          new CharacterSkillEffect
-          {
-            Type = CharacterSkillEffectType.GenerateItem,
-            Value = (int)CharacterItemType.EquippedStrongCrossbow,
+            Type = CharacterSkillEffectType.TechnologyCommandWithStrong,
           },
         },
       },

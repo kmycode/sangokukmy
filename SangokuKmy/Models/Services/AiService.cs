@@ -491,6 +491,7 @@ namespace SangokuKmy.Models.Services
         CharacterAiType.ManagedBattler,
         CharacterAiType.ManagedBattler,
         CharacterAiType.ManagedCivilOfficial,
+        CharacterAiType.ManagedCivilOfficial,
         CharacterAiType.ManagedPatroller,
       };
       var names = new string[] { "冉魏", "成漢", "北燕", "翟魏", "代", "張楚", "仲", "後秦", "西秦", "五胡夏",

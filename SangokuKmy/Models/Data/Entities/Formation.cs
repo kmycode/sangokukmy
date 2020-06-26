@@ -192,7 +192,7 @@ namespace SangokuKmy.Models.Data.Entities
               GogyoFire = 100,
               BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
@@ -203,7 +203,7 @@ namespace SangokuKmy.Models.Data.Entities
               BaseDefend = 16,
               GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
@@ -217,7 +217,7 @@ namespace SangokuKmy.Models.Data.Entities
               RushProbability = 1600,
               RushAttack = 40,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
@@ -259,7 +259,7 @@ namespace SangokuKmy.Models.Data.Entities
               GogyoWater = 100,
               BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
@@ -270,7 +270,7 @@ namespace SangokuKmy.Models.Data.Entities
               BaseDefend = 16,
               GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
@@ -284,7 +284,7 @@ namespace SangokuKmy.Models.Data.Entities
               RushProbability = 1600,
               RushAttack = 40,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
@@ -326,7 +326,7 @@ namespace SangokuKmy.Models.Data.Entities
               GogyoTree = 100,
               BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
@@ -337,7 +337,7 @@ namespace SangokuKmy.Models.Data.Entities
               BaseDefend = 16,
               GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
@@ -351,7 +351,7 @@ namespace SangokuKmy.Models.Data.Entities
               RushProbability = 100,
               RushAttack = 40,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
@@ -394,7 +394,7 @@ namespace SangokuKmy.Models.Data.Entities
               GogyoSoil = 100,
               BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
@@ -405,7 +405,7 @@ namespace SangokuKmy.Models.Data.Entities
               BaseDefend = 16,
               GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
@@ -419,7 +419,7 @@ namespace SangokuKmy.Models.Data.Entities
               RushProbability = 1600,
               RushAttack = 40,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
@@ -461,7 +461,7 @@ namespace SangokuKmy.Models.Data.Entities
               GogyoFire = 100,
               BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
@@ -472,7 +472,7 @@ namespace SangokuKmy.Models.Data.Entities
               BaseDefend = 16,
               GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
@@ -486,7 +486,7 @@ namespace SangokuKmy.Models.Data.Entities
               RushProbability = 800,
               RushAttack = 80,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
@@ -527,7 +527,7 @@ namespace SangokuKmy.Models.Data.Entities
               GogyoWater = 100,
               BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
@@ -538,7 +538,7 @@ namespace SangokuKmy.Models.Data.Entities
               BaseDefend = 16,
               GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
@@ -552,7 +552,7 @@ namespace SangokuKmy.Models.Data.Entities
               RushProbability = 1400,
               RushAttack = 28,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
@@ -594,7 +594,7 @@ namespace SangokuKmy.Models.Data.Entities
               GogyoTree = 100,
               BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
@@ -605,7 +605,7 @@ namespace SangokuKmy.Models.Data.Entities
               BaseDefend = 16,
               GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
@@ -619,7 +619,7 @@ namespace SangokuKmy.Models.Data.Entities
               RushProbability = 1600,
               RushAttack = 40,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
@@ -661,7 +661,7 @@ namespace SangokuKmy.Models.Data.Entities
               GogyoSoil = 100,
               BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
@@ -672,7 +672,7 @@ namespace SangokuKmy.Models.Data.Entities
               BaseDefend = 16,
               GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
@@ -687,7 +687,7 @@ namespace SangokuKmy.Models.Data.Entities
               RushAttack = 40,
               ContinuousProbability = 1200,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
@@ -729,7 +729,7 @@ namespace SangokuKmy.Models.Data.Entities
               GogyoMetal = 100,
               BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
@@ -740,7 +740,7 @@ namespace SangokuKmy.Models.Data.Entities
               BaseDefend = 16,
               GogyoAttack = 16,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
@@ -754,7 +754,7 @@ namespace SangokuKmy.Models.Data.Entities
               RushProbability = 1600,
               RushAttack = 40,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
@@ -796,7 +796,7 @@ namespace SangokuKmy.Models.Data.Entities
               GogyoMetal = 100,
               BaseAttack = 16,
             },
-            NextLevel = 3000,
+            NextLevel = 2000,
           },
           new FormationTypeLevelInfo
           {
@@ -807,7 +807,7 @@ namespace SangokuKmy.Models.Data.Entities
               BaseDefend = 16,
               WallAttack = 32,
             },
-            NextLevel = 6000,
+            NextLevel = 5000,
           },
           new FormationTypeLevelInfo
           {
@@ -821,7 +821,7 @@ namespace SangokuKmy.Models.Data.Entities
               RushProbability = 1600,
               RushAttack = 40,
             },
-            NextLevel = 10000,
+            NextLevel = 8000,
           },
           new FormationTypeLevelInfo
           {
