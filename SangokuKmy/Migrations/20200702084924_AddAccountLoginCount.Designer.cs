@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20200702084924_AddAccountLoginCount")]
+    partial class AddAccountLoginCount
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1091,9 +1093,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("IntAppearGameDateTime")
                         .HasColumnName("appear_game_date_time");
-
-                    b.Property<bool>("IsQueue")
-                        .HasColumnName("is_queue");
 
                     b.Property<uint>("TownId")
                         .HasColumnName("town_id");

@@ -1088,6 +1088,11 @@ namespace SangokuKmy.Models.Updates
               if (isRemove)
               {
                 repo.DelayEffect.Remove(delay);
+                if (delay.CharacterId != 0)
+                {
+                  delay.Type = DelayEffectType.Undefined;
+                  await StatusStreaming.Default.SendCharacterAsync(ApiData.From(delay), delay.CharacterId);
+                }
               }
             }
           }

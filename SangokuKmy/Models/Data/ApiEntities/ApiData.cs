@@ -118,5 +118,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<ChatMessageRead> From(ChatMessageRead data) => From(42, data);
     public static ApiData<IssueBbsItem> From(IssueBbsItem data) => From(43, data);
     public static ApiData<AiCharacterManagement> From(AiCharacterManagement data) => From(45, data);
+    public static ApiData<DelayEffect> From(DelayEffect data) => From(46, data);
   }
 }

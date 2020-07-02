@@ -8,6 +8,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Services;
+using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -293,6 +294,9 @@ namespace SangokuKmy.Models.Commands
           TypeData = (int)itemType,
         };
         await repo.DelayEffect.AddAsync(delay);
+        await repo.SaveChangesAsync();
+
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(delay), character.Id);
 
         var finish = GameDateTime.FromInt(game.GameDateTime.ToInt() + generateInfo.Length);
         generateInfo.AddExAttribute(character);
