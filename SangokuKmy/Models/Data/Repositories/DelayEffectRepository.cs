@@ -29,6 +29,19 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<DelayEffect>> GetByCharacterIdAsync(uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.DelayEffects.Where(de => de.CharacterId == charaId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     public async Task AddAsync(DelayEffect effect)
     {
       try

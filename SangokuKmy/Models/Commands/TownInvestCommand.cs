@@ -8,6 +8,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Services;
+using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -133,6 +134,9 @@ namespace SangokuKmy.Models.Commands
           Type = DelayEffectType.TownInvestment,
         };
         await repo.DelayEffect.AddAsync(delay);
+        await repo.SaveChangesAsync();
+
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(delay), character.Id);
 
         character.AddIntellectEx(500);
         character.Contribution += 200;
