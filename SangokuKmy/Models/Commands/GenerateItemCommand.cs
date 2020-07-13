@@ -151,9 +151,9 @@ namespace SangokuKmy.Models.Commands
           From = CharacterFrom.Scholar,
           ItemType = CharacterItemType.AnnotationBook,
           ResourceAttribute = c => c.Intellect,
-          AddExAttribute = c => c.AddIntellectEx(2000),
+          AddExAttribute = c => c.AddIntellectEx(1700),
           Length = 96,
-          Contribution = 800,
+          Contribution = 700,
         },
         new GenerateItemInfo
         {
