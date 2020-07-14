@@ -468,7 +468,7 @@ namespace SangokuKmy.Models.Updates.Ai
             this.soldierTypeCache = SoldierType.Seishu;
           }
         }
-        else if (this.Town.Technology >= 800 && this.Character.Money > this.Character.Leadership * 200 + 22_0000 && this.GameDateTime.Year >= 120)
+        else if (this.Town.Technology >= 800 && this.Character.Money > this.Character.Leadership * 200 + 22_0000)
         {
           if (soldierTypeNumber % 3 == 0)
           {
