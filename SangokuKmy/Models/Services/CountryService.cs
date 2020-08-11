@@ -35,7 +35,7 @@ namespace SangokuKmy.Models.Services
       {
         if (country.GyokujiStatus != CountryGyokujiStatus.NotHave && country.GyokujiStatus != CountryGyokujiStatus.Refused)
         {
-          if (winnerCountry.GyokujiStatus == CountryGyokujiStatus.NotHave && winnerCountry.GyokujiStatus == CountryGyokujiStatus.Refused)
+          if (winnerCountry.GyokujiStatus == CountryGyokujiStatus.NotHave || winnerCountry.GyokujiStatus == CountryGyokujiStatus.Refused)
           {
             winnerCountry.IntGyokujiGameDate = system.IntGameDateTime;
             if (!system.IsBattleRoyaleMode)
