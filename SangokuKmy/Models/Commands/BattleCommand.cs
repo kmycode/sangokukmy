@@ -667,7 +667,7 @@ namespace SangokuKmy.Models.Commands
           .Where(i => i.Item.IsAvailable && i.Info != null && i.Info.Effects != null && i.Info.Effects.Any(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource));
         foreach (var myr in targetBattleResources)
         {
-          await SpendResourceAsync(myr.Item, myr.Info, myr.Item.Resource - currentBattleTurns);
+          await SpendResourceAsync(myr.Item, myr.Info, myr.Item.Resource - currentBattleTurns, targetCharacter);
         }
 
         targetFormationData.Experience += (int)targetFormationExperience;
@@ -716,12 +716,17 @@ namespace SangokuKmy.Models.Commands
       }
 
 
-      async Task SpendResourceAsync(CharacterItem item, CharacterItemInfo info, int newResource)
+      async Task SpendResourceAsync(CharacterItem item, CharacterItemInfo info, int newResource, Character chara = null)
       {
+        if (chara == null)
+        {
+          chara = character;
+        }
+
         item.Resource = newResource;
         if (item.Resource <= 0)
         {
-          await ItemService.SpendCharacterAsync(repo, item, character);
+          await ItemService.SpendCharacterAsync(repo, item, chara);
           await game.CharacterLogAsync($"アイテム {info.Name} はすべての資源を使い果たし、消滅しました");
         }
         else
