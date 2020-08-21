@@ -1895,9 +1895,10 @@ namespace SangokuKmy.Models.Data.Entities
       return correction;
     }
 
-    public static IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> GetResources(this IEnumerable<CharacterItem> item, CharacterItemEffectType type, Predicate<CharacterResourceItemEffect> subject, int size)
+    private static IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> GetResources(this IEnumerable<CharacterItem> item, CharacterItemEffectType type, Predicate<CharacterResourceItemEffect> subject, int size, bool isAvailableOnly = false)
     {
       var targets = item
+        .Where(i => isAvailableOnly ? i.IsAvailable : true)
         .Where(i => i.Status == CharacterItemStatus.CharacterHold)
         .Join(infos, i => i.Type, i => i.Type, (it, inn) => new { Item = it, Info = inn, Effects = inn.UsingEffects?.OfType<CharacterResourceItemEffect>().Where(ie => ie.Type == type && subject(ie)) ?? Enumerable.Empty<CharacterResourceItemEffect>(), })
         .Where(i => i.Effects.Any())
@@ -1916,9 +1917,12 @@ namespace SangokuKmy.Models.Data.Entities
       }
     }
 
+    public static IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> GetResources(this IEnumerable<CharacterItem> item, CharacterItemEffectType type, Predicate<CharacterResourceItemEffect> subject, int size)
+      => GetResources(item, type, subject, size, false);
+
     public static IEnumerable<(CharacterItem Item, CharacterItemInfo Info, CharacterResourceItemEffect Effect)> GetResourcesAvailable(this IEnumerable<CharacterItem> item, CharacterItemEffectType type, Predicate<CharacterResourceItemEffect> subject, int size)
     {
-      return GetResources(item, type, subject, size).Where(i => i.Item.IsAvailable);
+      return GetResources(item, type, subject, size, true);
     }
   }
 }
