@@ -64,6 +64,7 @@ namespace SangokuKmy.Models.Commands
       // new AddFlyingColumnCommand(),
       // new CustomizeFlyingColumnCommand(),
       // new RemoveFlyingColumnCommand(),
+      new ResignCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

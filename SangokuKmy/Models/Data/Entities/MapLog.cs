@@ -283,5 +283,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 解雇
     /// </summary>
     Dismissal = 38,
+
+    /// <summary>
+    /// 下野
+    /// </summary>
+    CharacterResign = 39,
   }
 }

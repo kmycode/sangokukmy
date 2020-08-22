@@ -386,5 +386,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 別動隊削除
     /// </summary>
     RemoveFlyingColumn = 68,
+
+    /// <summary>
+    /// 下野
+    /// </summary>
+    Resign = 69,
   }
 }
