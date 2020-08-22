@@ -295,18 +295,12 @@ namespace SangokuKmy.Controllers
         {
           var sender = await repo.Character.GetByIdAsync(old.TypeData).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
 
-          if (sender.CountryId != old.CharacterCountryId)
-          {
-            // 登用出した人の国が滅亡している
-            ErrorCode.CountryNotFoundError.Throw();
-          }
-
-          var senderCountry = await repo.Country.GetAliveByIdAsync(sender.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+          var senderCountry = await repo.Country.GetAliveByIdAsync(message.CharacterCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
           oldTown = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           newTown = await repo.Town.GetByIdAsync(senderCountry.CapitalTownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           oldTownCharacters = (await repo.Town.GetCharactersWithIconAsync(oldTown.Id)).Select(c => c.Character.Id);
           newTownCharacters = (await repo.Town.GetCharactersWithIconAsync(newTown.Id)).Select(c => c.Character.Id);
-          commanders = (await repo.Country.GetMessageAsync(sender.CountryId, CountryMessageType.Commanders)).Data;
+          commanders = (await repo.Country.GetMessageAsync(senderCountry.Id, CountryMessageType.Commanders)).Data;
 
           var reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
           if (reinforcements.Any(r => r.Status == ReinforcementStatus.Active))
