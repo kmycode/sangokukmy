@@ -295,7 +295,7 @@ namespace SangokuKmy.Controllers
         {
           var sender = await repo.Character.GetByIdAsync(old.TypeData).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
 
-          var senderCountry = await repo.Country.GetAliveByIdAsync(message.CharacterCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+          var senderCountry = await repo.Country.GetAliveByIdAsync(old.CharacterCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
           oldTown = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           newTown = await repo.Town.GetByIdAsync(senderCountry.CapitalTownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           oldTownCharacters = (await repo.Town.GetCharactersWithIconAsync(oldTown.Id)).Select(c => c.Character.Id);
