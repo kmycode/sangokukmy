@@ -90,6 +90,12 @@ namespace SangokuKmy.Models.Commands
         ErrorCode.NotPermissionError.Throw();
       }
 
+      var commands = await repo.CharacterCommand.GetAllAsync(characterId, (await repo.System.GetAsync()).GameDateTime);
+      if (commands.Count(c => c.Type == this.Type) + gameDates.Count() > 3)
+      {
+        ErrorCode.InvalidOperationError.Throw();
+      }
+
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates);
     }
   }
