@@ -96,7 +96,8 @@ namespace SangokuKmy.Models.Updates.Ai
         CharacterId = this.Character.Id,
         GameDateTime = this.GameDateTime,
       };
-      if (this.GameDateTime.Month % 2 == 0 && this.Town.Commercial < this.Town.CommercialMax)
+      if ((this.GameDateTime.Month % 2 == 0 && this.Town.Commercial < this.Town.CommercialMax) ||
+        this.Town.Agriculture >= this.Town.AgricultureMax)
       {
         command.Type = CharacterCommandType.Commercial;
       }
