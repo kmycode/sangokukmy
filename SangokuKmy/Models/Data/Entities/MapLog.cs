@@ -288,5 +288,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 下野
     /// </summary>
     CharacterResign = 39,
+
+    /// <summary>
+    /// 新しい都市
+    /// </summary>
+    NewTown = 40,
   }
 }

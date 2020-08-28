@@ -102,7 +102,7 @@ namespace SangokuKmy.Models.Services
       }).ToArray();
     }
 
-    private static string GetTownName(short x, short y)
+    public static string GetTownName(short x, short y)
     {
       var index = y * 10 + x;
       if (index >= townNames.Length)

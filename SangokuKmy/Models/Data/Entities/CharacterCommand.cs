@@ -391,5 +391,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 下野
     /// </summary>
     Resign = 69,
+
+    /// <summary>
+    /// 都市建設
+    /// </summary>
+    CreateTown = 70,
   }
 }

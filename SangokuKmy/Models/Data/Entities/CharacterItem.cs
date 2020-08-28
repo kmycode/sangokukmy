@@ -185,6 +185,7 @@ namespace SangokuKmy.Models.Data.Entities
     TimeChanger = 84,
     GodOfMilitaryArts = 85,
     MirrorOfTruth = 86,
+    CastleBlueprint = 87,
   }
 
   public enum CharacterItemEffectType
@@ -1440,6 +1441,20 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 4,
         DefaultResource = 10,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.CastleBlueprint,
+        Name = "城の設計図",
+        Money = 500_000,
+        InitializeNumber = 1,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanSell = false,
+        DiscoverFroms = new List<CharacterFrom>
+        {
+          CharacterFrom.Warrior,
+          CharacterFrom.Terrorist,
+        },
       },
 
       new CharacterItemInfo
