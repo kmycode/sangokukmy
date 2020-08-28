@@ -52,6 +52,17 @@ namespace SangokuKmy.Models.Services
             i--;
             continue;
           }
+          if (towns.Any(t => t.Y == pos.Y && t.X == pos.X - 1) &&
+            towns.Any(t => t.Y == pos.Y && t.X == pos.X + 1) &&
+            towns.Any(t => t.X == pos.X && t.Y == pos.Y - 1) &&
+            towns.Any(t => t.X == pos.X && t.Y == pos.Y + 1))
+          {
+            if (RandomService.Next(0, 5) < 2)
+            {
+              i--;
+              continue;
+            }
+          }
 
           towns.Add(new Town
           {
