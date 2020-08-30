@@ -642,6 +642,12 @@ namespace SangokuKmy.Controllers
         }
 
         var allTowns = await repo.Town.GetAllAsync();
+        if (!allTowns.GetAroundCountries(targetTown).Contains(chara.CountryId))
+        {
+          // 購入で飛び地は作れない
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
         var isSurrender = allTowns.Count(t => t.CountryId == chara.CountryId) == 1;
 
         // 購入
