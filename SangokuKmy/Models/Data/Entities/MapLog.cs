@@ -293,5 +293,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 新しい都市
     /// </summary>
     NewTown = 40,
+
+    /// <summary>
+    /// 都市の購入
+    /// </summary>
+    BuyTown = 41,
   }
 }

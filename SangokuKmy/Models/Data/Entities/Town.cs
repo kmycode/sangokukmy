@@ -193,6 +193,20 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("town_building_value")]
     [JsonProperty("townBuildingValue")]
     public int TownBuildingValue { get; set; }
+
+    /// <summary>
+    /// 建築物の追加敷地
+    /// </summary>
+    [Column("town_sub_building_extra_space")]
+    [JsonProperty("townSubBuildingExtraSpace")]
+    public short TownSubBuildingExtraSpace { get; set; }
+
+    /// <summary>
+    /// 購入防衛政策ポイント
+    /// </summary>
+    [Column("takeover_defense_point")]
+    [JsonProperty("takeoverDefensePoint")]
+    public int TakeoverDefensePoint { get; set; }
   }
 
   [Table("town")]
