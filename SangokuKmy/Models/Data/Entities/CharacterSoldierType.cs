@@ -161,7 +161,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.Cow,
-        Name = "牛兵",
+        Name = "軽騎兵",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 3,
@@ -180,7 +180,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.LightCavalry,
-        Name = "軽騎兵",
+        Name = "騎兵",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 6,
@@ -259,7 +259,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.LongArcher,
-        Name = "長弓兵",
+        Name = "弩兵",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 6,
