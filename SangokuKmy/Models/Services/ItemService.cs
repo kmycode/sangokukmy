@@ -158,6 +158,20 @@ namespace SangokuKmy.Models.Services
             chara.AddIntellectEx((short)effect.Value);
             logs.Add($"知力経験値 <num>{effect.Value}</num>");
           }
+          if (effect.Type == CharacterItemEffectType.AddSubBuildingExtraSize)
+          {
+            var townOptional = await repo.Town.GetByIdAsync(chara.TownId);
+            if (townOptional.HasData)
+            {
+              townOptional.Data.TownSubBuildingExtraSpace += (short)effect.Value;
+              logs.Add($"<town>{townOptional.Data.Name}</town> の敷地 <num>+{effect.Value}</num>");
+              await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(townOptional.Data), repo);
+            }
+            else
+            {
+              logs.Add($"<emerge>エラー: 都市が見つかりませんでした ID: {chara.TownId}</emerge>");
+            }
+          }
           if (effect.Type == CharacterItemEffectType.CheckGyokuji)
           {
             var countries = await repo.Country.GetAllAsync();

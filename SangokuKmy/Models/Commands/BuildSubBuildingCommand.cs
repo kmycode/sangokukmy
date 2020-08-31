@@ -81,6 +81,7 @@ namespace SangokuKmy.Models.Commands
         town.Type == TownType.Fortress ? 3 :
         town.Type == TownType.Large ? 4 : 0;
       sizeMax += policies.GetSumOfValues(CountryPolicyEffectType.SubBuildingSizeMax);
+      sizeMax += town.TownSubBuildingExtraSpace;
       var currentSize = townSubBuildings.GetInfoes().Sum(i => i.Size);
       if (currentSize + info.Size > sizeMax)
       {

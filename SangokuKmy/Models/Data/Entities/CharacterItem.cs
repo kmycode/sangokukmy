@@ -186,6 +186,8 @@ namespace SangokuKmy.Models.Data.Entities
     GodOfMilitaryArts = 85,
     MirrorOfTruth = 86,
     CastleBlueprint = 87,
+    TownPlanningDocument = 88,
+    LargeTownPlanningDocument = 89,
   }
 
   public enum CharacterItemEffectType
@@ -210,6 +212,7 @@ namespace SangokuKmy.Models.Data.Entities
     SoldierCorrection,
     SoldierCorrectionResource,
     CheckGyokuji,
+    AddSubBuildingExtraSize,
   }
 
   public enum CharacterItemRareType
@@ -1454,6 +1457,46 @@ namespace SangokuKmy.Models.Data.Entities
         {
           CharacterFrom.Warrior,
           CharacterFrom.Terrorist,
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.TownPlanningDocument,
+        Name = "都市計画書",
+        Money = 500_000,
+        InitializeNumber = 10,
+        RareType = CharacterItemRareType.TownOnSaleOrHidden,
+        CanSell = false,
+        CanUse = true,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.AddSubBuildingExtraSize,
+            Value = 1,
+          },
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.LargeTownPlanningDocument,
+        Name = "大都市計画書",
+        Money = 500_000,
+        InitializeNumber = 1,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanSell = false,
+        CanUse = true,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.AddSubBuildingExtraSize,
+            Value = 3,
+          },
+        },
+        DiscoverFroms = new List<CharacterFrom>
+        {
+          CharacterFrom.Civilian,
         },
       },
 

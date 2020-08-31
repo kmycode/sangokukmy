@@ -46,6 +46,16 @@ namespace SangokuKmy.Models.Commands
           return;
         }
       }
+
+      if (info.UsingEffects != null && info.UsingEffects.Any(ue => ue.Type == CharacterItemEffectType.AddSubBuildingExtraSize))
+      {
+        var townOptional = await repo.Town.GetByIdAsync(character.TownId);
+        if (townOptional.HasData && townOptional.Data.CountryId != character.CountryId)
+        {
+          await game.CharacterLogAsync($"アイテム {info.Name} は、自国の都市でしか使用できません");
+          return;
+        }
+      }
       
       var log = await ItemService.SpendCharacterAsync(repo, target, character);
       await game.CharacterLogAsync($"アイテム {info.Name} を使用しました。効果: {log}");
