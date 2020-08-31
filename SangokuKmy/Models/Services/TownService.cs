@@ -29,7 +29,7 @@ namespace SangokuKmy.Models.Services
       {
         // 他の国と戦争状態にある場合
         // 停戦協議中の場合はコストを増やさない（停戦協議の濫用が最近多いのであえて）
-        cost *= 1.6f;
+        cost *= 2.1f;
       }
 
       var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(country.Id, town.CountryId);
