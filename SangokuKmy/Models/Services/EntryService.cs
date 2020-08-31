@@ -17,12 +17,12 @@ namespace SangokuKmy.Models.Services
     public static int GetAttributeMax(GameDateTime current) => 100 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.9f * 0.75f);
     public static int GetAttributeSumMax(GameDateTime current) => 200 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.9f);
 
-    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode)
+    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode, bool isFreeCountry)
     {
       var town = await repo.Town.GetByIdAsync(newChara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
 
       var system = await repo.System.GetAsync();
-      CheckEntryStatus(system.GameDateTime, ipAddress, newChara, password, newIcon, town, newCountry);
+      CheckEntryStatus(system.GameDateTime, ipAddress, newChara, password, newIcon, town, newCountry, isFreeCountry);
 
       // 文字数チェックしてからエスケープ
       newChara.Name = HtmlUtil.Escape(newChara.Name);
@@ -143,7 +143,23 @@ namespace SangokuKmy.Models.Services
         chara.IntLastUpdatedGameDate++;
       }
 
-      if (town.CountryId > 0)
+      if (isFreeCountry)
+      {
+        // 無所属で開始
+        chara.CountryId = 0;
+        await repo.Character.AddAsync(chara);
+
+        maplog = new MapLog
+        {
+          Date = DateTime.Now,
+          ApiGameDateTime = system.GameDateTime,
+          EventType = EventType.CharacterEntryToFree,
+          IsImportant = false,
+          Message = $"<character>{chara.Name}</character> が無所属に出現しました",
+        };
+        await repo.MapLog.AddAsync(maplog);
+      }
+      else if (town.CountryId > 0)
       {
         // 武将総数チェック
         var country = await repo.Country.GetByIdAsync(town.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
@@ -393,7 +409,7 @@ namespace SangokuKmy.Models.Services
       await CharacterService.StreamCharacterAsync(repo, chara);
     }
 
-    private static void CheckEntryStatus(GameDateTime current, string ipAddress, Character chara, string password, CharacterIcon icon, Town town, Country country)
+    private static void CheckEntryStatus(GameDateTime current, string ipAddress, Character chara, string password, CharacterIcon icon, Town town, Country country, bool isCountryFree)
     {
       if (string.IsNullOrEmpty(ipAddress))
       {
@@ -497,7 +513,7 @@ namespace SangokuKmy.Models.Services
       }
       else
       {
-        if (town.CountryId <= 0)
+        if (town.CountryId <= 0 && !isCountryFree)
         {
           ErrorCode.CantJoinAtSuchTownhError.Throw();
         }

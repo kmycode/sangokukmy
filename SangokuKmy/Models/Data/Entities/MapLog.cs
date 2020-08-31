@@ -298,5 +298,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 都市の購入
     /// </summary>
     BuyTown = 41,
+
+    /// <summary>
+    /// 仕官（新規・無所属）
+    /// </summary>
+    CharacterEntryToFree = 42,
   }
 }

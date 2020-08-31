@@ -9,6 +9,7 @@ using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Streamings;
 using SangokuKmy.Models.Services;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -54,6 +55,16 @@ namespace SangokuKmy.Models.Commands
         return;
       }
       var country = countryOptional.Data;
+
+      if (country.IntEstablished + Config.CountryBattleStopDuring > game.GameDateTime.ToInt())
+      {
+        var characterCount = await repo.Country.CountCharactersAsync(country.Id, true);
+        if (characterCount >= Config.CountryJoinMaxOnLimited)
+        {
+          await game.CharacterLogAsync("<country>" + town.Name + "</country> に仕官しようとしましたが、すでに仕官数上限に達しています");
+          return;
+        }
+      }
 
       if (country.AiType != CountryAiType.Human && character.AiType == CharacterAiType.Human)
       {
