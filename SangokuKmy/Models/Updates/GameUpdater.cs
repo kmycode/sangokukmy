@@ -927,6 +927,18 @@ namespace SangokuKmy.Models.Updates
                   }
                 }
               }
+              else if (subBuilding.Type == TownSubBuildingType.BreakTechnology)
+              {
+                if (system.GameDateTime.Month % 2 == 0)
+                {
+                  foreach (var atown in aroundTowns.Where(at => countryWarTargets.Contains(at.CountryId)))
+                  {
+                    var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
+                    var value = 7 / (isDefense ? 3 : 1);
+                    atown.Technology = Math.Max(0, atown.Technology - value);
+                  }
+                }
+              }
               else if (subBuilding.Type == TownSubBuildingType.Agitation)
               {
                 if (system.GameDateTime.Month % 2 == 0)

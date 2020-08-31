@@ -123,6 +123,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 防衛拠点
     /// </summary>
     DefenseStation = 10,
+
+    /// <summary>
+    /// 工房破壊所
+    /// </summary>
+    BreakTechnology = 11,
   }
 
   public class TownSubBuildingTypeInfo
@@ -277,6 +282,16 @@ namespace SangokuKmy.Models.Data.Entities
         Size = 2,
         Money = 30000,
         BuildDuring = 36,
+        BuildSubject = c => c.Intellect >= 100,
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.BreakTechnology,
+        Name = "工房破壊所",
+        Size = 2,
+        Money = 30000,
+        CanBuildMultiple = true,
+        BuildDuring = 24,
         BuildSubject = c => c.Intellect >= 100,
       },
     };
