@@ -946,8 +946,8 @@ namespace SangokuKmy.Models.Updates
                   foreach (var atown in aroundTowns.Where(at => countryWarTargets.Contains(at.CountryId)))
                   {
                     var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
-                    var value = Math.Max(2 / (isDefense ? 3 : 1), 1);
-                    var value2 = 100 / (isDefense ? 3 : 1);
+                    var value = Math.Max(4 / (isDefense ? 3 : 1), 1);
+                    var value2 = 1000 / (isDefense ? 3 : 1);
                     atown.Security = (short)Math.Max(0, atown.Security - value);
                     atown.People = Math.Max(0, atown.People - value2);
                   }
