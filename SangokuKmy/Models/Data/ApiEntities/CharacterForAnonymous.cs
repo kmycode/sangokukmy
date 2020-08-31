@@ -65,6 +65,12 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("from")]
     public CharacterFrom From { get; set; }
 
+    [JsonProperty("money")]
+    public int Money { get; set; }
+
+    [JsonProperty("rice")]
+    public int Rice { get; set; }
+
     [JsonIgnore]
     public DateTime LastUpdated { get; set; }
 
@@ -145,6 +151,11 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.LastUpdated = character.LastUpdated;
       this.IntLastUpdatedGameDate = character.IntLastUpdatedGameDate;
       this.IsBeginner = character.IsBeginner;
+      if (level == CharacterShareLevel.SameCountry || level == CharacterShareLevel.SameTownAndSameCountry)
+      {
+        this.Money = character.Money;
+        this.Rice = character.Rice;
+      }
       if (level == CharacterShareLevel.SameCountry || level == CharacterShareLevel.SameTown || level == CharacterShareLevel.SameTownAndSameCountry || level == CharacterShareLevel.SameCountryTownOtherCountry)
       {
         this.TownId = character.TownId;
