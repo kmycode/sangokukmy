@@ -1329,17 +1329,28 @@ namespace SangokuKmy.Models.Updates
             {
               var targetCountries = countries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave);
               var gets = new List<Country>();
-              var num = Math.Min(targetCountries.Count(), RandomService.Next(2, 4));
-              for (var i = 0; i < num; i++)
+
+              if (system.RuleSet == GameRuleSet.Gyokuji)
               {
-                var isHit = false;
-                while (!isHit)
+                foreach (var c in targetCountries)
                 {
-                  var tmp = RandomService.Next(targetCountries);
-                  if (!gets.Any(c => c.Id == tmp.Id))
+                  gets.Add(c);
+                }
+              }
+              else
+              {
+                var num = Math.Min(targetCountries.Count(), RandomService.Next(2, 4));
+                for (var i = 0; i < num; i++)
+                {
+                  var isHit = false;
+                  while (!isHit)
                   {
-                    gets.Add(tmp);
-                    isHit = true;
+                    var tmp = RandomService.Next(targetCountries);
+                    if (!gets.Any(c => c.Id == tmp.Id))
+                    {
+                      gets.Add(tmp);
+                      isHit = true;
+                    }
                   }
                 }
               }

@@ -210,5 +210,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 全国戦争ルール
     /// </summary>
     BattleRoyale = 3,
+
+    /// <summary>
+    /// 玉璽ルール
+    /// </summary>
+    Gyokuji = 4,
   }
 }

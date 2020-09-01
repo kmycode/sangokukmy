@@ -91,6 +91,8 @@ namespace SangokuKmy.Models.Services
         RandomService.Next(0, 2) == 0 ? GameRuleSet.Normal : RandomService.Next(new GameRuleSet[] {
           GameRuleSet.SimpleBattle,
           GameRuleSet.Wandering,
+          GameRuleSet.BattleRoyale,
+          GameRuleSet.Gyokuji,
         });
       if (system.IsNextPeriodBeta)
       {
