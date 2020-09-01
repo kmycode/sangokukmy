@@ -391,6 +391,11 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var system = await repo.System.GetAsync();
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var posts = await repo.Country.GetPostsAsync(chara.CountryId);
         var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
@@ -488,6 +493,11 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var system = await repo.System.GetAsync();
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var posts = await repo.Country.GetPostsAsync(chara.CountryId);
         var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
@@ -556,6 +566,12 @@ namespace SangokuKmy.Controllers
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
+        var system = await repo.System.GetAsync();
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
         var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
@@ -616,6 +632,11 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var system = await repo.System.GetAsync();
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var posts = await repo.Country.GetPostsAsync(chara.CountryId);
         var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);

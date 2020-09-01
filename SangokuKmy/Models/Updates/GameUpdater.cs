@@ -1192,7 +1192,7 @@ namespace SangokuKmy.Models.Updates
 
           // 黄巾の出現とバトルロワイヤルモード
           var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthAsync();
-          if (!system.IsBattleRoyaleMode && !system.IsWaitingReset &&
+          if (!system.IsBattleRoyaleMode && !system.IsWaitingReset && system.RuleSet != GameRuleSet.SimpleBattle &&
             (lastBattleMonth.ToInt() + 12 * 12 * 6 == system.IntGameDateTime ||
             (system.GameDateTime.Year == 348 && system.GameDateTime.Month == 1)))
           {
@@ -1271,7 +1271,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle)
           {
             var isSave = false;
             foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 10 * 12 * 12 <= system.IntGameDateTime))
@@ -1305,7 +1305,10 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽の配布
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave || c.GyokujiStatus == CountryGyokujiStatus.Refused) && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
+          if (!system.IsWaitingReset &&
+            !system.IsBattleRoyaleMode &&
+            system.RuleSet != GameRuleSet.SimpleBattle &&
+            allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave || c.GyokujiStatus == CountryGyokujiStatus.Refused) && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
           {
             // 異民族や経営国家を含めるため、改めて取得して確認し直す
             var countries2 = await repo.Country.GetAllAsync();
