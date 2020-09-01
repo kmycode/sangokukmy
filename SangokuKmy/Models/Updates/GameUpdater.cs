@@ -1147,7 +1147,8 @@ namespace SangokuKmy.Models.Updates
           {
             // 出現
             if (allTowns.Any(t => t.CountryId == 0) &&
-              system.ManagementCountryCount < 1)
+              system.ManagementCountryCount < 1 &&
+              system.RuleSet != GameRuleSet.SimpleBattle)
             {
               var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
               if (isCreated)
@@ -1166,7 +1167,7 @@ namespace SangokuKmy.Models.Updates
 
           // 異民族
           var countryCount = allCountries.Count(c => !c.HasOverthrown);
-          if (system.TerroristCount < 1)
+          if (system.TerroristCount < 1 && system.RuleSet != GameRuleSet.SimpleBattle)
           {
             var created = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
             if (created != null)
@@ -1177,7 +1178,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && RandomService.Next(0, 40) == 0)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 40) == 0)
           {
             var isCreated = await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
             if (isCreated)
@@ -1198,7 +1199,7 @@ namespace SangokuKmy.Models.Updates
           {
             await AddMapLogAsync(true, EventType.Event, "黄巾が反乱の時期を伺っています");
           }
-          if (!system.IsWaitingReset && (!system.IsBattleRoyaleMode && RandomService.Next(0, 70) == 0 || isKokinForce))
+          if (!system.IsWaitingReset && (!system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 70) == 0 || isKokinForce))
           {
             var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
@@ -1250,6 +1251,17 @@ namespace SangokuKmy.Models.Updates
               town.Wall = Math.Min(town.Wall, town.WallMax);
             }
             await AddMapLogAsync(true, EventType.Event, "巨大隕石が落下し、全都市の城壁が修復不可能になりました");
+            await repo.SaveChangesAsync();
+          }
+
+          // 全国戦争ルール
+          if (system.RuleSet == GameRuleSet.BattleRoyale &&
+            !system.IsBattleRoyaleMode &&
+            system.GameDateTime.Year >= 60)
+          {
+            system.IsBattleRoyaleMode = true;
+            await AddMapLogAsync(true, EventType.WarStart, "全国戦争状態に突入しました");
+            await PushNotificationService.SendAllAsync(repo, "全国戦争", "全国戦争状態に突入しました");
             await repo.SaveChangesAsync();
           }
 

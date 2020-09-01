@@ -205,5 +205,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 原理ルール
     /// </summary>
     SimpleBattle = 2,
+
+    /// <summary>
+    /// 全国戦争ルール
+    /// </summary>
+    BattleRoyale = 3,
   }
 }
