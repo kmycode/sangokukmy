@@ -25,7 +25,7 @@ namespace SangokuKmy.Models.Services
         // 自分の国と戦争状態にある場合
         cost *= 3;
       }
-      else if (wars.Any(w => w.IsJoin(town.CountryId) && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available)))
+      else if (wars.Any(w => w.IsJoin(town.CountryId) && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available || (w.Status == CountryWarStatus.StopRequesting && w.RequestedStopCountryId != town.CountryId))))
       {
         // 他の国と戦争状態にある場合
         // 停戦協議中の場合はコストを増やさない（停戦協議の濫用が最近多いのであえて）
