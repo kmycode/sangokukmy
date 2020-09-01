@@ -88,7 +88,7 @@ namespace SangokuKmy.Models.Services
       system.RuleSet = system.RuleSetNextPeriod;
       system.RuleSetNextPeriod = system.RuleSetAfterNextPeriod;
       system.RuleSetAfterNextPeriod =
-        RandomService.Next(0, 2) == 0 ? GameRuleSet.Normal : RandomService.Next(new GameRuleSet[] {
+        RandomService.Next(0, 3) != 0 ? GameRuleSet.Normal : RandomService.Next(new GameRuleSet[] {
           GameRuleSet.SimpleBattle,
           GameRuleSet.Wandering,
           GameRuleSet.BattleRoyale,
@@ -131,13 +131,19 @@ namespace SangokuKmy.Models.Services
         await repo.Character.AddCharacterIconAsync(adminIcon);
       }
 
+
+      var ruleSetName = system.RuleSet == GameRuleSet.Normal ? "標準" :
+        system.RuleSet == GameRuleSet.Wandering ? "放浪" :
+        system.RuleSet == GameRuleSet.SimpleBattle ? "原理" :
+        system.RuleSet == GameRuleSet.BattleRoyale ? "全国戦争" :
+        system.RuleSet == GameRuleSet.Gyokuji ? "玉璽";
       await repo.MapLog.AddAsync(new MapLog
       {
         EventType = EventType.Reset,
         Date = DateTime.Now,
         ApiGameDateTime = system.GameDateTime,
-        IsImportant = false,
-        Message = "ゲームプログラムを開始しました",
+        IsImportant = true,
+        Message = $"ゲームプログラムを開始しました。今期のルールセットは {ruleSetName} です",
       });
       await repo.SaveChangesAsync();
 
