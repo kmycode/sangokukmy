@@ -72,7 +72,7 @@ namespace SangokuKmy.Models.Services
         // Loggerがない！
       }
 
-      await ResetTownsAndSaveAsync(repo);
+      await ResetTownsAndSaveAsync(repo, system.RuleSetNextPeriod);
 
       system.GameDateTime = new GameDateTime
       {
@@ -237,9 +237,10 @@ namespace SangokuKmy.Models.Services
       await repo.History.RecordAndSaveAsync(history);
     }
 
-    private static async Task ResetTownsAndSaveAsync(MainRepository repo)
+    private static async Task ResetTownsAndSaveAsync(MainRepository repo, GameRuleSet ruleSet)
     {
-      var initialTowns = MapService.CreateMap(RandomService.Next(14, 19));
+      var num = ruleSet == GameRuleSet.Wandering ? 1 : RandomService.Next(14, 19);
+      var initialTowns = MapService.CreateMap(num);
       var towns = new List<Town>();
       foreach (var itown in initialTowns)
       {
