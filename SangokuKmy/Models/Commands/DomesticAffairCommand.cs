@@ -62,9 +62,10 @@ namespace SangokuKmy.Models.Commands
         if (skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentageInWar) > 0 ||
           skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentageInNotWar) > 0)
         {
+          var system = await repo.System.GetAsync();
           var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
           var isWar = wars.Any(w => (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting) && w.IsJoin(character.CountryId));
-          if (isWar)
+          if (isWar || system.IsBattleRoyaleMode)
           {
             add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentageInWar) / 100.0f));
           }
