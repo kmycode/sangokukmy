@@ -1327,7 +1327,7 @@ namespace SangokuKmy.Models.Updates
             var countries = countries2.Where(c => c.AiType != CountryAiType.Terrorists);
             if (countries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave || c.GyokujiStatus == CountryGyokujiStatus.Refused))
             {
-              var targetCountries = countries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave);
+              var targetCountries = countries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave && allTowns.Any(t => t.CountryId == c.Id));
               var gets = new List<Country>();
 
               if (system.RuleSet == GameRuleSet.Gyokuji)
