@@ -81,18 +81,52 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      var newTown = MapService.CreateTown(townType);
+      var isCapital = false;
+      if (towns.Any(t => t.CountryId == character.CountryId))
+      {
+        if (town.CountryId != character.CountryId)
+        {
+          await game.CharacterLogAsync($"<town>{town.Name}</town> の隣に都市を建設しようとしましたが、自国以外の国の都市から建設を行うことはできません");
+          return;
+        }
+      }
+      else if (countryOptional.HasData && !countryOptional.Data.HasOverthrown)
+      {
+        isCapital = true;
+      }
+
+      var newTown = MapService.CreateTown(isCapital ? TownType.Large : townType);
       newTown.X = (short)x;
       newTown.Y = (short)y;
       newTown.Name = MapService.GetTownName((short)x, (short)y);
       newTown.CountryId = character.CountryId;
+      if (isCapital)
+      {
+        newTown.SubType = townType;
+      }
       await repo.Town.AddTownsAsync(new Town[] { newTown, });
+
+      if (isCapital)
+      {
+        await repo.SaveChangesAsync();
+        countryOptional.Data.CapitalTownId = newTown.Id;
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(countryOptional.Data), countryOptional.Data.Id);
+        await StatusStreaming.Default.SendAllExceptForCountryAsync(ApiData.From(new CountryForAnonymous(countryOptional.Data)), countryOptional.Data.Id);
+      }
+
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(newTown));
       await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(newTown), repo);
 
       character.Money -= 200_0000;
       await ItemService.SpendCharacterAsync(repo, item, character);
-      await game.MapLogAsync(EventType.NewTown, $"<country>{countryName}</country> の <character>{character.Name}</character> は新たな都市 <town>{newTown.Name}</town> を建設しました", true);
+      if (isCapital)
+      {
+        await game.MapLogAsync(EventType.NewTownForCapital, $"<country>{countryName}</country> の <character>{character.Name}</character> は新たな都市 <town>{newTown.Name}</town> を建設し、首都としました", true);
+      }
+      else
+      {
+        await game.MapLogAsync(EventType.NewTown, $"<country>{countryName}</country> の <character>{character.Name}</character> は新たな都市 <town>{newTown.Name}</town> を建設しました", true);
+      }
       await game.CharacterLogAsync($"都市 <town>{newTown.Name}</town> を建設しました");
     }
 

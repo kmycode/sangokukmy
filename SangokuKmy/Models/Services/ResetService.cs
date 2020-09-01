@@ -85,6 +85,13 @@ namespace SangokuKmy.Models.Services
       system.TerroristCount = 0;
       system.ManagementCountryCount = 0;
       system.IsBattleRoyaleMode = false;
+      system.RuleSet = system.RuleSetNextPeriod;
+      system.RuleSetNextPeriod = system.RuleSetAfterNextPeriod;
+      system.RuleSetAfterNextPeriod =
+        RandomService.Next(0, 2) == 0 ? GameRuleSet.Normal : RandomService.Next(new GameRuleSet[] {
+          GameRuleSet.SimpleBattle,
+          GameRuleSet.Wandering,
+        });
       if (system.IsNextPeriodBeta)
       {
         system.BetaVersion++;

@@ -303,5 +303,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 仕官（新規・無所属）
     /// </summary>
     CharacterEntryToFree = 42,
+
+    /// <summary>
+    /// 放浪開始
+    /// </summary>
+    StartWandering = 43,
+
+    /// <summary>
+    /// 都市建設（首都）
+    /// </summary>
+    NewTownForCapital = 44,
   }
 }

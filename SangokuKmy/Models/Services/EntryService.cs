@@ -84,6 +84,7 @@ namespace SangokuKmy.Models.Services
 
       // 出身
       var skills = new List<CharacterSkillType>();
+      var items = new List<CharacterItemType>();
       if (chara.From == CharacterFrom.Warrior)
       {
         skills.Add(CharacterSkillType.Strong1);
@@ -218,14 +219,27 @@ namespace SangokuKmy.Models.Services
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
 
-        // 大都市に変更
-        town.SubType = town.Type;
-        MapService.UpdateTownType(town, TownType.Large);
+        if (system.RuleSet != GameRuleSet.Wandering)
+        {
+          // 大都市に変更
+          town.SubType = town.Type;
+          MapService.UpdateTownType(town, TownType.Large);
+        }
+        else {
+          country.CapitalTownId = 0;
+          items.Add(CharacterItemType.CastleBlueprint);
+          items.Add(CharacterItemType.CastleBlueprint);
+          items.Add(CharacterItemType.CastleBlueprint);
+          chara.Money += 200_0000 * 3;
+        }
 
         await repo.SaveChangesAsync();
 
         chara.CountryId = country.Id;
-        town.CountryId = country.Id;
+        if (system.RuleSet != GameRuleSet.Wandering)
+        {
+          town.CountryId = country.Id;
+        }
         await repo.Character.AddAsync(chara);
         await repo.SaveChangesAsync();
 
@@ -340,14 +354,28 @@ namespace SangokuKmy.Models.Services
           await repo.Country.AddPolicyAsync(p);
         }
 
-        maplog = new MapLog
+        if (system.RuleSet == GameRuleSet.Wandering)
         {
-          Date = DateTime.Now,
-          ApiGameDateTime = system.GameDateTime,
-          EventType = EventType.Publish,
-          IsImportant = true,
-          Message = $"<character>{chara.Name}</character> が <town>{town.Name}</town> に <country>{country.Name}</country> を建国しました",
-        };
+          maplog = new MapLog
+          {
+            Date = DateTime.Now,
+            ApiGameDateTime = system.GameDateTime,
+            EventType = EventType.StartWandering,
+            IsImportant = true,
+            Message = $"<character>{chara.Name}</character> は <country>{country.Name}</country> の頭領となり放浪を開始しました",
+          };
+        }
+        else
+        {
+          maplog = new MapLog
+          {
+            Date = DateTime.Now,
+            ApiGameDateTime = system.GameDateTime,
+            EventType = EventType.Publish,
+            IsImportant = true,
+            Message = $"<character>{chara.Name}</character> が <town>{town.Name}</town> に <country>{country.Name}</country> を建国しました",
+          };
+        }
         await repo.MapLog.AddAsync(maplog);
       }
 
@@ -387,6 +415,16 @@ namespace SangokuKmy.Models.Services
       foreach (var si in skillItems)
       {
         await SkillService.SetCharacterAndSaveAsync(repo, si, chara);
+      }
+      var itemData = items.Select(i => new CharacterItem
+      {
+        Type = i,
+        CharacterId = chara.Id,
+        Status = CharacterItemStatus.CharacterHold,
+      });
+      foreach (var id in itemData)
+      {
+        await ItemService.GenerateItemAndSaveAsync(repo, id);
       }
 
       await repo.SaveChangesAsync();
