@@ -313,5 +313,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 都市建設（首都）
     /// </summary>
     NewTownForCapital = 44,
+
+    /// <summary>
+    /// 時間による勝利
+    /// </summary>
+    TimeWin = 45,
   }
 }

@@ -1383,6 +1383,45 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
+          // 時間による勝利
+          if (!system.IsWaitingReset && system.GameDateTime.Year >= 500)
+          {
+            var winner = countryData.FirstOrDefault();
+            var targets = countryData.Where(cd => cd.Towns.Any());
+            if (targets.Any())
+            {
+              winner = targets.First();
+              if (targets.Count() > 1)
+              {
+                var townRanking = targets.OrderByDescending(cd => cd.Towns.Count());
+                var characterRanking = targets.OrderByDescending(cd => cd.Characters.Count());
+                var idRanking = targets.OrderBy(cd => cd.Country.Id);
+                if (townRanking.ElementAt(0).Towns.Count() > townRanking.ElementAt(1).Towns.Count())
+                {
+                  winner = townRanking.First();
+                }
+                else if (characterRanking.ElementAt(0).Characters.Count() > characterRanking.ElementAt(1).Characters.Count())
+                {
+                  winner = characterRanking.First();
+                }
+                else
+                {
+                  winner = idRanking.First();
+                }
+              }
+
+              await AddMapLogAsync(true, EventType.TimeWin, $"時間経過により <country>{winner.Country.Name}</country> が勝利しました");
+              await CountryService.UnifyCountryAsync(repo, winner.Country);
+              await repo.SaveChangesAsync();
+            }
+            else
+            {
+              await AddMapLogAsync(true, EventType.TimeWin, $"今期は時間経過により終了しました");
+              await CountryService.UnifyCountryAsync(repo, null);
+              await repo.SaveChangesAsync();
+            }
+          }
+
           // 戦争状態にないAI国家がどっかに布告するようにする
           if (!system.IsBattleRoyaleMode && allCountries.Where(c => !c.HasOverthrown).Any(c => c.AiType != CountryAiType.Human && c.AiType != CountryAiType.Managed))
           {
