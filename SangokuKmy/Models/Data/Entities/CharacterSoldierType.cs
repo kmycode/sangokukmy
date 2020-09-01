@@ -416,8 +416,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 5,
           BaseDefend = 5,
-          CrossbowAttack = 5,
-          CrossbowDefend = 5,
+          CavalryAttack = 5,
+          CavalryDefend = 5,
           DisorderProbability = 30,
           TypeInfantry = 10,
           StrongEx = 1,
@@ -434,8 +434,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 5,
           BaseDefend = 5,
-          InfantryAttack = 5,
-          InfantryDefend = 5,
+          CrossbowAttack = 5,
+          CrossbowDefend = 5,
           FriendlyFireProbability = 30,
           TypeCavalry = 10,
           StrongEx = 1,
@@ -452,8 +452,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 5,
           BaseDefend = 5,
-          CavalryAttack = 5,
-          CavalryDefend = 5,
+          InfantryAttack = 5,
+          InfantryDefend = 5,
           RushProbability = 30,
           RushAttack = 4,
           TypeCrossbow = 10,
