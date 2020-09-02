@@ -82,10 +82,6 @@ namespace SangokuKmy.Models.Commands
       {
         ErrorCode.InvalidParameterError.Throw();
       }
-      if (!(await repo.Country.GetPoliciesAsync(country.Id)).Any(p => p.Type == CountryPolicyType.HumanDevelopment))
-      {
-        ErrorCode.InvalidOperationError.Throw();
-      }
 
       var posts = await repo.Country.GetPostsAsync(country.Id);
       if (!posts.Any(p => p.CharacterId == characterId && p.Type.CanSafe()))
