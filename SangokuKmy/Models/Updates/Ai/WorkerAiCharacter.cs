@@ -1781,6 +1781,11 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected bool InputDevelopInWar()
     {
+      if (!this.GetWaringCountries().Any())
+      {
+        return false;
+      }
+
       if (this.Town.CountryId != this.Character.CountryId)
       {
         return false;
