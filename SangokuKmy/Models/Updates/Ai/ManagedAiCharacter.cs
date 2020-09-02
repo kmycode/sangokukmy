@@ -453,7 +453,7 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           this.soldierTypeCache = SoldierType.Seiran;
         }
-        else if (this.Town.Technology >= 1000 && this.Character.Money > this.Character.Leadership * 240 + 45_0000 && this.GameDateTime.Year >= 200)
+        else if (this.Town.Technology >= 1000 && this.Character.Money > this.Character.Leadership * 240 + 45_0000 && this.GameDateTime.Year >= 150)
         {
           if (soldierTypeNumber % 3 == 0)
           {
@@ -805,6 +805,11 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       if (await this.InputDefendAsync(repo))
+      {
+        return;
+      }
+
+      if (this.InputDevelopInWar())
       {
         return;
       }

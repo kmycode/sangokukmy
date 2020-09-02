@@ -1779,6 +1779,33 @@ namespace SangokuKmy.Models.Updates.Ai
       return true;
     }
 
+    protected bool InputDevelopInWar()
+    {
+      if (this.Town.CountryId != this.Character.CountryId)
+      {
+        return false;
+      }
+
+      if (this.Town.Id != this.data.BorderTown?.Id && this.Town.Id != this.data.MainTown?.Id)
+      {
+        return false;
+      }
+
+      if ((this.GameDateTime.Month % 2 == 0 || this.Town.Technology >= this.Town.TechnologyMax) && this.Town.Wall < this.Town.WallMax)
+      {
+        this.command.Type = CharacterCommandType.Wall;
+        return true;
+      }
+
+      if (this.Town.Technology < this.Town.TechnologyMax)
+      {
+        this.command.Type = CharacterCommandType.Technology;
+        return true;
+      }
+
+      return false;
+    }
+
     protected bool InputPolicy()
     {
       if (this.Country.PolicyPoint < 10000)
