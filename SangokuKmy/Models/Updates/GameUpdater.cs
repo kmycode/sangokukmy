@@ -188,6 +188,7 @@ namespace SangokuKmy.Models.Updates
           .GroupJoin(allTowns, c => c.Id, t => t.CountryId, (c, ts) => new { Country = c, Towns = ts, })
           .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, })
           .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, });
+        var allWars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
         if (system.GameDateTime.Year == Config.UpdateStartYear && system.GameDateTime.Month == 1)
         {
@@ -887,7 +888,7 @@ namespace SangokuKmy.Models.Updates
             }
 
             // 建築物の効果（謀略建築物含む）
-            var wars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting);
+            var wars = allWars.Where(w => w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting);
             var availableSubBuildings = subBuildings.Where(s => s.Status == TownSubBuildingStatus.Available);
             foreach (var subBuilding in availableSubBuildings)
             {
@@ -1011,7 +1012,7 @@ namespace SangokuKmy.Models.Updates
                 }
               }
             }
-            foreach (var war in (await repo.CountryDiplomacies.GetAllWarsAsync())
+            foreach (var war in allWars
               .Where(cw => cw.Status == CountryWarStatus.InReady || cw.Status == CountryWarStatus.StopRequesting)
               .Where(cw => cw.IntStartGameDate == system.IntGameDateTime))
             {
@@ -1203,9 +1204,7 @@ namespace SangokuKmy.Models.Updates
           }
           if (!system.IsWaitingReset && (!system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 70) == 0 || isKokinForce))
           {
-            var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-
-            if ((!wars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
+            if ((!allWars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
               lastBattleMonth.ToInt() + 12 * 12 * 7 <= system.IntGameDateTime) ||
               (system.GameDateTime.Year >= 360) || isKokinForce)
             {
@@ -1290,8 +1289,7 @@ namespace SangokuKmy.Models.Updates
             var isSave = false;
             foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 10 * 12 * 12 <= system.IntGameDateTime))
             {
-              var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-              if (system.RuleSet == GameRuleSet.Gyokuji || !wars.Any(w => w.IsJoinAvailable(country.Id)))
+              if (system.RuleSet == GameRuleSet.Gyokuji || !allWars.Any(w => w.IsJoinAvailable(country.Id)))
               {
                 country.GyokujiStatus = CountryGyokujiStatus.NotHave;
                 await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> の持っている玉璽はまがい物でした");
@@ -1303,8 +1301,7 @@ namespace SangokuKmy.Models.Updates
             var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 10 * 12 * 12 <= system.IntGameDateTime);
             if (gyokujiWinner != null)
             {
-              var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-              if (system.RuleSet == GameRuleSet.Gyokuji || !wars.Any(w => w.IsJoinAvailable(gyokujiWinner.Id)))
+              if (system.RuleSet == GameRuleSet.Gyokuji || !allWars.Any(w => w.IsJoinAvailable(gyokujiWinner.Id)))
               {
                 await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{gyokujiWinner.Name}</country> は玉璽を行使し、天下に覇を唱えました");
                 await CountryService.UnifyCountryAsync(repo, gyokujiWinner);
