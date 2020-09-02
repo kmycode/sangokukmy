@@ -136,7 +136,7 @@ namespace SangokuKmy.Models.Services
         system.RuleSet == GameRuleSet.Wandering ? "放浪" :
         system.RuleSet == GameRuleSet.SimpleBattle ? "原理" :
         system.RuleSet == GameRuleSet.BattleRoyale ? "全国戦争" :
-        system.RuleSet == GameRuleSet.Gyokuji ? "玉璽";
+        system.RuleSet == GameRuleSet.Gyokuji ? "玉璽" : "";
       await repo.MapLog.AddAsync(new MapLog
       {
         EventType = EventType.Reset,
