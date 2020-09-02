@@ -849,6 +849,11 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
+      if (await this.InputBuildSubBuildingAsync(repo))
+      {
+        return;
+      }
+
       if (this.InputDevelop())
       {
         return;

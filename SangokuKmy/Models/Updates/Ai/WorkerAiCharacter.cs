@@ -1549,6 +1549,71 @@ namespace SangokuKmy.Models.Updates.Ai
       return await this.InputMoveOrJoinUnitAsync(repo, this.data.MainTown.Id);
     }
 
+    protected async Task<bool> InputBuildSubBuildingAsync(MainRepository repo)
+    {
+      if (this.Town.Id != this.Country.CapitalTownId &&
+        this.Town.Id != this.data.MainTown?.Id &&
+        this.Town.Id != this.data.BorderTown?.Id)
+      {
+        return false;
+      }
+
+      if (this.Character.Money < 35000)
+      {
+        return false;
+      }
+
+      var subBuildings = await repo.Town.GetSubBuildingsAsync(this.Town.Id);
+
+      if (subBuildings.Any(s => (s.Status == TownSubBuildingStatus.UnderConstruction || s.Status == TownSubBuildingStatus.Removing) &&
+          s.CharacterId == this.Character.Id))
+      {
+        return false;
+      }
+
+      var removeTarget = subBuildings.FirstOrDefault(s => s.Status == TownSubBuildingStatus.Available &&
+          s.Type != TownSubBuildingType.Workshop && s.Type != TownSubBuildingType.Houses);
+      if (removeTarget != null)
+      {
+        this.command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = (int)removeTarget.Type,
+        });
+        this.command.Type = CharacterCommandType.RemoveSubBuilding;
+        return true;
+      }
+
+      if (!subBuildings.Any(s => s.Type == TownSubBuildingType.Workshop))
+      {
+        this.command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = (int)TownSubBuildingType.Workshop,
+        });
+        this.command.Type = CharacterCommandType.BuildSubBuilding;
+        return true;
+      }
+
+      if (this.Town.Type != TownType.Large)
+      {
+        return false;
+      }
+
+      if (!subBuildings.Any(s => s.Type == TownSubBuildingType.Houses))
+      {
+        this.command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = (int)TownSubBuildingType.Houses,
+        });
+        this.command.Type = CharacterCommandType.BuildSubBuilding;
+        return true;
+      }
+
+      return false;
+    }
+
     protected bool InputWallDevelop()
     {
       if (this.data.BorderTown != null)
