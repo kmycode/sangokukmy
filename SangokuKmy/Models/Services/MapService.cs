@@ -57,7 +57,7 @@ namespace SangokuKmy.Models.Services
             towns.Any(t => t.X == pos.X && t.Y == pos.Y - 1) &&
             towns.Any(t => t.X == pos.X && t.Y == pos.Y + 1))
           {
-            if (RandomService.Next(0, 5) < 2)
+            if (townCount < 80 && RandomService.Next(0, 5) < 4)
             {
               i--;
               continue;
@@ -83,9 +83,16 @@ namespace SangokuKmy.Models.Services
               errors++;
             }
           }
-          isVerify = towns.Count(t => towns.GetAroundTowns(t).Count() >= 6) <= townCount / 6 &&
-            towns.Count(t => towns.GetAroundTowns(t).Count() >= 8) <= townCount / 12 &&
-            errors == 0;
+          if (townCount <= 70)
+          {
+            isVerify = towns.Count(t => towns.GetAroundTowns(t).Count() >= 6) < townCount / 2 &&
+              towns.Count(t => towns.GetAroundTowns(t).Count() >= 8) <= townCount / 12 &&
+              errors == 0;
+          }
+          else
+          {
+            isVerify = true;
+          }
 
           // 少都市数に応じた条件
           if (isVerify && townCount <= 9 && townCount > 5)
