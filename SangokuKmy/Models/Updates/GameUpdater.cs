@@ -1011,18 +1011,20 @@ namespace SangokuKmy.Models.Updates
                 }
               }
             }
-            foreach (var war in (await repo.CountryDiplomacies.GetReadyWarsAsync()).Where(cw => cw.Status == CountryWarStatus.InReady || cw.Status == CountryWarStatus.StopRequesting))
+            foreach (var war in (await repo.CountryDiplomacies.GetAllWarsAsync())
+              .Where(cw => cw.Status == CountryWarStatus.InReady || cw.Status == CountryWarStatus.StopRequesting)
+              .Where(cw => cw.IntStartGameDate == system.IntGameDateTime))
             {
-              if (war.StartGameDate.ToInt() <= system.GameDateTime.ToInt())
+              var country1 = allCountries.FirstOrDefault(c => c.Id == war.RequestedCountryId);
+              var country2 = allCountries.FirstOrDefault(c => c.Id == war.InsistedCountryId);
+              if (country1 != null && country2 != null)
               {
-                var country1 = allCountries.FirstOrDefault(c => c.Id == war.RequestedCountryId);
-                var country2 = allCountries.FirstOrDefault(c => c.Id == war.InsistedCountryId);
-                if (country1 != null && country2 != null)
-                {
-                  await AddMapLogAsync(true, EventType.WarStart, "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争が始まりました");
-                  await PushNotificationService.SendCountryAsync(repo, "戦争", $"{country2.Name} との戦争が始まりました", country1.Id);
-                  await PushNotificationService.SendCountryAsync(repo, "戦争", $"{country1.Name} との戦争が始まりました", country2.Id);
-                }
+                await AddMapLogAsync(true, EventType.WarStart, "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争が始まりました");
+                await PushNotificationService.SendCountryAsync(repo, "戦争", $"{country2.Name} との戦争が始まりました", country1.Id);
+                await PushNotificationService.SendCountryAsync(repo, "戦争", $"{country1.Name} との戦争が始まりました", country2.Id);
+              }
+              if (war.Status == CountryWarStatus.InReady)
+              {
                 war.Status = CountryWarStatus.Available;
                 await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
               }
