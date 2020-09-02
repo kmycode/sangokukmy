@@ -625,6 +625,11 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.StrongOrIntellectExRegularly,
             Value = 9,
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleIncrease,
+          },
         },
       },
       new CharacterSkillInfo

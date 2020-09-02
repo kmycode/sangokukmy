@@ -1439,6 +1439,27 @@ namespace SangokuKmy.Models.Updates.Ai
       return false;
     }
 
+    protected bool InputSecurityInWar()
+    {
+      if (!this.GetWaringCountries().Any())
+      {
+        return false;
+      }
+
+      if (this.InputSecurity())
+      {
+        return true;
+      }
+
+      if (this.Town.People < this.Town.PeopleMax - 20000)
+      {
+        this.command.Type = CharacterCommandType.PeopleIncrease;
+        return true;
+      }
+
+      return false;
+    }
+
     protected void InputSecurityForce()
     {
       this.command.Type = CharacterCommandType.Security;

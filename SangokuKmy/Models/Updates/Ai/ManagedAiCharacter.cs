@@ -980,6 +980,11 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
+      if (this.InputSecurityInWar())
+      {
+        return;
+      }
+
       if (await this.InputDefendLoopAsync(repo, 20000))
       {
         return;
