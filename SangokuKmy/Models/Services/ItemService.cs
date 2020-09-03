@@ -42,7 +42,6 @@ namespace SangokuKmy.Models.Services
       item.CharacterId = chara.Id;
       item.TownId = 0;
 
-      // 資源を統合
       var infoOptional = CharacterItemInfoes.Get(item.Type);
       if (infoOptional.HasData)
       {
@@ -53,11 +52,17 @@ namespace SangokuKmy.Models.Services
           var resource = characterItems.FirstOrDefault(i => i.Id != item.Id && i.Status == CharacterItemStatus.CharacterHold && i.Type == item.Type);
           if (resource != null)
           {
+            // ２つの資源アイテムを統合
             resource.Resource += item.Resource;
             item.Status = CharacterItemStatus.CharacterSpent;
             item.CharacterId = 0;
             item.Resource = 0;
             await StatusStreaming.Default.SendAllAsync(ApiData.From(resource));
+          }
+          else
+          {
+            // 今の資源アイテムがそのまま所持物となる
+            item.IsAvailable = true;
           }
         }
       }
