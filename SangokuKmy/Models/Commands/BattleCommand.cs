@@ -559,7 +559,7 @@ namespace SangokuKmy.Models.Commands
               {
                 if (targetCountry.AiType != CountryAiType.Farmers)
                 {
-                  myCountry.PolicyPoint += 2000;
+                  myCountry.PolicyPoint += 3500;
                 }
                 if (targetCountry.AiType == CountryAiType.Terrorists || targetCountry.AiType == CountryAiType.TerroristsEnemy)
                 {

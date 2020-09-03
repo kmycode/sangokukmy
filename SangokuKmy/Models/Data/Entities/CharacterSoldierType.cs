@@ -374,7 +374,7 @@ namespace SangokuKmy.Models.Data.Entities
           PowerStrong = 1,
         },
         Money = 40,
-        Technology = 600,
+        Technology = 1000,
       },
       new CharacterSoldierTypePart
       {

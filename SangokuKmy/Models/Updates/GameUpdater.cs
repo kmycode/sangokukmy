@@ -948,7 +948,7 @@ namespace SangokuKmy.Models.Updates
                   {
                     var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
                     var value = Math.Max(4 / (isDefense ? 3 : 1), 1);
-                    var value2 = 1000 / (isDefense ? 3 : 1);
+                    var value2 = 600 / (isDefense ? 3 : 1);
                     atown.Security = (short)Math.Max(0, atown.Security - value);
                     atown.People = Math.Max(0, atown.People - value2);
                   }
@@ -1616,30 +1616,68 @@ namespace SangokuKmy.Models.Updates
         }
         else
         {
+          var isCommandExecuted = false;
+          async Task RunCommandAsync(CharacterCommand cmd)
+          {
+            var commandRunnerOptional = Commands.Commands.Get(cmd.Type);
+            if (commandRunnerOptional.HasData)
+            {
+              var commandRunner = commandRunnerOptional.Data;
+              await commandRunner.ExecuteAsync(repo, character, cmd.Parameters, gameObj);
+              isCommandExecuted = true;
+
+              if (commandRunner.Type != CharacterCommandType.None)
+              {
+                character.DeleteTurn = 0;
+              }
+            }
+          }
+
           // コマンドの実行
           if (currentMonth.Year >= Config.UpdateStartYear)
           {
-            var isCommandExecuted = false;
             if (commandOptional.HasData)
             {
               var command = commandOptional.Data;
-              var commandRunnerOptional = Commands.Commands.Get(command.Type);
-              if (commandRunnerOptional.HasData)
-              {
-                var commandRunner = commandRunnerOptional.Data;
-                await commandRunner.ExecuteAsync(repo, character, command.Parameters, gameObj);
-                isCommandExecuted = true;
-
-                if (commandRunner.Type != CharacterCommandType.None)
-                {
-                  character.DeleteTurn = 0;
-                }
-              }
+              await RunCommandAsync(command);
             }
             if (!isCommandExecuted)
             {
               await Commands.Commands.EmptyCommand.ExecuteAsync(repo, character, new CharacterCommandParameter[] { }, gameObj);
             }
+          }
+
+          // 定期コマンドの実行
+          var regulars = await repo.CharacterCommand.GetRegularlyCommandsAsync(character.Id);
+          foreach (var r in regulars)
+          {
+            var command = new CharacterCommand
+            {
+              Type = r.Type,
+              GameDateTime = currentMonth,
+              CharacterId = character.Id,
+            };
+            command.Parameters.Add(new CharacterCommandParameter
+            {
+              Type = CharacterCommandParameterTypes.Regularly,
+            });
+            if (r.Option1 != 0)
+            {
+              command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 1,
+                NumberValue = r.Option1,
+              });
+            }
+            if (r.Option2 != 0)
+            {
+              command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 2,
+                NumberValue = r.Option2,
+              });
+            }
+            await RunCommandAsync(command);
           }
         }
 
