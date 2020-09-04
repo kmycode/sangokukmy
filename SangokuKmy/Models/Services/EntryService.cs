@@ -78,6 +78,7 @@ namespace SangokuKmy.Models.Services
         Proficiency = 0,
         TownId = newChara.TownId,
         From = newChara.From,
+        FormationType = newChara.FormationType,
         IsBeginner = newChara.IsBeginner,
       };
       chara.SetPassword(password);
@@ -380,6 +381,15 @@ namespace SangokuKmy.Models.Services
       }
 
       await repo.SaveChangesAsync();
+
+      // 陣形
+      var formation = new Formation
+      {
+        CharacterId = chara.Id,
+        Type = chara.FormationType,
+        Level = 1,
+      };
+      await repo.Character.AddFormationAsync(formation);
 
       if (invitationCodeOptional.HasData)
       {
