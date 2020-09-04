@@ -214,7 +214,7 @@ namespace SangokuKmy.Models.Services
           IntOverthrownGameDate = 0,
           LastMoneyIncomes = 0,
           LastRiceIncomes = 0,
-          PolicyPoint = 6000,
+          PolicyPoint = 10000,
         };
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
