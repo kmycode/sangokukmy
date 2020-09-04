@@ -298,6 +298,52 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPost("unit/{unitId}/leave/{charaId}")]
+    public async Task DischargeUnitMemberAsync(
+      [FromRoute] uint unitId,
+      [FromRoute] uint charaId)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var old = await repo.Unit.GetByIdAsync(unitId);
+        if (!old.HasData)
+        {
+          ErrorCode.UnitNotFoundError.Throw();
+        }
+        var unit = old.Data;
+
+        var members = await repo.Unit.GetMembersAsync(unitId);
+        if (!members.Any(u => u.Post == UnitMemberPostType.Leader && u.CharacterId == this.AuthData.CharacterId))
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        if (this.AuthData.CharacterId == charaId)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        UnitService.Leave(repo, charaId);
+
+        var log = new CharacterLog
+        {
+          CharacterId = charaId,
+          DateTime = DateTime.Now,
+          GameDateTime = (await repo.System.GetAsync()).GameDateTime,
+          Message = $"部隊 {unit.Name} から除隊されました",
+        };
+        await repo.Character.AddCharacterLogAsync(log);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(log), charaId);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
+        {
+          Type = SignalType.UnitDischarged,
+        }), charaId);
+
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpDelete("unit/{id}")]
     public async Task RemoveUnitAsync(
       [FromRoute] uint id)

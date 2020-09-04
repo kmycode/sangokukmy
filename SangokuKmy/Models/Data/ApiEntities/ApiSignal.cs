@@ -86,5 +86,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 謹慎された
     /// </summary>
     StopCommand = 10,
+
+    /// <summary>
+    /// 部隊から除隊された
+    /// </summary>
+    UnitDischarged = 11,
   }
 }
