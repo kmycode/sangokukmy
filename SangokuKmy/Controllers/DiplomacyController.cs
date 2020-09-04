@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SangokuKmy.Common;
 using SangokuKmy.Filters;
 using SangokuKmy.Models.Common;
@@ -608,20 +610,36 @@ namespace SangokuKmy.Controllers
 
     [AuthenticationFilter]
     [HttpGet("town/buycost/{townId}")]
-    public async Task<int> GetBuyTownCostAsync(
+    public async Task<IEnumerable<GetBuyTownCostResponse>> GetBuyTownCostAsync(
       [FromRoute] uint townId)
     {
-      int cost;
+      var result = new List<GetBuyTownCostResponse>();
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var countries = await repo.Country.GetAllAsync();
         var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
-        cost = await TownService.GetTownBuyCostAsync(repo, town, country);
+        foreach (var c in countries.Where(c => !c.HasOverthrown))
+        {
+          var r = new GetBuyTownCostResponse
+          {
+            Country = new CountryForAnonymous(c),
+            Cost = await TownService.GetTownBuyCostAsync(repo, town, c),
+          };
+          result.Add(r);
+        }
       }
 
-      return cost;
+      return result;
+    }
+
+    public struct GetBuyTownCostResponse
+    {
+      [JsonProperty("country")]
+      public CountryForAnonymous Country { get; set; }
+      [JsonProperty("cost")]
+      public int Cost { get; set; }
     }
 
     [AuthenticationFilter]
