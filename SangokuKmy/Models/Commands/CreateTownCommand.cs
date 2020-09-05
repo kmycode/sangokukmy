@@ -108,6 +108,18 @@ namespace SangokuKmy.Models.Commands
 
       if (isCapital)
       {
+        if (countryOptional.Data.Religion == ReligionType.Confucianism)
+        {
+          newTown.Confucianism = 500;
+        }
+        if (countryOptional.Data.Religion == ReligionType.Taoism)
+        {
+          newTown.Taoism = 500;
+        }
+        if (countryOptional.Data.Religion == ReligionType.Buddhism)
+        {
+          newTown.Buddhism = 500;
+        }
         await repo.SaveChangesAsync();
         countryOptional.Data.CapitalTownId = newTown.Id;
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(countryOptional.Data), countryOptional.Data.Id);
