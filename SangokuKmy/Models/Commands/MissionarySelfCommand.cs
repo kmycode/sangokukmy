@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
@@ -27,12 +28,6 @@ namespace SangokuKmy.Models.Commands
       }
 
       var religion = character.Religion;
-
-      if (religion == ReligionType.None)
-      {
-        await game.CharacterLogAsync("布教しようとしましたが、無神論者のため布教できません");
-        return;
-      }
 
       if (religion == ReligionType.Any)
       {
@@ -69,8 +64,24 @@ namespace SangokuKmy.Models.Commands
           add = 1;
         }
 
-        var skills = await repo.Character.GetSkillsAsync(character.Id);
-        add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.MissionaryPercentage) / 100.0f));
+        if (character.CountryId > 0)
+        {
+          var skills = await repo.Character.GetSkillsAsync(character.Id);
+          add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.MissionaryPercentage) / 100.0f));
+        }
+        else
+        {
+          // 無所属は戦争中の国の布教を制限（布教のために解雇とかされると困る）
+          var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+          if (wars.Any(w => w.IsJoin(town.CountryId) && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting)))
+          {
+            add /= 2;
+            if (add < 1)
+            {
+              add = 1;
+            }
+          }
+        }
 
         var oldReligion = town.Religion;
 
