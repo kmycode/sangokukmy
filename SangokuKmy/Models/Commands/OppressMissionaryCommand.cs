@@ -83,7 +83,10 @@ namespace SangokuKmy.Models.Commands
         }
 
         // 経験値、金の増減
-        character.Contribution += 30;
+        if (countryOptional.HasData)
+        {
+          character.Contribution += 30;
+        }
         character.AddIntellectEx(50);
         character.SkillPoint++;
         character.Money -= 50;
