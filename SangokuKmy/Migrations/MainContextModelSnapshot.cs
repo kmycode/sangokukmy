@@ -809,6 +809,9 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("LastMoneyIncomes")
                         .HasColumnName("last_money_incomes");
 
+                    b.Property<int>("LastPolicyPointIncomes")
+                        .HasColumnName("last_policy_point_incomes");
+
                     b.Property<int>("LastRequestedIncomes")
                         .HasColumnName("last_requested_incomes");
 
