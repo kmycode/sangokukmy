@@ -672,6 +672,11 @@ namespace SangokuKmy.Controllers
           ErrorCode.TooEarlyError.Throw();
         }
 
+        if (system.GameDateTime.Year < Config.BuyTownStartYear)
+        {
+          ErrorCode.TooEarlyError.Throw();
+        }
+
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var posts = await repo.Country.GetPostsAsync(chara.CountryId);
         var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
