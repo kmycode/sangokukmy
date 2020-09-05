@@ -187,7 +187,7 @@ namespace SangokuKmy.Models.Updates
         var countryData = allCountries
           .GroupJoin(allTowns, c => c.Id, t => t.CountryId, (c, ts) => new { Country = c, Towns = ts, })
           .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, })
-          .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, });
+          .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, OldPolicyPoint = c.Country.PolicyPoint, });
         var allWars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
         if (system.GameDateTime.Year == Config.UpdateStartYear && system.GameDateTime.Month == 1)
@@ -1503,6 +1503,12 @@ namespace SangokuKmy.Models.Updates
           }
         }
 
+        // 国情報を更新
+        foreach (var country in countryData)
+        {
+          country.Country.LastPolicyPointIncomes = country.Country.PolicyPoint - country.OldPolicyPoint;
+        }
+
         // 月の更新を保存
         var updateLog = new CharacterUpdateLog { IsFirstAtMonth = true, DateTime = DateTime.Now, GameDateTime = system.GameDateTime, };
         await repo.Character.AddCharacterUpdateLogAsync(updateLog);
@@ -1541,6 +1547,7 @@ namespace SangokuKmy.Models.Updates
 
     private static async Task UpdateCharacterAsync(MainRepository repo, Character character)
     {
+      var system = await repo.System.GetAsync();
       var notifies = new List<IApiData>();
       var anonymousNotifies = new List<ApiData<MapLog>>();
       var anyoneNotifies = new List<Tuple<uint, IApiData>>();
@@ -1650,6 +1657,15 @@ namespace SangokuKmy.Models.Updates
             }, character);
             character.SkillPoint -= nextInfos[0].RequestedPoint;
             await AddLogAsync($"技能ポイントが一定まで到達したので、技能 {nextInfos[0].Name} を獲得しました");
+          }
+        }
+
+        // ルールセットによる支給
+        if (currentMonth.Year >= Config.UpdateStartYear)
+        {
+          if (system.RuleSet == GameRuleSet.BattleRoyale)
+          {
+            character.Money += 3000;
           }
         }
 

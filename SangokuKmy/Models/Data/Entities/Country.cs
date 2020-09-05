@@ -112,6 +112,13 @@ namespace SangokuKmy.Models.Data.Entities
     public int LastRiceIncomes { get; set; }
 
     /// <summary>
+    /// 最後の政策ポイント収入
+    /// </summary>
+    [Column("last_policy_point_incomes")]
+    [JsonProperty("lastPolicyPointIncomes")]
+    public int LastPolicyPointIncomes { get; set; }
+
+    /// <summary>
     /// 最後に要求された収入
     /// </summary>
     [Column("last_requested_incomes")]
