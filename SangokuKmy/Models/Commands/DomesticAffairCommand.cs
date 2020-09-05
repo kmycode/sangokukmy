@@ -29,6 +29,14 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
+      if (!countryOptional.HasData)
+      {
+        await game.CharacterLogAsync($"ID: {character.CountryId} の国は存在しません。<emerge>管理者にお問い合わせください</emerge>");
+        return;
+      }
+      var country = countryOptional.Data;
+
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
       if (townOptional.HasData)
       {
@@ -57,6 +65,11 @@ namespace SangokuKmy.Models.Commands
         if (this is SecurityCommand || this is SuperSecurityCommand)
         {
           add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.SecurityCommandMulPercentage) / 100.0f));
+        }
+
+        if (country.Religion != ReligionType.Any && country.Religion != ReligionType.None && country.Religion == town.Religion)
+        {
+          add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairAtSameMissionaryPercentage) / 100.0f));
         }
 
         if (skills.GetSumOfValues(CharacterSkillEffectType.DomesticAffairMulPercentageInWar) > 0 ||

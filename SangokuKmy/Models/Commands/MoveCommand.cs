@@ -41,12 +41,13 @@ namespace SangokuKmy.Models.Commands
         {
           var town = townOptional.Data;
           var currentTown = currentTownOptional.Data;
+          var system = await repo.System.GetAsync();
 
           if (town.Id == currentTown.Id)
           {
             await game.CharacterLogAsync("<town>" + town.Name + "</town> に移動しようとしましたが、すでに所在しています");
           }
-          else if (currentTown.IsNextToTown(town))
+          else if (currentTown.IsNextToTown(town) || system.IsWaitingReset)
           {
             character.TownId = town.Id;
             character.AddLeadershipEx(50);

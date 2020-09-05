@@ -128,6 +128,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 工房破壊所
     /// </summary>
     BreakTechnology = 11,
+
+    /// <summary>
+    /// 聖堂
+    /// </summary>
+    Cathedral = 12,
   }
 
   public class TownSubBuildingTypeInfo
@@ -252,8 +257,18 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 50000,
         CanBuildMultiple = true,
         BuildDuring = 48,
-        BuildSubject = c => c.From == CharacterFrom.Merchant,
         BuildSubjectSkills = ss => ss.AnySkillEffects(CharacterSkillEffectType.TownSubBuilding, (int)TownSubBuildingType.CommercialUnion),
+      },
+      new TownSubBuildingTypeInfo
+      {
+        Type = TownSubBuildingType.Cathedral,
+        Name = "聖堂",
+        Size = 1,
+        Money = 50000,
+        CanBuildMultiple = true,
+        BuildDuring = 48,
+        BuildSubject = c => c.Religion != ReligionType.None,
+        BuildSubjectSkills = ss => ss.AnySkillEffects(CharacterSkillEffectType.TownSubBuilding, (int)TownSubBuildingType.Cathedral),
       },
       new TownSubBuildingTypeInfo
       {

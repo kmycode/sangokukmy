@@ -38,6 +38,11 @@ namespace SangokuKmy.Models.Services
         cost *= 2;
       }
 
+      if (town.Religion != ReligionType.Any && town.Religion != ReligionType.None && country.Religion == town.Religion)
+      {
+        cost *= 0.86f;
+      }
+
       return (int)cost;
     }
   }

@@ -396,5 +396,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 都市建設
     /// </summary>
     CreateTown = 70,
+
+    /// <summary>
+    /// 布教
+    /// </summary>
+    Missionary = 71,
+
+    /// <summary>
+    /// 宗教弾圧
+    /// </summary>
+    OppressMissionary = 72,
   }
 }

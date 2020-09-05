@@ -175,6 +175,21 @@ namespace SangokuKmy.Models.Data.Entities
       get => GameDateTime.FromInt(this.IntGyokujiGameDate);
       set => this.IntGyokujiGameDate = value.ToInt();
     }
+
+    /// <summary>
+    /// 国教
+    /// </summary>
+    [Column("religion")]
+    [JsonIgnore]
+    public ReligionType Religion { get; set; }
+
+    [NotMapped]
+    [JsonProperty("religion")]
+    public short ApiReligion
+    {
+      get => (short)this.Religion;
+      set => this.Religion = (ReligionType)value;
+    }
   }
 
   public enum CountryAiType : short

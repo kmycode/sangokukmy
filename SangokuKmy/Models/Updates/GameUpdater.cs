@@ -674,6 +674,9 @@ namespace SangokuKmy.Models.Updates
               {
                 await StatusStreaming.Default.SendCountryAsync(ApiData.From(country.Country), country.Country.Id);
               }
+
+              // 宗教による追加の政策ポイント
+              country.Country.PolicyPoint += country.Towns.Count(t => t.Religion == country.Country.Religion) * 2;
             }
           }
 
@@ -951,6 +954,47 @@ namespace SangokuKmy.Models.Updates
                     var value2 = 600 / (isDefense ? 3 : 1);
                     atown.Security = (short)Math.Max(0, atown.Security - value);
                     atown.People = Math.Max(0, atown.People - value2);
+                  }
+                }
+              }
+              else if (subBuilding.Type == TownSubBuildingType.Cathedral)
+              {
+                if (system.GameDateTime.Month % 2 == 0)
+                {
+                  var religion = country.Country.Religion;
+
+                  if (religion == ReligionType.Confucianism)
+                  {
+                    town.Confucianism += 8;
+                  }
+                  if (religion == ReligionType.Buddhism)
+                  {
+                    town.Buddhism += 8;
+                  }
+                  if (religion == ReligionType.Taoism)
+                  {
+                    town.Taoism += 8;
+                  }
+                  if (religion != ReligionType.Any && religion != ReligionType.None && religion == town.Religion)
+                  {
+                    town.TechnologyMax += 3;
+                    town.WallMax += 7;
+                  }
+
+                  foreach (var atown in aroundTowns)
+                  {
+                    if (religion == ReligionType.Confucianism)
+                    {
+                      atown.Confucianism += 4;
+                    }
+                    if (religion == ReligionType.Buddhism)
+                    {
+                      atown.Buddhism += 4;
+                    }
+                    if (religion == ReligionType.Taoism)
+                    {
+                      atown.Taoism += 4;
+                    }
                   }
                 }
               }
@@ -1379,6 +1423,25 @@ namespace SangokuKmy.Models.Updates
               }
 
               await repo.SaveChangesAsync();
+            }
+          }
+
+          // 宗教勝利
+          if (!system.IsWaitingReset)
+          {
+            var religionOfTown = allTowns.Where(t => t.Religion != ReligionType.None && t.Religion != ReligionType.Any).GroupBy(t => t.Religion);
+            var religionOfCountry = allCountries.Where(c => !c.HasOverthrown && c.Religion != ReligionType.Any && c.Religion != ReligionType.None).GroupBy(c => c.Religion);
+            if (religionOfTown.Count() == 1 && religionOfCountry.Count() == 1)
+            {
+              var religion = religionOfTown.First().Key;
+              var countryGroup = religionOfCountry.First();
+              if (countryGroup.Count() == 1 && countryGroup.Key == religion)
+              {
+                var winner = countryGroup.First();
+                await AddMapLogAsync(true, EventType.ReligionWin, $"<country>{winner.Name}</country> がすべての都市の宗教を掌握して勝利しました");
+                await CountryService.UnifyCountryAsync(repo, winner);
+                await repo.SaveChangesAsync();
+              }
             }
           }
 

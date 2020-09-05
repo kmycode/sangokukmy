@@ -318,5 +318,20 @@ namespace SangokuKmy.Models.Data.Entities
     /// 時間による勝利
     /// </summary>
     TimeWin = 45,
+
+    /// <summary>
+    /// 改宗
+    /// </summary>
+    ChangeReligion = 46,
+
+    /// <summary>
+    /// 弾圧
+    /// </summary>
+    StopReligion = 47,
+
+    /// <summary>
+    /// 宗教勝利
+    /// </summary>
+    ReligionWin = 48,
   }
 }

@@ -78,6 +78,7 @@ namespace SangokuKmy.Models.Services
         Proficiency = 0,
         TownId = newChara.TownId,
         From = newChara.From,
+        Religion = ReligionType.Any,
         FormationType = newChara.FormationType,
         IsBeginner = newChara.IsBeginner,
       };
@@ -133,6 +134,36 @@ namespace SangokuKmy.Models.Services
       {
         skills.Add(CharacterSkillType.Staff1);
         chara.Intellect += 20;
+      }
+      else if (chara.From == CharacterFrom.Buddhism)
+      {
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+        skills.Add(CharacterSkillType.Buddhism1);
+        chara.Intellect += 15;
+        chara.Religion = ReligionType.Buddhism;
+      }
+      else if (chara.From == CharacterFrom.Confucianism)
+      {
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+        skills.Add(CharacterSkillType.Confucianism1);
+        chara.Intellect += 15;
+        chara.Religion = ReligionType.Confucianism;
+      }
+      else if (chara.From == CharacterFrom.Taoism)
+      {
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+        skills.Add(CharacterSkillType.Taoism1);
+        chara.Intellect += 15;
+        chara.Religion = ReligionType.Taoism;
       }
       else
       {
@@ -205,6 +236,11 @@ namespace SangokuKmy.Models.Services
           ErrorCode.DuplicateCountryNameOrColorError.Throw();
         }
 
+        if (newCountry.Religion != ReligionType.Any && newCountry.Religion != ReligionType.None && system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+
         var country = new Country
         {
           Name = newCountry.Name,
@@ -216,6 +252,7 @@ namespace SangokuKmy.Models.Services
           LastMoneyIncomes = 0,
           LastRiceIncomes = 0,
           PolicyPoint = 10000,
+          Religion = newCountry.Religion,
         };
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
@@ -225,6 +262,19 @@ namespace SangokuKmy.Models.Services
           // 大都市に変更
           town.SubType = town.Type;
           MapService.UpdateTownType(town, TownType.Large);
+
+          if (country.Religion == ReligionType.Buddhism)
+          {
+            town.Buddhism = 500;
+          }
+          if (country.Religion == ReligionType.Confucianism)
+          {
+            town.Confucianism = 500;
+          }
+          if (country.Religion == ReligionType.Taoism)
+          {
+            town.Taoism = 500;
+          }
         }
         else {
           country.CapitalTownId = 0;

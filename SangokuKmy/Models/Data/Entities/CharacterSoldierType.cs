@@ -811,6 +811,20 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterSoldierTypePart
       {
+        Preset = SoldierType.Guard_Step6,
+        Name = "守兵F",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 15,
+          BaseDefend = 10,
+          TypeWall = 10,
+          PowerStrong = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
         Preset = SoldierType.TerroristCommonA,
         Name = "異民族兵A",
         Data = new CharacterSoldierTypeData

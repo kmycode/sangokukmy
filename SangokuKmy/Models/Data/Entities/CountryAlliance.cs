@@ -68,6 +68,20 @@ namespace SangokuKmy.Models.Data.Entities
     public int BreakingDelay { get; set; }
 
     /// <summary>
+    /// 布教できるか
+    /// </summary>
+    [Column("can_missionary")]
+    [JsonProperty("canMissionary")]
+    public bool CanMissionary { get; set; }
+
+    /// <summary>
+    /// 都市を購入できるか
+    /// </summary>
+    [Column("can_buy_ton")]
+    [JsonProperty("canBuyTown")]
+    public bool CanBuyTown { get; set; }
+
+    /// <summary>
     /// 自由記述欄
     /// </summary>
     [Column("memo")]
