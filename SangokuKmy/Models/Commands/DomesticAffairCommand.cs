@@ -29,6 +29,12 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      if (character.CountryId == 0)
+      {
+        await game.CharacterLogAsync($"無所属は内政を実行できません");
+        return;
+      }
+
       var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
       if (!countryOptional.HasData)
       {
