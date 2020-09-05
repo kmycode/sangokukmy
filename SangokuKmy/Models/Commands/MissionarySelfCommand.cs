@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
@@ -8,9 +9,9 @@ using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Commands
 {
-  public class MissionaryCommand : Command
+  public class MissionarySelfCommand : Command
   {
-    public override CharacterCommandType Type => CharacterCommandType.Missionary;
+    public override CharacterCommandType Type => CharacterCommandType.MissionarySelf;
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
@@ -26,25 +27,11 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      var religion = ReligionType.Any;
-      var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
-      if (!countryOptional.HasData)
-      {
-        await game.CharacterLogAsync("布教しようとしましたが、宗教家以外は国に仕官しないと布教できません");
-        return;
-      }
-      var country = countryOptional.Data;
-      religion = country.Religion;
-
-      if (religion == ReligionType.None)
-      {
-        await game.CharacterLogAsync("布教しようとしましたが、国教が無神のため布教できません");
-        return;
-      }
+      var religion = character.Religion;
 
       if (religion == ReligionType.Any)
       {
-        await game.CharacterLogAsync("布教しようとしましたが、国教が設定されていません");
+        await game.CharacterLogAsync("布教しようとしましたが、武将固有の宗教を持っていません");
         return;
       }
 
@@ -77,8 +64,24 @@ namespace SangokuKmy.Models.Commands
           add = 1;
         }
 
-        var skills = await repo.Character.GetSkillsAsync(character.Id);
-        add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.MissionaryPercentage) / 100.0f));
+        if (character.CountryId > 0)
+        {
+          var skills = await repo.Character.GetSkillsAsync(character.Id);
+          add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.MissionaryPercentage) / 100.0f));
+        }
+        else
+        {
+          // 無所属は戦争中の国の布教を制限（布教のために解雇とかされると困る）
+          var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+          if (wars.Any(w => w.IsJoin(town.CountryId) && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting)))
+          {
+            add /= 2;
+            if (add < 1)
+            {
+              add = 1;
+            }
+          }
+        }
 
         var oldReligion = town.Religion;
 
@@ -100,7 +103,7 @@ namespace SangokuKmy.Models.Commands
         }
 
         // 経験値、金の増減
-        if (countryOptional.HasData)
+        if (character.CountryId > 0)
         {
           character.Contribution += 30;
         }

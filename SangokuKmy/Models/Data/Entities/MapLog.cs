@@ -333,5 +333,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 宗教勝利
     /// </summary>
     ReligionWin = 48,
+
+    /// <summary>
+    /// 信仰
+    /// </summary>
+    NewReligion = 49,
   }
 }

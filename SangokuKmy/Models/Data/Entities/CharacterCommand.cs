@@ -406,5 +406,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 宗教弾圧
     /// </summary>
     OppressMissionary = 72,
+
+    /// <summary>
+    /// 自教布教
+    /// </summary>
+    MissionarySelf = 73,
   }
 }
