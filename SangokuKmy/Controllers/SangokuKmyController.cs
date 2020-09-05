@@ -402,6 +402,69 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("commands/regularly/{month}")]
+    public async Task SetCharacterRegularlyCommandAsync(
+      [FromRoute] int month)
+    {
+      CharacterRegularlyCommand regularly;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var command = await repo.CharacterCommand.GetAsync(chara.Id, GameDateTime.FromInt(month)).GetOrErrorAsync(ErrorCode.LackOfParameterError);
+
+        if (command.Type != CharacterCommandType.GenerateItem && command.Type != CharacterCommandType.TownInvest)
+        {
+          ErrorCode.InvalidParameterError.Throw();
+        }
+
+        var olds = await repo.CharacterCommand.GetRegularlyCommandsAsync(chara.Id);
+        foreach (var old in olds)
+        {
+          repo.CharacterCommand.Remove(old);
+        }
+
+        regularly = new CharacterRegularlyCommand
+        {
+          CharacterId = chara.Id,
+          Type = command.Type,
+          Option1 = command.Parameters.FirstOrDefault(p => p.Type == 1)?.NumberValue ?? 0,
+          Option2 = command.Parameters.FirstOrDefault(p => p.Type == 2)?.NumberValue ?? 0,
+        };
+        await repo.CharacterCommand.AddAsync(regularly);
+
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(regularly), this.AuthData.CharacterId);
+    }
+
+    [AuthenticationFilter]
+    [HttpDelete("commands/regularly")]
+    public async Task ClearCharacterRegularlyCommandAsync()
+    {
+      IList<CharacterRegularlyCommand> regularlies = new List<CharacterRegularlyCommand>();
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+
+        var olds = await repo.CharacterCommand.GetRegularlyCommandsAsync(chara.Id);
+        foreach (var old in olds)
+        {
+          repo.CharacterCommand.Remove(old);
+
+          old.HasRemoved = true;
+          regularlies.Add(old);
+        }
+
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendCharacterAsync(regularlies.Select(r => ApiData.From(r)), this.AuthData.CharacterId);
+    }
+
+    [AuthenticationFilter]
     [HttpGet("icons")]
     public async Task<ApiArrayData<CharacterIcon>> GetCharacterAllIconsAsync()
     {

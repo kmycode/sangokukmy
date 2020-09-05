@@ -14,6 +14,7 @@ using SangokuKmy.Streamings;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 using SangokuKmy.Models.Services;
+using SangokuKmy.Models.Common;
 
 namespace SangokuKmy.Controllers
 {
@@ -296,6 +297,16 @@ namespace SangokuKmy.Controllers
           var sender = await repo.Character.GetByIdAsync(old.TypeData).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
 
           var senderCountry = await repo.Country.GetAliveByIdAsync(old.CharacterCountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+          if (senderCountry.IntEstablished + Config.CountryBattleStopDuring > system.IntGameDateTime)
+          {
+            var characterCount = await repo.Country.CountCharactersAsync(senderCountry.Id, true);
+            if (characterCount >= Config.CountryJoinMaxOnLimited)
+            {
+              // 戦闘解除前の国に士官できない
+              ErrorCode.CantJoinAtSuchCountryhError.Throw();
+            }
+          }
+
           oldTown = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           newTown = await repo.Town.GetByIdAsync(senderCountry.CapitalTownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           oldTownCharacters = (await repo.Town.GetCharactersWithIconAsync(oldTown.Id)).Select(c => c.Character.Id);

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SangokuKmy.Common;
 using SangokuKmy.Filters;
 using SangokuKmy.Models.Common;
@@ -126,12 +128,16 @@ namespace SangokuKmy.Controllers
           {
             param.BreakingDelay = o.BreakingDelay;
             param.IsPublic = o.IsPublic;
+            param.CanMissionary = o.CanMissionary;
+            param.CanBuyTown = o.CanBuyTown;
             param.Memo = o.Memo;
           }
           else if (param.Status == CountryAllianceStatus.Changed)
           {
             param.BreakingDelay = changeTo.Data.BreakingDelay;
             param.IsPublic = changeTo.Data.IsPublic;
+            param.CanMissionary = o.CanMissionary;
+            param.CanBuyTown = o.CanBuyTown;
             param.Memo = changeTo.Data.Memo;
           }
         }
@@ -161,6 +167,8 @@ namespace SangokuKmy.Controllers
           InsistedCountryId = targetId,
           BreakingDelay = param.BreakingDelay,
           IsPublic = param.IsPublic,
+          CanMissionary = param.CanMissionary,
+          CanBuyTown = param.CanBuyTown,
           Memo = param.Memo,
           Status = param.Status == CountryAllianceStatus.Changed ? CountryAllianceStatus.Available : param.Status,
         };
@@ -391,6 +399,11 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var system = await repo.System.GetAsync();
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var posts = await repo.Country.GetPostsAsync(chara.CountryId);
         var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
@@ -488,6 +501,11 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var system = await repo.System.GetAsync();
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var posts = await repo.Country.GetPostsAsync(chara.CountryId);
         var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
@@ -544,6 +562,178 @@ namespace SangokuKmy.Controllers
           await CountryService.OverThrowAsync(repo, country, targetCountry);
           await LogService.AddMapLogAsync(repo, true, EventType.Surrender, $"<country>{country.Name}</country> は、<country>{targetCountry.Name}</country> に降伏しました");
         }
+      }
+    }
+
+    [AuthenticationFilter]
+    [HttpPost("buy/towndef/{townId}")]
+    public async Task<int> AddBuyTownCostAsync(
+      [FromRoute] uint townId)
+    {
+      int cost;
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var system = await repo.System.GetAsync();
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(chara.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
+        if (myPost == null || !myPost.Type.CanDiplomacy())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        if (country.PolicyPoint < 1000)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        if (chara.CountryId != town.CountryId)
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(chara.CountryId, town.CountryId);
+        if (alliance.HasData && !alliance.Data.CanBuyTown)
+        {
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        country.PolicyPoint -= 1000;
+        town.TakeoverDefensePoint += 1000;
+
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
+        await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
+
+        await repo.SaveChangesAsync();
+
+        cost = await TownService.GetTownBuyCostAsync(repo, town, country);
+      }
+
+      return cost;
+    }
+
+    [AuthenticationFilter]
+    [HttpGet("town/buycost/{townId}")]
+    public async Task<IEnumerable<GetBuyTownCostResponse>> GetBuyTownCostAsync(
+      [FromRoute] uint townId)
+    {
+      var result = new List<GetBuyTownCostResponse>();
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var countries = await repo.Country.GetAllAsync();
+        var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+        foreach (var c in countries.Where(c => !c.HasOverthrown))
+        {
+          var r = new GetBuyTownCostResponse
+          {
+            Country = new CountryForAnonymous(c),
+            Cost = await TownService.GetTownBuyCostAsync(repo, town, c),
+          };
+          result.Add(r);
+        }
+      }
+
+      return result;
+    }
+
+    public struct GetBuyTownCostResponse
+    {
+      [JsonProperty("country")]
+      public CountryForAnonymous Country { get; set; }
+      [JsonProperty("cost")]
+      public int Cost { get; set; }
+    }
+
+    [AuthenticationFilter]
+    [HttpPost("buy/town/{townId}")]
+    public async Task BuyTownAsync(
+      [FromRoute] uint townId)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var system = await repo.System.GetAsync();
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+
+        if (system.GameDateTime.Year < Config.StartYear + Config.CountryBattleStopDuring / 12)
+        {
+          ErrorCode.TooEarlyError.Throw();
+        }
+
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var posts = await repo.Country.GetPostsAsync(chara.CountryId);
+        var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
+        if (myPost == null || !myPost.Type.CanDiplomacy())
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var targetTown = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
+        var targetCountry = await repo.Country.GetByIdAsync(targetTown.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var cost = await TownService.GetTownBuyCostAsync(repo, targetTown, country);
+
+        if (targetTown.CountryId == chara.CountryId)
+        {
+          // 自分の国の都市を購入できない
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        if (country.PolicyPoint < cost)
+        {
+          // 政策ポイントが足りない
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        var allTowns = await repo.Town.GetAllAsync();
+        if (!allTowns.GetAroundCountries(targetTown).Contains(chara.CountryId))
+        {
+          // 購入で飛び地は作れない
+          ErrorCode.InvalidOperationError.Throw();
+        }
+
+        var isSurrender = allTowns.Count(t => t.CountryId == chara.CountryId) == 1;
+
+        // 購入
+        country.PolicyPoint -= cost;
+        await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
+
+        var defenders = (await repo.Town.GetAllDefendersAsync()).Where(d => d.TownId == townId);
+        foreach (var d in defenders)
+        {
+          repo.Town.RemoveDefender(d.CharacterId);
+          await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(d), repo, targetTown);
+        }
+        targetTown.CountryId = chara.CountryId;
+        var townCharacters = await repo.Town.GetCharactersAsync(townId);
+        foreach (var character in townCharacters)
+        {
+          await CharacterService.StreamCharacterAsync(repo, character);
+        }
+        await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown), repo);
+        await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(targetTown)));
+        await LogService.AddMapLogAsync(repo, true, EventType.BuyTown, $"<country>{country.Name}</country> は、<country>{targetCountry.Name}</country> の <town>{targetTown.Name}</town> を購入しました");
+
+        if (isSurrender)
+        {
+          // 滅亡
+          await CountryService.OverThrowAsync(repo, targetCountry, country);
+          await LogService.AddMapLogAsync(repo, true, EventType.Surrender, $"<country>{targetCountry.Name}</country> は、<country>{country.Name}</country> に降伏しました");
+        }
+
+        await repo.SaveChangesAsync();
       }
     }
   }

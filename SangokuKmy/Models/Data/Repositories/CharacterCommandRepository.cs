@@ -209,6 +209,43 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<CharacterRegularlyCommand>> GetRegularlyCommandsAsync(uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.CharacterRegularlyCommands.Where(c => c.CharacterId == charaId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task AddAsync(CharacterRegularlyCommand command)
+    {
+      try
+      {
+        await this.container.Context.CharacterRegularlyCommands.AddAsync(command);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public void Remove(CharacterRegularlyCommand command)
+    {
+      try
+      {
+        this.container.Context.CharacterRegularlyCommands.Remove(command);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     public async Task<IReadOnlyList<CommandMessage>> GetMessagesAsync(uint countryId)
     {
       try
@@ -265,6 +302,7 @@ namespace SangokuKmy.Models.Data.Repositories
         await this.container.RemoveAllRowsAsync(typeof(CharacterCommand));
         await this.container.RemoveAllRowsAsync(typeof(CharacterCommandParameter));
         await this.container.RemoveAllRowsAsync(typeof(CommandMessage));
+        await this.container.RemoveAllRowsAsync(typeof(CharacterRegularlyCommand));
       }
       catch (Exception ex)
       {

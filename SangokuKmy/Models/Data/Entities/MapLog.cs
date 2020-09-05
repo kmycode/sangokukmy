@@ -288,5 +288,50 @@ namespace SangokuKmy.Models.Data.Entities
     /// 下野
     /// </summary>
     CharacterResign = 39,
+
+    /// <summary>
+    /// 新しい都市
+    /// </summary>
+    NewTown = 40,
+
+    /// <summary>
+    /// 都市の購入
+    /// </summary>
+    BuyTown = 41,
+
+    /// <summary>
+    /// 仕官（新規・無所属）
+    /// </summary>
+    CharacterEntryToFree = 42,
+
+    /// <summary>
+    /// 放浪開始
+    /// </summary>
+    StartWandering = 43,
+
+    /// <summary>
+    /// 都市建設（首都）
+    /// </summary>
+    NewTownForCapital = 44,
+
+    /// <summary>
+    /// 時間による勝利
+    /// </summary>
+    TimeWin = 45,
+
+    /// <summary>
+    /// 改宗
+    /// </summary>
+    ChangeReligion = 46,
+
+    /// <summary>
+    /// 弾圧
+    /// </summary>
+    StopReligion = 47,
+
+    /// <summary>
+    /// 宗教勝利
+    /// </summary>
+    ReligionWin = 48,
   }
 }

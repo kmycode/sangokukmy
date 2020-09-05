@@ -193,6 +193,74 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("town_building_value")]
     [JsonProperty("townBuildingValue")]
     public int TownBuildingValue { get; set; }
+
+    /// <summary>
+    /// 建築物の追加敷地
+    /// </summary>
+    [Column("town_sub_building_extra_space")]
+    [JsonProperty("townSubBuildingExtraSpace")]
+    public short TownSubBuildingExtraSpace { get; set; }
+
+    /// <summary>
+    /// 購入防衛政策ポイント
+    /// </summary>
+    [Column("takeover_defense_point")]
+    [JsonProperty("takeoverDefensePoint")]
+    public int TakeoverDefensePoint { get; set; }
+
+    /// <summary>
+    /// 儒教の布教状況
+    /// </summary>
+    [Column("confucianism")]
+    [JsonProperty("confucianism")]
+    public int Confucianism { get; set; }
+
+    /// <summary>
+    /// 道教の布教状況
+    /// </summary>
+    [Column("taoism")]
+    [JsonProperty("taoism")]
+    public int Taoism { get; set; }
+
+    /// <summary>
+    /// 仏教の布教状況
+    /// </summary>
+    [Column("buddhism")]
+    [JsonProperty("buddhism")]
+    public int Buddhism { get; set; }
+
+    /// <summary>
+    /// 都市の信仰する宗教
+    /// </summary>
+    [NotMapped]
+    [JsonIgnore]
+    public ReligionType Religion
+    {
+      get
+      {
+        if (this.Confucianism < 1000 && this.Taoism < 1000 && this.Buddhism < 1000)
+        {
+          return ReligionType.Any;
+        }
+        if (this.Confucianism > this.Taoism && this.Confucianism > this.Buddhism)
+        {
+          return ReligionType.Confucianism;
+        }
+        if (this.Taoism > this.Buddhism)
+        {
+          return ReligionType.Taoism;
+        }
+        return ReligionType.Buddhism;
+      }
+    }
+
+    [NotMapped]
+    [JsonProperty("religion")]
+    public short ApiReligion
+    {
+      get => (short)this.Religion;
+      set { }
+    }
   }
 
   [Table("town")]

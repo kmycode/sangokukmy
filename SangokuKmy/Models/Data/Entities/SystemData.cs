@@ -148,5 +148,72 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("is_battle_royale_mode")]
     [JsonProperty("isBattleRoyaleMode")]
     public bool IsBattleRoyaleMode { get; set; }
+
+    /// <summary>
+    /// ルールセット
+    /// </summary>
+    [Column("rule_set")]
+    [JsonIgnore]
+    public GameRuleSet RuleSet { get; set; }
+
+    [NotMapped]
+    [JsonProperty("ruleSet")]
+    public short ApiRuleSet
+    {
+      get => (short)this.RuleSet;
+      set => this.RuleSet = (GameRuleSet)value;
+    }
+
+    [Column("rule_set_next_period")]
+    [JsonIgnore]
+    public GameRuleSet RuleSetNextPeriod { get; set; }
+
+    [NotMapped]
+    [JsonProperty("ruleSetNextPeriod")]
+    public short ApiRuleSetNextPeriod
+    {
+      get => (short)this.RuleSetNextPeriod;
+      set => this.RuleSetNextPeriod = (GameRuleSet)value;
+    }
+
+    [Column("rule_set_after_next_period")]
+    [JsonIgnore]
+    public GameRuleSet RuleSetAfterNextPeriod { get; set; }
+
+    [NotMapped]
+    [JsonProperty("ruleSetAfterNextPeriod")]
+    public short ApiRuleSetAfterNextPeriod
+    {
+      get => (short)this.RuleSetAfterNextPeriod;
+      set => this.RuleSetAfterNextPeriod = (GameRuleSet)value;
+    }
+  }
+
+  public enum GameRuleSet : short
+  {
+    /// <summary>
+    /// 通常ルール
+    /// </summary>
+    Normal = 0,
+
+    /// <summary>
+    /// 放浪ルール
+    /// </summary>
+    Wandering = 1,
+
+    /// <summary>
+    /// 原理ルール
+    /// </summary>
+    SimpleBattle = 2,
+
+    /// <summary>
+    /// 全国戦争ルール
+    /// </summary>
+    BattleRoyale = 3,
+
+    /// <summary>
+    /// 玉璽ルール
+    /// </summary>
+    Gyokuji = 4,
   }
 }

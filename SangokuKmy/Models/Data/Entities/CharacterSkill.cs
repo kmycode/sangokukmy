@@ -112,6 +112,21 @@ namespace SangokuKmy.Models.Data.Entities
     Merchant4b = 55,
     Merchant5b = 56,
     Intellect2b = 57,
+    Confucianism1 = 58,
+    Confucianism2 = 59,
+    Confucianism3 = 60,
+    Confucianism4 = 61,
+    Confucianism5 = 62,
+    Taoism1 = 63,
+    Taoism2 = 64,
+    Taoism3 = 65,
+    Taoism4 = 66,
+    Taoism5 = 67,
+    Buddhism1 = 68,
+    Buddhism2 = 69,
+    Buddhism3 = 70,
+    Buddhism4 = 71,
+    Buddhism5 = 72,
   }
 
   public enum CharacterSkillEffectType
@@ -145,6 +160,8 @@ namespace SangokuKmy.Models.Data.Entities
     GenerateItem,
     TownSubBuilding,
     FormationMax,
+    MissionaryPercentage,
+    DomesticAffairAtSameMissionaryPercentage,
   }
 
   public class CharacterSkillEffect
@@ -624,6 +641,11 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.StrongOrIntellectExRegularly,
             Value = 9,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.PeopleIncrease,
           },
         },
       },
@@ -1187,6 +1209,240 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.SoldierType,
             Value = (int)SoldierType.IntellectCrossbow,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Confucianism1,
+        RequestedPoint = 0,
+        Name = "儒家 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = -100,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Confucianism2,
+        RequestedPoint = 100,
+        Name = "儒家 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Confucianism1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.MissionaryPercentage,
+            Value = 100,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Confucianism3,
+        RequestedPoint = 600,
+        Name = "儒家 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Confucianism2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.DomesticAffairAtSameMissionaryPercentage,
+            Value = 100,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Confucianism4,
+        RequestedPoint = 500,
+        Name = "儒家 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Confucianism3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.OppressMissionary,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Confucianism5,
+        RequestedPoint = 200,
+        Name = "儒家 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Confucianism4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.TownSubBuilding,
+            Value = (int)TownSubBuildingType.Cathedral,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Taoism1,
+        RequestedPoint = 0,
+        Name = "道家 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = -100,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Taoism2,
+        RequestedPoint = 100,
+        Name = "道家 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Taoism1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.MissionaryPercentage,
+            Value = 100,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Taoism3,
+        RequestedPoint = 600,
+        Name = "道家 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Taoism2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.DomesticAffairAtSameMissionaryPercentage,
+            Value = 100,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Taoism4,
+        RequestedPoint = 500,
+        Name = "道家 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Taoism3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.OppressMissionary,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Taoism5,
+        RequestedPoint = 200,
+        Name = "道家 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Taoism4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.TownSubBuilding,
+            Value = (int)TownSubBuildingType.Cathedral,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Buddhism1,
+        RequestedPoint = 0,
+        Name = "仏僧 Lv.1",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = -100,
+            },
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Buddhism2,
+        RequestedPoint = 100,
+        Name = "仏僧 Lv.2",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Buddhism1),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.MissionaryPercentage,
+            Value = 100,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Buddhism3,
+        RequestedPoint = 600,
+        Name = "仏僧 Lv.3",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Buddhism2),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.DomesticAffairAtSameMissionaryPercentage,
+            Value = 100,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Buddhism4,
+        RequestedPoint = 500,
+        Name = "仏僧 Lv.4",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Buddhism3),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.OppressMissionary,
+          },
+        },
+      },
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.Buddhism5,
+        RequestedPoint = 200,
+        Name = "仏僧 Lv.5",
+        SubjectAppear = skills => skills.Any(s => s.Type == CharacterSkillType.Buddhism4),
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.TownSubBuilding,
+            Value = (int)TownSubBuildingType.Cathedral,
           },
         },
       },

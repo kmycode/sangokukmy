@@ -42,7 +42,6 @@ namespace SangokuKmy.Models.Services
       item.CharacterId = chara.Id;
       item.TownId = 0;
 
-      // 資源を統合
       var infoOptional = CharacterItemInfoes.Get(item.Type);
       if (infoOptional.HasData)
       {
@@ -53,11 +52,17 @@ namespace SangokuKmy.Models.Services
           var resource = characterItems.FirstOrDefault(i => i.Id != item.Id && i.Status == CharacterItemStatus.CharacterHold && i.Type == item.Type);
           if (resource != null)
           {
+            // ２つの資源アイテムを統合
             resource.Resource += item.Resource;
             item.Status = CharacterItemStatus.CharacterSpent;
             item.CharacterId = 0;
             item.Resource = 0;
             await StatusStreaming.Default.SendAllAsync(ApiData.From(resource));
+          }
+          else
+          {
+            // 今の資源アイテムがそのまま所持物となる
+            item.IsAvailable = true;
           }
         }
       }
@@ -157,6 +162,20 @@ namespace SangokuKmy.Models.Services
           {
             chara.AddIntellectEx((short)effect.Value);
             logs.Add($"知力経験値 <num>{effect.Value}</num>");
+          }
+          if (effect.Type == CharacterItemEffectType.AddSubBuildingExtraSize)
+          {
+            var townOptional = await repo.Town.GetByIdAsync(chara.TownId);
+            if (townOptional.HasData)
+            {
+              townOptional.Data.TownSubBuildingExtraSpace += (short)effect.Value;
+              logs.Add($"<town>{townOptional.Data.Name}</town> の敷地 <num>+{effect.Value}</num>");
+              await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(townOptional.Data), repo);
+            }
+            else
+            {
+              logs.Add($"<emerge>エラー: 都市が見つかりませんでした ID: {chara.TownId}</emerge>");
+            }
           }
           if (effect.Type == CharacterItemEffectType.CheckGyokuji)
           {

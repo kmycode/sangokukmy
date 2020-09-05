@@ -1439,6 +1439,27 @@ namespace SangokuKmy.Models.Updates.Ai
       return false;
     }
 
+    protected bool InputSecurityInWar()
+    {
+      if (!this.GetWaringCountries().Any())
+      {
+        return false;
+      }
+
+      if (this.InputSecurity())
+      {
+        return true;
+      }
+
+      if (this.Town.People < this.Town.PeopleMax - 20000)
+      {
+        this.command.Type = CharacterCommandType.PeopleIncrease;
+        return true;
+      }
+
+      return false;
+    }
+
     protected void InputSecurityForce()
     {
       this.command.Type = CharacterCommandType.Security;
@@ -1547,6 +1568,71 @@ namespace SangokuKmy.Models.Updates.Ai
     protected async Task<bool> InputMoveToMainTownAsync(MainRepository repo)
     {
       return await this.InputMoveOrJoinUnitAsync(repo, this.data.MainTown.Id);
+    }
+
+    protected async Task<bool> InputBuildSubBuildingAsync(MainRepository repo)
+    {
+      if (this.Town.Id != this.Country.CapitalTownId &&
+        this.Town.Id != this.data.MainTown?.Id &&
+        this.Town.Id != this.data.BorderTown?.Id)
+      {
+        return false;
+      }
+
+      if (this.Character.Money < 35000)
+      {
+        return false;
+      }
+
+      var subBuildings = await repo.Town.GetSubBuildingsAsync(this.Town.Id);
+
+      if (subBuildings.Any(s => (s.Status == TownSubBuildingStatus.UnderConstruction || s.Status == TownSubBuildingStatus.Removing) &&
+          s.CharacterId == this.Character.Id))
+      {
+        return false;
+      }
+
+      var removeTarget = subBuildings.FirstOrDefault(s => s.Status == TownSubBuildingStatus.Available &&
+          s.Type != TownSubBuildingType.Workshop && s.Type != TownSubBuildingType.Houses);
+      if (removeTarget != null)
+      {
+        this.command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = (int)removeTarget.Type,
+        });
+        this.command.Type = CharacterCommandType.RemoveSubBuilding;
+        return true;
+      }
+
+      if (!subBuildings.Any(s => s.Type == TownSubBuildingType.Workshop))
+      {
+        this.command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = (int)TownSubBuildingType.Workshop,
+        });
+        this.command.Type = CharacterCommandType.BuildSubBuilding;
+        return true;
+      }
+
+      if (this.Town.Type != TownType.Large)
+      {
+        return false;
+      }
+
+      if (!subBuildings.Any(s => s.Type == TownSubBuildingType.Houses))
+      {
+        this.command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = (int)TownSubBuildingType.Houses,
+        });
+        this.command.Type = CharacterCommandType.BuildSubBuilding;
+        return true;
+      }
+
+      return false;
     }
 
     protected bool InputWallDevelop()
@@ -1712,6 +1798,38 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       return true;
+    }
+
+    protected bool InputDevelopInWar()
+    {
+      if (!this.GetWaringCountries().Any())
+      {
+        return false;
+      }
+
+      if (this.Town.CountryId != this.Character.CountryId)
+      {
+        return false;
+      }
+
+      if (this.Town.Id != this.data.BorderTown?.Id && this.Town.Id != this.data.MainTown?.Id)
+      {
+        return false;
+      }
+
+      if ((this.GameDateTime.Month % 2 == 0 || this.Town.Technology >= this.Town.TechnologyMax) && this.Town.Wall < this.Town.WallMax)
+      {
+        this.command.Type = CharacterCommandType.Wall;
+        return true;
+      }
+
+      if (this.Town.Technology < this.Town.TechnologyMax)
+      {
+        this.command.Type = CharacterCommandType.Technology;
+        return true;
+      }
+
+      return false;
     }
 
     protected bool InputPolicy()

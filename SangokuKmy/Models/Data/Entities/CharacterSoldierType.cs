@@ -161,7 +161,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.Cow,
-        Name = "牛兵",
+        Name = "軽騎兵",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 3,
@@ -180,7 +180,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.LightCavalry,
-        Name = "軽騎兵",
+        Name = "騎兵",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 6,
@@ -259,7 +259,7 @@ namespace SangokuKmy.Models.Data.Entities
       new CharacterSoldierTypePart
       {
         Preset = SoldierType.LongArcher,
-        Name = "長弓兵",
+        Name = "弩兵",
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 6,
@@ -374,7 +374,7 @@ namespace SangokuKmy.Models.Data.Entities
           PowerStrong = 1,
         },
         Money = 40,
-        Technology = 600,
+        Technology = 1000,
       },
       new CharacterSoldierTypePart
       {
@@ -416,8 +416,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 5,
           BaseDefend = 5,
-          CrossbowAttack = 5,
-          CrossbowDefend = 5,
+          CavalryAttack = 5,
+          CavalryDefend = 5,
           DisorderProbability = 30,
           TypeInfantry = 10,
           StrongEx = 1,
@@ -434,8 +434,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 5,
           BaseDefend = 5,
-          InfantryAttack = 5,
-          InfantryDefend = 5,
+          CrossbowAttack = 5,
+          CrossbowDefend = 5,
           FriendlyFireProbability = 30,
           TypeCavalry = 10,
           StrongEx = 1,
@@ -452,8 +452,8 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 5,
           BaseDefend = 5,
-          CavalryAttack = 5,
-          CavalryDefend = 5,
+          InfantryAttack = 5,
+          InfantryDefend = 5,
           RushProbability = 30,
           RushAttack = 4,
           TypeCrossbow = 10,
@@ -803,6 +803,20 @@ namespace SangokuKmy.Models.Data.Entities
         {
           BaseAttack = 12,
           BaseDefend = 8,
+          TypeWall = 10,
+          PowerStrong = 1,
+        },
+        Technology = 32767,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Guard_Step6,
+        Name = "守兵F",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 15,
+          BaseDefend = 10,
           TypeWall = 10,
           PowerStrong = 1,
         },

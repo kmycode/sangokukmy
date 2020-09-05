@@ -90,6 +90,13 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
+    /// 固有の宗教
+    /// </summary>
+    [Column("religion")]
+    [JsonIgnore]
+    public ReligionType Religion { get; set; }
+
+    /// <summary>
     /// 国のID
     /// </summary>
     [Column("country_id")]
@@ -518,6 +525,21 @@ namespace SangokuKmy.Models.Data.Entities
     /// 参謀
     /// </summary>
     Staff = 10,
+
+    /// <summary>
+    /// 儒家
+    /// </summary>
+    Confucianism = 11,
+
+    /// <summary>
+    /// 道家
+    /// </summary>
+    Taoism = 12,
+
+    /// <summary>
+    /// 仏僧
+    /// </summary>
+    Buddhism = 13,
   }
 
   public enum CharacterType
@@ -777,6 +799,36 @@ namespace SangokuKmy.Models.Data.Entities
     Guard_Step4 = 103,
 
     Guard_Step5 = 104,
+
+    Guard_Step6 = 105,
+  }
+
+  public enum ReligionType : short
+  {
+    /// <summary>
+    /// どれでもOK
+    /// </summary>
+    Any = 0,
+
+    /// <summary>
+    /// 無神論者
+    /// </summary>
+    None = 1,
+
+    /// <summary>
+    /// 儒教
+    /// </summary>
+    Confucianism = 2,
+
+    /// <summary>
+    /// 道教
+    /// </summary>
+    Taoism = 3,
+
+    /// <summary>
+    /// 仏教
+    /// </summary>
+    Buddhism = 4,
   }
 
   public static class DefaultCharacterSoldierTypeExtensions

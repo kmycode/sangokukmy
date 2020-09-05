@@ -72,7 +72,7 @@ namespace SangokuKmy.Models.Services
         // Loggerがない！
       }
 
-      await ResetTownsAndSaveAsync(repo);
+      await ResetTownsAndSaveAsync(repo, system.RuleSetNextPeriod);
 
       system.GameDateTime = new GameDateTime
       {
@@ -85,6 +85,15 @@ namespace SangokuKmy.Models.Services
       system.TerroristCount = 0;
       system.ManagementCountryCount = 0;
       system.IsBattleRoyaleMode = false;
+      system.RuleSet = system.RuleSetNextPeriod;
+      system.RuleSetNextPeriod = system.RuleSetAfterNextPeriod;
+      system.RuleSetAfterNextPeriod =
+        RandomService.Next(0, 3) != 0 ? GameRuleSet.Normal : RandomService.Next(new GameRuleSet[] {
+          GameRuleSet.SimpleBattle,
+          GameRuleSet.Wandering,
+          GameRuleSet.BattleRoyale,
+          GameRuleSet.Gyokuji,
+        });
       if (system.IsNextPeriodBeta)
       {
         system.BetaVersion++;
@@ -122,13 +131,19 @@ namespace SangokuKmy.Models.Services
         await repo.Character.AddCharacterIconAsync(adminIcon);
       }
 
+
+      var ruleSetName = system.RuleSet == GameRuleSet.Normal ? "標準" :
+        system.RuleSet == GameRuleSet.Wandering ? "放浪" :
+        system.RuleSet == GameRuleSet.SimpleBattle ? "原理" :
+        system.RuleSet == GameRuleSet.BattleRoyale ? "全国戦争" :
+        system.RuleSet == GameRuleSet.Gyokuji ? "玉璽" : "";
       await repo.MapLog.AddAsync(new MapLog
       {
         EventType = EventType.Reset,
         Date = DateTime.Now,
         ApiGameDateTime = system.GameDateTime,
-        IsImportant = false,
-        Message = "ゲームプログラムを開始しました",
+        IsImportant = true,
+        Message = $"ゲームプログラムを開始しました。今期のルールセットは {ruleSetName} です",
       });
       await repo.SaveChangesAsync();
 
@@ -228,9 +243,10 @@ namespace SangokuKmy.Models.Services
       await repo.History.RecordAndSaveAsync(history);
     }
 
-    private static async Task ResetTownsAndSaveAsync(MainRepository repo)
+    private static async Task ResetTownsAndSaveAsync(MainRepository repo, GameRuleSet ruleSet)
     {
-      var initialTowns = MapService.CreateMap(RandomService.Next(14, 19));
+      var num = ruleSet == GameRuleSet.Wandering ? 1 : RandomService.Next(14, 19);
+      var initialTowns = MapService.CreateMap(num);
       var towns = new List<Town>();
       foreach (var itown in initialTowns)
       {

@@ -55,13 +55,13 @@ namespace SangokuKmy.Models.Commands
       }
       var info = infoOptional.Data;
 
-      if (info.BuildSubject?.Invoke(character) == false)
+      if (info.BuildSubject?.Invoke(character) == false && country.AiType == CountryAiType.Human)
       {
         await game.CharacterLogAsync($"建築物 {info.Name} の建築条件を満たしていません");
         return;
       }
 
-      if (info.BuildSubjectSkills?.Invoke(await repo.Character.GetSkillsAsync(character.Id)) == false)
+      if (info.BuildSubjectSkills?.Invoke(await repo.Character.GetSkillsAsync(character.Id)) == false && country.AiType == CountryAiType.Human)
       {
         await game.CharacterLogAsync($"建築物 {info.Name} の建築条件を満たしていません");
         return;
@@ -81,8 +81,9 @@ namespace SangokuKmy.Models.Commands
         town.Type == TownType.Fortress ? 3 :
         town.Type == TownType.Large ? 4 : 0;
       sizeMax += policies.GetSumOfValues(CountryPolicyEffectType.SubBuildingSizeMax);
+      sizeMax += town.TownSubBuildingExtraSpace;
       var currentSize = townSubBuildings.GetInfoes().Sum(i => i.Size);
-      if (currentSize + info.Size > sizeMax)
+      if (currentSize + info.Size > sizeMax && country.AiType == CountryAiType.Human)
       {
         await game.CharacterLogAsync($"<town>{town.Name}</town> に {info.Name} (敷地: <num>{info.Size}</num>) を建設しようとしましたが、敷地上限 <num>{sizeMax}</num> を超過します。残り敷地: <num>{sizeMax - currentSize}</num>");
         return;

@@ -35,6 +35,9 @@ namespace SangokuKmy.Models.Data.Entities
         IntRicePrice = town.IntRicePrice,
         TownBuilding = town.TownBuilding,
         TownBuildingValue = town.TownBuildingValue,
+        Confucianism = town.Confucianism,
+        Taoism = town.Taoism,
+        Buddhism = town.Buddhism,
       };
       return t;
     }

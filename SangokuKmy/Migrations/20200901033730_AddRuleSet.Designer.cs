@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20200901033730_AddRuleSet")]
+    partial class AddRuleSet
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -461,9 +463,6 @@ namespace SangokuKmy.Migrations
                     b.Property<short>("Proficiency")
                         .HasColumnName("proficiency");
 
-                    b.Property<short>("Religion")
-                        .HasColumnName("religion");
-
                     b.Property<int>("Rice")
                         .HasColumnName("rice");
 
@@ -612,32 +611,6 @@ namespace SangokuKmy.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("character_logs");
-                });
-
-            modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CharacterRegularlyCommand", b =>
-                {
-                    b.Property<uint>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
-
-                    b.Property<uint>("CharacterId")
-                        .HasColumnName("character_id");
-
-                    b.Property<int>("IntNextRunGameDateTime")
-                        .HasColumnName("next_run_game_date_time");
-
-                    b.Property<int>("Option1")
-                        .HasColumnName("option1");
-
-                    b.Property<int>("Option2")
-                        .HasColumnName("option2");
-
-                    b.Property<short>("Type")
-                        .HasColumnName("type");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("character_regularly_commands");
                 });
 
             modelBuilder.Entity("SangokuKmy.Models.Data.Entities.CharacterSkill", b =>
@@ -822,9 +795,6 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("PolicyPoint")
                         .HasColumnName("policy_point");
 
-                    b.Property<short>("Religion")
-                        .HasColumnName("religion");
-
                     b.Property<int>("SafeMoney")
                         .HasColumnName("safe_money");
 
@@ -841,12 +811,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("BreakingDelay")
                         .HasColumnName("breaking_delay");
-
-                    b.Property<bool>("CanBuyTown")
-                        .HasColumnName("can_buy_ton");
-
-                    b.Property<bool>("CanMissionary")
-                        .HasColumnName("can_missionary");
 
                     b.Property<uint>("ChangeTargetId")
                         .HasColumnName("change_target_id");
@@ -1747,17 +1711,11 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("AgricultureMax")
                         .HasColumnName("agriculture_max");
 
-                    b.Property<int>("Buddhism")
-                        .HasColumnName("buddhism");
-
                     b.Property<int>("Commercial")
                         .HasColumnName("commercial");
 
                     b.Property<int>("CommercialMax")
                         .HasColumnName("commercial_max");
-
-                    b.Property<int>("Confucianism")
-                        .HasColumnName("confucianism");
 
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
@@ -1798,9 +1756,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("TakeoverDefensePoint")
                         .HasColumnName("takeover_defense_point");
-
-                    b.Property<int>("Taoism")
-                        .HasColumnName("taoism");
 
                     b.Property<int>("Technology")
                         .HasColumnName("technology");
@@ -1964,17 +1919,11 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("AgricultureMax")
                         .HasColumnName("agriculture_max");
 
-                    b.Property<int>("Buddhism")
-                        .HasColumnName("buddhism");
-
                     b.Property<int>("Commercial")
                         .HasColumnName("commercial");
 
                     b.Property<int>("CommercialMax")
                         .HasColumnName("commercial_max");
-
-                    b.Property<int>("Confucianism")
-                        .HasColumnName("confucianism");
 
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
@@ -2000,9 +1949,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("TakeoverDefensePoint")
                         .HasColumnName("takeover_defense_point");
-
-                    b.Property<int>("Taoism")
-                        .HasColumnName("taoism");
 
                     b.Property<int>("Technology")
                         .HasColumnName("technology");

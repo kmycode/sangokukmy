@@ -60,6 +60,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<AiCharacterManagement> aiCharacterManagements;
       IEnumerable<DelayEffect> delayEffects;
       IEnumerable<Mute> mutes;
+      IEnumerable<CharacterRegularlyCommand> regularlyCommands;
       MuteKeyword muteKeyword;
       ChatMessageRead read;
       BlockAction blockAction;
@@ -100,6 +101,7 @@ namespace SangokuKmy.Controllers
         };
         read = await repo.ChatMessage.GetReadByCharacterIdAsync(chara.Id);
         blockAction = (await repo.BlockAction.GetAsync(chara.Id, BlockActionType.StopCommandByMonarch)).Data;
+        regularlyCommands = await repo.CharacterCommand.GetRegularlyCommandsAsync(chara.Id);
 
         var countryCharacters = await repo.Country.GetCharactersWithIconsAndCommandsAsync(chara.CountryId);
         otherCharacterCommands = countryCharacters.SelectMany(c => c.Commands);
@@ -169,6 +171,7 @@ namespace SangokuKmy.Controllers
         .Concat(aiCharacterManagements.Select(m => ApiData.From(m)))
         .Concat(delayEffects.Select(d => ApiData.From(d)))
         .Concat(subBuildings.Select(s => ApiData.From(s)))
+        .Concat(regularlyCommands.Select(c => ApiData.From(c)))
         .ToList();
       if (blockAction != null)
       {

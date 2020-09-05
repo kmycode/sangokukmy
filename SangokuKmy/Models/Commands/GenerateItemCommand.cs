@@ -235,6 +235,8 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
+      var isRegularly = options.Any(p => p.Type == CharacterCommandParameterTypes.Regularly);
+
       var itemTypeOptional = options.FirstOrDefault(p => p.Type == 1);
       if (itemTypeOptional == null || itemTypeOptional.NumberValue == null)
       {
@@ -242,6 +244,16 @@ namespace SangokuKmy.Models.Commands
         return;
       }
       var itemType = (CharacterItemType)itemTypeOptional.NumberValue;
+
+      var delays = await repo.DelayEffect.GetAllAsync();
+      if (delays.Any(d => d.CharacterId == character.Id && d.Type == DelayEffectType.GenerateItem))
+      {
+        if (!isRegularly)
+        {
+          await game.CharacterLogAsync($"アイテム生産しようとしましたが、複数のアイテムを同時に生産することはできません");
+        }
+        return;
+      }
 
       var infoOptional = CharacterItemInfoes.Get(itemType);
       if (!infoOptional.HasData)
@@ -277,13 +289,6 @@ namespace SangokuKmy.Models.Commands
           return;
         }
 
-        var delays = await repo.DelayEffect.GetAllAsync();
-        if (delays.Any(d => d.CharacterId == character.Id && d.Type == DelayEffectType.GenerateItem))
-        {
-          await game.CharacterLogAsync($"アイテム生産しようとしましたが、複数のアイテムを同時に生産することはできません");
-          return;
-        }
-
         character.Money -= money;
         var delay = new DelayEffect
         {
@@ -300,8 +305,11 @@ namespace SangokuKmy.Models.Commands
 
         var finish = GameDateTime.FromInt(game.GameDateTime.ToInt() + generateInfo.Length);
         generateInfo.AddExAttribute(character);
-        character.Contribution += generateInfo.Contribution;
-        character.SkillPoint++;
+        if (!isRegularly)
+        {
+          character.Contribution += generateInfo.Contribution;
+          character.SkillPoint++;
+        }
         await game.CharacterLogAsync($"<town>{town.Name}</town> で <num>{money}</num> を投し、{info.Name} の生産を開始しました。結果は <num>{finish.Year}</num> 年 <num>{finish.Month}</num> 月に来ます");
       }
       else

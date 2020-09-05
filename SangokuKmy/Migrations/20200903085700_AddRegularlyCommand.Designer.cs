@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20200903085700_AddRegularlyCommand")]
+    partial class AddRegularlyCommand
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -461,9 +463,6 @@ namespace SangokuKmy.Migrations
                     b.Property<short>("Proficiency")
                         .HasColumnName("proficiency");
 
-                    b.Property<short>("Religion")
-                        .HasColumnName("religion");
-
                     b.Property<int>("Rice")
                         .HasColumnName("rice");
 
@@ -822,9 +821,6 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("PolicyPoint")
                         .HasColumnName("policy_point");
 
-                    b.Property<short>("Religion")
-                        .HasColumnName("religion");
-
                     b.Property<int>("SafeMoney")
                         .HasColumnName("safe_money");
 
@@ -841,12 +837,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("BreakingDelay")
                         .HasColumnName("breaking_delay");
-
-                    b.Property<bool>("CanBuyTown")
-                        .HasColumnName("can_buy_ton");
-
-                    b.Property<bool>("CanMissionary")
-                        .HasColumnName("can_missionary");
 
                     b.Property<uint>("ChangeTargetId")
                         .HasColumnName("change_target_id");
@@ -1747,17 +1737,11 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("AgricultureMax")
                         .HasColumnName("agriculture_max");
 
-                    b.Property<int>("Buddhism")
-                        .HasColumnName("buddhism");
-
                     b.Property<int>("Commercial")
                         .HasColumnName("commercial");
 
                     b.Property<int>("CommercialMax")
                         .HasColumnName("commercial_max");
-
-                    b.Property<int>("Confucianism")
-                        .HasColumnName("confucianism");
 
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
@@ -1798,9 +1782,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("TakeoverDefensePoint")
                         .HasColumnName("takeover_defense_point");
-
-                    b.Property<int>("Taoism")
-                        .HasColumnName("taoism");
 
                     b.Property<int>("Technology")
                         .HasColumnName("technology");
@@ -1964,17 +1945,11 @@ namespace SangokuKmy.Migrations
                     b.Property<int>("AgricultureMax")
                         .HasColumnName("agriculture_max");
 
-                    b.Property<int>("Buddhism")
-                        .HasColumnName("buddhism");
-
                     b.Property<int>("Commercial")
                         .HasColumnName("commercial");
 
                     b.Property<int>("CommercialMax")
                         .HasColumnName("commercial_max");
-
-                    b.Property<int>("Confucianism")
-                        .HasColumnName("confucianism");
 
                     b.Property<uint>("CountryId")
                         .HasColumnName("country_id");
@@ -2000,9 +1975,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("TakeoverDefensePoint")
                         .HasColumnName("takeover_defense_point");
-
-                    b.Property<int>("Taoism")
-                        .HasColumnName("taoism");
 
                     b.Property<int>("Technology")
                         .HasColumnName("technology");

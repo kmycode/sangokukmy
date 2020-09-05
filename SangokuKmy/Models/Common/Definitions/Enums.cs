@@ -301,6 +301,16 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode UploadImageFailedError { get; } = new ErrorCode(400, 55);
 
+    /// <summary>
+    /// 現在のルールセットで制限されているエラー
+    /// </summary>
+    public static ErrorCode RuleSetError { get; } = new ErrorCode(400, 56);
+
+    /// <summary>
+    /// 現在の年月が条件に達していないエラー
+    /// </summary>
+    public static ErrorCode TooEarlyError { get; } = new ErrorCode(400, 57);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

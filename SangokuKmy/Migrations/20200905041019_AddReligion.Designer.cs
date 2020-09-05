@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20200905041019_AddReligion")]
+    partial class AddReligion
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -841,12 +843,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<int>("BreakingDelay")
                         .HasColumnName("breaking_delay");
-
-                    b.Property<bool>("CanBuyTown")
-                        .HasColumnName("can_buy_ton");
-
-                    b.Property<bool>("CanMissionary")
-                        .HasColumnName("can_missionary");
 
                     b.Property<uint>("ChangeTargetId")
                         .HasColumnName("change_target_id");

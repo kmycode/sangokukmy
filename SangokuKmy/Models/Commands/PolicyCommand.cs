@@ -25,13 +25,6 @@ namespace SangokuKmy.Models.Commands
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
       if (townOptional.HasData)
       {
-        var town = townOptional.Data;
-        if (town.CountryId != character.CountryId)
-        {
-          await game.CharacterLogAsync("<town>" + town.Name + "</town>で政策開発しようとしましたが、自国の都市ではありません");
-          return;
-        }
-
         var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
         if (!countryOptional.HasData)
         {
@@ -39,6 +32,24 @@ namespace SangokuKmy.Models.Commands
           return;
         }
         var country = countryOptional.Data;
+
+        var town = townOptional.Data;
+        var isWandering = false;
+        if (town.CountryId != character.CountryId)
+        {
+          var townsCount = await repo.Town.CountByCountryIdAsync(character.CountryId);
+          if (townsCount > 0)
+          {
+            await game.CharacterLogAsync("<town>" + town.Name + "</town>で政策開発しようとしましたが、自国の都市ではありません");
+            return;
+          }
+          else
+          {
+            // 放浪軍による政策開発
+            isWandering = true;
+          }
+        }
+
         var skills = await repo.Character.GetSkillsAsync(character.Id);
 
         // 内政値に加算する
@@ -79,7 +90,14 @@ namespace SangokuKmy.Models.Commands
           character.AddIntellectEx(50);
         }
 
-        await game.CharacterLogAsync($"<country>{country.Name}</country> の政策ポイントを <num>+{add}</num> 上げました");
+        if (isWandering)
+        {
+          await game.CharacterLogAsync($"<country>{country.Name}</country> の政策ポイントを <num>+{add}</num> 上げました。合計: <num>{country.PolicyPoint}</num>");
+        }
+        else
+        {
+          await game.CharacterLogAsync($"<country>{country.Name}</country> の政策ポイントを <num>+{add}</num> 上げました");
+        }
 
         if (RandomService.Next(0, 256) == 0)
         {

@@ -188,6 +188,7 @@ namespace SangokuKmy.Models.Updates
           .GroupJoin(allTowns, c => c.Id, t => t.CountryId, (c, ts) => new { Country = c, Towns = ts, })
           .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, })
           .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, });
+        var allWars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
         if (system.GameDateTime.Year == Config.UpdateStartYear && system.GameDateTime.Month == 1)
         {
@@ -673,6 +674,9 @@ namespace SangokuKmy.Models.Updates
               {
                 await StatusStreaming.Default.SendCountryAsync(ApiData.From(country.Country), country.Country.Id);
               }
+
+              // 宗教による追加の政策ポイント
+              country.Country.PolicyPoint += country.Towns.Count(t => t.Religion == country.Country.Religion) * 2;
             }
           }
 
@@ -887,7 +891,7 @@ namespace SangokuKmy.Models.Updates
             }
 
             // 建築物の効果（謀略建築物含む）
-            var wars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting);
+            var wars = allWars.Where(w => w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting);
             var availableSubBuildings = subBuildings.Where(s => s.Status == TownSubBuildingStatus.Available);
             foreach (var subBuilding in availableSubBuildings)
             {
@@ -927,6 +931,18 @@ namespace SangokuKmy.Models.Updates
                   }
                 }
               }
+              else if (subBuilding.Type == TownSubBuildingType.BreakTechnology)
+              {
+                if (system.GameDateTime.Month % 2 == 0)
+                {
+                  foreach (var atown in aroundTowns.Where(at => countryWarTargets.Contains(at.CountryId)))
+                  {
+                    var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
+                    var value = 7 / (isDefense ? 3 : 1);
+                    atown.Technology = Math.Max(0, atown.Technology - value);
+                  }
+                }
+              }
               else if (subBuilding.Type == TownSubBuildingType.Agitation)
               {
                 if (system.GameDateTime.Month % 2 == 0)
@@ -934,10 +950,51 @@ namespace SangokuKmy.Models.Updates
                   foreach (var atown in aroundTowns.Where(at => countryWarTargets.Contains(at.CountryId)))
                   {
                     var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
-                    var value = Math.Max(2 / (isDefense ? 3 : 1), 1);
-                    var value2 = 100 / (isDefense ? 3 : 1);
+                    var value = Math.Max(4 / (isDefense ? 3 : 1), 1);
+                    var value2 = 600 / (isDefense ? 3 : 1);
                     atown.Security = (short)Math.Max(0, atown.Security - value);
                     atown.People = Math.Max(0, atown.People - value2);
+                  }
+                }
+              }
+              else if (subBuilding.Type == TownSubBuildingType.Cathedral)
+              {
+                if (system.GameDateTime.Month % 2 == 0)
+                {
+                  var religion = country.Country.Religion;
+
+                  if (religion == ReligionType.Confucianism)
+                  {
+                    town.Confucianism += 8;
+                  }
+                  if (religion == ReligionType.Buddhism)
+                  {
+                    town.Buddhism += 8;
+                  }
+                  if (religion == ReligionType.Taoism)
+                  {
+                    town.Taoism += 8;
+                  }
+                  if (religion != ReligionType.Any && religion != ReligionType.None && religion == town.Religion)
+                  {
+                    town.TechnologyMax += 3;
+                    town.WallMax += 7;
+                  }
+
+                  foreach (var atown in aroundTowns)
+                  {
+                    if (religion == ReligionType.Confucianism)
+                    {
+                      atown.Confucianism += 4;
+                    }
+                    if (religion == ReligionType.Buddhism)
+                    {
+                      atown.Buddhism += 4;
+                    }
+                    if (religion == ReligionType.Taoism)
+                    {
+                      atown.Taoism += 4;
+                    }
                   }
                 }
               }
@@ -999,18 +1056,20 @@ namespace SangokuKmy.Models.Updates
                 }
               }
             }
-            foreach (var war in (await repo.CountryDiplomacies.GetReadyWarsAsync()).Where(cw => cw.Status == CountryWarStatus.InReady || cw.Status == CountryWarStatus.StopRequesting))
+            foreach (var war in allWars
+              .Where(cw => cw.Status == CountryWarStatus.InReady || cw.Status == CountryWarStatus.StopRequesting)
+              .Where(cw => cw.IntStartGameDate == system.IntGameDateTime))
             {
-              if (war.StartGameDate.ToInt() <= system.GameDateTime.ToInt())
+              var country1 = allCountries.FirstOrDefault(c => c.Id == war.RequestedCountryId);
+              var country2 = allCountries.FirstOrDefault(c => c.Id == war.InsistedCountryId);
+              if (country1 != null && country2 != null)
               {
-                var country1 = allCountries.FirstOrDefault(c => c.Id == war.RequestedCountryId);
-                var country2 = allCountries.FirstOrDefault(c => c.Id == war.InsistedCountryId);
-                if (country1 != null && country2 != null)
-                {
-                  await AddMapLogAsync(true, EventType.WarStart, "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争が始まりました");
-                  await PushNotificationService.SendCountryAsync(repo, "戦争", $"{country2.Name} との戦争が始まりました", country1.Id);
-                  await PushNotificationService.SendCountryAsync(repo, "戦争", $"{country1.Name} との戦争が始まりました", country2.Id);
-                }
+                await AddMapLogAsync(true, EventType.WarStart, "<country>" + country1.Name + "</country> と <country>" + country2.Name + "</country> の戦争が始まりました");
+                await PushNotificationService.SendCountryAsync(repo, "戦争", $"{country2.Name} との戦争が始まりました", country1.Id);
+                await PushNotificationService.SendCountryAsync(repo, "戦争", $"{country1.Name} との戦争が始まりました", country2.Id);
+              }
+              if (war.Status == CountryWarStatus.InReady)
+              {
                 war.Status = CountryWarStatus.Available;
                 await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
               }
@@ -1135,7 +1194,8 @@ namespace SangokuKmy.Models.Updates
           {
             // 出現
             if (allTowns.Any(t => t.CountryId == 0) &&
-              system.ManagementCountryCount < 1)
+              system.ManagementCountryCount < 1 &&
+              system.RuleSet != GameRuleSet.SimpleBattle)
             {
               var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
               if (isCreated)
@@ -1154,7 +1214,7 @@ namespace SangokuKmy.Models.Updates
 
           // 異民族
           var countryCount = allCountries.Count(c => !c.HasOverthrown);
-          if (system.TerroristCount < 1)
+          if (system.TerroristCount < 1 && system.RuleSet != GameRuleSet.SimpleBattle)
           {
             var created = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
             if (created != null)
@@ -1165,7 +1225,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && RandomService.Next(0, 40) == 0)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 40) == 0)
           {
             var isCreated = await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
             if (isCreated)
@@ -1180,17 +1240,15 @@ namespace SangokuKmy.Models.Updates
 
           // 黄巾の出現とバトルロワイヤルモード
           var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthAsync();
-          if (!system.IsBattleRoyaleMode && !system.IsWaitingReset &&
+          if (!system.IsBattleRoyaleMode && !system.IsWaitingReset && system.RuleSet != GameRuleSet.SimpleBattle &&
             (lastBattleMonth.ToInt() + 12 * 12 * 6 == system.IntGameDateTime ||
             (system.GameDateTime.Year == 348 && system.GameDateTime.Month == 1)))
           {
             await AddMapLogAsync(true, EventType.Event, "黄巾が反乱の時期を伺っています");
           }
-          if (!system.IsWaitingReset && (!system.IsBattleRoyaleMode && RandomService.Next(0, 70) == 0 || isKokinForce))
+          if (!system.IsWaitingReset && (!system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 70) == 0 || isKokinForce))
           {
-            var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-
-            if ((!wars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
+            if ((!allWars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
               lastBattleMonth.ToInt() + 12 * 12 * 7 <= system.IntGameDateTime) ||
               (system.GameDateTime.Year >= 360) || isKokinForce)
             {
@@ -1241,6 +1299,17 @@ namespace SangokuKmy.Models.Updates
             await repo.SaveChangesAsync();
           }
 
+          // 全国戦争ルール
+          if (system.RuleSet == GameRuleSet.BattleRoyale &&
+            !system.IsBattleRoyaleMode &&
+            system.GameDateTime.Year >= 60)
+          {
+            system.IsBattleRoyaleMode = true;
+            await AddMapLogAsync(true, EventType.WarStart, "全国戦争状態に突入しました");
+            await PushNotificationService.SendAllAsync(repo, "全国戦争", "全国戦争状態に突入しました");
+            await repo.SaveChangesAsync();
+          }
+
           // 蛮族
           if (Config.Game.IsThief &&
               allTowns.Any(t => t.CountryId == 0) &&
@@ -1259,13 +1328,12 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle)
           {
             var isSave = false;
             foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 10 * 12 * 12 <= system.IntGameDateTime))
             {
-              var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-              if (!wars.Any(w => w.IsJoinAvailable(country.Id)))
+              if (system.RuleSet == GameRuleSet.Gyokuji || !allWars.Any(w => w.IsJoinAvailable(country.Id)))
               {
                 country.GyokujiStatus = CountryGyokujiStatus.NotHave;
                 await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{country.Name}</country> の持っている玉璽はまがい物でした");
@@ -1277,8 +1345,7 @@ namespace SangokuKmy.Models.Updates
             var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 10 * 12 * 12 <= system.IntGameDateTime);
             if (gyokujiWinner != null)
             {
-              var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
-              if (!wars.Any(w => w.IsJoinAvailable(gyokujiWinner.Id)))
+              if (system.RuleSet == GameRuleSet.Gyokuji || !allWars.Any(w => w.IsJoinAvailable(gyokujiWinner.Id)))
               {
                 await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{gyokujiWinner.Name}</country> は玉璽を行使し、天下に覇を唱えました");
                 await CountryService.UnifyCountryAsync(repo, gyokujiWinner);
@@ -1293,26 +1360,40 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽の配布
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave || c.GyokujiStatus == CountryGyokujiStatus.Refused) && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
+          if (!system.IsWaitingReset &&
+            !system.IsBattleRoyaleMode &&
+            system.RuleSet != GameRuleSet.SimpleBattle &&
+            allCountries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave || c.GyokujiStatus == CountryGyokujiStatus.Refused) && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
           {
             // 異民族や経営国家を含めるため、改めて取得して確認し直す
             var countries2 = await repo.Country.GetAllAsync();
             var countries = countries2.Where(c => c.AiType != CountryAiType.Terrorists);
             if (countries.All(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave || c.GyokujiStatus == CountryGyokujiStatus.Refused))
             {
-              var targetCountries = countries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave);
+              var targetCountries = countries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.NotHave && allTowns.Any(t => t.CountryId == c.Id));
               var gets = new List<Country>();
-              var num = Math.Min(targetCountries.Count(), RandomService.Next(2, 4));
-              for (var i = 0; i < num; i++)
+
+              if (system.RuleSet == GameRuleSet.Gyokuji)
               {
-                var isHit = false;
-                while (!isHit)
+                foreach (var c in targetCountries)
                 {
-                  var tmp = RandomService.Next(targetCountries);
-                  if (!gets.Any(c => c.Id == tmp.Id))
+                  gets.Add(c);
+                }
+              }
+              else
+              {
+                var num = Math.Min(targetCountries.Count(), RandomService.Next(2, 4));
+                for (var i = 0; i < num; i++)
+                {
+                  var isHit = false;
+                  while (!isHit)
                   {
-                    gets.Add(tmp);
-                    isHit = true;
+                    var tmp = RandomService.Next(targetCountries);
+                    if (!gets.Any(c => c.Id == tmp.Id))
+                    {
+                      gets.Add(tmp);
+                      isHit = true;
+                    }
                   }
                 }
               }
@@ -1341,6 +1422,64 @@ namespace SangokuKmy.Models.Updates
                 country.GyokujiStatus = CountryGyokujiStatus.NotHave;
               }
 
+              await repo.SaveChangesAsync();
+            }
+          }
+
+          // 宗教勝利
+          if (!system.IsWaitingReset)
+          {
+            var religionOfTown = allTowns.Where(t => t.Religion != ReligionType.None && t.Religion != ReligionType.Any).GroupBy(t => t.Religion);
+            var religionOfCountry = allCountries.Where(c => !c.HasOverthrown && c.Religion != ReligionType.Any && c.Religion != ReligionType.None).GroupBy(c => c.Religion);
+            if (religionOfTown.Count() == 1 && religionOfCountry.Count() == 1)
+            {
+              var religion = religionOfTown.First().Key;
+              var countryGroup = religionOfCountry.First();
+              if (countryGroup.Count() == 1 && countryGroup.Key == religion)
+              {
+                var winner = countryGroup.First();
+                await AddMapLogAsync(true, EventType.ReligionWin, $"<country>{winner.Name}</country> がすべての都市の宗教を掌握して勝利しました");
+                await CountryService.UnifyCountryAsync(repo, winner);
+                await repo.SaveChangesAsync();
+              }
+            }
+          }
+
+          // 時間による勝利
+          if (!system.IsWaitingReset && system.GameDateTime.Year >= 500)
+          {
+            var winner = countryData.FirstOrDefault();
+            var targets = countryData.Where(cd => cd.Towns.Any());
+            if (targets.Any())
+            {
+              winner = targets.First();
+              if (targets.Count() > 1)
+              {
+                var townRanking = targets.OrderByDescending(cd => cd.Towns.Count());
+                var characterRanking = targets.OrderByDescending(cd => cd.Characters.Count());
+                var idRanking = targets.OrderBy(cd => cd.Country.Id);
+                if (townRanking.ElementAt(0).Towns.Count() > townRanking.ElementAt(1).Towns.Count())
+                {
+                  winner = townRanking.First();
+                }
+                else if (characterRanking.ElementAt(0).Characters.Count() > characterRanking.ElementAt(1).Characters.Count())
+                {
+                  winner = characterRanking.First();
+                }
+                else
+                {
+                  winner = idRanking.First();
+                }
+              }
+
+              await AddMapLogAsync(true, EventType.TimeWin, $"時間経過により <country>{winner.Country.Name}</country> が勝利しました");
+              await CountryService.UnifyCountryAsync(repo, winner.Country);
+              await repo.SaveChangesAsync();
+            }
+            else
+            {
+              await AddMapLogAsync(true, EventType.TimeWin, $"今期は時間経過により終了しました");
+              await CountryService.UnifyCountryAsync(repo, null);
               await repo.SaveChangesAsync();
             }
           }
@@ -1540,30 +1679,68 @@ namespace SangokuKmy.Models.Updates
         }
         else
         {
+          var isCommandExecuted = false;
+          async Task RunCommandAsync(CharacterCommand cmd)
+          {
+            var commandRunnerOptional = Commands.Commands.Get(cmd.Type);
+            if (commandRunnerOptional.HasData)
+            {
+              var commandRunner = commandRunnerOptional.Data;
+              await commandRunner.ExecuteAsync(repo, character, cmd.Parameters, gameObj);
+              isCommandExecuted = true;
+
+              if (commandRunner.Type != CharacterCommandType.None)
+              {
+                character.DeleteTurn = 0;
+              }
+            }
+          }
+
           // コマンドの実行
           if (currentMonth.Year >= Config.UpdateStartYear)
           {
-            var isCommandExecuted = false;
             if (commandOptional.HasData)
             {
               var command = commandOptional.Data;
-              var commandRunnerOptional = Commands.Commands.Get(command.Type);
-              if (commandRunnerOptional.HasData)
-              {
-                var commandRunner = commandRunnerOptional.Data;
-                await commandRunner.ExecuteAsync(repo, character, command.Parameters, gameObj);
-                isCommandExecuted = true;
-
-                if (commandRunner.Type != CharacterCommandType.None)
-                {
-                  character.DeleteTurn = 0;
-                }
-              }
+              await RunCommandAsync(command);
             }
             if (!isCommandExecuted)
             {
               await Commands.Commands.EmptyCommand.ExecuteAsync(repo, character, new CharacterCommandParameter[] { }, gameObj);
             }
+          }
+
+          // 定期コマンドの実行
+          var regulars = await repo.CharacterCommand.GetRegularlyCommandsAsync(character.Id);
+          foreach (var r in regulars)
+          {
+            var command = new CharacterCommand
+            {
+              Type = r.Type,
+              GameDateTime = currentMonth,
+              CharacterId = character.Id,
+            };
+            command.Parameters.Add(new CharacterCommandParameter
+            {
+              Type = CharacterCommandParameterTypes.Regularly,
+            });
+            if (r.Option1 != 0)
+            {
+              command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 1,
+                NumberValue = r.Option1,
+              });
+            }
+            if (r.Option2 != 0)
+            {
+              command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 2,
+                NumberValue = r.Option2,
+              });
+            }
+            await RunCommandAsync(command);
           }
         }
 

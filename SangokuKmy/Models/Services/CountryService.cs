@@ -98,12 +98,23 @@ namespace SangokuKmy.Models.Services
 
     public static async Task UnifyCountryAsync(MainRepository repo, Country country)
     {
-      await LogService.AddMapLogAsync(repo, true, EventType.Unified, "大陸は、<country>" + country.Name + "</country> によって統一されました");
-      await ResetService.RequestResetAsync(repo, country.Id);
+      if (country != null)
+      {
+        await LogService.AddMapLogAsync(repo, true, EventType.Unified, "大陸は、<country>" + country.Name + "</country> によって統一されました");
+        await ResetService.RequestResetAsync(repo, country.Id);
+      }
+      else
+      {
+        await ResetService.RequestResetAsync(repo, 0);
+      }
 
       await repo.SaveChangesAsync();
       var system = await repo.System.GetAsync();
-      await PushNotificationService.SendAllAsync(repo, "統一", $"{country.Name} は、大陸を統一しました。ゲームは {system.ResetGameDateTime.ToString()} にリセットされます");
+
+      if (country != null)
+      {
+        await PushNotificationService.SendAllAsync(repo, "統一", $"{country.Name} は、大陸を統一しました。ゲームは {system.ResetGameDateTime.ToString()} にリセットされます");
+      }
     }
 
     public static async Task SendWarAndSaveAsync(MainRepository repo, CountryWar war)

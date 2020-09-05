@@ -60,4 +60,9 @@ namespace SangokuKmy.Models.Data.Entities
       }
     }
   }
+
+  public static class CharacterCommandParameterTypes
+  {
+    public static int Regularly { get; } = -1;
+  }
 }

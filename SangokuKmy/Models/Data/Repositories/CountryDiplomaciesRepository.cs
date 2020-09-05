@@ -207,24 +207,6 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
-    /// すべての開戦準備中の戦争を取得
-    /// </summary>
-    public async Task<IReadOnlyList<CountryWar>> GetReadyWarsAsync()
-    {
-      try
-      {
-        return await this.container.Context.CountryWars
-          .Where(ca => ca.Status == CountryWarStatus.InReady)
-          .ToArrayAsync();
-      }
-      catch (Exception ex)
-      {
-        this.container.Error(ex);
-        return default;
-      }
-    }
-
-    /// <summary>
     /// 国同士の戦争を取得する
     /// </summary>
     /// <returns>戦争データ</returns>

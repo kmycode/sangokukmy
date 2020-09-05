@@ -98,6 +98,18 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
+      var isRegularly = options.Any(p => p.Type == CharacterCommandParameterTypes.Regularly);
+
+      var delays = await repo.DelayEffect.GetAllAsync();
+      if (delays.Any(d => d.CharacterId == character.Id && d.Type == DelayEffectType.TownInvestment))
+      {
+        if (!isRegularly)
+        {
+          await game.CharacterLogAsync($"投資しようとしましたが、複数の都市に同時に投資することはできません");
+        }
+        return;
+      }
+
       var money = game.GameDateTime.Year * 200 + 10000;
       if (character.Money < money)
       {
@@ -117,13 +129,6 @@ namespace SangokuKmy.Models.Commands
           return;
         }
 
-        var delays = await repo.DelayEffect.GetAllAsync();
-        if (delays.Any(d => d.CharacterId == character.Id && d.Type == DelayEffectType.TownInvestment))
-        {
-          await game.CharacterLogAsync($"<town>{town.Name}</town> で投資しようとしましたが、複数の都市に同時に投資することはできません");
-          return;
-        }
-
         character.Money -= money;
         var delay = new DelayEffect
         {
@@ -139,8 +144,11 @@ namespace SangokuKmy.Models.Commands
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(delay), character.Id);
 
         character.AddIntellectEx(500);
-        character.Contribution += 200;
-        character.SkillPoint++;
+        if (!isRegularly)
+        {
+          character.Contribution += 200;
+          character.SkillPoint++;
+        }
         await game.CharacterLogAsync($"<town>{town.Name}</town> に <num>{money}</num> を投資しました。結果は <num>{game.GameDateTime.Year + 3}</num> 年 <num>{game.GameDateTime.Month}</num> 月に来ます。知力Ex <num>+500</num>");
       }
       else

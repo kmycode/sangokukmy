@@ -17,12 +17,12 @@ namespace SangokuKmy.Models.Services
     public static int GetAttributeMax(GameDateTime current) => 100 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.9f * 0.75f);
     public static int GetAttributeSumMax(GameDateTime current) => 200 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.9f);
 
-    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode)
+    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode, bool isFreeCountry)
     {
       var town = await repo.Town.GetByIdAsync(newChara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
 
       var system = await repo.System.GetAsync();
-      CheckEntryStatus(system.GameDateTime, ipAddress, newChara, password, newIcon, town, newCountry);
+      CheckEntryStatus(system.GameDateTime, ipAddress, newChara, password, newIcon, town, newCountry, isFreeCountry);
 
       // 文字数チェックしてからエスケープ
       newChara.Name = HtmlUtil.Escape(newChara.Name);
@@ -78,12 +78,15 @@ namespace SangokuKmy.Models.Services
         Proficiency = 0,
         TownId = newChara.TownId,
         From = newChara.From,
+        Religion = ReligionType.Any,
+        FormationType = newChara.FormationType,
         IsBeginner = newChara.IsBeginner,
       };
       chara.SetPassword(password);
 
       // 出身
       var skills = new List<CharacterSkillType>();
+      var items = new List<CharacterItemType>();
       if (chara.From == CharacterFrom.Warrior)
       {
         skills.Add(CharacterSkillType.Strong1);
@@ -132,6 +135,36 @@ namespace SangokuKmy.Models.Services
         skills.Add(CharacterSkillType.Staff1);
         chara.Intellect += 20;
       }
+      else if (chara.From == CharacterFrom.Buddhism)
+      {
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+        skills.Add(CharacterSkillType.Buddhism1);
+        chara.Intellect += 15;
+        chara.Religion = ReligionType.Buddhism;
+      }
+      else if (chara.From == CharacterFrom.Confucianism)
+      {
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+        skills.Add(CharacterSkillType.Confucianism1);
+        chara.Intellect += 15;
+        chara.Religion = ReligionType.Confucianism;
+      }
+      else if (chara.From == CharacterFrom.Taoism)
+      {
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+        skills.Add(CharacterSkillType.Taoism1);
+        chara.Intellect += 15;
+        chara.Religion = ReligionType.Taoism;
+      }
       else
       {
         ErrorCode.InvalidParameterError.Throw();
@@ -143,7 +176,23 @@ namespace SangokuKmy.Models.Services
         chara.IntLastUpdatedGameDate++;
       }
 
-      if (town.CountryId > 0)
+      if (isFreeCountry)
+      {
+        // 無所属で開始
+        chara.CountryId = 0;
+        await repo.Character.AddAsync(chara);
+
+        maplog = new MapLog
+        {
+          Date = DateTime.Now,
+          ApiGameDateTime = system.GameDateTime,
+          EventType = EventType.CharacterEntryToFree,
+          IsImportant = false,
+          Message = $"<character>{chara.Name}</character> が無所属に出現しました",
+        };
+        await repo.MapLog.AddAsync(maplog);
+      }
+      else if (town.CountryId > 0)
       {
         // 武将総数チェック
         var country = await repo.Country.GetByIdAsync(town.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
@@ -187,6 +236,11 @@ namespace SangokuKmy.Models.Services
           ErrorCode.DuplicateCountryNameOrColorError.Throw();
         }
 
+        if (newCountry.Religion != ReligionType.Any && newCountry.Religion != ReligionType.None && system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+
         var country = new Country
         {
           Name = newCountry.Name,
@@ -197,19 +251,46 @@ namespace SangokuKmy.Models.Services
           IntOverthrownGameDate = 0,
           LastMoneyIncomes = 0,
           LastRiceIncomes = 0,
-          PolicyPoint = 6000,
+          PolicyPoint = 10000,
+          Religion = newCountry.Religion,
         };
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
 
-        // 大都市に変更
-        town.SubType = town.Type;
-        MapService.UpdateTownType(town, TownType.Large);
+        if (system.RuleSet != GameRuleSet.Wandering)
+        {
+          // 大都市に変更
+          town.SubType = town.Type;
+          MapService.UpdateTownType(town, TownType.Large);
+
+          if (country.Religion == ReligionType.Buddhism)
+          {
+            town.Buddhism = 500;
+          }
+          if (country.Religion == ReligionType.Confucianism)
+          {
+            town.Confucianism = 500;
+          }
+          if (country.Religion == ReligionType.Taoism)
+          {
+            town.Taoism = 500;
+          }
+        }
+        else {
+          country.CapitalTownId = 0;
+          items.Add(CharacterItemType.CastleBlueprint);
+          items.Add(CharacterItemType.CastleBlueprint);
+          items.Add(CharacterItemType.CastleBlueprint);
+          chara.Money += 200_0000 * 3;
+        }
 
         await repo.SaveChangesAsync();
 
         chara.CountryId = country.Id;
-        town.CountryId = country.Id;
+        if (system.RuleSet != GameRuleSet.Wandering)
+        {
+          town.CountryId = country.Id;
+        }
         await repo.Character.AddAsync(chara);
         await repo.SaveChangesAsync();
 
@@ -324,18 +405,41 @@ namespace SangokuKmy.Models.Services
           await repo.Country.AddPolicyAsync(p);
         }
 
-        maplog = new MapLog
+        if (system.RuleSet == GameRuleSet.Wandering)
         {
-          Date = DateTime.Now,
-          ApiGameDateTime = system.GameDateTime,
-          EventType = EventType.Publish,
-          IsImportant = true,
-          Message = $"<character>{chara.Name}</character> が <town>{town.Name}</town> に <country>{country.Name}</country> を建国しました",
-        };
+          maplog = new MapLog
+          {
+            Date = DateTime.Now,
+            ApiGameDateTime = system.GameDateTime,
+            EventType = EventType.StartWandering,
+            IsImportant = true,
+            Message = $"<character>{chara.Name}</character> は <country>{country.Name}</country> の頭領となり放浪を開始しました",
+          };
+        }
+        else
+        {
+          maplog = new MapLog
+          {
+            Date = DateTime.Now,
+            ApiGameDateTime = system.GameDateTime,
+            EventType = EventType.Publish,
+            IsImportant = true,
+            Message = $"<character>{chara.Name}</character> が <town>{town.Name}</town> に <country>{country.Name}</country> を建国しました",
+          };
+        }
         await repo.MapLog.AddAsync(maplog);
       }
 
       await repo.SaveChangesAsync();
+
+      // 陣形
+      var formation = new Formation
+      {
+        CharacterId = chara.Id,
+        Type = chara.FormationType,
+        Level = 1,
+      };
+      await repo.Character.AddFormationAsync(formation);
 
       if (invitationCodeOptional.HasData)
       {
@@ -372,6 +476,16 @@ namespace SangokuKmy.Models.Services
       {
         await SkillService.SetCharacterAndSaveAsync(repo, si, chara);
       }
+      var itemData = items.Select(i => new CharacterItem
+      {
+        Type = i,
+        CharacterId = chara.Id,
+        Status = CharacterItemStatus.CharacterHold,
+      });
+      foreach (var id in itemData)
+      {
+        await ItemService.GenerateItemAndSaveAsync(repo, id);
+      }
 
       await repo.SaveChangesAsync();
 
@@ -393,7 +507,7 @@ namespace SangokuKmy.Models.Services
       await CharacterService.StreamCharacterAsync(repo, chara);
     }
 
-    private static void CheckEntryStatus(GameDateTime current, string ipAddress, Character chara, string password, CharacterIcon icon, Town town, Country country)
+    private static void CheckEntryStatus(GameDateTime current, string ipAddress, Character chara, string password, CharacterIcon icon, Town town, Country country, bool isCountryFree)
     {
       if (string.IsNullOrEmpty(ipAddress))
       {
@@ -497,7 +611,7 @@ namespace SangokuKmy.Models.Services
       }
       else
       {
-        if (town.CountryId <= 0)
+        if (town.CountryId <= 0 && !isCountryFree)
         {
           ErrorCode.CantJoinAtSuchTownhError.Throw();
         }

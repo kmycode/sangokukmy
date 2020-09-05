@@ -261,10 +261,16 @@ namespace SangokuKmy.Models.Commands
 
         var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).GetAvailableTypes();
 
-        targetCharacter.SoldierType = targetTown.Technology >= 1200 ? SoldierType.Guard_Step5 :
-          targetTown.Technology >= 1000 ? SoldierType.Guard_Step4 :
-          targetTown.Technology >= 600 ? SoldierType.Guard_Step3 :
-          targetTown.Technology >= 300 ? SoldierType.Guard_Step2 :
+        var evaluationTechnology = targetTown.Technology;
+        if (myCountry.Religion != ReligionType.None && myCountry.Religion != ReligionType.Any && myCountry.Religion == targetTown.Religion)
+        {
+          evaluationTechnology -= 101;
+        }
+        targetCharacter.SoldierType = evaluationTechnology >= 1700 ? SoldierType.Guard_Step6 :
+          evaluationTechnology >= 1200 ? SoldierType.Guard_Step5 :
+          evaluationTechnology >= 1000 ? SoldierType.Guard_Step4 :
+          evaluationTechnology >= 600 ? SoldierType.Guard_Step3 :
+          evaluationTechnology >= 300 ? SoldierType.Guard_Step2 :
           SoldierType.Guard_Step1;
         targetCharacter.Strong = trendStrong;
         targetCharacter.Proficiency = 100;
@@ -559,7 +565,7 @@ namespace SangokuKmy.Models.Commands
               {
                 if (targetCountry.AiType != CountryAiType.Farmers)
                 {
-                  myCountry.PolicyPoint += 2000;
+                  myCountry.PolicyPoint += 3500;
                 }
                 if (targetCountry.AiType == CountryAiType.Terrorists || targetCountry.AiType == CountryAiType.TerroristsEnemy)
                 {
@@ -641,7 +647,7 @@ namespace SangokuKmy.Models.Commands
       myContribution += myExperience;
       character.Contribution += (int)(myContribution);
       character.SkillPoint++;
-      await game.CharacterLogAsync($"戦闘終了 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType) + $" 陣形ex: <num>{(int)myFormationExperience}</num>");
+      await game.CharacterLogAsync($"戦闘終了 <battle-log>{log.Id}</battle-log> 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType) + $" 陣形ex: <num>{(int)myFormationExperience}</num>");
       myFormationData.Experience += (int)myFormationExperience;
       if (myFormation.CheckLevelUp(myFormationData))
       {
@@ -653,7 +659,7 @@ namespace SangokuKmy.Models.Commands
         targetContribution += targetExperience;
         targetCharacter.Contribution += (int)(targetContribution);
         targetCharacter.SkillPoint++;
-        await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType) + $" 陣形ex: <num>{(int)targetFormationExperience}</num>");
+        await game.CharacterLogByIdAsync(targetCharacter.Id, $"戦闘終了 <battle-log>{log.Id}</battle-log> 貢献: <num>{targetContribution}</num>" + this.AddExperience(targetExperience, targetCharacter, targetSoldierType) + $" 陣形ex: <num>{(int)targetFormationExperience}</num>");
 
         await CharacterService.StreamCharacterAsync(repo, targetCharacter);
         await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
