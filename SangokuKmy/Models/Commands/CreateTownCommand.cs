@@ -74,10 +74,10 @@ namespace SangokuKmy.Models.Commands
       }
 
       var towns = await repo.Town.GetAllAsync();
-      var t = towns.FirstOrDefault(t => t.X == x && t.Y == y);
-      if (t != null)
+      var tt = towns.FirstOrDefault(t => t.X == x && t.Y == y);
+      if (tt != null)
       {
-        await game.CharacterLogAsync($"<town>{town.Name}</town> の隣に都市を建設しようとしましたが、その方向には別の都市 <town>{t.Name}</town> があります");
+        await game.CharacterLogAsync($"<town>{town.Name}</town> の隣に都市を建設しようとしましたが、その方向には別の都市 <town>{tt.Name}</town> があります");
         return;
       }
 
