@@ -1429,18 +1429,21 @@ namespace SangokuKmy.Models.Updates
           // 宗教勝利
           if (!system.IsWaitingReset)
           {
-            var religionOfTown = allTowns.Where(t => t.Religion != ReligionType.None && t.Religion != ReligionType.Any).GroupBy(t => t.Religion);
+            var religionOfTown = allTowns.GroupBy(t => t.Religion);
             var religionOfCountry = allCountries.Where(c => !c.HasOverthrown && c.Religion != ReligionType.Any && c.Religion != ReligionType.None).GroupBy(c => c.Religion);
             if (religionOfTown.Count() == 1 && religionOfCountry.Count() == 1)
             {
               var religion = religionOfTown.First().Key;
-              var countryGroup = religionOfCountry.First();
-              if (countryGroup.Count() == 1 && countryGroup.Key == religion)
+              if (religion != ReligionType.Any && religion != ReligionType.None)
               {
-                var winner = countryGroup.First();
-                await AddMapLogAsync(true, EventType.ReligionWin, $"<country>{winner.Name}</country> がすべての都市の宗教を掌握して勝利しました");
-                await CountryService.UnifyCountryAsync(repo, winner);
-                await repo.SaveChangesAsync();
+                var countryGroup = religionOfCountry.First();
+                if (countryGroup.Count() == 1 && countryGroup.Key == religion)
+                {
+                  var winner = countryGroup.First();
+                  await AddMapLogAsync(true, EventType.ReligionWin, $"<country>{winner.Name}</country> がすべての都市の宗教を掌握して勝利しました");
+                  await CountryService.UnifyCountryAsync(repo, winner);
+                  await repo.SaveChangesAsync();
+                }
               }
             }
           }
