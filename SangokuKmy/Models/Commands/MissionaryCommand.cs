@@ -30,7 +30,7 @@ namespace SangokuKmy.Models.Commands
       var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
       if (!countryOptional.HasData)
       {
-        await game.CharacterLogAsync("布教しようとしましたが、宗教家以外は国に仕官しないと布教できません");
+        await game.CharacterLogAsync("布教しようとしましたが、国に仕官しないと布教できません");
         return;
       }
       var country = countryOptional.Data;
