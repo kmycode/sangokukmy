@@ -873,6 +873,7 @@ namespace SangokuKmy.Models.Data.Entities
     SecretaryScouter = 29,
     FlyingColumn = 30,
     RemovedFlyingColumn = 31,
+    SecretaryEvangelist = 32,
   }
 
   public static class CharacterAiTypeExtensions
@@ -883,7 +884,8 @@ namespace SangokuKmy.Models.Data.Entities
         type == CharacterAiType.SecretaryUnitGather ||
         type == CharacterAiType.SecretaryPioneer ||
         type == CharacterAiType.SecretaryUnitLeader ||
-        type == CharacterAiType.SecretaryScouter;
+        type == CharacterAiType.SecretaryScouter ||
+        type == CharacterAiType.SecretaryEvangelist;
     }
 
     public static bool IsTerrorist(this CharacterAiType type)
