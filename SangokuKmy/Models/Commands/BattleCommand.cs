@@ -264,7 +264,7 @@ namespace SangokuKmy.Models.Commands
         var evaluationTechnology = targetTown.Technology;
         if (myCountry.Religion != ReligionType.None && myCountry.Religion != ReligionType.Any && myCountry.Religion == targetTown.Religion)
         {
-          evaluationTechnology -= 101;
+          evaluationTechnology -= 72;
         }
         targetCharacter.SoldierType = evaluationTechnology >= 1700 ? SoldierType.Guard_Step6 :
           evaluationTechnology >= 1200 ? SoldierType.Guard_Step5 :

@@ -8,9 +8,9 @@ using SangokuKmy.Models.Services;
 
 namespace SangokuKmy.Models.Commands
 {
-  public class MissionaryCommand : Command
+  public class MissionarySelfCommand : Command
   {
-    public override CharacterCommandType Type => CharacterCommandType.Missionary;
+    public override CharacterCommandType Type => CharacterCommandType.MissionarySelf;
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
@@ -26,25 +26,17 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      var religion = ReligionType.Any;
-      var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
-      if (!countryOptional.HasData)
-      {
-        await game.CharacterLogAsync("布教しようとしましたが、宗教家以外は国に仕官しないと布教できません");
-        return;
-      }
-      var country = countryOptional.Data;
-      religion = country.Religion;
+      var religion = character.Religion;
 
       if (religion == ReligionType.None)
       {
-        await game.CharacterLogAsync("布教しようとしましたが、国教が無神のため布教できません");
+        await game.CharacterLogAsync("布教しようとしましたが、無神論者のため布教できません");
         return;
       }
 
       if (religion == ReligionType.Any)
       {
-        await game.CharacterLogAsync("布教しようとしましたが、国教が設定されていません");
+        await game.CharacterLogAsync("布教しようとしましたが、武将固有の宗教を持っていません");
         return;
       }
 
@@ -100,7 +92,7 @@ namespace SangokuKmy.Models.Commands
         }
 
         // 経験値、金の増減
-        if (countryOptional.HasData)
+        if (character.CountryId > 0)
         {
           character.Contribution += 30;
         }
