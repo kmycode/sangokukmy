@@ -184,6 +184,16 @@ namespace SangokuKmy.Models.Services
             AnonymousStreaming.Default.SendAllAsync(apiData));
           updates.Clear();
         }
+
+        using (var repo = MainRepository.WithReadAndWrite())
+        {
+          var system = await repo.System.GetAsync();
+          foreach (var online in onlines.Where(o => o.Status == OnlineStatus.Active))
+          {
+            await repo.Character.SetOnlineHistoryAsync(online.Character.Id, system.GameDateTime);
+          }
+          await repo.SaveChangesAsync();
+        }
       }
       catch (Exception ex)
       {

@@ -1673,6 +1673,32 @@ namespace SangokuKmy.Models.Updates
 
       try
       {
+        // オンライン状態の通知
+        var onlineData = await repo.Character.CountAllCharacterOnlineMonthAsync();
+        var myOnline = onlineData.FirstOrDefault(h => h.CharacterId == character.Id);
+        if (myOnline.CharacterId != default)
+        {
+          var rank = onlineData
+            .OrderBy(h => h.Count)
+            .Select((h, i) => new { h.CharacterId, h.Count, Rank = i + 1, })
+            .FirstOrDefault(h => h.CharacterId == character.Id);
+          if (rank != null)
+          {
+            await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
+            {
+              Type = SignalType.CharacterOnline,
+              Data = new { count = rank.Count, rank = rank.Rank, },
+            }), character.Id);
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, $"ID {character.Id} DATE {gameObj.GameDateTime.ToInt()} 武将のオンライン情報通知でエラーが発生しました");
+      }
+
+      try
+      {
 
         // 技能
         if (currentMonth.Year >= Config.UpdateStartYear)

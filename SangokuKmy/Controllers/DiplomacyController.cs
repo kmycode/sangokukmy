@@ -667,11 +667,6 @@ namespace SangokuKmy.Controllers
           ErrorCode.RuleSetError.Throw();
         }
 
-        if (system.GameDateTime.Year < Config.StartYear + Config.CountryBattleStopDuring / 12)
-        {
-          ErrorCode.TooEarlyError.Throw();
-        }
-
         if (system.GameDateTime.Year < Config.BuyTownStartYear)
         {
           ErrorCode.TooEarlyError.Throw();

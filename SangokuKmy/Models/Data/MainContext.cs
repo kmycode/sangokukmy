@@ -93,6 +93,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<Formation> Formations { get; set; }
 
     /// <summary>
+    /// オンライン履歴
+    /// </summary>
+    public DbSet<OnlineHistory> OnlineHistories { get; set; }
+
+    /// <summary>
     /// 登録時のホスト
     /// </summary>
     public DbSet<EntryHost> EntryHosts { get; set; }
