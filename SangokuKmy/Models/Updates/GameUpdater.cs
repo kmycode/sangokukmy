@@ -1262,9 +1262,28 @@ namespace SangokuKmy.Models.Updates
             {
               await repo.SaveChangesAsync();
             }
-            else
+          }
+
+          // 農民反乱（宗教）
+          if (!system.IsWaitingReset && RandomService.Next(0, 240) == 0)
+          {
+            var targetTowns = new List<Town>();
+            var defenders = await repo.Town.GetAllDefendersAsync();
+            foreach (var country in countryData.Where(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None))
             {
-              _logger.LogInformation("農民反乱の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
+              foreach (var town in country.Towns.Where(t => t.Religion != country.Country.Religion && !defenders.Any(d => d.TownId == t.Id)))
+              {
+                targetTowns.Add(town);
+              }
+            }
+            if (targetTowns.Any())
+            {
+              var town = RandomService.Next(targetTowns);
+              var isCreated = await AiService.CreateFarmerCountryAsync(repo, town, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message), true);
+              if (isCreated)
+              {
+                await repo.SaveChangesAsync();
+              }
             }
           }
 
@@ -1562,7 +1581,7 @@ namespace SangokuKmy.Models.Updates
           {
             foreach (var country in countryData.Where(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None))
             {
-              if (RandomService.Next(0, 200) == 0)
+              if (RandomService.Next(0, 300) == 0)
               {
                 var aroundTowns = allTowns.GetAroundTowns(country.Towns).Where(t => t.Religion == country.Country.Religion);
                 var town = RandomService.Next(aroundTowns);
@@ -1579,8 +1598,12 @@ namespace SangokuKmy.Models.Updates
                 }
 
                 town.CountryId = country.Country.Id;
-                await repo.Town.RemoveTownDefendersAsync(town.Id);
+                var defs = await repo.Town.RemoveTownDefendersAsync(town.Id);
                 await AddMapLogAsync(true, EventType.TakeAwayWithReligion, $"<country>{country.Country.Name}</country> は <country>{townCountry.Country.Name}</country> の <town>{town.Name}</town> を宗教支配しました");
+
+                var townCharas = await repo.Town.GetCharactersAsync(town.Id);
+                await StatusStreaming.Default.SendCharacterAsync(defs.Select(d => ApiData.From(d)), townCharas.Select(c => c.Id));
+                await StatusStreaming.Default.SendTownToAllAsync(ApiData.From((Town)town), repo);
 
                 if (!allTowns.Any(t => t.CountryId == townCountry.Country.Id))
                 {
