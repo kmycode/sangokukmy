@@ -1472,11 +1472,36 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 宣教師の追加
-          if (system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 10 == 0 && system.GameDateTime.Month == 1)
+          // if (system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 10 == 0 && system.GameDateTime.Month == 1)
           {
-            var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, RandomService.Next(allTowns).Id, system);
+            var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, RandomService.Next(allTowns).Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
             if (character.Any())
             {
+              character.First().Name += character.First().Id;
+
+              var religion = character.First().Religion;
+              var skill = CharacterSkillType.Undefined;
+              if (religion == ReligionType.Confucianism)
+              {
+                character.First().From = CharacterFrom.Confucianism;
+                skill = CharacterSkillType.Confucianism1;
+              }
+              if (religion == ReligionType.Taoism)
+              {
+                character.First().From = CharacterFrom.Taoism;
+                skill = CharacterSkillType.Taoism1;
+              }
+              if (religion == ReligionType.Buddhism)
+              {
+                character.First().From = CharacterFrom.Buddhism;
+                skill = CharacterSkillType.Buddhism1;
+              }
+              await repo.Character.AddSkillAsync(new CharacterSkill
+              {
+                CharacterId = character.First().Id,
+                Status = CharacterSkillStatus.Available,
+                Type = skill,
+              });
               await AddMapLogAsync(false, EventType.NewEvangelist, $"無所属に新たに <character>{character.First().Name}</character> が出現しました");
             }
           }

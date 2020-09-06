@@ -55,6 +55,7 @@ namespace SangokuKmy.Models.Data.Entities
 
   public enum CharacterSkillType : short
   {
+    Undefined = 0,
     Strong1 = 1,
     Strong2 = 2,
     Strong3 = 3,
