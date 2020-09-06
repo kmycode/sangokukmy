@@ -292,7 +292,10 @@ namespace SangokuKmy.Models.Services
             religionName = "道教";
           }
 
-          await LogService.AddMapLogAsync(repo, false, EventType.NewReligion, $"<town>{town.Name}</town> は {religionName} の信仰を開始しました");
+          if (isFirstReligion)
+          {
+            await LogService.AddMapLogAsync(repo, false, EventType.NewReligion, $"<town>{town.Name}</town> は {religionName} を国教とする最初の国が建国されたため、信仰を開始しました");
+          }
         }
         else {
           country.CapitalTownId = 0;
