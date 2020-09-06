@@ -105,6 +105,10 @@ namespace SangokuKmy.Models.Commands
       ai.Character.TownId = country.CapitalTownId;
       ai.Character.Money = 10000;
       ai.Character.Rice = 10000;
+      if (type == CharacterAiType.SecretaryEvangelist)
+      {
+        ai.Character.Religion = country.Religion;
+      }
       if (type != CharacterAiType.SecretaryScouter)
       {
         ai.Character.LastUpdated = character.LastUpdated.AddSeconds(Config.UpdateTime + 10);

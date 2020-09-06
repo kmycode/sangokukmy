@@ -223,6 +223,14 @@ namespace SangokuKmy.Models.Updates
                   {
                     var val = (long)(system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People / 10000;
 
+                    if (countryData.Any(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && c.Country.Religion != country.Country.Religion))
+                    {
+                      if (t.Religion == country.Country.Religion)
+                      {
+                        val = (int)(val * 1.05f);
+                      }
+                    }
+
                     return val;
                   }),
                 PaidSalary = 0,
@@ -586,6 +594,18 @@ namespace SangokuKmy.Models.Updates
                 {
                   peopleAdd = (int)((((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.3f + 1.0f) * peopleAdd);
                 }
+
+                if (countryData
+                  .Where(c => c.Country.Religion != ReligionType.None && c.Country.Religion != ReligionType.Any)
+                  .GroupBy(c => c.Country.Religion)
+                  .Count() > 1)
+                {
+                  var country = countryData.FirstOrDefault(c => c.Country.Id == town.Id);
+                  if (town.Religion != ReligionType.None && town.Religion != ReligionType.Any && town.Religion == country?.Country.Religion)
+                  {
+                    peopleAdd = (int)(peopleAdd * 1.05f);
+                  }
+                }
               }
               else if (town.Security < 50)
               {
@@ -676,7 +696,10 @@ namespace SangokuKmy.Models.Updates
               }
 
               // 宗教による追加の政策ポイント
-              country.Country.PolicyPoint += allTowns.Count(t => t.Religion == country.Country.Religion) * 3;
+              if (countryData.Any(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && c.Country.Religion != country.Country.Religion))
+              {
+                country.Country.PolicyPoint += allTowns.Count(t => t.Religion == country.Country.Religion) * 3;
+              }
             }
           }
 
@@ -1445,6 +1468,16 @@ namespace SangokuKmy.Models.Updates
                   await repo.SaveChangesAsync();
                 }
               }
+            }
+          }
+
+          // 宣教師の追加
+          if (system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 10 == 0 && system.GameDateTime.Month == 1)
+          {
+            var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, RandomService.Next(allTowns).Id, system);
+            if (character.Any())
+            {
+              await AddMapLogAsync(false, EventType.NewEvangelist, $"無所属に新たに <character>{character.First().Name}</character> が出現しました");
             }
           }
 

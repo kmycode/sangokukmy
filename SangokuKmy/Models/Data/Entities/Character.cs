@@ -874,6 +874,7 @@ namespace SangokuKmy.Models.Data.Entities
     FlyingColumn = 30,
     RemovedFlyingColumn = 31,
     SecretaryEvangelist = 32,
+    FreeEvangelist = 33,
   }
 
   public static class CharacterAiTypeExtensions

@@ -338,5 +338,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 信仰
     /// </summary>
     NewReligion = 49,
+
+    /// <summary>
+    /// 新しい宣教師
+    /// </summary>
+    NewEvangelist = 50,
   }
 }
