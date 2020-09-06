@@ -148,7 +148,8 @@ namespace SangokuKmy.Models.Commands
       {
         TownId = targetTown.Id,
         AttackerCharacterId = character.Id,
-        IsSameReligion = myCountry.Religion != ReligionType.Any && myCountry.Religion != ReligionType.None && myCountry.Religion == targetTown.Religion,
+        IsSameReligion = myCountry.Religion != ReligionType.Any && myCountry.Religion != ReligionType.None &&
+          myCountry.Religion != targetCountryOptional.Data?.Religion && myCountry.Religion == targetTown.Religion,
       };
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
@@ -268,7 +269,7 @@ namespace SangokuKmy.Models.Commands
         var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).GetAvailableTypes();
 
         var evaluationTechnology = targetTown.Technology;
-        if (myCountry.Religion != ReligionType.None && myCountry.Religion != ReligionType.Any && myCountry.Religion == targetTown.Religion)
+        if (log.IsSameReligion)
         {
           evaluationTechnology -= RandomService.Next(28, 96);
         }
