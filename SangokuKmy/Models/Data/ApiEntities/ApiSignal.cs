@@ -91,5 +91,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 部隊から除隊された
     /// </summary>
     UnitDischarged = 11,
+
+    /// <summary>
+    /// オンライン情報
+    /// </summary>
+    CharacterOnline = 12,
   }
 }

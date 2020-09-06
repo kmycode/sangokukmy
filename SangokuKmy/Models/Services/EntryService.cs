@@ -257,30 +257,44 @@ namespace SangokuKmy.Models.Services
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
 
+        var countries = await repo.Country.GetAllAsync();
+        var isFirstReligion = !countries.Where(c => !c.HasOverthrown).Any(c => c.Religion == country.Religion);
+        var point = isFirstReligion ? 1000 : 500;
+
+        // 宗教創始ボーナス
+        if (isFirstReligion)
+        {
+          country.PolicyPoint += 3000;
+          items.Add(CharacterItemType.TownPlanningDocument);
+        }
+
         if (system.RuleSet != GameRuleSet.Wandering)
         {
           // 大都市に変更
           town.SubType = town.Type;
           MapService.UpdateTownType(town, TownType.Large);
 
-          var countries = await repo.Country.GetAllAsync();
-          var isFirstReligion = !countries.Where(c => !c.HasOverthrown).Any(c => c.Religion == country.Religion);
-          var point = isFirstReligion ? 1000 : 500;
-          if (isFirstReligion)
-          {
-            country.PolicyPoint += 3000;
-          }
+          // 首都の宗教
+          var religionName = string.Empty;
           if (country.Religion == ReligionType.Buddhism)
           {
             town.Buddhism = point;
+            religionName = "仏教";
           }
           if (country.Religion == ReligionType.Confucianism)
           {
             town.Confucianism = point;
+            religionName = "儒教";
           }
           if (country.Religion == ReligionType.Taoism)
           {
             town.Taoism = point;
+            religionName = "道教";
+          }
+
+          if (isFirstReligion)
+          {
+            await LogService.AddMapLogAsync(repo, false, EventType.NewReligion, $"<town>{town.Name}</town> は {religionName} を国教とする最初の国が建国されたため、信仰を開始しました");
           }
         }
         else {

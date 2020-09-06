@@ -13,11 +13,11 @@ namespace SangokuKmy.Models.Services
       var countryOptional = await repo.Country.GetAliveByIdAsync(town.CountryId);
 
       var townCount = await repo.Town.CountByCountryIdAsync(country.Id);
-      var characterCount = await repo.Country.CountCharactersAsync(country.Id, true);
+      var characterCount = await repo.Country.CountCharactersAsync(country.Id, true, 200);
       var townTypeCost = (countryOptional.HasData && countryOptional.Data.CapitalTownId == town.Id) ? 12000 :
         town.Type == TownType.Large ? 10000 : 8000;
 
-      var cost = townTypeCost * (Math.Pow(1.06f, townCount) + Math.Pow(1.11f, characterCount)) + town.TakeoverDefensePoint;
+      var cost = townTypeCost * (Math.Pow(1.07f, townCount) + Math.Pow(1.1f, characterCount)) + town.TakeoverDefensePoint;
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       if (wars.Any(w => w.IsJoinAvailable(town.CountryId) && w.IsJoinAvailable(country.Id)))

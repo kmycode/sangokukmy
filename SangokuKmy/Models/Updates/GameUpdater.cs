@@ -1479,7 +1479,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 宣教師の追加
-          if (!system.IsWaitingReset && system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 10 == 0 && system.GameDateTime.Month == 1)
+          if (!system.IsWaitingReset && system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1)
           {
             var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, RandomService.Next(allTowns).Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
             if (character.Any())
@@ -1670,6 +1670,32 @@ namespace SangokuKmy.Models.Updates
         MapLogAndSaveAsync = AddMapLogAndSaveAsync,
         GameDateTime = currentMonth,
       };
+
+      try
+      {
+        // オンライン状態の通知
+        var onlineData = await repo.Character.CountAllCharacterOnlineMonthAsync();
+        var myOnline = onlineData.FirstOrDefault(h => h.CharacterId == character.Id);
+        if (myOnline.CharacterId != default)
+        {
+          var rank = onlineData
+            .OrderBy(h => h.Count)
+            .Select((h, i) => new { h.CharacterId, h.Count, Rank = i + 1, })
+            .FirstOrDefault(h => h.CharacterId == character.Id);
+          if (rank != null)
+          {
+            await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
+            {
+              Type = SignalType.CharacterOnline,
+              Data = new { count = rank.Count, rank = rank.Rank, },
+            }), character.Id);
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.LogError(ex, $"ID {character.Id} DATE {gameObj.GameDateTime.ToInt()} 武将のオンライン情報通知でエラーが発生しました");
+      }
 
       try
       {

@@ -1464,7 +1464,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.TownPlanningDocument,
         Name = "都市計画書",
         Money = 500_000,
-        InitializeNumber = 10,
+        InitializeNumber = 5,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
         CanSell = false,
         CanUse = true,

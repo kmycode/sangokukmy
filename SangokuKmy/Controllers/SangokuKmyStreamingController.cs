@@ -64,6 +64,7 @@ namespace SangokuKmy.Controllers
       MuteKeyword muteKeyword;
       ChatMessageRead read;
       BlockAction blockAction;
+      ApiSignal onlineInfo = null;
       using (var repo = MainRepository.WithRead())
       {
         system = await repo.System.GetAsync();
@@ -129,6 +130,25 @@ namespace SangokuKmy.Controllers
             countryMessages = countryMessages.Where(m => m.Type != CountryMessageType.Unified);
           }
         }
+
+        // オンライン状態の通知
+        var onlineData = await repo.Character.CountAllCharacterOnlineMonthAsync();
+        var myOnline = onlineData.FirstOrDefault(h => h.CharacterId == chara.Id);
+        if (myOnline.CharacterId != default)
+        {
+          var rank = onlineData
+            .OrderBy(h => h.Count)
+            .Select((h, i) => new { h.CharacterId, h.Count, Rank = i + 1, })
+            .FirstOrDefault(h => h.CharacterId == chara.Id);
+          if (rank != null)
+          {
+            onlineInfo = new ApiSignal
+            {
+              Type = SignalType.CharacterOnline,
+              Data = new { count = rank.Count, rank = rank.Rank, },
+            };
+          }
+        }
       }
 
       // HTTPヘッダを設定する
@@ -173,6 +193,10 @@ namespace SangokuKmy.Controllers
         .Concat(subBuildings.Select(s => ApiData.From(s)))
         .Concat(regularlyCommands.Select(c => ApiData.From(c)))
         .ToList();
+      if (onlineInfo != null)
+      {
+        sendData.Add(ApiData.From(onlineInfo));
+      }
       if (blockAction != null)
       {
         sendData.Add(ApiData.From(new ApiSignal

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using SangokuKmy.Models.Data.Entities.Caches;
 using System.Collections.Generic;
+using SangokuKmy.Models.Data.ApiEntities;
 
 namespace SangokuKmy.Models.Data.Repositories
 {
@@ -562,6 +563,62 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<int> CountOnlineMonthAsync(uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.OnlineHistories.CountAsync(h => h.CharacterId == charaId);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<IReadOnlyList<(uint CharacterId, int Count)>> CountAllCharacterOnlineMonthAsync()
+    {
+      try
+      {
+        var arr = await this.container.Context.OnlineHistories
+          .GroupBy(h => h.CharacterId)
+          .Select(h => new { CharacterId = h.Key, Count = h.Count(), })
+          .ToArrayAsync();
+        return arr.Select(a => (a.CharacterId, a.Count)).ToArray();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<OnlineHistory> SetOnlineHistoryAsync(uint charaId, GameDateTime gameDate)
+    {
+      try
+      {
+        var intDate = gameDate.ToInt();
+        var old = await this.container.Context.OnlineHistories.FirstOrDefaultAsync(h => h.CharacterId == charaId && h.IntGameDateTime == intDate);
+        if (old != null)
+        {
+          return old;
+        }
+
+        var history = new OnlineHistory
+        {
+          CharacterId = charaId,
+          IntGameDateTime = intDate,
+        };
+        await this.container.Context.OnlineHistories.AddAsync(history);
+        return history;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     /// <summary>
     /// 国を削除する。指定した国に仕官した武将は、全員無所属になる
     /// </summary>
@@ -598,6 +655,7 @@ namespace SangokuKmy.Models.Data.Repositories
         await this.container.RemoveAllRowsAsync(typeof(CharacterSkill));
         await this.container.RemoveAllRowsAsync(typeof(LogCharacterCache));
         await this.container.RemoveAllRowsAsync(typeof(Formation));
+        await this.container.RemoveAllRowsAsync(typeof(OnlineHistory));
       }
       catch (Exception ex)
       {
