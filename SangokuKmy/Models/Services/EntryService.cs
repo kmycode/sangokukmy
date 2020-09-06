@@ -263,17 +263,24 @@ namespace SangokuKmy.Models.Services
           town.SubType = town.Type;
           MapService.UpdateTownType(town, TownType.Large);
 
+          var countries = await repo.Country.GetAllAsync();
+          var isFirstReligion = !countries.Where(c => !c.HasOverthrown).Any(c => c.Religion == country.Religion);
+          var point = isFirstReligion ? 1000 : 500;
+          if (isFirstReligion)
+          {
+            country.PolicyPoint += 3000;
+          }
           if (country.Religion == ReligionType.Buddhism)
           {
-            town.Buddhism = 500;
+            town.Buddhism = point;
           }
           if (country.Religion == ReligionType.Confucianism)
           {
-            town.Confucianism = 500;
+            town.Confucianism = point;
           }
           if (country.Religion == ReligionType.Taoism)
           {
-            town.Taoism = 500;
+            town.Taoism = point;
           }
         }
         else {
