@@ -593,15 +593,15 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
-    public async Task<OnlineHistory> SetOnlineHistoryAsync(uint charaId, GameDateTime gameDate)
+    public async Task SetOnlineHistoryAsync(uint charaId, GameDateTime gameDate)
     {
       try
       {
         var intDate = gameDate.ToInt();
-        var old = await this.container.Context.OnlineHistories.FirstOrDefaultAsync(h => h.CharacterId == charaId && h.IntGameDateTime == intDate);
-        if (old != null)
+        var old = await this.container.Context.OnlineHistories.AnyAsync(h => h.CharacterId == charaId && h.IntGameDateTime == intDate);
+        if (old)
         {
-          return old;
+          return;
         }
 
         var history = new OnlineHistory
@@ -610,12 +610,10 @@ namespace SangokuKmy.Models.Data.Repositories
           IntGameDateTime = intDate,
         };
         await this.container.Context.OnlineHistories.AddAsync(history);
-        return history;
       }
       catch (Exception ex)
       {
         this.container.Error(ex);
-        return default;
       }
     }
 
