@@ -266,7 +266,6 @@ namespace SangokuKmy.Models.Services
         {
           country.PolicyPoint += 3000;
           items.Add(CharacterItemType.TownPlanningDocument);
-          items.Add(CharacterItemType.TownPlanningDocument);
         }
 
         if (system.RuleSet != GameRuleSet.Wandering)
