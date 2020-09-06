@@ -223,12 +223,17 @@ namespace SangokuKmy.Models.Data.Repositories
     /// </summary>
     /// <param name="townId">都市ID</param>
     /// <returns>その都市に滞在する武将の数</returns>
-    public async Task<int> CountCharactersAsync(uint countryId, bool isHumanOnly = false)
+    public async Task<int> CountCharactersAsync(uint countryId, bool isHumanOnly = false, int deleteTurn = -1)
     {
+      if (deleteTurn < 0)
+      {
+        deleteTurn = Config.DeleteTurns;
+      }
+
       try
       {
         return await this.container.Context.Characters
-          .CountAsync(c => c.CountryId == countryId && !c.HasRemoved && (!isHumanOnly || (c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator)));
+          .CountAsync(c => c.CountryId == countryId && c.DeleteTurn <= deleteTurn && !c.HasRemoved && (!isHumanOnly || (c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator)));
       }
       catch (Exception ex)
       {
