@@ -88,7 +88,7 @@ namespace SangokuKmy.Models.Services
       system.RuleSet = system.RuleSetNextPeriod;
       system.RuleSetNextPeriod = system.RuleSetAfterNextPeriod;
       system.RuleSetAfterNextPeriod =
-        RandomService.Next(0, 3) != 0 ? GameRuleSet.Normal : RandomService.Next(new GameRuleSet[] {
+        RandomService.Next(0, 7) <= 3 ? GameRuleSet.Normal : RandomService.Next(new GameRuleSet[] {
           GameRuleSet.SimpleBattle,
           GameRuleSet.Wandering,
           GameRuleSet.BattleRoyale,
