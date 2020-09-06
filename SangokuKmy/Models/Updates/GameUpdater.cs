@@ -1243,6 +1243,13 @@ namespace SangokuKmy.Models.Updates
             if (created != null)
             {
               system.TerroristCount++;
+
+              // 誰も建国しなかった場合は異民族と経営国家の戦争で終わる
+              if (!allCountries.Any(c => c.AiType == CountryAiType.Human))
+              {
+                created.AiType = CountryAiType.TerroristsEnemy;
+              }
+
               await repo.SaveChangesAsync();
             }
           }
@@ -1472,7 +1479,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 宣教師の追加
-          if (system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 10 == 0 && system.GameDateTime.Month == 1)
+          if (!system.IsWaitingReset && system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 10 == 0 && system.GameDateTime.Month == 1)
           {
             var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, RandomService.Next(allTowns).Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
             if (character.Any())
