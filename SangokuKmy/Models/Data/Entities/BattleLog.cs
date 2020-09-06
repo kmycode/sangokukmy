@@ -112,6 +112,13 @@ namespace SangokuKmy.Models.Data.Entities
     [NotMapped]
     [JsonProperty("lines")]
     public IEnumerable<BattleLogLine> Lines { get; set; }
+
+    /// <summary>
+    /// 攻撃側と守備側が同じ宗教であるか
+    /// </summary>
+    [Column("is_same_religion")]
+    [JsonProperty("isSameReligion")]
+    public bool IsSameReligion { get; set; }
   }
 
   public enum DefenderType : short

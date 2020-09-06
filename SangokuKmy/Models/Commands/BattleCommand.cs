@@ -148,6 +148,7 @@ namespace SangokuKmy.Models.Commands
       {
         TownId = targetTown.Id,
         AttackerCharacterId = character.Id,
+        IsSameReligion = myCountry.Religion != ReligionType.Any && myCountry.Religion != ReligionType.None && myCountry.Religion == targetTown.Religion,
       };
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
@@ -209,6 +210,11 @@ namespace SangokuKmy.Models.Commands
         var postCorrections = mySoldierType.CalcPostCorrections(myPost.Type);
         myAttackCorrection += postCorrections.AttackCorrection;
         myDefenceCorrection += postCorrections.DefendCorrection;
+      }
+
+      if (log.IsSameReligion)
+      {
+        targetDefenceCorrection -= 15;
       }
 
       Character targetCharacter;
