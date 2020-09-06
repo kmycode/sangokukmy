@@ -80,6 +80,11 @@ namespace SangokuKmy.Models.Commands
         var skills = await repo.Character.GetSkillsAsync(character.Id);
         add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.MissionaryPercentage) / 100.0f));
 
+        if (character.Religion == religion)
+        {
+          add = (int)(add * 1.1f);
+        }
+
         var oldReligion = town.Religion;
 
         string religionName = string.Empty;
