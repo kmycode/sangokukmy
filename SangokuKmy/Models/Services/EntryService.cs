@@ -257,19 +257,25 @@ namespace SangokuKmy.Models.Services
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
 
+        var countries = await repo.Country.GetAllAsync();
+        var isFirstReligion = !countries.Where(c => !c.HasOverthrown).Any(c => c.Religion == country.Religion);
+        var point = isFirstReligion ? 1000 : 500;
+
+        // 宗教創始ボーナス
+        if (isFirstReligion)
+        {
+          country.PolicyPoint += 3000;
+          items.Add(CharacterItemType.TownPlanningDocument);
+          items.Add(CharacterItemType.TownPlanningDocument);
+        }
+
         if (system.RuleSet != GameRuleSet.Wandering)
         {
           // 大都市に変更
           town.SubType = town.Type;
           MapService.UpdateTownType(town, TownType.Large);
 
-          var countries = await repo.Country.GetAllAsync();
-          var isFirstReligion = !countries.Where(c => !c.HasOverthrown).Any(c => c.Religion == country.Religion);
-          var point = isFirstReligion ? 1000 : 500;
-          if (isFirstReligion)
-          {
-            country.PolicyPoint += 3000;
-          }
+          // 首都の宗教
           if (country.Religion == ReligionType.Buddhism)
           {
             town.Buddhism = point;
