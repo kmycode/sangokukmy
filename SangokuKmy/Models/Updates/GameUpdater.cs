@@ -1487,28 +1487,18 @@ namespace SangokuKmy.Models.Updates
               character.First().Name += character.First().Id;
 
               var religion = character.First().Religion;
-              var skill = CharacterSkillType.Undefined;
               if (religion == ReligionType.Confucianism)
               {
                 character.First().From = CharacterFrom.Confucianism;
-                skill = CharacterSkillType.Confucianism1;
               }
               if (religion == ReligionType.Taoism)
               {
                 character.First().From = CharacterFrom.Taoism;
-                skill = CharacterSkillType.Taoism1;
               }
               if (religion == ReligionType.Buddhism)
               {
                 character.First().From = CharacterFrom.Buddhism;
-                skill = CharacterSkillType.Buddhism1;
               }
-              await repo.Character.AddSkillAsync(new CharacterSkill
-              {
-                CharacterId = character.First().Id,
-                Status = CharacterSkillStatus.Available,
-                Type = skill,
-              });
               await AddMapLogAsync(false, EventType.NewEvangelist, $"無所属に新たに <character>{character.First().Name}</character> が出現しました");
             }
           }
