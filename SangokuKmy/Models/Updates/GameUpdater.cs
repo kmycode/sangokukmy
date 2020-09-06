@@ -187,7 +187,7 @@ namespace SangokuKmy.Models.Updates
         var countryData = allCountries
           .GroupJoin(allTowns, c => c.Id, t => t.CountryId, (c, ts) => new { Country = c, Towns = ts, })
           .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, })
-          .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, });
+          .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, OldPolicyPoint = c.Country.PolicyPoint, });
         var allWars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
         if (system.GameDateTime.Year == Config.UpdateStartYear && system.GameDateTime.Month == 1)
@@ -222,6 +222,14 @@ namespace SangokuKmy.Models.Updates
                   .Sum(t =>
                   {
                     var val = (long)(system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People / 10000;
+
+                    if (countryData.Any(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && c.Country.Religion != country.Country.Religion))
+                    {
+                      if (t.Religion == country.Country.Religion)
+                      {
+                        val = (int)(val * 1.05f);
+                      }
+                    }
 
                     return val;
                   }),
@@ -586,6 +594,18 @@ namespace SangokuKmy.Models.Updates
                 {
                   peopleAdd = (int)((((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.3f + 1.0f) * peopleAdd);
                 }
+
+                if (countryData
+                  .Where(c => c.Country.Religion != ReligionType.None && c.Country.Religion != ReligionType.Any)
+                  .GroupBy(c => c.Country.Religion)
+                  .Count() > 1)
+                {
+                  var country = countryData.FirstOrDefault(c => c.Country.Id == town.Id);
+                  if (town.Religion != ReligionType.None && town.Religion != ReligionType.Any && town.Religion == country?.Country.Religion)
+                  {
+                    peopleAdd = (int)(peopleAdd * 1.05f);
+                  }
+                }
               }
               else if (town.Security < 50)
               {
@@ -676,7 +696,10 @@ namespace SangokuKmy.Models.Updates
               }
 
               // 宗教による追加の政策ポイント
-              country.Country.PolicyPoint += allTowns.Count(t => t.Religion == country.Country.Religion) * 3;
+              if (countryData.Any(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && c.Country.Religion != country.Country.Religion))
+              {
+                country.Country.PolicyPoint += allTowns.Count(t => t.Religion == country.Country.Religion) * 3;
+              }
             }
           }
 
@@ -1220,6 +1243,13 @@ namespace SangokuKmy.Models.Updates
             if (created != null)
             {
               system.TerroristCount++;
+
+              // 誰も建国しなかった場合は異民族と経営国家の戦争で終わる
+              if (!allCountries.Any(c => c.AiType == CountryAiType.Human))
+              {
+                created.AiType = CountryAiType.TerroristsEnemy;
+              }
+
               await repo.SaveChangesAsync();
             }
           }
@@ -1448,6 +1478,41 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
+          // 宣教師の追加
+          if (!system.IsWaitingReset && system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 10 == 0 && system.GameDateTime.Month == 1)
+          {
+            var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, RandomService.Next(allTowns).Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
+            if (character.Any())
+            {
+              character.First().Name += character.First().Id;
+
+              var religion = character.First().Religion;
+              var skill = CharacterSkillType.Undefined;
+              if (religion == ReligionType.Confucianism)
+              {
+                character.First().From = CharacterFrom.Confucianism;
+                skill = CharacterSkillType.Confucianism1;
+              }
+              if (religion == ReligionType.Taoism)
+              {
+                character.First().From = CharacterFrom.Taoism;
+                skill = CharacterSkillType.Taoism1;
+              }
+              if (religion == ReligionType.Buddhism)
+              {
+                character.First().From = CharacterFrom.Buddhism;
+                skill = CharacterSkillType.Buddhism1;
+              }
+              await repo.Character.AddSkillAsync(new CharacterSkill
+              {
+                CharacterId = character.First().Id,
+                Status = CharacterSkillStatus.Available,
+                Type = skill,
+              });
+              await AddMapLogAsync(false, EventType.NewEvangelist, $"無所属に新たに <character>{character.First().Name}</character> が出現しました");
+            }
+          }
+
           // 時間による勝利
           if (!system.IsWaitingReset && system.GameDateTime.Year >= 500)
           {
@@ -1503,6 +1568,12 @@ namespace SangokuKmy.Models.Updates
           }
         }
 
+        // 国情報を更新
+        foreach (var country in countryData)
+        {
+          country.Country.LastPolicyPointIncomes = country.Country.PolicyPoint - country.OldPolicyPoint;
+        }
+
         // 月の更新を保存
         var updateLog = new CharacterUpdateLog { IsFirstAtMonth = true, DateTime = DateTime.Now, GameDateTime = system.GameDateTime, };
         await repo.Character.AddCharacterUpdateLogAsync(updateLog);
@@ -1541,6 +1612,7 @@ namespace SangokuKmy.Models.Updates
 
     private static async Task UpdateCharacterAsync(MainRepository repo, Character character)
     {
+      var system = await repo.System.GetAsync();
       var notifies = new List<IApiData>();
       var anonymousNotifies = new List<ApiData<MapLog>>();
       var anyoneNotifies = new List<Tuple<uint, IApiData>>();
@@ -1650,6 +1722,15 @@ namespace SangokuKmy.Models.Updates
             }, character);
             character.SkillPoint -= nextInfos[0].RequestedPoint;
             await AddLogAsync($"技能ポイントが一定まで到達したので、技能 {nextInfos[0].Name} を獲得しました");
+          }
+        }
+
+        // ルールセットによる支給
+        if (currentMonth.Year >= Config.UpdateStartYear)
+        {
+          if (system.RuleSet == GameRuleSet.BattleRoyale)
+          {
+            character.Money += 3000;
           }
         }
 

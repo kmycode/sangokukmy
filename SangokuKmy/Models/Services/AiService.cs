@@ -50,7 +50,7 @@ namespace SangokuKmy.Models.Services
       return country;
     }
 
-    public static async Task<IEnumerable<Character>> CreateCharacterAsync(MainRepository repo, IEnumerable<CharacterAiType> types, uint countryId, uint townId, SystemData system)
+    public static async Task<IEnumerable<Character>> CreateCharacterAsync(MainRepository repo, IEnumerable<CharacterAiType> types, uint countryId, uint townId, SystemData system, CharacterFrom from = CharacterFrom.Ai, CharacterSkillType firstSkill = CharacterSkillType.Ai1)
     {
       var charas = new List<Character>();
       foreach (var type in types)
@@ -64,7 +64,7 @@ namespace SangokuKmy.Models.Services
           LastUpdatedGameDate = system.GameDateTime,
         };
         var ai = AiCharacterFactory.Create(chara);
-        ai.Character.From = CharacterFrom.Ai;
+        ai.Character.From = from;
         ai.Initialize(system.GameDateTime);
         await repo.Character.AddAsync(chara);
 
@@ -77,15 +77,18 @@ namespace SangokuKmy.Models.Services
       {
         await SetIconAsync(repo, chara);
 
-        if (chara.From == CharacterFrom.Ai)
+        if (firstSkill != CharacterSkillType.Undefined)
         {
           await repo.Character.AddSkillAsync(new CharacterSkill
           {
             CharacterId = chara.Id,
-            Type = CharacterSkillType.Ai1,
+            Type = firstSkill,
             Status = CharacterSkillStatus.Available,
           });
+        }
 
+        if (chara.From == CharacterFrom.Ai)
+        {
           var formation = new Formation
           {
             CharacterId = chara.Id,

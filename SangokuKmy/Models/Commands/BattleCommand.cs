@@ -148,6 +148,8 @@ namespace SangokuKmy.Models.Commands
       {
         TownId = targetTown.Id,
         AttackerCharacterId = character.Id,
+        IsSameReligion = myCountry.Religion != ReligionType.Any && myCountry.Religion != ReligionType.None &&
+          myCountry.Religion != targetCountryOptional.Data?.Religion && myCountry.Religion == targetTown.Religion,
       };
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
@@ -211,6 +213,11 @@ namespace SangokuKmy.Models.Commands
         myDefenceCorrection += postCorrections.DefendCorrection;
       }
 
+      if (log.IsSameReligion)
+      {
+        targetDefenceCorrection -= 15;
+      }
+
       Character targetCharacter;
       Formation targetFormationData;
       FormationTypeInfo targetFormation;
@@ -262,9 +269,9 @@ namespace SangokuKmy.Models.Commands
         var policies = (await repo.Country.GetPoliciesAsync(targetTown.CountryId)).GetAvailableTypes();
 
         var evaluationTechnology = targetTown.Technology;
-        if (myCountry.Religion != ReligionType.None && myCountry.Religion != ReligionType.Any && myCountry.Religion == targetTown.Religion)
+        if (log.IsSameReligion)
         {
-          evaluationTechnology -= 72;
+          evaluationTechnology -= RandomService.Next(28, 96);
         }
         targetCharacter.SoldierType = evaluationTechnology >= 1700 ? SoldierType.Guard_Step6 :
           evaluationTechnology >= 1200 ? SoldierType.Guard_Step5 :

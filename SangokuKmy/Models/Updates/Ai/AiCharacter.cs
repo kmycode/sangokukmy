@@ -134,6 +134,10 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         ai = new FlyingColumnAiCharacter(chara);
       }
+      else if (chara.AiType == CharacterAiType.FreeEvangelist)
+      {
+        ai = new FreeEvangelistAiCharacter(chara);
+      }
       else
       {
         ai = new HumanCharacter(chara);
