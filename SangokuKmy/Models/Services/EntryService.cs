@@ -275,18 +275,24 @@ namespace SangokuKmy.Models.Services
           MapService.UpdateTownType(town, TownType.Large);
 
           // 首都の宗教
+          var religionName = string.Empty;
           if (country.Religion == ReligionType.Buddhism)
           {
             town.Buddhism = point;
+            religionName = "仏教";
           }
           if (country.Religion == ReligionType.Confucianism)
           {
             town.Confucianism = point;
+            religionName = "儒教";
           }
           if (country.Religion == ReligionType.Taoism)
           {
             town.Taoism = point;
+            religionName = "道教";
           }
+
+          await LogService.AddMapLogAsync(repo, false, EventType.NewReligion, $"<town>{town.Name}</town> は {religionName} の信仰を開始しました");
         }
         else {
           country.CapitalTownId = 0;
