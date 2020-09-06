@@ -208,6 +208,7 @@ namespace SangokuKmy.Models.Services
         using (await locker.WriterLockAsync())
         {
           updates.Clear();
+          onlines.Clear();
           onlineCaches = new CharacterOnline[] { };
         }
       }
