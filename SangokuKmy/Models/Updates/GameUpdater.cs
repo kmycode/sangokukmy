@@ -1556,6 +1556,39 @@ namespace SangokuKmy.Models.Updates
               }
             }
           }
+
+          // 宗教支配
+          if (!system.IsWaitingReset)
+          {
+            foreach (var country in countryData.Where(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None))
+            {
+              if (RandomService.Next(0, 200) == 0)
+              {
+                var aroundTowns = allTowns.GetAroundTowns(country.Towns).Where(t => t.Religion == country.Country.Religion);
+                var town = RandomService.Next(aroundTowns);
+                var townCountry = countryData.FirstOrDefault(c => c.Country.Id == town.CountryId);
+                if (townCountry == null)
+                {
+                  continue;
+                }
+
+                var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(country.Country.Id, townCountry.Country.Id);
+                if (alliance.HasData && (alliance.Data.Status == CountryAllianceStatus.Available || alliance.Data.Status == CountryAllianceStatus.ChangeRequesting))
+                {
+                  continue;
+                }
+
+                town.CountryId = country.Country.Id;
+                await repo.Town.RemoveTownDefendersAsync(town.Id);
+                await AddMapLogAsync(true, EventType.TakeAwayWithReligion, $"<country>{country.Country.Name}</country> は <country>{townCountry.Country.Name}</country> の <town>{town.Name}</town> を宗教支配しました");
+
+                if (!allTowns.Any(t => t.CountryId == townCountry.Country.Id))
+                {
+                  await CountryService.OverThrowAsync(repo, townCountry.Country, country.Country);
+                }
+              }
+            }
+          }
         }
 
         // 国情報を更新
