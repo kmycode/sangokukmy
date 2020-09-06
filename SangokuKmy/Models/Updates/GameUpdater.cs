@@ -1679,7 +1679,7 @@ namespace SangokuKmy.Models.Updates
         if (myOnline.CharacterId != default)
         {
           var rank = onlineData
-            .OrderBy(h => h.Count)
+            .OrderByDescending(h => h.Count)
             .Select((h, i) => new { h.CharacterId, h.Count, Rank = i + 1, })
             .FirstOrDefault(h => h.CharacterId == character.Id);
           if (rank != null)
