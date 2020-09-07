@@ -1265,13 +1265,15 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱（宗教）
-          if (!system.IsWaitingReset && RandomService.Next(0, 240) == 0)
+          if (!system.IsWaitingReset && system.Period >= 22 && RandomService.Next(0, 120) == 0)
           {
             var targetTowns = new List<Town>();
             var defenders = await repo.Town.GetAllDefendersAsync();
-            foreach (var country in countryData.Where(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None))
+            foreach (var country in countryData.Where(c =>
+              c.Country.AiType != CountryAiType.Farmers && c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && allWars.All(w => !w.IsJoinAvailable(c.Country.Id))))
             {
-              foreach (var town in country.Towns.Where(t => t.Religion != country.Country.Religion && !defenders.Any(d => d.TownId == t.Id)))
+              foreach (var town in country.Towns.Where(t =>
+                t.Religion != country.Country.Religion && t.Religion != ReligionType.Any && t.TopReligionPoint > (t.Confucianism + t.Taoism + t.Buddhism) / 2 && !defenders.Any(d => d.TownId == t.Id)))
               {
                 targetTowns.Add(town);
               }
@@ -1279,7 +1281,17 @@ namespace SangokuKmy.Models.Updates
             if (targetTowns.Any())
             {
               var town = RandomService.Next(targetTowns);
-              var isCreated = await AiService.CreateFarmerCountryAsync(repo, town, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message), true);
+              var isCreated = await AiService.CreateFarmerCountryAsync(repo, town, null, false, false,
+                callbackAsync: async (cc, tt) =>
+                {
+                  var religionName = tt.Religion == ReligionType.Confucianism ? "儒教" : tt.Religion == ReligionType.Taoism ? "道教" : "仏教";
+                  var oldCountry = allCountries.FirstOrDefault(ccc => ccc.Id == tt.Id);
+                  if (oldCountry != null)
+                  {
+                    await AddMapLogAsync(true, EventType.AppendFarmers, $"<country>{oldCountry.Name}</country> の <town>{tt.Name}</town> で {religionName} を信仰する農民が蜂起しました");
+                    cc.Religion = tt.Religion;
+                  }
+                });
               if (isCreated)
               {
                 await repo.SaveChangesAsync();
@@ -1497,27 +1509,36 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
-          // 宣教師の追加
+          // 無所属宣教師の追加
           if (!system.IsWaitingReset && system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1)
           {
-            var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, RandomService.Next(allTowns).Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
+            var town = RandomService.Next(allTowns);
+            var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, town.Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
             if (character.Any())
             {
-              character.First().Name += character.First().Id;
-
               var religion = character.First().Religion;
+              if (town.Religion != ReligionType.Any && town.Religion != ReligionType.None)
+              {
+                religion = town.Religion;
+              }
+
               if (religion == ReligionType.Confucianism)
               {
                 character.First().From = CharacterFrom.Confucianism;
+                character.First().Name += "_儒教";
               }
               if (religion == ReligionType.Taoism)
               {
                 character.First().From = CharacterFrom.Taoism;
+                character.First().Name += "_道教";
               }
               if (religion == ReligionType.Buddhism)
               {
                 character.First().From = CharacterFrom.Buddhism;
+                character.First().Name += "_仏教";
               }
+              character.First().Name += character.First().Id;
+
               await AddMapLogAsync(false, EventType.NewEvangelist, $"無所属に新たに <character>{character.First().Name}</character> が出現しました");
             }
           }
@@ -1572,43 +1593,6 @@ namespace SangokuKmy.Models.Updates
               if (isCreated)
               {
                 await repo.SaveChangesAsync();
-              }
-            }
-          }
-
-          // 宗教支配
-          if (!system.IsWaitingReset)
-          {
-            foreach (var country in countryData.Where(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None))
-            {
-              if (RandomService.Next(0, 300) == 0)
-              {
-                var aroundTowns = allTowns.GetAroundTowns(country.Towns).Where(t => t.Religion == country.Country.Religion);
-                var town = RandomService.Next(aroundTowns);
-                var townCountry = countryData.FirstOrDefault(c => c.Country.Id == town.CountryId);
-                if (townCountry == null)
-                {
-                  continue;
-                }
-
-                var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(country.Country.Id, townCountry.Country.Id);
-                if (alliance.HasData && (alliance.Data.Status == CountryAllianceStatus.Available || alliance.Data.Status == CountryAllianceStatus.ChangeRequesting))
-                {
-                  continue;
-                }
-
-                town.CountryId = country.Country.Id;
-                var defs = await repo.Town.RemoveTownDefendersAsync(town.Id);
-                await AddMapLogAsync(true, EventType.TakeAwayWithReligion, $"<country>{country.Country.Name}</country> は <country>{townCountry.Country.Name}</country> の <town>{town.Name}</town> を宗教支配しました");
-
-                var townCharas = await repo.Town.GetCharactersAsync(town.Id);
-                await StatusStreaming.Default.SendCharacterAsync(defs.Select(d => ApiData.From(d)), townCharas.Select(c => c.Id));
-                await StatusStreaming.Default.SendTownToAllAsync(ApiData.From((Town)town), repo);
-
-                if (!allTowns.Any(t => t.CountryId == townCountry.Country.Id))
-                {
-                  await CountryService.OverThrowAsync(repo, townCountry.Country, country.Country);
-                }
               }
             }
           }

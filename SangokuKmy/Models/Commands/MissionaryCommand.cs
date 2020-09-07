@@ -82,7 +82,7 @@ namespace SangokuKmy.Models.Commands
 
         if (character.Religion == religion)
         {
-          add = (int)(add * 1.1f);
+          add = (int)(add * 1.5f);
         }
 
         var oldReligion = town.Religion;

@@ -254,6 +254,26 @@ namespace SangokuKmy.Models.Data.Entities
       }
     }
 
+    public int TopReligionPoint
+    {
+      get
+      {
+        if (this.Religion == ReligionType.Confucianism)
+        {
+          return this.Confucianism;
+        }
+        if (this.Religion == ReligionType.Taoism)
+        {
+          return this.Taoism;
+        }
+        if (this.Religion == ReligionType.Buddhism)
+        {
+          return this.Buddhism;
+        }
+        return 0;
+      }
+    }
+
     [NotMapped]
     [JsonProperty("religion")]
     public short ApiReligion
