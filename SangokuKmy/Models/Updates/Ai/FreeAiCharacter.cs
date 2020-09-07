@@ -37,7 +37,7 @@ namespace SangokuKmy.Models.Updates.Ai
     public override void Initialize(GameDateTime current)
     {
       this.Character.Religion = RandomService.Next(new ReligionType[] { ReligionType.Buddhism, ReligionType.Confucianism, ReligionType.Taoism, });
-      this.Character.Name = "伝道師_" + (this.Character.Religion == ReligionType.Taoism ? "道教" : this.Character.Religion == ReligionType.Confucianism ? "儒教" : "仏教");
+      this.Character.Name = "伝道師";
       this.Character.Intellect = (short)(100 + current.Year / 3.3f);
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;

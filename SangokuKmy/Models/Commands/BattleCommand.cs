@@ -565,6 +565,12 @@ namespace SangokuKmy.Models.Commands
             // 支配したときのみ匿名ストリーミング
             await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(targetTown)));
 
+            // 宗教戦争などで守備が残っていることがある
+            if (defenders.Any())
+            {
+              removedDefenders = await repo.Town.RemoveTownDefendersAsync(targetTown.Id);
+            }
+
             if (targetCountryOptional.HasData)
             {
               var targetCountryTownCount = await repo.Town.CountByCountryIdAsync(targetCountry.Id);

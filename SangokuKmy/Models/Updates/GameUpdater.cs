@@ -1262,9 +1262,40 @@ namespace SangokuKmy.Models.Updates
             {
               await repo.SaveChangesAsync();
             }
-            else
+          }
+
+          // 農民反乱（宗教）
+          if (!system.IsWaitingReset && system.Period >= 22 && RandomService.Next(0, 120) == 0)
+          {
+            var targetTowns = new List<Town>();
+            var defenders = await repo.Town.GetAllDefendersAsync();
+            foreach (var country in countryData.Where(c =>
+              c.Country.AiType != CountryAiType.Farmers && c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && allWars.All(w => !w.IsJoinAvailable(c.Country.Id))))
             {
-              _logger.LogInformation("農民反乱の乱数条件を満たしましたが、その他の条件を満たさなかったために出現しませんでした");
+              foreach (var town in country.Towns.Where(t =>
+                t.Religion != country.Country.Religion && t.Religion != ReligionType.Any && t.TopReligionPoint > (t.Confucianism + t.Taoism + t.Buddhism) / 2 && !defenders.Any(d => d.TownId == t.Id)))
+              {
+                targetTowns.Add(town);
+              }
+            }
+            if (targetTowns.Any())
+            {
+              var town = RandomService.Next(targetTowns);
+              var isCreated = await AiService.CreateFarmerCountryAsync(repo, town, null, false, false,
+                callbackAsync: async (cc, tt) =>
+                {
+                  var religionName = tt.Religion == ReligionType.Confucianism ? "儒教" : tt.Religion == ReligionType.Taoism ? "道教" : "仏教";
+                  var oldCountry = allCountries.FirstOrDefault(ccc => ccc.Id == tt.Id);
+                  if (oldCountry != null)
+                  {
+                    await AddMapLogAsync(true, EventType.AppendFarmers, $"<country>{oldCountry.Name}</country> の <town>{tt.Name}</town> で {religionName} を信仰する農民が蜂起しました");
+                    cc.Religion = tt.Religion;
+                  }
+                });
+              if (isCreated)
+              {
+                await repo.SaveChangesAsync();
+              }
             }
           }
 
@@ -1478,27 +1509,36 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
-          // 宣教師の追加
+          // 無所属宣教師の追加
           if (!system.IsWaitingReset && system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1)
           {
-            var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, RandomService.Next(allTowns).Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
+            var town = RandomService.Next(allTowns);
+            var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, town.Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
             if (character.Any())
             {
-              character.First().Name += character.First().Id;
-
               var religion = character.First().Religion;
+              if (town.Religion != ReligionType.Any && town.Religion != ReligionType.None)
+              {
+                religion = town.Religion;
+              }
+
               if (religion == ReligionType.Confucianism)
               {
                 character.First().From = CharacterFrom.Confucianism;
+                character.First().Name += "_儒教";
               }
               if (religion == ReligionType.Taoism)
               {
                 character.First().From = CharacterFrom.Taoism;
+                character.First().Name += "_道教";
               }
               if (religion == ReligionType.Buddhism)
               {
                 character.First().From = CharacterFrom.Buddhism;
+                character.First().Name += "_仏教";
               }
+              character.First().Name += character.First().Id;
+
               await AddMapLogAsync(false, EventType.NewEvangelist, $"無所属に新たに <character>{character.First().Name}</character> が出現しました");
             }
           }

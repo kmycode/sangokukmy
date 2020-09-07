@@ -343,5 +343,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 新しい宣教師
     /// </summary>
     NewEvangelist = 50,
+
+    /// <summary>
+    /// 宗教による支配
+    /// </summary>
+    TakeAwayWithReligion = 51,
   }
 }

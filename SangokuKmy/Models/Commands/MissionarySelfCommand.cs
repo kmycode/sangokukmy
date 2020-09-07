@@ -35,6 +35,12 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      if (character.CountryId > 0 && (await repo.System.GetAsync()).Period >= 22)
+      {
+        await game.CharacterLogAsync("布教しようとしましたが、国に仕官している場合は国教以外を布教できません");
+        return;
+      }
+
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
       if (townOptional.HasData)
       {

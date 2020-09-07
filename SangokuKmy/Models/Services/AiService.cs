@@ -518,6 +518,7 @@ namespace SangokuKmy.Models.Services
       country.CountryColorId = countryColor;
       country.Name = name;
       country.AiType = CountryAiType.Managed;
+      country.Religion = RandomService.Next(new ReligionType[] { ReligionType.Buddhism, ReligionType.Confucianism, ReligionType.Taoism, });
 
       await mapLogAsync(EventType.Publish, $"<town>{town.Name}</town> で <country>{country.Name}</country> が建国されました", true);
       await repo.SaveChangesAsync();
@@ -541,6 +542,18 @@ namespace SangokuKmy.Models.Services
 
       town.SubType = town.Type;
       MapService.UpdateTownType(town, TownType.Large);
+      if (country.Religion == ReligionType.Taoism)
+      {
+        town.Taoism = 800;
+      }
+      if (country.Religion == ReligionType.Confucianism)
+      {
+        town.Confucianism = 800;
+      }
+      if (country.Religion == ReligionType.Buddhism)
+      {
+        town.Buddhism = 800;
+      }
       var policies = new List<CountryPolicy>
       {
         new CountryPolicy
@@ -687,7 +700,7 @@ namespace SangokuKmy.Models.Services
       }
     }
 
-    public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync, bool isForce = false, bool isKokin = false)
+    public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync, bool isForce = false, bool isKokin = false, Func<Country, Town, Task> callbackAsync = null)
     {
       var system = await repo.System.GetAsync();
       var targetCountryOptional = await repo.Country.GetAliveByIdAsync(town.CountryId);
@@ -777,13 +790,16 @@ namespace SangokuKmy.Models.Services
         await CountryService.OverThrowAsync(repo, targetCountryOptional.Data, country);
       }
 
-      if (targetCountryOptional.HasData)
+      if (mapLogAsync != null)
       {
-        await mapLogAsync(EventType.AppendFarmers, $"<town>{town.Name}</town> の <country>{country.Name}</country> が <country>{targetCountryOptional.Data.Name}</country> に対して蜂起しました", true);
-      }
-      else
-      {
-        await mapLogAsync(EventType.AppendFarmers, $"<town>{town.Name}</town> の <country>{country.Name}</country> が蜂起し、独自勢力を築きました", true);
+        if (targetCountryOptional.HasData)
+        {
+          await mapLogAsync(EventType.AppendFarmers, $"<town>{town.Name}</town> の <country>{country.Name}</country> が <country>{targetCountryOptional.Data.Name}</country> に対して蜂起しました", true);
+        }
+        else
+        {
+          await mapLogAsync(EventType.AppendFarmers, $"<town>{town.Name}</town> の <country>{country.Name}</country> が蜂起し、独自勢力を築きました", true);
+        }
       }
       await repo.SaveChangesAsync();
 
@@ -796,6 +812,11 @@ namespace SangokuKmy.Models.Services
       if (targetCountryOptional.HasData && !isForce)
       {
         await CreateWarQuicklyAsync(repo, country, targetCountryOptional.Data);
+      }
+
+      if (callbackAsync != null)
+      {
+        await callbackAsync(country, town);
       }
 
       return true;

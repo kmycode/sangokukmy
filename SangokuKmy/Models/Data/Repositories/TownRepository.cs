@@ -297,6 +297,27 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    /// <summary>
+    /// 守備武将を削除する
+    /// </summary>
+    /// <param name="characterId">武将ID</param>
+    public async Task<IReadOnlyList<TownDefender>> RemoveTownDefendersAsync(uint townId)
+    {
+      try
+      {
+        var old = await this.container.Context.TownDefenders
+          .Where(td => td.TownId == townId)
+          .ToArrayAsync();
+        this.container.Context.TownDefenders.RemoveRange(old);
+        return old;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     public async Task<IReadOnlyList<CharacterItem>> GetItemsAsync(uint townId)
     {
       try
