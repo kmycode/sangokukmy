@@ -292,35 +292,40 @@ namespace SangokuKmy.Models.Services
 
           if (isFirstReligion)
           {
+            var extraTownOptional = await repo.Town.GetByIdAsync(extraTownId);
+            if (extraTownId != 0)
+            {
+              if (extraTownOptional.HasData)
+              {
+                var extraTown = extraTownOptional.Data;
+                if (!extraTown.IsNextToTown(town) || extraTown.CountryId != 0)
+                {
+                  ErrorCode.InvalidParameterError.Throw();
+                }
+              }
+            }
             onSucceed = async () =>
             {
               await LogService.AddMapLogAsync(repo, false, EventType.NewReligion, $"<town>{town.Name}</town> は {country.Religion.GetString()} を国教とする最初の国が建国されたため、信仰を開始しました");
 
-              if (extraTownId != 0)
+              if (extraTownOptional.HasData)
               {
-                var extraTownOptional = await repo.Town.GetByIdAsync(extraTownId);
-                if (extraTownOptional.HasData)
+                var extraTown = extraTownOptional.Data;
+                extraTown.CountryId = country.Id;
+                if (country.Religion == ReligionType.Confucianism)
                 {
-                  var extraTown = extraTownOptional.Data;
-                  if (extraTown.IsNextToTown(town) && extraTown.CountryId == 0)
-                  {
-                    extraTown.CountryId = country.Id;
-                    if (country.Religion == ReligionType.Confucianism)
-                    {
-                      extraTown.Confucianism = 500;
-                    }
-                    if (country.Religion == ReligionType.Buddhism)
-                    {
-                      extraTown.Buddhism = 500;
-                    }
-                    if (country.Religion == ReligionType.Taoism)
-                    {
-                      extraTown.Taoism = 500;
-                    }
-                    await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(extraTown), repo);
-                    await LogService.AddMapLogAsync(repo, true, EventType.TakeAwayWithReligion, $"<country>{country.Name}</country> は {country.Religion.GetString()} の創始ボーナスとして <town>{extraTown.Name}</town> を入手しました");
-                  }
+                  extraTown.Confucianism = 500;
                 }
+                if (country.Religion == ReligionType.Buddhism)
+                {
+                  extraTown.Buddhism = 500;
+                }
+                if (country.Religion == ReligionType.Taoism)
+                {
+                  extraTown.Taoism = 500;
+                }
+                await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(extraTown), repo);
+                await LogService.AddMapLogAsync(repo, true, EventType.TakeAwayWithReligion, $"<country>{country.Name}</country> は {country.Religion.GetString()} の創始ボーナスとして <town>{extraTown.Name}</town> を入手しました");
               }
             };
           }
