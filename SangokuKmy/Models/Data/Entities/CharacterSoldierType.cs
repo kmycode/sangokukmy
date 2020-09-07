@@ -50,6 +50,8 @@ namespace SangokuKmy.Models.Data.Entities
     public bool CanConscriptWithoutSubBuilding { get; set; } = true;
 
     public TownSubBuildingType NeededSubBuildingType { get; set; }
+
+    public SoldierKind Kind { get; set; } = SoldierKind.Battle;
   }
 
   public static class DefaultCharacterSoldierTypeParts

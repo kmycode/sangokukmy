@@ -140,6 +140,18 @@ namespace SangokuKmy.Models.Commands
         }
       }
 
+      var mySoldierTypeInfo = DefaultCharacterSoldierTypeParts.Get(character.SoldierType).Data;
+      if (mySoldierTypeInfo == null)
+      {
+        await game.CharacterLogAsync($"ID: {character.SoldierType} の兵種は存在しません。<emerge>管理者にお問い合わせください</emerge>");
+        return;
+      }
+      if (mySoldierTypeInfo.Kind == SoldierKind.Religion && myCountry.Religion == targetCountryOptional.Data?.Religion)
+      {
+        await game.CharacterLogAsync($"同じ宗教を国教とする国同士の戦闘で兵種 {mySoldierTypeInfo.Name} を用いることはできません");
+        return;
+      }
+
       // 連戦カウント
       var continuousCount = options.FirstOrDefault(o => o.Type == 32)?.NumberValue ?? 1;
       var continuousTurns = options.FirstOrDefault(o => o.Type == 33)?.NumberValue ?? 1;
@@ -227,7 +239,7 @@ namespace SangokuKmy.Models.Commands
       LogCharacterCache defenderCache = null;
       if (defenders.Any())
       {
-        targetCharacter = defenders.First().Character;
+        targetCharacter = defenders.First(d => DefaultCharacterSoldierTypeParts.Get(d.Character.SoldierType).Data?.Kind == mySoldierTypeInfo.Kind).Character;
         log.DefenderCharacterId = targetCharacter.Id;
         log.DefenderType = DefenderType.Character;
         aiLog.DefenderId = targetCharacter.Id;
@@ -257,8 +269,49 @@ namespace SangokuKmy.Models.Commands
         isWall = false;
         await game.CharacterLogByIdAsync(targetCharacter.Id, $"守備をしている <town>{targetTown.Name}</town> に <character>{character.Name}</character> が攻め込み、戦闘になりました");
       }
+      else if (mySoldierTypeInfo.Kind == SoldierKind.Religion)
+      {
+        // 都市の宗教と戦う
+        targetCharacter = new Character();
+        targetCharacter.CountryId = targetTown.CountryId;
+        targetCharacter.Name = targetTown.Name + "宗教";
+
+        targetCharacter.SoldierNumber = targetTown.Confucianism + targetTown.Taoism + targetTown.Buddhism;
+        var religion = myCountry.Religion;
+        if (targetTown.Religion == religion)
+        {
+          targetCharacter.SoldierNumber = 0;
+        }
+        else if (religion == ReligionType.Confucianism)
+        {
+          targetCharacter.SoldierNumber -= targetTown.Confucianism;
+        }
+        else if (religion == ReligionType.Taoism)
+        {
+          targetCharacter.SoldierNumber -= targetTown.Taoism;
+        }
+        else if (religion == ReligionType.Buddhism)
+        {
+          targetCharacter.SoldierNumber -= targetTown.Buddhism;
+        }
+
+        log.DefenderType = DefenderType.Wall;
+        aiLog.TargetType = AiBattleTargetType.Wall;
+
+        targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(SoldierType.Common);
+        targetFormation = FormationTypeInfoes.Get(FormationType.Normal).Data;
+        targetFormationData = new Formation
+        {
+          Type = FormationType.Normal,
+          Level = 1,
+        };
+
+        defenderCache = targetCharacter.ToLogCache(new CharacterIcon(), targetFormationData);
+        isWall = true;
+      }
       else
       {
+        // 通常の城壁と戦う
         targetCharacter = new Character();
         targetCharacter.CountryId = targetTown.CountryId;
         targetCharacter.Name = targetTown.Name + "城壁";
@@ -436,7 +489,37 @@ namespace SangokuKmy.Models.Commands
       if (isWall)
       {
         // 支配後の配信に影響するので、後の武将の更新処理とはまとめずここで
-        targetTown.Wall = targetCharacter.SoldierNumber;
+        if (mySoldierTypeInfo.Kind == SoldierKind.Religion)
+        {
+          var religion = myCountry.Religion;
+          var targetFirstNumber = targetTown.Confucianism + targetTown.Taoism + targetTown.Buddhism;
+          var targetDamage = targetFirstNumber - targetCharacter.SoldierNumber;
+          if (religion == ReligionType.Confucianism)
+          {
+            targetDamage -= targetTown.Confucianism;
+            var rate = Math.Max(0.0f, 1.0f - (float)targetDamage / targetFirstNumber);
+            targetTown.Taoism = (int)(targetTown.Taoism * rate);
+            targetTown.Buddhism = (int)(targetTown.Buddhism * rate);
+          }
+          if (religion == ReligionType.Taoism)
+          {
+            targetDamage -= targetTown.Taoism;
+            var rate = Math.Max(0.0f, 1.0f - (float)targetDamage / targetFirstNumber);
+            targetTown.Confucianism = (int)(targetTown.Confucianism * rate);
+            targetTown.Buddhism = (int)(targetTown.Buddhism * rate);
+          }
+          if (religion == ReligionType.Buddhism)
+          {
+            targetDamage -= targetTown.Buddhism;
+            var rate = Math.Max(0.0f, 1.0f - (float)targetDamage / targetFirstNumber);
+            targetTown.Confucianism = (int)(targetTown.Confucianism * rate);
+            targetTown.Taoism = (int)(targetTown.Taoism * rate);
+          }
+        }
+        else
+        {
+          targetTown.Wall = targetCharacter.SoldierNumber;
+        }
       }
 
       IEnumerable<TownDefender> removedDefenders = null;

@@ -383,4 +383,17 @@ namespace SangokuKmy.Models.Data.Entities
       return self;
     }
   }
+
+  public enum SoldierKind
+  {
+    /// <summary>
+    /// 通常の兵種
+    /// </summary>
+    Battle,
+
+    /// <summary>
+    /// 宗教の兵種
+    /// </summary>
+    Religion,
+  }
 }
