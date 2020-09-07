@@ -29,7 +29,7 @@ namespace SangokuKmy.Controllers
       var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
       using (var repo = MainRepository.WithReadAndWrite())
       {
-        await EntryService.EntryAsync(repo, ip, param.Character, param.Icon, param.Password, param.Country, param.InvitationCode, param.IsCountryFree);
+        await EntryService.EntryAsync(repo, ip, param.Character, param.Icon, param.Password, param.Country, param.InvitationCode, param.IsCountryFree, param.ExtraTownId);
         await repo.SaveChangesAsync();
 
         var authData = await AuthenticationService.WithIdAndPasswordAsync(repo, param.Character.AliasId, param.Password, ip);
@@ -89,6 +89,8 @@ namespace SangokuKmy.Controllers
       public string InvitationCode { get; set; }
       [JsonProperty("isCountryFree")]
       public bool IsCountryFree { get; set; }
+      [JsonProperty("extraTownId")]
+      public uint ExtraTownId { get; set; }
     }
   }
 }

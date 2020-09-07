@@ -17,7 +17,7 @@ namespace SangokuKmy.Models.Services
     public static int GetAttributeMax(GameDateTime current) => 100 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.9f * 0.75f);
     public static int GetAttributeSumMax(GameDateTime current) => 200 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.9f);
 
-    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode, bool isFreeCountry)
+    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode, bool isFreeCountry, uint extraTownId)
     {
       var town = await repo.Town.GetByIdAsync(newChara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
 
@@ -176,6 +176,8 @@ namespace SangokuKmy.Models.Services
         chara.IntLastUpdatedGameDate++;
       }
 
+      Func<Task> onSucceed = null;
+
       if (isFreeCountry)
       {
         // 無所属で開始
@@ -275,26 +277,52 @@ namespace SangokuKmy.Models.Services
           MapService.UpdateTownType(town, TownType.Large);
 
           // 首都の宗教
-          var religionName = string.Empty;
           if (country.Religion == ReligionType.Buddhism)
           {
             town.Buddhism = point;
-            religionName = "仏教";
           }
           if (country.Religion == ReligionType.Confucianism)
           {
             town.Confucianism = point;
-            religionName = "儒教";
           }
           if (country.Religion == ReligionType.Taoism)
           {
             town.Taoism = point;
-            religionName = "道教";
           }
 
           if (isFirstReligion)
           {
-            await LogService.AddMapLogAsync(repo, false, EventType.NewReligion, $"<town>{town.Name}</town> は {religionName} を国教とする最初の国が建国されたため、信仰を開始しました");
+            onSucceed = async () =>
+            {
+              await LogService.AddMapLogAsync(repo, false, EventType.NewReligion, $"<town>{town.Name}</town> は {country.Religion.GetString()} を国教とする最初の国が建国されたため、信仰を開始しました");
+
+              if (extraTownId != 0)
+              {
+                var extraTownOptional = await repo.Town.GetByIdAsync(extraTownId);
+                if (extraTownOptional.HasData)
+                {
+                  var extraTown = extraTownOptional.Data;
+                  if (extraTown.IsNextToTown(town) && extraTown.CountryId == 0)
+                  {
+                    extraTown.CountryId = country.Id;
+                    if (country.Religion == ReligionType.Confucianism)
+                    {
+                      extraTown.Confucianism = 500;
+                    }
+                    if (country.Religion == ReligionType.Buddhism)
+                    {
+                      extraTown.Buddhism = 500;
+                    }
+                    if (country.Religion == ReligionType.Taoism)
+                    {
+                      extraTown.Taoism = 500;
+                    }
+                    await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(extraTown), repo);
+                    await LogService.AddMapLogAsync(repo, true, EventType.TakeAwayWithReligion, $"<country>{country.Name}</country> は {country.Religion.GetString()} の創始ボーナスとして <town>{extraTown.Name}</town> を入手しました");
+                  }
+                }
+              }
+            };
           }
         }
         else {
@@ -302,6 +330,11 @@ namespace SangokuKmy.Models.Services
           items.Add(CharacterItemType.CastleBlueprint);
           items.Add(CharacterItemType.CastleBlueprint);
           items.Add(CharacterItemType.CastleBlueprint);
+          if (isFirstReligion)
+          {
+            items.Add(CharacterItemType.CastleBlueprint);
+            chara.Money += 200_0000;
+          }
           chara.Money += 200_0000 * 3;
         }
 
@@ -519,10 +552,17 @@ namespace SangokuKmy.Models.Services
 
       var townData = ApiData.From(new TownForAnonymous(town));
       var maplogData = ApiData.From(maplog);
-      await AnonymousStreaming.Default.SendAllAsync(townData);
       await AnonymousStreaming.Default.SendAllAsync(maplogData);
-      await StatusStreaming.Default.SendAllAsync(townData);
       await StatusStreaming.Default.SendAllAsync(maplogData);
+
+      if (onSucceed != null)
+      {
+        await onSucceed();
+        await repo.SaveChangesAsync();
+      }
+
+      await AnonymousStreaming.Default.SendAllAsync(townData);
+      await StatusStreaming.Default.SendAllAsync(townData);
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(town), town.CountryId);
 
       await CharacterService.StreamCharacterAsync(repo, chara);
