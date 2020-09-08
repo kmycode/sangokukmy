@@ -831,6 +831,18 @@ namespace SangokuKmy.Models.Data.Entities
     Buddhism = 4,
   }
 
+  public static class ReligionTypeExtensions
+  {
+    public static string GetString(this ReligionType type)
+    {
+      return type == ReligionType.Confucianism ? "儒教" :
+        type == ReligionType.Buddhism ? "仏教" :
+        type == ReligionType.Taoism ? "道教" :
+        type == ReligionType.Any ? "なし" :
+        type == ReligionType.None ? "無神" : "なし";
+    }
+  }
+
   public static class DefaultCharacterSoldierTypeExtensions
   {
     public static bool IsForWall(this SoldierType type)

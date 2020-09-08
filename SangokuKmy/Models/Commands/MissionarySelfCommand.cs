@@ -41,6 +41,13 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      var countries = await repo.Country.GetAllAsync();
+      if (!countries.Any(c => !c.HasOverthrown && c.Religion == religion))
+      {
+        await game.CharacterLogAsync($"{religion.GetString()} を布教しようとしましたが、その宗教を国教とした国が存在しないため布教できません");
+        return;
+      }
+
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
       if (townOptional.HasData)
       {
