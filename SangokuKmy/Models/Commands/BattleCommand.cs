@@ -295,6 +295,8 @@ namespace SangokuKmy.Models.Commands
           targetCharacter.SoldierNumber -= targetTown.Buddhism;
         }
 
+        targetCharacter.SoldierNumber = Math.Max(0, targetCharacter.SoldierNumber);
+
         log.DefenderType = DefenderType.Wall;
         aiLog.TargetType = AiBattleTargetType.Wall;
 

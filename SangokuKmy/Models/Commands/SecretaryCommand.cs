@@ -108,6 +108,7 @@ namespace SangokuKmy.Models.Commands
       if (type == CharacterAiType.SecretaryEvangelist)
       {
         ai.Character.Religion = country.Religion;
+        ai.Character.From = country.Religion == ReligionType.Confucianism ? CharacterFrom.Confucianism : country.Religion == ReligionType.Taoism ? CharacterFrom.Taoism : CharacterFrom.Buddhism;
       }
       if (type != CharacterAiType.SecretaryScouter)
       {

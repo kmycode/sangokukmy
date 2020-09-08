@@ -35,9 +35,16 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      if (character.CountryId > 0 && (await repo.System.GetAsync()).Period >= 22)
+      if (character.CountryId > 0)
       {
         await game.CharacterLogAsync("布教しようとしましたが、国に仕官している場合は国教以外を布教できません");
+        return;
+      }
+
+      var countries = await repo.Country.GetAllAsync();
+      if (!countries.Any(c => !c.HasOverthrown && c.Religion == religion))
+      {
+        await game.CharacterLogAsync($"{religion.GetString()} を布教しようとしましたが、その宗教を国教とした国が存在しないため布教できません");
         return;
       }
 
@@ -72,6 +79,12 @@ namespace SangokuKmy.Models.Commands
 
         if (character.CountryId > 0)
         {
+          var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
+          if (character.Religion == countryOptional.Data?.Religion)
+          {
+            add = (int)(add * 1.3f);
+          }
+
           var skills = await repo.Character.GetSkillsAsync(character.Id);
           add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.MissionaryPercentage) / 100.0f));
         }
