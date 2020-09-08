@@ -53,13 +53,6 @@ namespace SangokuKmy.Models.Commands
       {
         var town = townOptional.Data;
 
-        var war = await repo.CountryDiplomacies.GetCountryWarAsync(character.CountryId, town.CountryId);
-        if (war.HasData && (war.Data.Status == CountryWarStatus.Available || war.Data.Status == CountryWarStatus.InReady || war.Data.Status == CountryWarStatus.StopRequesting))
-        {
-          await game.CharacterLogAsync($"<town>{town.Name}</town> で布教しようとしましたが、戦争中の国には布教できません");
-          return;
-        }
-
         var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(character.CountryId, town.CountryId);
         if (alliance.HasData && (alliance.Data.Status == CountryAllianceStatus.Available || alliance.Data.Status == CountryAllianceStatus.ChangeRequesting || alliance.Data.Status == CountryAllianceStatus.InBreaking) && !alliance.Data.CanMissionary)
         {
