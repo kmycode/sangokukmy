@@ -1510,7 +1510,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 無所属宣教師の追加
-          if (!system.IsWaitingReset && system.GameDateTime.Year < Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1)
+          if (!system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1)
           {
             var town = RandomService.Next(allTowns);
             var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, town.Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
