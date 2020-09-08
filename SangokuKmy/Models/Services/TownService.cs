@@ -57,6 +57,10 @@ namespace SangokuKmy.Models.Services
       {
         cost *= 0.82f;
       }
+      if (town.Religion == countryOptional.Data?.Religion)
+      {
+        cost *= 1.11f;
+      }
 
       return (int)cost;
     }

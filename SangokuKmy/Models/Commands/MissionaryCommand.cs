@@ -82,7 +82,7 @@ namespace SangokuKmy.Models.Commands
 
         if (character.Religion == religion)
         {
-          add = (int)(add * 1.5f);
+          add = (int)(add * 1.3f);
         }
 
         var oldReligion = town.Religion;
@@ -109,7 +109,14 @@ namespace SangokuKmy.Models.Commands
         {
           character.Contribution += 30;
         }
-        character.AddIntellectEx(50);
+        if (character.Intellect > character.Popularity)
+        {
+          character.AddIntellectEx(50);
+        }
+        else
+        {
+          character.AddPopularityEx(50);
+        }
         character.SkillPoint++;
         character.Money -= 50;
         await game.CharacterLogAsync($"<town>{town.Name}</town> の {religionName}信仰 を <num>+" + add + "</num> 上げました");
