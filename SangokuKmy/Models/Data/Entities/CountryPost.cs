@@ -121,6 +121,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 金庫番
     /// </summary>
     Safeguard = 12,
+
+    /// <summary>
+    /// 政策番
+    /// </summary>
+    PolicyLeader = 13,
   }
 
   public static class CountryPostExtentions
@@ -197,7 +202,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <returns>政策権限があるか</returns>
     public static bool CanPolicy(this CountryPostType type)
     {
-      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior || type == CountryPostType.PolicyLeader;
     }
 
     /// <summary>
