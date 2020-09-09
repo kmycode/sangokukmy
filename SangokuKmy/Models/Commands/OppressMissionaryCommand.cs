@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
@@ -30,6 +31,13 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync("弾圧しようとしましたが、宗教家以外は国に仕官しないと弾圧できません");
           return;
         }
+
+        var countries = await repo.Country.GetAllAsync();
+        if (!countries.Any(c => !c.HasOverthrown && c.Religion == religion))
+        {
+          await game.CharacterLogAsync($"{religion.GetString()} 以外を弾圧しようとしましたが、その宗教を国教とした国が存在しないため布教できません");
+          return;
+        }
       }
       else
       {
@@ -47,7 +55,7 @@ namespace SangokuKmy.Models.Commands
       {
         var town = townOptional.Data;
 
-        if (character.CountryId != town.CountryId)
+        if (countryOptional.HasData && character.CountryId != town.CountryId)
         {
           await game.CharacterLogAsync("弾圧しようとしましたが、他国の都市は弾圧できません");
           return;
@@ -57,7 +65,7 @@ namespace SangokuKmy.Models.Commands
         // $kgat += int($klea/6 + rand($klea/6));
         var current = character.Proficiency;
         var attribute = Math.Max(character.Intellect, character.Popularity);
-        var add = (int)(attribute / 14.0f + RandomService.Next(0, attribute / 28));
+        var add = (int)(attribute / 6.0f + RandomService.Next(0, attribute / 6));
         if (add < 1)
         {
           add = 1;
@@ -81,6 +89,18 @@ namespace SangokuKmy.Models.Commands
           town.Taoism = Math.Max(0, town.Taoism - add);
           religionName += "道教,";
         }
+        if (religion == ReligionType.Confucianism)
+        {
+          town.Confucianism += add;
+        }
+        if (religion == ReligionType.Buddhism)
+        {
+          town.Buddhism += add;
+        }
+        if (religion == ReligionType.Taoism)
+        {
+          town.Taoism += add;
+        }
 
         // 経験値、金の増減
         if (countryOptional.HasData)
@@ -90,7 +110,7 @@ namespace SangokuKmy.Models.Commands
         character.AddIntellectEx(50);
         character.SkillPoint++;
         character.Money -= 50;
-        await game.CharacterLogAsync($"<town>{town.Name}</town> の {religionName.Substring(0, religionName.Length - 1)}信仰 を <num>-" + add + "</num> 弾圧しました");
+        await game.CharacterLogAsync($"<town>{town.Name}</town> の {religionName.Substring(0, religionName.Length - 1)}信仰 を <num>-{add}</num> 弾圧し、{religion.GetString()} を <num>+{add * 2}</num> 布教しました");
 
         if (town.Religion != oldReligion)
         {
@@ -100,7 +120,7 @@ namespace SangokuKmy.Models.Commands
           }
           else
           {
-            var newReligionName = town.Religion == ReligionType.Buddhism ? "仏教" : town.Religion == ReligionType.Confucianism ? "儒教" : town.Religion == ReligionType.Taoism ? "道教" : string.Empty;
+            var newReligionName = town.Religion.GetString();
             await game.MapLogAsync(EventType.ChangeReligion, $"<town>{town.Name}</town> は {newReligionName} に改宗しました", false);
           }
         }
