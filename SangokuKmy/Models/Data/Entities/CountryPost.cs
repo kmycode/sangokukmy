@@ -106,6 +106,21 @@ namespace SangokuKmy.Models.Data.Entities
     /// 建築官
     /// </summary>
     Builder = 9,
+
+    /// <summary>
+    /// 政務官長
+    /// </summary>
+    SecretaryLeader = 10,
+
+    /// <summary>
+    /// 外交官
+    /// </summary>
+    Diplomat = 11,
+
+    /// <summary>
+    /// 金庫番
+    /// </summary>
+    Safeguard = 12,
   }
 
   public static class CountryPostExtentions
@@ -138,7 +153,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <returns>国庫権限があるか</returns>
     public static bool CanSafe(this CountryPostType type)
     {
-      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior || type == CountryPostType.Safeguard;
     }
 
     /// <summary>
@@ -147,7 +162,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <returns>政務官権限があるか</returns>
     public static bool CanSecretary(this CountryPostType type)
     {
-      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior || type == CountryPostType.SecretaryLeader;
     }
 
     /// <summary>
@@ -156,7 +171,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <returns>外交権限があるか</returns>
     public static bool CanDiplomacy(this CountryPostType type)
     {
-      return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior || type == CountryPostType.Diplomat;
     }
 
     /// <summary>

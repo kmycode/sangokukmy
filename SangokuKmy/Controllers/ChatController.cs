@@ -244,7 +244,7 @@ namespace SangokuKmy.Controllers
         var country = await repo.Country.GetAliveByIdAsync(id).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
 
         var posts = (await repo.Country.GetPostsAsync(chara.CountryId)).Where(p => p.CharacterId == chara.Id);
-        if (!posts.Any(p => p.Type == CountryPostType.Monarch || p.Type == CountryPostType.Warrior))
+        if (!posts.Any(p => p.Type.CanDiplomacy()))
         {
           ErrorCode.NotPermissionError.Throw();
         }
