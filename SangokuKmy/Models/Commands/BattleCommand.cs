@@ -158,6 +158,11 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"兵種 {mySoldierTypeInfo.Name} は、宗教戦争以外で使うことはできません");
         return;
       }
+      if (mySoldierTypeInfo.Kind != SoldierKind.Religion && warOptional.HasData && warOptional.Data.Mode == CountryWarMode.Religion)
+      {
+        await game.CharacterLogAsync($"兵種 {mySoldierTypeInfo.Name} は、宗教戦争で使うことはできません");
+        return;
+      }
 
       // 連戦カウント
       var continuousCount = options.FirstOrDefault(o => o.Type == 32)?.NumberValue ?? 1;
