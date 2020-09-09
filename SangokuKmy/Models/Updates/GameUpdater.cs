@@ -187,7 +187,8 @@ namespace SangokuKmy.Models.Updates
         var countryData = allCountries
           .GroupJoin(allTowns, c => c.Id, t => t.CountryId, (c, ts) => new { Country = c, Towns = ts, })
           .GroupJoin(allCharacters, d => d.Country.Id, c => c.CountryId, (c, cs) => new { c.Country, c.Towns, Characters = cs, })
-          .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, OldPolicyPoint = c.Country.PolicyPoint, });
+          .GroupJoin(allPolicies, d => d.Country.Id, p => p.CountryId, (c, ps) => new { c.Country, c.Towns, c.Characters, Policies = ps, OldPolicyPoint = c.Country.PolicyPoint, })
+          .ToArray();
         var allWars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
         if (system.GameDateTime.Year == Config.UpdateStartYear && system.GameDateTime.Month == 1)
