@@ -52,6 +52,10 @@ namespace SangokuKmy.Models.Commands
             isError = true;
           }
         }
+        if (isError)
+        {
+          return;
+        }
 
         if (trainingType == TrainingType.Any)
         {
