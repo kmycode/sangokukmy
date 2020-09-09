@@ -151,6 +151,30 @@ namespace SangokuKmy.Models.Data.Entities
       return type == CountryPostType.Builder || type == CountryPostType.Diplomat || type == CountryPostType.PolicyLeader ||
         type == CountryPostType.Safeguard || type == CountryPostType.SecretaryLeader || type == CountryPostType.Warrior;
     }
+    public static int BattleOrder(this CountryPostType type)
+    {
+      if (type == CountryPostType.GrandGeneral)
+      {
+        return 1;
+      }
+      if (type == CountryPostType.CavalryGeneral)
+      {
+        return 2;
+      }
+      if (type == CountryPostType.GuardGeneral)
+      {
+        return 3;
+      }
+      if (type == CountryPostType.BowmanGeneral)
+      {
+        return 4;
+      }
+      if (type == CountryPostType.General)
+      {
+        return 5;
+      }
+      return -1;
+    }
 
     /// <summary>
     /// 任命権限があるか確認する
