@@ -262,22 +262,28 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<CountryPost>> GetCharacterPostsAsync(uint charaId)
+    {
+      try
+      {
+        return await this.container.Context.CountryPosts.Where(p => p.CharacterId == charaId).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     /// <summary>
     /// 国の役職を設定する
     /// </summary>
     /// <param name="post">役職データ</param>
-    public async Task SetPostAsync(CountryPost post)
+    public async Task AddPostAsync(CountryPost post)
     {
       try
       {
-        var olds = this.container.Context.CountryPosts
-          .Where(p => p.CountryId == post.CountryId && (p.Type == post.Type || p.CharacterId == post.CharacterId));
-        this.container.Context.CountryPosts.RemoveRange(olds);
-
-        if (post.Type != CountryPostType.UnAppointed)
-        {
-          await this.container.Context.CountryPosts.AddAsync(post);
-        }
+        await this.container.Context.CountryPosts.AddAsync(post);
       }
       catch (Exception ex)
       {
@@ -295,6 +301,19 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         this.container.Context.CountryPosts.RemoveRange(
           this.container.Context.CountryPosts.Where(p => p.CharacterId == characterId));
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public void RemoveCharacterPost(CountryPost post)
+    {
+      try
+      {
+        this.container.Context.CountryPosts.RemoveRange(
+          this.container.Context.CountryPosts.Where(p => p.Id == post.Id));
       }
       catch (Exception ex)
       {

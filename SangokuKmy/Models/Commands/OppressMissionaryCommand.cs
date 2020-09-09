@@ -83,15 +83,15 @@ namespace SangokuKmy.Models.Commands
         }
         if (religion == ReligionType.Confucianism)
         {
-          town.Confucianism += add * 2;
+          town.Confucianism += add;
         }
         if (religion == ReligionType.Buddhism)
         {
-          town.Buddhism += add * 2;
+          town.Buddhism += add;
         }
         if (religion == ReligionType.Taoism)
         {
-          town.Taoism += add * 2;
+          town.Taoism += add;
         }
 
         // 経験値、金の増減

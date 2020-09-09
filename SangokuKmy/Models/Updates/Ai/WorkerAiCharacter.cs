@@ -1229,18 +1229,22 @@ namespace SangokuKmy.Models.Updates.Ai
         await this.LeaveAllUnitsAsync(repo);
 
         var posts = await repo.Country.GetPostsAsync(this.Country.Id);
-        if (!posts.Any(p => p.CharacterId == this.Character.Id))
+        if (posts.Any(p => p.Type == CountryPostType.GrandGeneral && p.CharacterId != this.Character.Id))
         {
-          var post = new CountryPost
-          {
-            Type = CountryPostType.GrandGeneral,
-            CharacterId = this.Character.Id,
-            CountryId = this.Character.CountryId,
-          };
-          await repo.Country.SetPostAsync(post);
-          await repo.SaveChangesAsync();
-          await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
+          var p = posts.First(p => p.Type == CountryPostType.GrandGeneral);
+          repo.Country.RemoveCharacterPost(p);
+          p.Type = CountryPostType.UnAppointed;
+          await StatusStreaming.Default.SendAllAsync(ApiData.From(p));
         }
+        var post = new CountryPost
+        {
+          Type = CountryPostType.GrandGeneral,
+          CharacterId = this.Character.Id,
+          CountryId = this.Character.CountryId,
+        };
+        await repo.Country.AddPostAsync(post);
+        await repo.SaveChangesAsync();
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
 
         this.command.Parameters.Add(new CharacterCommandParameter
         {

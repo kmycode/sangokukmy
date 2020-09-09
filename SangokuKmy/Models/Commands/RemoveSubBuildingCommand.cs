@@ -104,8 +104,8 @@ namespace SangokuKmy.Models.Commands
     {
       var type = (TownSubBuildingType)options.FirstOrDefault(p => p.Type == 1).Or(ErrorCode.LackOfCommandParameter).NumberValue;
       var chara = await repo.Character.GetByIdAsync(characterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-      var posts = await repo.Country.GetPostsAsync(chara.CountryId);
-      if (!posts.CanBuildTownSubBuildings())
+      var myPosts = await repo.Country.GetCharacterPostsAsync(chara.Id);
+      if (!myPosts.Any(p => p.Type.CanBuildTownSubBuildings()))
       {
         ErrorCode.NotPermissionError.Throw();
       }

@@ -359,7 +359,7 @@ namespace SangokuKmy.Models.Services
           CountryId = country.Id,
           CharacterId = chara.Id,
         };
-        await repo.Country.SetPostAsync(countryPost);
+        await repo.Country.AddPostAsync(countryPost);
 
         var policies = new List<CountryPolicy>
         {

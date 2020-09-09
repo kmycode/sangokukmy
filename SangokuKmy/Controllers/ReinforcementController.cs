@@ -164,13 +164,15 @@ namespace SangokuKmy.Controllers
             // 君主が援軍に行く場合、君主データを残す
             if (isMonarch)
             {
+              var monarchPost = post.First(p => p.Type == CountryPostType.Monarch);
               var monarch = new CountryPost
               {
                 CharacterId = chara.Id,
                 CountryId = old.CharacterCountryId,
                 Type = CountryPostType.MonarchDisabled,
               };
-              await repo.Country.SetPostAsync(monarch);
+              repo.Country.RemoveCharacterPost(monarchPost);
+              await repo.Country.AddPostAsync(monarch);
               await StatusStreaming.Default.SendCountryAsync(ApiData.From(monarch), old.CharacterCountryId);
             }
 
@@ -202,16 +204,17 @@ namespace SangokuKmy.Controllers
             await CharacterService.ChangeCountryAsync(repo, originalCountry.Id, new Character[] { chara, });
 
             // 援軍に行ったのが君主の場合、復活する
-            var post = (await repo.Country.GetPostsAsync(chara.CountryId)).Where(p => p.CharacterId == chara.Id);
+            var post = await repo.Country.GetCharacterPostsAsync(chara.Id);
             if (post.Any(p => p.Type == CountryPostType.MonarchDisabled))
             {
+              repo.Country.RemoveCharacterPosts(chara.Id);
               var monarch = new CountryPost
               {
                 CharacterId = chara.Id,
                 CountryId = old.CharacterCountryId,
                 Type = CountryPostType.Monarch,
               };
-              await repo.Country.SetPostAsync(monarch);
+              await repo.Country.AddPostAsync(monarch);
               await StatusStreaming.Default.SendCountryAsync(ApiData.From(monarch), old.CharacterCountryId);
             }
 

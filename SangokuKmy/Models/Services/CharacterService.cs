@@ -186,15 +186,12 @@ namespace SangokuKmy.Models.Services
         }
       }
 
-      var countryPosts = (await repo.Country.GetPostsAsync(character.CountryId))
-        .Where(p => p.CharacterId == character.Id)
-        .ToArray();
+      var countryPosts = (await repo.Country.GetCharacterPostsAsync(character.Id)).ToArray();
       if (countryPosts.Any())
       {
         foreach (var post in countryPosts)
         {
-          post.Type = CountryPostType.UnAppointed;
-          await repo.Country.SetPostAsync(post);
+          repo.Country.RemoveCharacterPost(post);
         }
       }
 

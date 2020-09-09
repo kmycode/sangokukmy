@@ -216,10 +216,9 @@ namespace SangokuKmy.Models.Commands
         .Append(myItems.GetSoldierTypeData())
         .Append(myBattleResources.SelectMany(r => r.Info.Effects.Where(e => e.Type == CharacterItemEffectType.SoldierCorrectionResource).Select(e => e.SoldierTypeData)));
 
-      var myPostOptional = (await repo.Country.GetPostsAsync(character.CountryId)).FirstOrDefault(cp => cp.CharacterId == character.Id).ToOptional();
-      if (myPostOptional.HasData)
+      var myPosts = await repo.Country.GetCharacterPostsAsync(character.Id);
+      foreach (var myPost in myPosts)
       {
-        var myPost = myPostOptional.Data;
         var postCorrections = mySoldierType.CalcPostCorrections(myPost.Type);
         myAttackCorrection += postCorrections.AttackCorrection;
         myDefenceCorrection += postCorrections.DefendCorrection;

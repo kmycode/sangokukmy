@@ -374,9 +374,8 @@ namespace SangokuKmy.Controllers
       {
         var system = await repo.System.GetAsync();
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        var posts = await repo.Country.GetPostsAsync(chara.CountryId);
-        var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
-        if (myPost == null || !myPost.Type.CanCommandComment())
+        var myPosts = await repo.Country.GetCharacterPostsAsync(chara.Id);
+        if (!myPosts.Any(p => p.Type.CanCommandComment()))
         {
           ErrorCode.NotPermissionError.Throw();
         }
@@ -1036,6 +1035,7 @@ namespace SangokuKmy.Controllers
       [FromBody] CountryPost param)
     {
       CountryPost post;
+
       using (var repo = MainRepository.WithReadAndWrite())
       {
         if (this.AuthData.CharacterId == param.CharacterId || param.Type == CountryPostType.Monarch)
@@ -1045,9 +1045,9 @@ namespace SangokuKmy.Controllers
 
         var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var posts = await repo.Country.GetPostsAsync(self.CountryId);
-        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
-        var targetPost = posts.FirstOrDefault(p => p.CharacterId == param.CharacterId);
-        if (myPost == null || !myPost.Type.CanAppoint() || targetPost?.Type == CountryPostType.Monarch)
+        var myPosts = posts.Where(p => p.CharacterId == self.Id);
+        var targetPosts = posts.Where(p => p.CharacterId == param.CharacterId);
+        if (!myPosts.Any(p => p.Type.CanAppoint()) || targetPosts.Any(p => p.Type == CountryPostType.Monarch))
         {
           ErrorCode.NotPermissionError.Throw();
         }
@@ -1065,7 +1065,22 @@ namespace SangokuKmy.Controllers
           Type = param.Type,
           Character = new CharacterForAnonymous(target, null, CharacterShareLevel.Anonymous),
         };
-        await repo.Country.SetPostAsync(post);
+        if (post.Type == CountryPostType.UnAppointed)
+        {
+          repo.Country.RemoveCharacterPosts(post.CharacterId);
+          post.IsUnAppointed = true;
+        }
+        else if (targetPosts.Any(p => p.Type == post.Type))
+        {
+          var old = targetPosts.First(p => p.Type == post.Type);
+          repo.Country.RemoveCharacterPost(old);
+          post = old;
+          post.IsUnAppointed = true;
+        }
+        else
+        {
+          await repo.Country.AddPostAsync(post);
+        }
 
         await repo.SaveChangesAsync();
       }
@@ -1092,9 +1107,8 @@ namespace SangokuKmy.Controllers
         }
 
         var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        var posts = await repo.Country.GetPostsAsync(self.CountryId);
-        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
-        if (myPost == null || !myPost.Type.CanAppoint())
+        var myPosts = await repo.Country.GetCharacterPostsAsync(self.Id);
+        if (!myPosts.Any(p => p.Type.CanAppoint()))
         {
           ErrorCode.NotPermissionError.Throw();
         }
@@ -1117,8 +1131,8 @@ namespace SangokuKmy.Controllers
         var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var country = await repo.Country.GetByIdAsync(self.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
         var posts = await repo.Country.GetPostsAsync(self.CountryId);
-        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
-        if (myPost == null || !myPost.Type.CanPunishment())
+        var myPosts = await repo.Country.GetCharacterPostsAsync(self.Id);
+        if (!myPosts.Any(p => p.Type.CanPunishment()))
         {
           ErrorCode.NotPermissionError.Throw();
         }
@@ -1166,12 +1180,12 @@ namespace SangokuKmy.Controllers
       {
         var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var country = await repo.Country.GetByIdAsync(self.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-        var posts = await repo.Country.GetPostsAsync(self.CountryId);
-        var myPost = posts.FirstOrDefault(p => p.CharacterId == self.Id);
-        if (myPost == null || !myPost.Type.CanPunishment())
+        var myPosts = await repo.Country.GetCharacterPostsAsync(self.Id);
+        if (!myPosts.Any(p => p.Type.CanPunishment()))
         {
           ErrorCode.NotPermissionError.Throw();
         }
+
 
         if (await repo.BlockAction.IsBlockedAsync(self.Id, BlockActionType.StopPunishment))
         {
@@ -1211,9 +1225,8 @@ namespace SangokuKmy.Controllers
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-        var posts = await repo.Country.GetPostsAsync(chara.CountryId);
-        var myPosts = posts.Where(p => p.CharacterId == chara.Id);
-        if (!myPosts.CanCountrySetting())
+        var myPosts = await repo.Country.GetCharacterPostsAsync(chara.Id);
+        if (!myPosts.Any(p => p.Type.CanCountrySetting()))
         {
           ErrorCode.NotPermissionError.Throw();
         }

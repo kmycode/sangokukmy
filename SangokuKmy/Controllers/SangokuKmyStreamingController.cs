@@ -124,8 +124,8 @@ namespace SangokuKmy.Controllers
 
         if (chara.CountryId != 0)
         {
-          var posts = await repo.Country.GetPostsAsync(chara.CountryId);
-          if (!posts.Any(p => p.Type == CountryPostType.Monarch && p.CharacterId == chara.Id))
+          var posts = await repo.Country.GetCharacterPostsAsync(chara.Id);
+          if (!posts.Any(p => p.Type == CountryPostType.Monarch))
           {
             countryMessages = countryMessages.Where(m => m.Type != CountryMessageType.Unified);
           }

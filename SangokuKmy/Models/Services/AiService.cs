@@ -538,7 +538,7 @@ namespace SangokuKmy.Models.Services
         CharacterId = myCharas[RandomService.Next(0, myCharas.Length)].Character.Id,
         Type = CountryPostType.Monarch,
       };
-      await repo.Country.SetPostAsync(post);
+      await repo.Country.AddPostAsync(post);
 
       town.SubType = town.Type;
       MapService.UpdateTownType(town, TownType.Large);

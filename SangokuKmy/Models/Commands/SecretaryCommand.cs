@@ -25,8 +25,8 @@ namespace SangokuKmy.Models.Commands
     {
       var chara = await repo.Character.GetByIdAsync(characterId).GetOrErrorAsync(ErrorCode.CharacterNotFoundError);
       var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-      var posts = await repo.Country.GetPostsAsync(country.Id);
-      if (!posts.Any(p => p.CharacterId == characterId && p.Type.CanSecretary()))
+      var posts = await repo.Country.GetCharacterPostsAsync(characterId);
+      if (!posts.Any(p => p.Type.CanSecretary()))
       {
         ErrorCode.NotPermissionError.Throw();
       }

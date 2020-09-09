@@ -107,8 +107,8 @@ namespace SangokuKmy.Controllers
         var item = await repo.ThreadBbs.GetByIdAsync(id).GetOrErrorAsync(ErrorCode.NodeNotFoundError);
         if (item.CharacterId != chara.Id)
         {
-          var posts = await repo.Country.GetPostsAsync(chara.CountryId);
-          var characterPosts = posts.Where(p => p.CharacterId == chara.Id).Select(p => p.Type);
+          var posts = await repo.Country.GetCharacterPostsAsync(chara.Id);
+          var characterPosts = posts.Select(p => p.Type);
           if (!characterPosts.Any(p => p == CountryPostType.Monarch || p == CountryPostType.Warrior))
           {
             ErrorCode.NotPermissionError.Throw();

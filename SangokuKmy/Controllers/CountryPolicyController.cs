@@ -56,9 +56,8 @@ namespace SangokuKmy.Controllers
 
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-        var posts = await repo.Country.GetPostsAsync(chara.CountryId);
-        var myPost = posts.FirstOrDefault(p => p.CharacterId == chara.Id);
-        if (myPost == null || !myPost.Type.CanPolicy())
+        var posts = await repo.Country.GetCharacterPostsAsync(chara.Id);
+        if (!posts.Any(p => p.Type.CanPolicy()))
         {
           ErrorCode.NotPermissionError.Throw();
         }

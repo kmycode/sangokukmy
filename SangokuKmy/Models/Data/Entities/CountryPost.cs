@@ -15,7 +15,7 @@ namespace SangokuKmy.Models.Data.Entities
   {
     [Key]
     [Column("id")]
-    [JsonIgnore]
+    [JsonProperty("id")]
     public uint Id { get; set; }
 
     /// <summary>
@@ -42,6 +42,13 @@ namespace SangokuKmy.Models.Data.Entities
       get => (short)this.Type;
       set => this.Type = (CountryPostType)value;
     }
+
+    /// <summary>
+    /// 解任であるか
+    /// </summary>
+    [NotMapped]
+    [JsonProperty("isUnAppointed")]
+    public bool IsUnAppointed { get; set; }
 
     /// <summary>
     /// 任命された武将のID

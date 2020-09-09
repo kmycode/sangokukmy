@@ -83,8 +83,8 @@ namespace SangokuKmy.Models.Commands
         ErrorCode.InvalidParameterError.Throw();
       }
 
-      var posts = await repo.Country.GetPostsAsync(country.Id);
-      if (!posts.Any(p => p.CharacterId == characterId && p.Type.CanSafe()))
+      var myPosts = await repo.Country.GetCharacterPostsAsync(characterId);
+      if (!myPosts.Any(p => p.Type.CanSafe()))
       {
         ErrorCode.NotPermissionError.Throw();
       }
