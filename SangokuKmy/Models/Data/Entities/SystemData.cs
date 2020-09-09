@@ -215,5 +215,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 玉璽ルール
     /// </summary>
     Gyokuji = 4,
+
+    /// <summary>
+    /// 宗教ルール
+    /// </summary>
+    Religion = 5,
   }
 }

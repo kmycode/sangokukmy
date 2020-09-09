@@ -1266,7 +1266,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱（宗教）
-          if (!system.IsWaitingReset && system.Period >= 22 && RandomService.Next(0, 120) == 0)
+          if (!system.IsWaitingReset && system.Period >= 22 && RandomService.Next(0, 40) == 0)
           {
             var targetTowns = new List<Town>();
             var defenders = await repo.Town.GetAllDefendersAsync();
@@ -1276,16 +1276,24 @@ namespace SangokuKmy.Models.Updates
               foreach (var town in country.Towns.Where(t =>
                 t.Religion != country.Country.Religion && t.Religion != ReligionType.Any && t.TopReligionPoint > (t.Confucianism + t.Taoism + t.Buddhism) / 2 && !defenders.Any(d => d.TownId == t.Id)))
               {
-                targetTowns.Add(town);
+                var aroundCountries = allTowns
+                  .GetAroundCountries(town)
+                  .Select(cid => allCountries.FirstOrDefault(c => c.Id == cid))
+                  .Where(c => c != null);
+                if (aroundCountries.Any(c => c.Religion == town.Religion))
+                {
+                  targetTowns.Add(town);
+                }
               }
             }
             if (targetTowns.Any())
             {
               var town = RandomService.Next(targetTowns);
-              var isCreated = await AiService.CreateFarmerCountryAsync(repo, town, null, false, false,
+              var isCreated = await AiService.CreateFarmerCountryAsync(repo, town, null, true,
+                isReligion: true,
                 callbackAsync: async (cc, tt) =>
                 {
-                  var religionName = tt.Religion == ReligionType.Confucianism ? "儒教" : tt.Religion == ReligionType.Taoism ? "道教" : "仏教";
+                  var religionName = tt.Religion.GetString();
                   var oldCountry = allCountries.FirstOrDefault(ccc => ccc.Id == tt.Id);
                   if (oldCountry != null)
                   {

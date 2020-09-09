@@ -272,7 +272,7 @@ namespace SangokuKmy.Models.Services
       return true;
     }
 
-    public static async Task<bool> CreateWarQuicklyAsync(MainRepository repo, Country self, Country target)
+    public static async Task<bool> CreateWarQuicklyAsync(MainRepository repo, Country self, Country target, CountryWarMode mode = CountryWarMode.Battle)
     {
       var startMonth = (await repo.System.GetAsync()).GameDateTime;
       var war = new CountryWar
@@ -281,6 +281,7 @@ namespace SangokuKmy.Models.Services
         InsistedCountryId = target.Id,
         StartGameDate = startMonth,
         Status = CountryWarStatus.InReady,
+        Mode = mode,
       };
       await CountryService.SendWarAndSaveAsync(repo, war);
 
@@ -700,7 +701,7 @@ namespace SangokuKmy.Models.Services
       }
     }
 
-    public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync, bool isForce = false, bool isKokin = false, Func<Country, Town, Task> callbackAsync = null)
+    public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Town town, Func<EventType, string, bool, Task> mapLogAsync, bool isForce = false, bool isKokin = false, Func<Country, Town, Task> callbackAsync = null, bool isReligion = false)
     {
       var system = await repo.System.GetAsync();
       var targetCountryOptional = await repo.Country.GetAliveByIdAsync(town.CountryId);
@@ -811,7 +812,7 @@ namespace SangokuKmy.Models.Services
 
       if (targetCountryOptional.HasData && !isForce)
       {
-        await CreateWarQuicklyAsync(repo, country, targetCountryOptional.Data);
+        await CreateWarQuicklyAsync(repo, country, targetCountryOptional.Data, isReligion ? CountryWarMode.Religion : CountryWarMode.Battle);
       }
 
       if (callbackAsync != null)

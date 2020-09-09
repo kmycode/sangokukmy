@@ -19,6 +19,8 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
+      Optional<CountryWar> warOptional = default;
+
       if (character.CountryId == 0)
       {
         await game.CharacterLogAsync("あなたの国はすでに滅亡しているか無所属です。無所属は侵攻できません");
@@ -102,7 +104,7 @@ namespace SangokuKmy.Models.Commands
 
         if (myCountry.AiType != CountryAiType.Thiefs && targetCountryOptional.Data.AiType != CountryAiType.Thiefs)
         {
-          var warOptional = await repo.CountryDiplomacies.GetCountryWarAsync(character.CountryId, targetTown.CountryId);
+          warOptional = await repo.CountryDiplomacies.GetCountryWarAsync(character.CountryId, targetTown.CountryId);
           var targetTownWarOptional = await repo.CountryDiplomacies.GetTownWarAsync(targetTown.CountryId, character.CountryId, targetTown.Id);
 
           var isTownWar = false;
@@ -149,6 +151,11 @@ namespace SangokuKmy.Models.Commands
       if (mySoldierTypeInfo.Kind == SoldierKind.Religion && myCountry.Religion == targetCountryOptional.Data?.Religion)
       {
         await game.CharacterLogAsync($"同じ宗教を国教とする国同士の戦闘で兵種 {mySoldierTypeInfo.Name} を用いることはできません");
+        return;
+      }
+      if (mySoldierTypeInfo.Kind == SoldierKind.Religion && warOptional.HasData && warOptional.Data.Mode != CountryWarMode.Religion)
+      {
+        await game.CharacterLogAsync($"兵種 {mySoldierTypeInfo.Name} は、宗教戦争以外で使うことはできません");
         return;
       }
 
@@ -236,11 +243,12 @@ namespace SangokuKmy.Models.Commands
       FormationTypeInfo targetFormation;
       bool isWall;
       var trendStrong = (short)Math.Max((int)((game.GameDateTime.ToInt() - Config.StartYear * 12 - Config.CountryBattleStopDuring) * 0.94f / 12), 20);
-      var defenders = await repo.Town.GetDefendersAsync(targetTown.Id);
+      var defenders = (await repo.Town.GetDefendersAsync(targetTown.Id))
+        .Where(d => DefaultCharacterSoldierTypeParts.Get(d.Character.SoldierType).Data?.Kind == mySoldierTypeInfo.Kind);
       LogCharacterCache defenderCache = null;
       if (defenders.Any())
       {
-        targetCharacter = defenders.First(d => DefaultCharacterSoldierTypeParts.Get(d.Character.SoldierType).Data?.Kind == mySoldierTypeInfo.Kind).Character;
+        targetCharacter = defenders.First().Character;
         log.DefenderCharacterId = targetCharacter.Id;
         log.DefenderType = DefenderType.Character;
         aiLog.DefenderId = targetCharacter.Id;

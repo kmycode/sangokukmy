@@ -262,6 +262,12 @@ namespace SangokuKmy.Controllers
           ErrorCode.InvalidOperationError.Throw();
         }
 
+        if (system.RuleSet != GameRuleSet.Religion && param.Mode == CountryWarMode.Religion)
+        {
+          // 宗教戦争は宗教ルールでないと布告できない
+          ErrorCode.RuleSetError.Throw();
+        }
+
         var towns = await repo.Town.GetAllAsync();
         var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
 
@@ -326,6 +332,7 @@ namespace SangokuKmy.Controllers
           param.RequestedCountryId = o.RequestedCountryId;
           param.InsistedCountryId = o.InsistedCountryId;
           param.StartGameDate = o.StartGameDate;
+          param.Mode = o.Mode;
         });
         old.None(() =>
         {
@@ -376,6 +383,7 @@ namespace SangokuKmy.Controllers
           StartGameDate = param.StartGameDate,
           Status = param.Status,
           RequestedStopCountryId = param.RequestedStopCountryId,
+          Mode = param.Mode,
         };
 
         await CountryService.SendWarAndSaveAsync(repo, war);

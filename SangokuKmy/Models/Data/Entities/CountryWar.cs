@@ -32,6 +32,21 @@ namespace SangokuKmy.Models.Data.Entities
     }
 
     /// <summary>
+    /// 戦争の種類
+    /// </summary>
+    [Column("mode")]
+    [JsonIgnore]
+    public CountryWarMode Mode { get; set; }
+
+    [NotMapped]
+    [JsonProperty("mode")]
+    public short ApiMode
+    {
+      get => (short)this.Mode;
+      set => this.Mode = (CountryWarMode)value;
+    }
+
+    /// <summary>
     /// 布告した国のID
     /// </summary>
     [Column("requested_country_id")]
@@ -94,6 +109,19 @@ namespace SangokuKmy.Models.Data.Entities
     /// 準備中
     /// </summary>
     InReady = 4,
+  }
+
+  public enum CountryWarMode : short
+  {
+    /// <summary>
+    /// 通常武力
+    /// </summary>
+    Battle = 0,
+
+    /// <summary>
+    /// 宗教戦争
+    /// </summary>
+    Religion = 1,
   }
 
   public static class CountryWarExtensions
