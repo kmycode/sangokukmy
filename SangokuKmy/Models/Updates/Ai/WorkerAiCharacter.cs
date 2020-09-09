@@ -1836,6 +1836,17 @@ namespace SangokuKmy.Models.Updates.Ai
       return false;
     }
 
+    protected bool InputMissionary()
+    {
+      if (this.Town.Religion != this.Country.Religion)
+      {
+        this.command.Type = CharacterCommandType.Missionary;
+        return true;
+      }
+
+      return false;
+    }
+
     protected bool InputPolicy()
     {
       if (this.Country.PolicyPoint < 10000)

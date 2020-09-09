@@ -878,6 +878,10 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           return;
         }
+        if (this.InputMissionary())
+        {
+          return;
+        }
         if (this.GameDateTime.Month % 6 == 0)
         {
           if (this.InputPolicy() || this.InputTownBuilding())
@@ -1016,6 +1020,11 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       if (await this.InputMoveToMainTownAsync(repo))
+      {
+        return;
+      }
+
+      if (this.InputMissionary())
       {
         return;
       }
