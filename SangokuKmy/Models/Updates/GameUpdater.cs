@@ -1511,36 +1511,40 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 無所属宣教師の追加
-          if (!system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12 && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1)
+          if (!system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1)
           {
-            var town = RandomService.Next(allTowns);
-            var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, town.Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
-            if (character.Any())
+            var targetTowns = allTowns.Where(t => t.Religion != ReligionType.Any && t.Religion != ReligionType.None);
+            if (targetTowns.Any())
             {
-              var religion = character.First().Religion;
-              if (town.Religion != ReligionType.Any && town.Religion != ReligionType.None)
+              var town = RandomService.Next(targetTowns);
+              var character = await AiService.CreateCharacterAsync(repo, new CharacterAiType[] { CharacterAiType.FreeEvangelist, }, 0, town.Id, system, CharacterFrom.Unknown, CharacterSkillType.Undefined);
+              if (character.Any())
               {
-                religion = town.Religion;
-              }
+                var religion = character.First().Religion;
+                if (town.Religion != ReligionType.Any && town.Religion != ReligionType.None)
+                {
+                  religion = town.Religion;
+                }
 
-              if (religion == ReligionType.Confucianism)
-              {
-                character.First().From = CharacterFrom.Confucianism;
-                character.First().Name += "_儒教";
-              }
-              if (religion == ReligionType.Taoism)
-              {
-                character.First().From = CharacterFrom.Taoism;
-                character.First().Name += "_道教";
-              }
-              if (religion == ReligionType.Buddhism)
-              {
-                character.First().From = CharacterFrom.Buddhism;
-                character.First().Name += "_仏教";
-              }
-              character.First().Name += character.First().Id;
+                if (religion == ReligionType.Confucianism)
+                {
+                  character.First().From = CharacterFrom.Confucianism;
+                  character.First().Name += "_儒教";
+                }
+                if (religion == ReligionType.Taoism)
+                {
+                  character.First().From = CharacterFrom.Taoism;
+                  character.First().Name += "_道教";
+                }
+                if (religion == ReligionType.Buddhism)
+                {
+                  character.First().From = CharacterFrom.Buddhism;
+                  character.First().Name += "_仏教";
+                }
+                character.First().Name += character.First().Id;
 
-              await AddMapLogAsync(false, EventType.NewEvangelist, $"無所属に新たに <character>{character.First().Name}</character> が出現しました");
+                await AddMapLogAsync(false, EventType.NewEvangelist, $"無所属に新たに <character>{character.First().Name}</character> が出現しました");
+              }
             }
           }
 
