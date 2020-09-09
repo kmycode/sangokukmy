@@ -146,6 +146,12 @@ namespace SangokuKmy.Models.Data.Entities
       return posts.OrderBy(p => p.ApiType).First().ToOptional();
     }
 
+    public static bool CanMultiple(this CountryPostType type)
+    {
+      return type == CountryPostType.Builder || type == CountryPostType.Diplomat || type == CountryPostType.PolicyLeader ||
+        type == CountryPostType.Safeguard || type == CountryPostType.SecretaryLeader || type == CountryPostType.Warrior;
+    }
+
     /// <summary>
     /// 任命権限があるか確認する
     /// </summary>

@@ -1035,6 +1035,7 @@ namespace SangokuKmy.Controllers
       [FromBody] CountryPost param)
     {
       CountryPost post;
+      CountryPost post2 = null;
 
       using (var repo = MainRepository.WithReadAndWrite())
       {
@@ -1065,6 +1066,13 @@ namespace SangokuKmy.Controllers
           Type = param.Type,
           Character = new CharacterForAnonymous(target, null, CharacterShareLevel.Anonymous),
         };
+        if (!post.Type.CanMultiple())
+        {
+          // 複数人に任命できない役職は削除
+          post2 = posts.FirstOrDefault(p => p.Type == post.Type);
+          post2.IsUnAppointed = true;
+          repo.Country.RemoveCharacterPost(post2);
+        }
         if (post.Type == CountryPostType.UnAppointed)
         {
           repo.Country.RemoveCharacterPosts(post.CharacterId);
@@ -1085,6 +1093,10 @@ namespace SangokuKmy.Controllers
         await repo.SaveChangesAsync();
       }
       await StatusStreaming.Default.SendAllAsync(ApiData.From(post));
+      if (post2 != null)
+      {
+        await StatusStreaming.Default.SendAllAsync(ApiData.From(post2));
+      }
     }
 
     [AuthenticationFilter]
