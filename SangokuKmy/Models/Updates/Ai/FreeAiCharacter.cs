@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SangokuKmy.Common;
 using SangokuKmy.Models.Data;
@@ -17,7 +18,10 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
     {
-      return await this.ActionAsync(repo);
+      return (await this.ActionAsync(repo)) ?? new CharacterCommand
+      {
+        Type = CharacterCommandType.None,
+      };
     }
 
     protected override async Task<Optional<CharacterCommand>> GetCommandAsNoCountryAsync(MainRepository repo)
@@ -45,6 +49,12 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task<CharacterCommand> ActionAsync(MainRepository repo)
     {
+      var countries = await repo.Country.GetAllAsync();
+      if (!countries.Any(c => !c.HasOverthrown && c.Religion == this.Character.Religion))
+      {
+        return default;
+      }
+
       var command = new CharacterCommand
       {
         CharacterId = this.Character.Id,
