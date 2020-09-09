@@ -640,6 +640,18 @@ namespace SangokuKmy.Models.Commands
             targetTown.TownBuildingValue = (int)(targetTown.TownBuildingValue * 0.8f);
             targetTown.People = (int)(targetTown.People * 0.8f);
             targetTown.Security = (short)(targetTown.Security * 0.8f);
+            if (myCountry.Religion != ReligionType.Confucianism)
+            {
+              targetTown.Confucianism = (int)(targetTown.Confucianism * 0.9f);
+            }
+            if (myCountry.Religion != ReligionType.Taoism)
+            {
+              targetTown.Taoism = (int)(targetTown.Taoism * 0.9f);
+            }
+            if (myCountry.Religion != ReligionType.Buddhism)
+            {
+              targetTown.Buddhism = (int)(targetTown.Buddhism * 0.9f);
+            }
             myExperience += 50;
             myContribution += 50;
             character.TownId = targetTown.Id;

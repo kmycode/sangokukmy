@@ -85,6 +85,11 @@ namespace SangokuKmy.Models.Commands
             add = (int)(add * 1.3f);
           }
 
+          if (town.Religion == ReligionType.Any)
+          {
+            add = (int)(add * 2.25f);
+          }
+
           var skills = await repo.Character.GetSkillsAsync(character.Id);
           add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.MissionaryPercentage) / 100.0f));
         }
