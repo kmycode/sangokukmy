@@ -12,8 +12,11 @@ namespace SangokuKmy.Models.Services
     {
       var countryOptional = await repo.Country.GetAliveByIdAsync(town.CountryId);
 
+      var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(country.Id))
+        .Where(r => r.CharacterCountryId == country.Id && r.Status == ReinforcementStatus.Active);
+
       var townCount = await repo.Town.CountByCountryIdAsync(country.Id);
-      var characterCount = await repo.Country.CountCharactersAsync(country.Id, true, 200);
+      var characterCount = await repo.Country.CountCharactersAsync(country.Id, true, 200) + reinforcements.Count();
       var townTypeCost = (countryOptional.HasData && countryOptional.Data.CapitalTownId == town.Id) ? 12000 :
         town.Type == TownType.Large ? 10000 : 8000;
 
