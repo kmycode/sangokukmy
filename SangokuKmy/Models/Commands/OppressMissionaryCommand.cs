@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
@@ -30,6 +31,13 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync("弾圧しようとしましたが、宗教家以外は国に仕官しないと弾圧できません");
           return;
         }
+
+        var countries = await repo.Country.GetAllAsync();
+        if (!countries.Any(c => !c.HasOverthrown && c.Religion == religion))
+        {
+          await game.CharacterLogAsync($"{religion.GetString()} 以外を弾圧しようとしましたが、その宗教を国教とした国が存在しないため布教できません");
+          return;
+        }
       }
       else
       {
@@ -47,7 +55,7 @@ namespace SangokuKmy.Models.Commands
       {
         var town = townOptional.Data;
 
-        if (character.CountryId != town.CountryId)
+        if (countryOptional.HasData && character.CountryId != town.CountryId)
         {
           await game.CharacterLogAsync("弾圧しようとしましたが、他国の都市は弾圧できません");
           return;
@@ -112,7 +120,7 @@ namespace SangokuKmy.Models.Commands
           }
           else
           {
-            var newReligionName = town.Religion == ReligionType.Buddhism ? "仏教" : town.Religion == ReligionType.Confucianism ? "儒教" : town.Religion == ReligionType.Taoism ? "道教" : string.Empty;
+            var newReligionName = town.Religion.GetString();
             await game.MapLogAsync(EventType.ChangeReligion, $"<town>{town.Name}</town> は {newReligionName} に改宗しました", false);
           }
         }
