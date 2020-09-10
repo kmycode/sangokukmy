@@ -118,7 +118,7 @@ namespace SangokuKmy.Models.Commands
           else
           {
             var newReligionName = town.Religion.GetString();
-            await game.MapLogAsync(EventType.ChangeReligion, $"<town>{town.Name}</town> は {newReligionName} に改宗しました", false);
+            await game.MapLogAsync(EventType.ChangeReligion, $"<town>{town.Name}</town> は {oldReligion.GetString()} から {newReligionName} に改宗しました", false);
           }
         }
       }
