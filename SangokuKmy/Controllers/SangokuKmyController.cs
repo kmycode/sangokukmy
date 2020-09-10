@@ -422,6 +422,8 @@ namespace SangokuKmy.Controllers
         foreach (var old in olds)
         {
           repo.CharacterCommand.Remove(old);
+          old.HasRemoved = true;
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(old), chara.Id);
         }
 
         regularly = new CharacterRegularlyCommand
