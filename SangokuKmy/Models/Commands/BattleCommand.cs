@@ -340,7 +340,7 @@ namespace SangokuKmy.Models.Commands
         var evaluationTechnology = targetTown.Technology;
         if (log.IsSameReligion)
         {
-          evaluationTechnology -= RandomService.Next(28, 96);
+          evaluationTechnology -= RandomService.Next(28, 199);
         }
         targetCharacter.SoldierType = evaluationTechnology >= 1700 ? SoldierType.Guard_Step6 :
           evaluationTechnology >= 1200 ? SoldierType.Guard_Step5 :

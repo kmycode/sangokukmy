@@ -699,7 +699,7 @@ namespace SangokuKmy.Models.Updates
               // 宗教による追加の政策ポイント
               if (countryData.Any(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && c.Country.Religion != country.Country.Religion))
               {
-                country.Country.PolicyPoint += allTowns.Count(t => t.Religion == country.Country.Religion) * 3;
+                country.Country.PolicyPoint += allTowns.Count(t => t.Religion == country.Country.Religion) * 5;
               }
             }
           }
@@ -1274,7 +1274,7 @@ namespace SangokuKmy.Models.Updates
               c.Country.AiType != CountryAiType.Farmers && c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && allWars.All(w => !w.IsJoinAvailable(c.Country.Id))))
             {
               foreach (var town in country.Towns.Where(t =>
-                t.Religion != country.Country.Religion && t.Religion != ReligionType.Any && t.TopReligionPoint > (t.Confucianism + t.Taoism + t.Buddhism) / 2 && !defenders.Any(d => d.TownId == t.Id)))
+                t.Religion != country.Country.Religion && t.Religion != ReligionType.Any && t.TopReligionPoint > (t.Confucianism + t.Taoism + t.Buddhism - t.TopReligionPoint) * 3 && !defenders.Any(d => d.TownId == t.Id)))
               {
                 var aroundCountries = allTowns
                   .GetAroundCountries(town)

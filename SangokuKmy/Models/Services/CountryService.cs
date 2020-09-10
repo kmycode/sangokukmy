@@ -139,7 +139,14 @@ namespace SangokuKmy.Models.Services
           if (war.RequestedStopCountryId == 0)
           {
             mapLog.EventType = EventType.WarInReady;
-            mapLog.Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> へ侵攻します";
+            if (war.Mode == CountryWarMode.Religion)
+            {
+              mapLog.Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> と宗教戦争を開始します";
+            }
+            else
+            {
+              mapLog.Message = "<country>" + country1.Name + "</country> は、<date>" + war.StartGameDate.ToString() + "</date> より <country>" + country2.Name + "</country> へ侵攻します";
+            }
             await PushNotificationService.SendCountryAsync(repo, "宣戦布告", $"{war.StartGameDate.ToString()} より {country2.Name} と戦争します", country1.Id);
             await PushNotificationService.SendCountryAsync(repo, "宣戦布告", $"{war.StartGameDate.ToString()} より {country1.Name} と戦争します", country2.Id);
           }

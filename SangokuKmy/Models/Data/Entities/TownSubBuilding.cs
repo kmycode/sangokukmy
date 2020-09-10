@@ -265,7 +265,6 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "聖堂",
         Size = 1,
         Money = 50000,
-        CanBuildMultiple = true,
         BuildDuring = 48,
         BuildSubject = c => c.Religion != ReligionType.None,
         BuildSubjectSkills = ss => ss.AnySkillEffects(CharacterSkillEffectType.TownSubBuilding, (int)TownSubBuildingType.Cathedral),

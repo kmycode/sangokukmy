@@ -269,6 +269,7 @@ namespace SangokuKmy.Controllers
         }
 
         var towns = await repo.Town.GetAllAsync();
+        var myCountry = await repo.Country.GetAliveByIdAsync(self.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
         var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
 
         var old = await repo.CountryDiplomacies.GetCountryWarAsync(self.CountryId, targetId);
@@ -336,6 +337,21 @@ namespace SangokuKmy.Controllers
         });
         old.None(() =>
         {
+          if (param.Mode == CountryWarMode.Religion)
+          {
+            if (myCountry.Religion == ReligionType.Any || myCountry.Religion == ReligionType.None)
+            {
+              // 国教を持たない国は宗教戦争を布告できない
+              ErrorCode.InvalidOperationError.Throw();
+            }
+
+            if (target.Religion == myCountry.Religion)
+            {
+              // 同じ宗教の国には宗教戦争を布告できない
+              ErrorCode.ReligionError.Throw();
+            }
+          }
+
           if (!towns.GetAroundCountries(towns.Where(t => t.CountryId == param.InsistedCountryId)).Contains(param.RequestedCountryId))
           {
             // 飛び地布告

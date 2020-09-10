@@ -311,6 +311,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode TooEarlyError { get; } = new ErrorCode(400, 57);
 
+    /// <summary>
+    /// 宗教に起因するエラー
+    /// </summary>
+    public static ErrorCode ReligionError { get; } = new ErrorCode(400, 58);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

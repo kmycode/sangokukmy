@@ -12,6 +12,8 @@ namespace SangokuKmy.Models.Updates.Ai
 {
   public abstract class FarmerAiCharacter : AiCharacter
   {
+    protected List<CountryWar> Wars { get; } = new List<CountryWar>();
+
     public FarmerAiCharacter(Character character) : base(character)
     {
     }
@@ -32,14 +34,15 @@ namespace SangokuKmy.Models.Updates.Ai
         }
       }
 
+      this.UpdateAvailableWars(wars);
+      return this.Wars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
+    }
+
+    protected void UpdateAvailableWars(IEnumerable<CountryWar> wars)
+    {
       var availableWars = wars
         .Where(w => w.IntStartGameDate <= this.GameDateTime.ToInt() && (w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.StopRequesting));
-      if (availableWars.Any())
-      {
-        return availableWars.Select(w => w.InsistedCountryId == this.Country.Id ? w.RequestedCountryId : w.InsistedCountryId);
-      }
-
-      return Enumerable.Empty<uint>();
+      this.Wars.AddRange(availableWars);
     }
   }
 
@@ -55,11 +58,16 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected virtual SoldierType FindSoldierType()
     {
+      if (this.Wars.Any(w => w.Mode == CountryWarMode.Religion))
+      {
+      }
       return SoldierType.Common;
     }
 
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
     {
+      this.UpdateAvailableWars(wars);
+
       var isNeedSoldier = this.Character.SoldierNumber < Math.Max(this.Character.Leadership / 10, 20);
       var towns = await repo.Town.GetAllAsync();
       var command = new CharacterCommand
@@ -239,6 +247,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
     {
+      this.UpdateAvailableWars(wars);
+
       var towns = await repo.Town.GetAllAsync();
       var command = new CharacterCommand
       {
@@ -379,6 +389,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
     {
+      this.UpdateAvailableWars(wars);
+
       var towns = await repo.Town.GetAllAsync();
       var command = new CharacterCommand
       {

@@ -30,7 +30,7 @@ namespace SangokuKmy.Models.Services
         Character = new CharacterChatData(chara),
         CharacterCountryId = chara.CountryId,
         Posted = DateTime.Now,
-        Message = param.Message,
+        Message = param.Message.TrimEnd(),
         Type = type,
         TypeData = typeData,
         TypeData2 = typeData2,

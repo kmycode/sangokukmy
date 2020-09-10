@@ -16,9 +16,9 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
-      if (character.Money < 50)
+      if (character.Money < 100)
       {
-        await game.CharacterLogAsync($"金が足りません。<num>50</num> 必要です");
+        await game.CharacterLogAsync($"金が足りません。<num>100</num> 必要です");
         return;
       }
 
@@ -107,9 +107,16 @@ namespace SangokuKmy.Models.Commands
         {
           character.Contribution += 30;
         }
-        character.AddIntellectEx(50);
+        if (character.Intellect > character.Popularity)
+        {
+          character.AddIntellectEx(50);
+        }
+        else
+        {
+          character.AddPopularityEx(50);
+        }
         character.SkillPoint++;
-        character.Money -= 50;
+        character.Money -= 100;
         await game.CharacterLogAsync($"<town>{town.Name}</town> の {religionName.Substring(0, religionName.Length - 1)}信仰 を <num>-{add}</num> 弾圧し、{religion.GetString()} を <num>+{add * 2}</num> 布教しました");
 
         if (town.Religion != oldReligion)
