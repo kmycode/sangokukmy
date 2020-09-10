@@ -1223,10 +1223,15 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
+            Type = CharacterSkillEffectType.MissionaryPercentage,
+            Value = 50,
+          },
+          new CharacterSkillEffect
+          {
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              BaseAttack = -100,
+              BaseAttack = -30,
             },
           },
         },
@@ -1242,7 +1247,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.MissionaryPercentage,
-            Value = 100,
+            Value = 50,
           },
         },
       },
@@ -1274,6 +1279,14 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.Command,
             Value = (int)CharacterCommandType.OppressMissionary,
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 30,
+            },
+          },
         },
       },
       new CharacterSkillInfo
@@ -1301,10 +1314,15 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
+            Type = CharacterSkillEffectType.MissionaryPercentage,
+            Value = 50,
+          },
+          new CharacterSkillEffect
+          {
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              BaseAttack = -100,
+              BaseAttack = -30,
             },
           },
         },
@@ -1320,7 +1338,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.MissionaryPercentage,
-            Value = 100,
+            Value = 50,
           },
         },
       },
@@ -1352,6 +1370,14 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.Command,
             Value = (int)CharacterCommandType.OppressMissionary,
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 30,
+            },
+          },
         },
       },
       new CharacterSkillInfo
@@ -1379,10 +1405,15 @@ namespace SangokuKmy.Models.Data.Entities
         {
           new CharacterSkillEffect
           {
+            Type = CharacterSkillEffectType.MissionaryPercentage,
+            Value = 50,
+          },
+          new CharacterSkillEffect
+          {
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
-              BaseAttack = -100,
+              BaseAttack = -30,
             },
           },
         },
@@ -1398,7 +1429,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.MissionaryPercentage,
-            Value = 100,
+            Value = 50,
           },
         },
       },
@@ -1429,6 +1460,14 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.Command,
             Value = (int)CharacterCommandType.OppressMissionary,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierCorrection,
+            SoldierTypeData = new CharacterSoldierTypeData
+            {
+              BaseAttack = 30,
+            },
           },
         },
       },
