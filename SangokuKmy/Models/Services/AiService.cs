@@ -206,7 +206,7 @@ namespace SangokuKmy.Models.Services
         }
       }
 
-      return await CreateWarAsync(repo, self, target, startDate);
+      return await CreateWarAsync(repo, self, target, startDate, (self.AiType == CountryAiType.Farmers && self.Religion != ReligionType.Any && self.Religion != ReligionType.None) ? CountryWarMode.Religion : CountryWarMode.Battle);
     }
 
     public static GameDateTime GetWarStartDateTime(GameDateTime current, AiCountryWarStartDatePolicy policy = AiCountryWarStartDatePolicy.First21)
@@ -250,7 +250,7 @@ namespace SangokuKmy.Models.Services
       return date;
     }
 
-    public static async Task<bool> CreateWarAsync(MainRepository repo, Country self, Country target, GameDateTime? startMonth = null)
+    public static async Task<bool> CreateWarAsync(MainRepository repo, Country self, Country target, GameDateTime? startMonth = null, CountryWarMode mode = CountryWarMode.Battle)
     {
       if (startMonth == null)
       {
@@ -264,6 +264,7 @@ namespace SangokuKmy.Models.Services
         InsistedCountryId = target.Id,
         StartGameDate = (GameDateTime)startMonth,
         Status = CountryWarStatus.InReady,
+        Mode = mode,
       };
       repo.AiCountry.ResetStorategyByCountryId(self.Id);
 
@@ -759,12 +760,22 @@ namespace SangokuKmy.Models.Services
         return false;
       }
 
-      var charaTypes = new List<CharacterAiType>
+      var charaTypes = new List<CharacterAiType>();
+      if (!isReligion)
       {
-        CharacterAiType.FarmerBattler,
-        CharacterAiType.FarmerBattler,
-        CharacterAiType.FarmerCivilOfficial,
-      };
+        charaTypes.Add(CharacterAiType.FarmerBattler);
+        charaTypes.Add(CharacterAiType.FarmerBattler);
+        charaTypes.Add(CharacterAiType.FarmerCivilOfficial);
+      }
+      else
+      {
+        charaTypes.Add(CharacterAiType.FarmerBattler);
+        charaTypes.Add(CharacterAiType.FarmerBattler);
+        charaTypes.Add(CharacterAiType.FarmerEvangelist);
+        charaTypes.Add(CharacterAiType.FarmerEvangelist);
+        charaTypes.Add(CharacterAiType.FarmerEvangelist);
+        charaTypes.Add(CharacterAiType.FarmerEvangelist);
+      }
       if (isKokin)
       {
         charaTypes.Add(CharacterAiType.FarmerBattler);
