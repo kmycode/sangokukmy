@@ -167,7 +167,7 @@ namespace SangokuKmy.Models.Updates.Ai
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "政務官_伝道師";
-      this.Character.Intellect = (short)((100 + current.Year / 3.3f) * 1.8f);
+      this.Character.Intellect = (short)(100 + current.Year / 3.3f);
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;
     }

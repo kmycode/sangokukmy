@@ -425,4 +425,54 @@ namespace SangokuKmy.Models.Updates.Ai
       }
     }
   }
+
+  public class FarmerEvangelistAiCharacter : FarmerAiCharacter
+  {
+    public FarmerEvangelistAiCharacter(Character character) : base(character)
+    {
+    }
+
+    public override void Initialize(GameDateTime current)
+    {
+      this.Character.Name = "農民_伝道師";
+      this.Character.Popularity = (short)(100 + current.Year / 2.8f);
+      this.Character.Money = 1000000;
+      this.Character.Rice = 1000000;
+    }
+
+    protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
+    {
+      this.UpdateAvailableWars(wars);
+
+      this.Character.Religion = this.Country.Religion;
+      this.Character.From = this.Country.Religion == ReligionType.Buddhism ? CharacterFrom.Buddhism :
+        this.Country.Religion == ReligionType.Confucianism ? CharacterFrom.Confucianism :
+        this.Country.Religion == ReligionType.Taoism ? CharacterFrom.Taoism : CharacterFrom.Unknown;
+
+      var towns = await repo.Town.GetAllAsync();
+      var command = new CharacterCommand
+      {
+        Id = 0,
+        CharacterId = this.Character.Id,
+        GameDateTime = this.GameDateTime,
+      };
+
+      if (this.Town.Religion == this.Character.Religion)
+      {
+        command.Type = CharacterCommandType.Missionary;
+      }
+      else
+      {
+        var aroundTowns = towns.GetAroundTowns(this.Town);
+        command.Parameters.Add(new CharacterCommandParameter
+        {
+          Type = 1,
+          NumberValue = (int)RandomService.Next(aroundTowns).Id,
+        });
+        command.Type = CharacterCommandType.Move;
+      }
+
+      return command;
+    }
+  }
 }

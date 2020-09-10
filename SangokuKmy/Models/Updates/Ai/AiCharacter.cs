@@ -36,6 +36,10 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         ai = new FarmerPatrollerAiCharacter(chara);
       }
+      else if (chara.AiType == CharacterAiType.FarmerEvangelist)
+      {
+        ai = new FarmerEvangelistAiCharacter(chara);
+      }
       else if (chara.AiType == CharacterAiType.TerroristBattler)
       {
         ai = new TerroristBattlerAiCharacter(chara);
