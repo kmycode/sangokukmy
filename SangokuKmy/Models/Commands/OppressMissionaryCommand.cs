@@ -26,18 +26,8 @@ namespace SangokuKmy.Models.Commands
       var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
       if (!countryOptional.HasData)
       {
-        if (character.Religion == ReligionType.Any)
-        {
-          await game.CharacterLogAsync("弾圧しようとしましたが、宗教家以外は国に仕官しないと弾圧できません");
-          return;
-        }
-
-        var countries = await repo.Country.GetAllAsync();
-        if (!countries.Any(c => !c.HasOverthrown && c.Religion == religion))
-        {
-          await game.CharacterLogAsync($"{religion.GetString()} 以外を弾圧しようとしましたが、その宗教を国教とした国が存在しないため布教できません");
-          return;
-        }
+        await game.CharacterLogAsync("弾圧しようとしましたが、国に仕官しないと弾圧できません");
+        return;
       }
       else
       {
@@ -55,7 +45,7 @@ namespace SangokuKmy.Models.Commands
       {
         var town = townOptional.Data;
 
-        if (countryOptional.HasData && character.CountryId != town.CountryId)
+        if (character.CountryId != town.CountryId)
         {
           await game.CharacterLogAsync("弾圧しようとしましたが、他国の都市は弾圧できません");
           return;
