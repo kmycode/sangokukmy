@@ -316,6 +316,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode ReligionError { get; } = new ErrorCode(400, 58);
 
+    /// <summary>
+    /// 宗教に起因するエラー
+    /// </summary>
+    public static ErrorCode InvalidWarModeError { get; } = new ErrorCode(400, 59);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

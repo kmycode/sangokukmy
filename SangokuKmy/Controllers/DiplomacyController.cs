@@ -271,6 +271,7 @@ namespace SangokuKmy.Controllers
         var towns = await repo.Town.GetAllAsync();
         var myCountry = await repo.Country.GetAliveByIdAsync(self.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
         var target = await repo.Country.GetAliveByIdAsync(targetId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
         var old = await repo.CountryDiplomacies.GetCountryWarAsync(self.CountryId, targetId);
         alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(self.CountryId, targetId);
@@ -350,6 +351,14 @@ namespace SangokuKmy.Controllers
               // 同じ宗教の国には宗教戦争を布告できない
               ErrorCode.ReligionError.Throw();
             }
+          }
+
+          if (wars.Where(w => w.Status == CountryWarStatus.Available || w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.StopRequesting)
+                  .Where(w => w.IsJoin(myCountry.Id) || w.IsJoin(target.Id))
+                  .Any(w => w.Mode != param.Mode))
+          {
+            // 就業戦争と通常戦争を両方することはできない
+            ErrorCode.InvalidWarModeError.Throw();
           }
 
           if (!towns.GetAroundCountries(towns.Where(t => t.CountryId == param.InsistedCountryId)).Contains(param.RequestedCountryId))
