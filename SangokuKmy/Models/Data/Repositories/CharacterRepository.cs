@@ -550,6 +550,19 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<CharacterSkill>> GetSkillsAsync()
+    {
+      try
+      {
+        return await this.container.Context.CharacterSkills.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     public async Task<IReadOnlyList<CharacterSkill>> GetSkillsAsync(uint charaId)
     {
       try

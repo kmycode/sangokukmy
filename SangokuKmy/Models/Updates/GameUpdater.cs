@@ -1027,6 +1027,39 @@ namespace SangokuKmy.Models.Updates
             await repo.SaveChangesAsync();
           }
 
+          // 武将が都市に滞在しているだけで発生する効果
+          {
+            var skills = await repo.Character.GetSkillsAsync();
+            var charaOfTowns = allTowns.GroupJoin(allCharacters, t => t.Id, c => c.TownId, (t, cs) => new { Town = t, Characters = cs, });
+            foreach (var town in charaOfTowns)
+            {
+              foreach (var chara in town.Characters)
+              {
+                var charaSkills = skills.Where(s => s.CharacterId == chara.Id);
+                if (CharacterSkillInfoes.AnySkillEffects(charaSkills, CharacterSkillEffectType.AutoMissionary))
+                {
+                  var val = CharacterSkillInfoes.GetSumOfValues(charaSkills, CharacterSkillEffectType.AutoMissionary);
+                  var country = allCountries.FirstOrDefault(c => c.Id == chara.CountryId);
+                  if (country != null)
+                  {
+                    if (country.Religion == ReligionType.Buddhism)
+                    {
+                      town.Town.Buddhism += val;
+                    }
+                    if (country.Religion == ReligionType.Confucianism)
+                    {
+                      town.Town.Confucianism += val;
+                    }
+                    if (country.Religion == ReligionType.Taoism)
+                    {
+                      town.Town.Taoism += val;
+                    }
+                  }
+                }
+              }
+            }
+          }
+
           // 同盟破棄・戦争開始
           {
             var targetAlliances = system.IsBattleRoyaleMode ?
@@ -1505,7 +1538,8 @@ namespace SangokuKmy.Models.Updates
             {
               var religionGroup = religionOfTown.OrderBy(t => t.Count()).First();
               var religion = religionGroup.Key;
-              if (religion != ReligionType.Any && religion != ReligionType.None && religionGroup.Count() > allTowns.Count / 3 * 2)
+              if ((religion != ReligionType.Any && religion != ReligionType.None && religionGroup.Count() >= allTowns.Count / 3 * 2) &&
+                (system.RuleSet != GameRuleSet.Wandering || system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12))
               {
                 var countryGroup = religionOfCountry.First();
                 if (countryGroup.Count() == 1 && countryGroup.Key == religion)

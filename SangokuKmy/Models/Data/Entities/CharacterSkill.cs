@@ -163,6 +163,7 @@ namespace SangokuKmy.Models.Data.Entities
     FormationMax,
     MissionaryPercentage,
     DomesticAffairAtSameMissionaryPercentage,
+    AutoMissionary,
   }
 
   public class CharacterSkillEffect
@@ -1264,6 +1265,11 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.DomesticAffairAtSameMissionaryPercentage,
             Value = 100,
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.AutoMissionary,
+            Value = 3,
+          },
         },
       },
       new CharacterSkillInfo
@@ -1339,6 +1345,11 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.MissionaryPercentage,
             Value = 50,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.AutoMissionary,
+            Value = 3,
           },
         },
       },
@@ -1445,6 +1456,11 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.DomesticAffairAtSameMissionaryPercentage,
             Value = 100,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.AutoMissionary,
+            Value = 3,
           },
         },
       },
