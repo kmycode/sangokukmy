@@ -6,6 +6,7 @@ using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
 using SangokuKmy.Models.Services;
+using SangokuKmy.Streamings;
 
 namespace SangokuKmy.Models.Commands
 {
@@ -146,6 +147,7 @@ namespace SangokuKmy.Models.Commands
           {
             await game.MapLogAsync(EventType.ChangeReligion, $"<town>{town.Name}</town> は {oldReligion.GetString()} から {religionName} に改宗しました", false);
           }
+          await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
         }
 
         if (RandomService.Next(0, 256) == 0)
