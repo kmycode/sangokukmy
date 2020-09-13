@@ -103,9 +103,14 @@ namespace SangokuKmy.Models.Services
       await ReleaseCharacterAsync(repo, item, chara, CharacterItemStatus.TownOnSale);
     }
 
-    public static async Task<string> SpendCharacterAsync(MainRepository repo, CharacterItem item, Character chara)
+    public static async Task<string> SpendCharacterAsync(MainRepository repo, CharacterItem item, Character chara, bool isWithEffect = true)
     {
       await ReleaseCharacterAsync(repo, item, chara, CharacterItemStatus.CharacterSpent);
+
+      if (!isWithEffect)
+      {
+        return string.Empty;
+      }
 
       var info = item.GetInfo();
       if (info.HasData && info.Data.UsingEffects != null)
@@ -400,6 +405,15 @@ namespace SangokuKmy.Models.Services
 
     public static async Task GenerateItemAndSaveAsync(MainRepository repo, CharacterItem item)
     {
+      var info = item.GetInfo();
+      if (info.HasData)
+      {
+        if (info.Data.IsUniqueCharacter)
+        {
+          item.UniqueCharacterId = item.CharacterId;
+        }
+      }
+
       await repo.CharacterItem.AddAsync(item);
       await repo.SaveChangesAsync();
       await StatusStreaming.Default.SendAllAsync(ApiData.From(item));

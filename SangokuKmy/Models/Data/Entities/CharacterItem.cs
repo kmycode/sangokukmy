@@ -76,6 +76,13 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonProperty("characterId")]
     public uint CharacterId { get; set; }
 
+    /// <summary>
+    /// 固有の武将ID（この武将が削除されたら、このアイテムも消える）
+    /// </summary>
+    [Column("unique_character_id")]
+    [JsonIgnore]
+    public uint UniqueCharacterId { get; set; }
+
     [Column("resource")]
     [JsonProperty("resource")]
     public int Resource { get; set; }
@@ -257,6 +264,11 @@ namespace SangokuKmy.Models.Data.Entities
     public IList<CharacterItemEffect> UsingEffects { get; set; }
     public IList<CharacterFrom> DiscoverFroms { get; set; }
     public IList<int> RegenerateYears { get; set; }
+
+    /// <summary>
+    /// これがtrueならばアイテムのユニーク所持武将が管理され、この武将が削除されたときにアイテムも消滅する
+    /// </summary>
+    public bool IsUniqueCharacter { get; set; }
 
     public int GetMoney(CharacterItem item)
     {

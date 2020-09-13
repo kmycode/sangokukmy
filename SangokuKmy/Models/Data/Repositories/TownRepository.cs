@@ -96,6 +96,21 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// 都市を削除
+    /// </summary>
+    public void Remove(Town town)
+    {
+      try
+      {
+        this.container.Context.Towns.Remove(town);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    /// <summary>
     /// 指定した国の都市数を数える
     /// </summary>
     /// <returns>都市数</returns>

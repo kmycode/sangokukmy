@@ -198,7 +198,45 @@ namespace SangokuKmy.Models.Services
       var items = await repo.Character.GetItemsAsync(character.Id);
       foreach (var item in items)
       {
-        await ItemService.ReleaseCharacterAsync(repo, item, character);
+        var flag = false;
+
+        var info = item.GetInfo();
+        if (info.HasData)
+        {
+          if (info.Data.IsUniqueCharacter)
+          {
+            // 一部のアイテムは放置削除と同時に消える
+            await ItemService.SpendCharacterAsync(repo, item, character, isWithEffect: false);
+            flag = true;
+          }
+        }
+
+        if (!flag)
+        {
+          await ItemService.ReleaseCharacterAsync(repo, item, character);
+        }
+      }
+
+      // 武将に関連付けられた都市を削除
+      if ((await repo.System.GetAsync()).RuleSet != GameRuleSet.SimpleBattle)
+      {
+        var towns = await repo.Town.GetAllAsync();
+        foreach (var town in towns.Where(t => t.UniqueCharacterId == character.Id))
+        {
+          var charas = await repo.Town.GetCharactersAsync(town.Id);
+          foreach (var townChara in charas)
+          {
+            await ChangeTownAsync(repo, RandomService.Next(towns.Where(t => t.UniqueCharacterId != character.Id)).Id, townChara);
+          }
+          await repo.Town.RemoveTownDefendersAsync(town.Id);
+          repo.Town.Remove(town);
+
+          town.Type = TownType.Removed;
+          await StatusStreaming.Default.SendAllAsync(ApiData.From(town));
+          await AnonymousStreaming.Default.SendAllAsync(ApiData.From(town));
+
+          await LogService.AddMapLogAsync(repo, true, EventType.TownRemoved, $"<character>{character.Name}</character> の建設した <town>{town.Name}</town> は消滅しました");
+        }
       }
 
       var ais = await repo.Character.GetManagementByHolderCharacterIdAsync(character.Id);

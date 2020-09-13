@@ -20,12 +20,13 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
+      var system = await repo.System.GetAsync();
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
       var countryOptional = await repo.Country.GetAliveByIdAsync(character.CountryId);
       var directionOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
       var townTypeOptional = options.FirstOrDefault(p => p.Type == 2).ToOptional();
 
-      if (character.Money < 200_0000)
+      if (character.Money < 200_0000 && system.RuleSet != GameRuleSet.SimpleBattle)
       {
         await game.CharacterLogAsync("都市建設しようとしましたが、金が足りません。<num>200 0000</num> 必要です");
         return;
@@ -59,6 +60,19 @@ namespace SangokuKmy.Models.Commands
       if (item == null)
       {
         await game.CharacterLogAsync("都市建設しようとしましたが、コマンド実行に必要なアイテムを所持していません");
+        return;
+      }
+
+      if (system.RuleSet == GameRuleSet.SimpleBattle)
+      {
+        await game.CharacterLogAsync("都市建設しようとしましたが、原理ルールでは都市建設ができません。代わりに大都市計画書が与えられます");
+        await ItemService.SpendCharacterAsync(repo, item, character);
+        await ItemService.GenerateItemAndSaveAsync(repo, new CharacterItem
+        {
+          CharacterId = character.Id,
+          Type = CharacterItemType.LargeTownPlanningDocument,
+          Status = CharacterItemStatus.CharacterHold,
+        });
         return;
       }
 
@@ -100,6 +114,7 @@ namespace SangokuKmy.Models.Commands
       newTown.Y = (short)y;
       newTown.Name = MapService.GetTownName((short)x, (short)y);
       newTown.CountryId = character.CountryId;
+      newTown.UniqueCharacterId = item.UniqueCharacterId;
       if (isCapital)
       {
         newTown.SubType = townType;

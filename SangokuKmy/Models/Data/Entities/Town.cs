@@ -286,6 +286,12 @@ namespace SangokuKmy.Models.Data.Entities
   [Table("town")]
   public class Town : TownBase
   {
+    /// <summary>
+    /// 都市をに紐付ける武将ID。この武将が削除された場合、この都市も削除される
+    /// </summary>
+    [Column("unique_character_id")]
+    [JsonIgnore]
+    public uint UniqueCharacterId { get; set; }
   }
 
   public enum TownType : byte
@@ -314,6 +320,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 大都市
     /// </summary>
     Large = 4,
+
+    /// <summary>
+    /// 削除された
+    /// </summary>
+    Removed = 5,
   }
 
   public enum TownBuilding : short

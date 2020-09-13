@@ -348,5 +348,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 宗教による支配
     /// </summary>
     TakeAwayWithReligion = 51,
+
+    /// <summary>
+    /// 都市削除
+    /// </summary>
+    TownRemoved = 52,
   }
 }
