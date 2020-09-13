@@ -1228,7 +1228,12 @@ namespace SangokuKmy.Controllers
       [FromBody] CountryMessage param)
     {
       CountryMessage message;
-      ChatMessage chat = null;
+
+      if (param.Type == CountryMessageType.Commanders)
+      {
+        // 別のAPIに移行です
+        ErrorCode.NotSupportedError.Throw();
+      }
 
       if (param.Type == CountryMessageType.Solicitation && param.Message?.Length > 200)
       {
@@ -1310,14 +1315,6 @@ namespace SangokuKmy.Controllers
         message.WriterIconId = icon.Id;
         message.WriterIcon = icon;
 
-        if (message.Type == CountryMessageType.Commanders)
-        {
-          chat = await ChatService.PostChatMessageAsync(repo, new ChatMessage
-          {
-            Message = $"[r][s]【指令更新】[-s][-r]\n\n{message.Message}",
-          }, chara, ChatMessageType.SelfCountry, chara.CountryId);
-        }
-
         await repo.SaveChangesAsync();
       }
 
@@ -1333,10 +1330,150 @@ namespace SangokuKmy.Controllers
       {
         await AnonymousStreaming.Default.SendAllAsync(ApiData.From(message));
       }
+    }
 
-      if (chat != null && message.Type == CountryMessageType.Commanders)
+    [AuthenticationFilter]
+    [HttpPost("country/commanders")]
+    public async Task SetCountryCommanderAsync(
+      [FromBody] CountryCommander param)
+    {
+      if (param.Message.Length > 400)
       {
-        await StatusStreaming.Default.SendCountryAsync(ApiData.From(chat), message.CountryId);
+        ErrorCode.StringLengthError.Throw(new ErrorCode.RangeErrorParameter("message", param.Message.Length, 0, 400));
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var myPosts = await repo.Country.GetCharacterPostsAsync(chara.Id);
+        if (!myPosts.Any(p => p.Type.CanCountryCommander()))
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var commanders = await repo.Country.GetCommandersAsync(chara.CountryId);
+        var olds = commanders.Where(c => c.CountryId == chara.CountryId && c.Subject == param.Subject && c.SubjectData == param.SubjectData && c.SubjectData2 == param.SubjectData2);
+        foreach (var old in olds)
+        {
+          repo.Country.RemoveCommander(old);
+          old.Message = "";
+
+          if (string.IsNullOrEmpty(param.Message))
+          {
+            await StatusStreaming.Default.SendCountryAsync(ApiData.From(old), old.CountryId);
+          }
+        }
+
+        param.CountryId = chara.CountryId;
+        param.WriterPost = myPosts.GetTopmostPost().Data.Type;
+        param.WriterCharacterId = chara.Id;
+        if (!string.IsNullOrEmpty(param.Message))
+        {
+          param.Id = 0;
+          await repo.Country.AddCommanderAsync(param);
+        }
+
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(param), param.CountryId);
+    }
+
+    [AuthenticationFilter]
+    [HttpPost("country/commanders/chat")]
+    public async Task SetCountryCommanderMessageAsync(
+      [FromBody] CountryCommander param)
+    {
+      if (param.Message.Length > 400)
+      {
+        ErrorCode.StringLengthError.Throw(new ErrorCode.RangeErrorParameter("message", param.Message.Length, 0, 400));
+      }
+
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var myPosts = await repo.Country.GetCharacterPostsAsync(chara.Id);
+        if (!myPosts.Any(p => p.Type.CanCountryCommander()))
+        {
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        var charas = await repo.Country.GetCharactersAsync(chara.CountryId);
+        IEnumerable<Character> targets = null;
+        if (param.Subject == CountryCommanderSubject.All)
+        {
+          targets = charas;
+        }
+        if (param.Subject == CountryCommanderSubject.Attribute)
+        {
+          targets = charas.Where(c => c.GetCharacterType() == (CharacterType)param.SubjectData);
+        }
+        if (param.Subject == CountryCommanderSubject.From)
+        {
+          var from = (CharacterFrom)param.SubjectData;
+          if (from == CharacterFrom.Confucianism || from == CharacterFrom.Taoism || from == CharacterFrom.Buddhism)
+          {
+            targets = charas.Where(c => c.From == CharacterFrom.Confucianism || c.From == CharacterFrom.Taoism || c.From == CharacterFrom.Buddhism);
+          }
+          else
+          {
+            targets = charas.Where(c => c.From == from);
+          }
+        }
+        if (param.Subject == CountryCommanderSubject.Private)
+        {
+          targets = charas.Where(c => c.Id == param.SubjectData);
+        }
+
+        foreach (var target in targets.Where(t => t.Id != chara.Id))
+        {
+          var chat = await ChatService.PostChatMessageAsync(repo, new ChatMessage
+          {
+            Message = $"[r][s]【一斉送信】[-s][-r]\n\n{param.Message}",
+          }, chara, ChatMessageType.Private, chara.Id, target.Id);
+          await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chat), new uint[] { chara.Id, target.Id, });
+        }
+
+        await repo.SaveChangesAsync();
+      }
+
+      await StatusStreaming.Default.SendCountryAsync(ApiData.From(param), param.CountryId);
+    }
+
+    [AuthenticationFilter]
+    [HttpPut("country/commanders/read/{id}")]
+    public async Task SetCountryCommandersReadAsync([FromRoute] uint id = 0)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+        var commanders = await repo.Country.GetCommandersAsync(chara.CountryId);
+        var commander = commanders.FirstOrDefault(c => c.Id == id).Or(ErrorCode.InvalidParameterError);
+
+        var read = await repo.ChatMessage.GetReadByCharacterIdAsync(this.AuthData.CharacterId);
+        if (commander.Subject == CountryCommanderSubject.All)
+        {
+          read.LastAllCommanderId = id;
+        }
+        if (commander.Subject == CountryCommanderSubject.Attribute)
+        {
+          read.LastAttributeCommanderId = id;
+        }
+        if (commander.Subject == CountryCommanderSubject.From)
+        {
+          read.LastFromCommanderId = id;
+        }
+        if (commander.Subject == CountryCommanderSubject.Private)
+        {
+          read.LastPrivateCommanderId = id;
+        }
+
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(read), chara.Id);
+
+        await repo.SaveChangesAsync();
       }
     }
 

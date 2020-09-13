@@ -416,6 +416,45 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<CountryCommander>> GetCommandersAsync(uint countryId)
+    {
+      try
+      {
+        return await this.container.Context.CountryCommanders
+          .Where(m => m.CountryId == countryId)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task AddCommanderAsync(CountryCommander commander)
+    {
+      try
+      {
+        await this.container.Context.CountryCommanders.AddAsync(commander);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public void RemoveCommander(CountryCommander commander)
+    {
+      try
+      {
+        this.container.Context.CountryCommanders.Remove(commander);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     /// <summary>
     /// 政策を追加する
     /// </summary>

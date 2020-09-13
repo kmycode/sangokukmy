@@ -133,6 +133,11 @@ namespace SangokuKmy.Models.Data.Entities
     /// 政策番
     /// </summary>
     PolicyLeader = 13,
+
+    /// <summary>
+    /// 司令官
+    /// </summary>
+    Commander = 14,
   }
 
   public static class CountryPostExtentions
@@ -149,7 +154,7 @@ namespace SangokuKmy.Models.Data.Entities
     public static bool CanMultiple(this CountryPostType type)
     {
       return type == CountryPostType.Builder || type == CountryPostType.Diplomat || type == CountryPostType.PolicyLeader ||
-        type == CountryPostType.Safeguard || type == CountryPostType.SecretaryLeader || type == CountryPostType.Warrior;
+        type == CountryPostType.Safeguard || type == CountryPostType.SecretaryLeader || type == CountryPostType.Warrior || type == CountryPostType.Commander;
     }
     public static int BattleOrder(this CountryPostType type)
     {
@@ -231,6 +236,11 @@ namespace SangokuKmy.Models.Data.Entities
     public static bool CanCommandComment(this CountryPostType type)
     {
       return type == CountryPostType.Monarch || type == CountryPostType.Warrior;
+    }
+    public static bool CanCountryCommander(this CountryPostType type)
+    {
+      return type == CountryPostType.Monarch || type == CountryPostType.Warrior || type == CountryPostType.GrandGeneral
+        || type == CountryPostType.Commander;
     }
 
     /// <summary>

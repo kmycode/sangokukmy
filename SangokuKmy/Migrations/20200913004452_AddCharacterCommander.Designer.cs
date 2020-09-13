@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SangokuKmy.Models.Data;
 
 namespace SangokuKmy.Migrations
 {
     [DbContext(typeof(MainContext))]
-    partial class MainContextModelSnapshot : ModelSnapshot
+    [Migration("20200913004452_AddCharacterCommander")]
+    partial class AddCharacterCommander
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -895,9 +897,6 @@ namespace SangokuKmy.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id");
 
-                    b.Property<uint>("CountryId")
-                        .HasColumnName("country_id");
-
                     b.Property<string>("Message")
                         .HasColumnName("message")
                         .HasColumnType("varchar(64)");
@@ -910,12 +909,6 @@ namespace SangokuKmy.Migrations
 
                     b.Property<uint>("SubjectData2")
                         .HasColumnName("subject_data2");
-
-                    b.Property<uint>("WriterCharacterId")
-                        .HasColumnName("writer_character_id");
-
-                    b.Property<short>("WriterPost")
-                        .HasColumnName("writer_post");
 
                     b.HasKey("Id");
 

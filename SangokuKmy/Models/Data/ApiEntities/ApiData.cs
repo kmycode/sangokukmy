@@ -120,5 +120,6 @@ namespace SangokuKmy.Models.Data.ApiEntities
     public static ApiData<AiCharacterManagement> From(AiCharacterManagement data) => From(45, data);
     public static ApiData<DelayEffect> From(DelayEffect data) => From(46, data);
     public static ApiData<CharacterRegularlyCommand> From(CharacterRegularlyCommand data) => From(47, data);
+    public static ApiData<CountryCommander> From(CountryCommander data) => From(48, data);
   }
 }

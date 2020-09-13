@@ -113,6 +113,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<CountryMessage> CountryMessages { get; set; }
 
     /// <summary>
+    /// 国の指令一覧
+    /// </summary>
+    public DbSet<CountryCommander> CountryCommanders { get; set; }
+
+    /// <summary>
     /// 国の役職一覧
     /// </summary>
     public DbSet<CountryPost> CountryPosts { get; set; }

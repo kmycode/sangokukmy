@@ -61,5 +61,33 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("last_global_bbs_id")]
     [JsonProperty("lastGlobalBbsId")]
     public uint LastGlobalBbsId { get; set; }
+
+    /// <summary>
+    /// 最後に読んだ全体指令
+    /// </summary>
+    [Column("last_all_commander_id")]
+    [JsonProperty("lastAllCommanderId")]
+    public uint LastAllCommanderId { get; set; }
+
+    /// <summary>
+    /// 最後に読んだ能力指令
+    /// </summary>
+    [Column("last_attribute_commander_id")]
+    [JsonProperty("lastAttributeCommanderId")]
+    public uint LastAttributeCommanderId { get; set; }
+
+    /// <summary>
+    /// 最後に読んだ出身指令
+    /// </summary>
+    [Column("last_from_commander_id")]
+    [JsonProperty("lastFromCommanderId")]
+    public uint LastFromCommanderId { get; set; }
+
+    /// <summary>
+    /// 最後に読んだ個人指令
+    /// </summary>
+    [Column("last_private_commander_id")]
+    [JsonProperty("lastPrivateCommanderId")]
+    public uint LastPrivateCommanderId { get; set; }
   }
 }

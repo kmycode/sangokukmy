@@ -1538,7 +1538,7 @@ namespace SangokuKmy.Models.Updates
             {
               var religionGroup = religionOfTown.OrderBy(t => t.Count()).First();
               var religion = religionGroup.Key;
-              if ((religion != ReligionType.Any && religion != ReligionType.None && religionGroup.Count() >= allTowns.Count / 3 * 2) &&
+              if ((religion != ReligionType.Any && religion != ReligionType.None && religionGroup.Count() >= allTowns.Count / 4 * 3) &&
                 (system.RuleSet != GameRuleSet.Wandering || system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12))
               {
                 var countryGroup = religionOfCountry.First();

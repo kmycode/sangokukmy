@@ -52,6 +52,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<Reinforcement> reinforcements;
       IEnumerable<CharacterOnline> onlines = await OnlineService.GetAsync();
       IEnumerable<CountryMessage> countryMessages;
+      IEnumerable<CountryCommander> countryCommanders;
       IEnumerable<Formation> formations;
       IEnumerable<CharacterItem> items;
       IEnumerable<CharacterSkill> skills;
@@ -88,6 +89,7 @@ namespace SangokuKmy.Controllers
         globalBbsItems = await repo.ThreadBbs.GetGlobalBbsAsync();
         reinforcements = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
         countryMessages = await repo.Country.GetMessagesAsync(chara.CountryId);
+        countryCommanders = await repo.Country.GetCommandersAsync(chara.CountryId);
         defenders = (await repo.Town.GetAllDefendersAsync()).OrderByDescending(d => d.Id);
         formations = await repo.Character.GetFormationsAsync(chara.Id);
         items = await repo.CharacterItem.GetAllAsync();
@@ -183,6 +185,7 @@ namespace SangokuKmy.Controllers
         .Concat(reinforcements.Select(r => ApiData.From(r)))
         .Concat(onlines.Select(o => ApiData.From(o)))
         .Concat(countryMessages.Select(c => ApiData.From(c)))
+        .Concat(countryCommanders.Select(c => ApiData.From(c)))
         .Concat(formations.Select(f => ApiData.From(f)))
         .Concat(items.Select(i => ApiData.From(i)))
         .Concat(skills.Select(s => ApiData.From(s)))

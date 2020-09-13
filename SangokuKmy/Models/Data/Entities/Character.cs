@@ -547,17 +547,17 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 武官
     /// </summary>
-    Strong,
+    Strong = 1,
 
     /// <summary>
     /// 文官
     /// </summary>
-    Intellect,
+    Intellect = 2,
 
     /// <summary>
     /// 仁官
     /// </summary>
-    Popularity,
+    Popularity = 3,
   }
 
   public enum SoldierType : short
