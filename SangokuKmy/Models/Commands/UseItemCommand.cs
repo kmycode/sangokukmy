@@ -50,10 +50,19 @@ namespace SangokuKmy.Models.Commands
       if (info.UsingEffects != null && info.UsingEffects.Any(ue => ue.Type == CharacterItemEffectType.AddSubBuildingExtraSize))
       {
         var townOptional = await repo.Town.GetByIdAsync(character.TownId);
-        if (townOptional.HasData && townOptional.Data.CountryId != character.CountryId)
+        if (townOptional.HasData)
         {
-          await game.CharacterLogAsync($"アイテム {info.Name} は、自国の都市でしか使用できません");
-          return;
+          var town = townOptional.Data;
+          if (town.CountryId != character.CountryId)
+          {
+            await game.CharacterLogAsync($"アイテム {info.Name} は、自国の都市でしか使用できません");
+            return;
+          }
+          if (town.TownSubBuildingExtraSpace + info.UsingEffects.Where(ue => ue.Type == CharacterItemEffectType.AddSubBuildingExtraSize).Sum(ue => ue.Value) > 4)
+          {
+            await game.CharacterLogAsync($"アイテム {info.Name} を使おうとしましたが、<town>{town.Name}</town> の追加の敷地を <num>4</num> より多くすることはできません");
+            return;
+          }
         }
       }
       
