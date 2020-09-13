@@ -241,6 +241,10 @@ namespace SangokuKmy.Models.Commands
       if (log.IsSameReligion)
       {
         targetDefenceCorrection -= 15;
+        if (system.RuleSet == GameRuleSet.Religion)
+        {
+          targetDefenceCorrection -= 15;
+        }
       }
 
       Character targetCharacter;
@@ -340,7 +344,11 @@ namespace SangokuKmy.Models.Commands
         var evaluationTechnology = targetTown.Technology;
         if (log.IsSameReligion)
         {
-          evaluationTechnology -= RandomService.Next(28, 199);
+          evaluationTechnology -= RandomService.Next(28, 160);
+          if (system.RuleSet == GameRuleSet.Religion)
+          {
+            evaluationTechnology -= RandomService.Next(32, 72);
+          }
         }
         targetCharacter.SoldierType = evaluationTechnology >= 1700 ? SoldierType.Guard_Step6 :
           evaluationTechnology >= 1200 ? SoldierType.Guard_Step5 :
@@ -388,6 +396,12 @@ namespace SangokuKmy.Models.Commands
       var myProficiency = myTown.TownBuilding == TownBuilding.Camp ? character.Proficiency * myCampValue : character.Proficiency;
       var targetProficiency = (targetTown.TownBuilding == TownBuilding.Camp && !isWall) ? targetCharacter.Proficiency * targetCampValue : targetCharacter.Proficiency;
 
+      if (log.IsSameReligion && system.RuleSet == GameRuleSet.Religion)
+      {
+        targetProficiency = 0;
+        myProficiency = 110;
+      }
+      
       var myAttack = Math.Max((int)((myPower + myAttackCorrection + myAttackSoldierTypeCorrection - targetDefenceCorrection - targetDefenceSoldierTypeCorrection - targetProficiency / 2.5f) / 8), 0);
       var targetAttack = Math.Max((int)((targetPower + targetAttackCorrection + targetAttackSoldierTypeCorrection - myDefenceCorrection - myDefenceSoldierTypeCorrection - myProficiency / 2.5f) / 8), 0);
 
