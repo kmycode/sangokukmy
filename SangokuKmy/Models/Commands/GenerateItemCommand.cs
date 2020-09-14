@@ -189,6 +189,10 @@ namespace SangokuKmy.Models.Commands
       {
         return false;
       }
+      if (chara.Data.HasRemoved)
+      {
+        return true;
+      }
 
       var generateInfo = GenerateItemInfo.GetInfo(chara.Data, type);
       if (generateInfo == null)
