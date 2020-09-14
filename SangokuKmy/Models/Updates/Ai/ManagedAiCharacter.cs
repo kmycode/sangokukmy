@@ -434,7 +434,7 @@ namespace SangokuKmy.Models.Updates.Ai
     {
       if (this.soldierTypeCache == SoldierType.Unknown)
       {
-        var soldierTypeNumber = this.Character.Id + this.GameDateTime.Year / 20;
+        var soldierTypeNumber = this.Character.Id + this.GameDateTime.Year / 14;
 
         if (this.Town.Technology >= 500 &&
           this.Character.Money > this.Character.Leadership * 300 + 5_0000 &&

@@ -785,6 +785,10 @@ namespace SangokuKmy.Models.Commands
       myContribution += myExperience;
       character.Contribution += (int)(myContribution);
       character.SkillPoint++;
+      if (character.AiType.IsManaged())
+      {
+        character.SkillPoint += 2;
+      }
       await game.CharacterLogAsync($"戦闘終了 <battle-log>{log.Id}</battle-log> 貢献: <num>{myContribution}</num>" + this.AddExperience(myExperience, character, mySoldierType) + $" 陣形ex: <num>{(int)myFormationExperience}</num>");
       myFormationData.Experience += (int)myFormationExperience;
       if (myFormation.CheckLevelUp(myFormationData))
