@@ -804,7 +804,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 12,
-          BaseDefend = 8,
+          BaseDefend = 7,
           TypeWall = 10,
           PowerStrong = 1,
         },
@@ -818,7 +818,7 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           BaseAttack = 15,
-          BaseDefend = 10,
+          BaseDefend = 8,
           TypeWall = 10,
           PowerStrong = 1,
         },
