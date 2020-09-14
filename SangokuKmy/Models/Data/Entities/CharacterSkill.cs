@@ -1235,6 +1235,11 @@ namespace SangokuKmy.Models.Data.Entities
               BaseAttack = -30,
             },
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.Apostle,
+          },
         },
       },
       new CharacterSkillInfo
@@ -1331,6 +1336,11 @@ namespace SangokuKmy.Models.Data.Entities
               BaseAttack = -30,
             },
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.Apostle,
+          },
         },
       },
       new CharacterSkillInfo
@@ -1426,6 +1436,11 @@ namespace SangokuKmy.Models.Data.Entities
             {
               BaseAttack = -30,
             },
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.SoldierType,
+            Value = (int)SoldierType.Apostle,
           },
         },
       },

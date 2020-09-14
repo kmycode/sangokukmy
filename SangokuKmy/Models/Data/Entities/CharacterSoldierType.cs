@@ -759,6 +759,7 @@ namespace SangokuKmy.Models.Data.Entities
         Money = 15,
         Technology = 500,
         Kind = SoldierKind.Religion,
+        CanConscriptWithoutSkill = false,
       },
 
       // ----------------------------------------------------------
