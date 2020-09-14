@@ -96,5 +96,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// オンライン情報
     /// </summary>
     CharacterOnline = 12,
+
+    /// <summary>
+    /// 国変更時の、ストリーミングの初期データの送信開始
+    /// </summary>
+    StartStreamingNewCountryInitializationData = 13,
   }
 }

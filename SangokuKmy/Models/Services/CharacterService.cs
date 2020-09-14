@@ -20,6 +20,11 @@ namespace SangokuKmy.Models.Services
   {
     public static async Task ChangeCountryAsync(MainRepository repo, uint newId, IEnumerable<Character> charas)
     {
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
+      {
+        Type = SignalType.StartStreamingNewCountryInitializationData,
+      }), charas.Select(c => c.Id));
+
       foreach (var chara in charas)
       {
         // 部隊とか役職とか
@@ -124,6 +129,11 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendCharacterAsync(commandComments.Select(c => ApiData.From(c)), charas.Select(c => c.Id));
       await StatusStreaming.Default.SendCharacterAsync(charaCommands.Select(c => ApiData.From(c)), charas.Select(c => c.Id));
       await StatusStreaming.Default.SendCharacterAsync(alliances.Select(a => ApiData.From(a)), charas.Select(c => c.Id));
+
+      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
+      {
+        Type = SignalType.EndOfStreamingInitializeData,
+      }), charas.Select(c => c.Id));
     }
 
     public static async Task ChangeTownAsync(MainRepository repo, uint newId, Character chara)
