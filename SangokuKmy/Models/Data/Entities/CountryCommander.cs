@@ -102,5 +102,20 @@ namespace SangokuKmy.Models.Data.Entities
     /// 個人
     /// </summary>
     Private = 4,
+
+    /// <summary>
+    /// 他国から来た援軍以外
+    /// </summary>
+    ExceptForReinforcements = 5,
+
+    /// <summary>
+    /// 自国から派遣された援軍を含む
+    /// </summary>
+    ContainsMyReinforcements = 6,
+
+    /// <summary>
+    /// ５と６の両方
+    /// </summary>
+    OriginalCountryCharacters = 7,
   }
 }

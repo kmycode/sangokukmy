@@ -1426,6 +1426,33 @@ namespace SangokuKmy.Controllers
         {
           targets = charas.Where(c => c.Id == param.SubjectData);
         }
+        if (param.Subject == CountryCommanderSubject.ExceptForReinforcements ||
+          param.Subject == CountryCommanderSubject.ContainsMyReinforcements ||
+          param.Subject == CountryCommanderSubject.OriginalCountryCharacters)
+        {
+          targets = Enumerable.Empty<Character>();
+          if (param.Subject == CountryCommanderSubject.ExceptForReinforcements ||
+            param.Subject == CountryCommanderSubject.OriginalCountryCharacters)
+          {
+            var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(chara.CountryId))
+              .Where(r => r.RequestedCountryId == chara.CountryId);
+            targets = targets.Concat(charas.Where(c => !reinforcements.Any(r => r.CharacterId == c.Id)));
+          }
+          if (param.Subject == CountryCommanderSubject.ContainsMyReinforcements ||
+            param.Subject == CountryCommanderSubject.OriginalCountryCharacters)
+          {
+            var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(chara.CountryId))
+              .Where(r => r.CharacterCountryId == chara.CountryId);
+            foreach (var cid in reinforcements.Select(r => r.CharacterId))
+            {
+              var character = await repo.Character.GetByIdAsync(cid);
+              if (character.HasData)
+              {
+                targets = targets.Append(character.Data);
+              }
+            }
+          }
+        }
 
         foreach (var target in targets.Where(t => t.Id != chara.Id))
         {
