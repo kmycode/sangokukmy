@@ -101,5 +101,10 @@ namespace SangokuKmy.Models.Data.ApiEntities
     /// 国変更時の、ストリーミングの初期データの送信開始
     /// </summary>
     StartStreamingNewCountryInitializationData = 13,
+
+    /// <summary>
+    /// 国変更時の、ストリーミングの初期データの送信終了
+    /// </summary>
+    EndStreamingNewCountryInitializationData = 14,
   }
 }
