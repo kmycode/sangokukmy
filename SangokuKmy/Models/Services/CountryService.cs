@@ -58,6 +58,14 @@ namespace SangokuKmy.Models.Services
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(country));
       await AiService.CheckManagedReinforcementsAsync(repo, country.Id);
 
+      // 援軍データをいじって、無所属武将一覧で援軍情報を表示できるようにする
+      var reinforcements = await repo.Reinforcement.GetByCountryIdAsync(country.Id);
+      foreach (var rein in reinforcements.Where(r => r.RequestedCountryId == country.Id))
+      {
+        rein.RequestedCountryId = 0;
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(rein), rein.CharacterId);
+      }
+
       // 滅亡国武将に通知
       var commanders = new CountryMessage
       {
