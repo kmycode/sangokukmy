@@ -61,7 +61,7 @@ namespace SangokuKmy.Models.Updates.Ai
         GameDateTime = this.GameDateTime,
       };
 
-      if (this.GameDateTime.Year % 8 == 0 && this.GameDateTime.Month == 1)
+      if (this.GameDateTime.Year % 8 == 0 && this.Town.Religion == this.Character.Religion)
       {
         var towns = await repo.Town.GetAllAsync();
         var aroundTowns = towns.GetAroundTowns(this.Town);
