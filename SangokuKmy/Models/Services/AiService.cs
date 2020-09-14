@@ -710,33 +710,26 @@ namespace SangokuKmy.Models.Services
       var defenders = await repo.Town.GetDefendersAsync(town.Id);
       if (defenders.Count > 0)
       {
-        if (isForce)
+        // 守備を剥がす
+        var allRemovedDefenders = new List<TownDefender>();
+        var townCharas = await repo.Town.GetCharactersAsync(town.Id);
+        foreach (var defender in defenders)
         {
-          // 守備を剥がす
-          var allRemovedDefenders = new List<TownDefender>();
-          var townCharas = await repo.Town.GetCharactersAsync(town.Id);
-          foreach (var defender in defenders)
-          {
-            var removedDefenders = await repo.Town.RemoveDefenderAsync(defender.Character.Id);
-            allRemovedDefenders.AddRange(removedDefenders);
-          }
-          foreach (var d in allRemovedDefenders)
-          {
-            d.Status = TownDefenderStatus.Losed;
-            if (targetCountryOptional.HasData)
-            {
-              await StatusStreaming.Default.SendCountryAsync(ApiData.From(d), targetCountryOptional.Data.Id);
-              await StatusStreaming.Default.SendCharacterAsync(ApiData.From(d), townCharas.Where(tc => tc.CountryId != targetCountryOptional.Data.Id).Select(tc => tc.Id));
-            }
-            else
-            {
-              await StatusStreaming.Default.SendCharacterAsync(ApiData.From(d), townCharas.Select(tc => tc.Id));
-            }
-          }
+          var removedDefenders = await repo.Town.RemoveDefenderAsync(defender.Character.Id);
+          allRemovedDefenders.AddRange(removedDefenders);
         }
-        else
+        foreach (var d in allRemovedDefenders)
         {
-          return false;
+          d.Status = TownDefenderStatus.Losed;
+          if (targetCountryOptional.HasData)
+          {
+            await StatusStreaming.Default.SendCountryAsync(ApiData.From(d), targetCountryOptional.Data.Id);
+            await StatusStreaming.Default.SendCharacterAsync(ApiData.From(d), townCharas.Where(tc => tc.CountryId != targetCountryOptional.Data.Id).Select(tc => tc.Id));
+          }
+          else
+          {
+            await StatusStreaming.Default.SendCharacterAsync(ApiData.From(d), townCharas.Select(tc => tc.Id));
+          }
         }
       }
 
@@ -860,7 +853,7 @@ namespace SangokuKmy.Models.Services
       var towns = allTowns
         .Where(t => !singleTownCountries.Contains(t.CountryId))
         .Where(t => !aiCountries.Contains(t.CountryId))
-        .Where(t => t.Security <= 8 && t.People <= 8000)
+        .Where(t => t.Security <= 12 && t.People <= 8000)
         .Where(t => !warCountries.Contains(t.CountryId) && !townWars.Select(tt => tt.TownId).Contains(t.Id))
         .ToList();
 
