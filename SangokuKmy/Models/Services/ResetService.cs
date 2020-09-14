@@ -93,6 +93,7 @@ namespace SangokuKmy.Models.Services
           GameRuleSet.Wandering,
           GameRuleSet.BattleRoyale,
           GameRuleSet.Gyokuji,
+          GameRuleSet.Religion,
         });
       if (system.IsNextPeriodBeta)
       {
