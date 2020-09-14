@@ -1032,6 +1032,27 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPost("country/{countryId}/characters/filter")]
+    public async Task<IEnumerable<CharacterForAnonymous>> GetCountryCharactersWithSubjectAsync(
+      [FromBody] CountryCommander param)
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+
+        var targets = await CountryService.FilterCountryCharactersAsync(repo, chara.CountryId, param.Subject, param.SubjectData, param.SubjectData2);
+        var result = new List<CharacterForAnonymous>();
+        foreach (var target in targets)
+        {
+          var icon = await repo.Character.GetCharacterAllIconsAsync(target.Id);
+          result.Add(new CharacterForAnonymous(target, icon.GetMainOrFirst().Data, CharacterShareLevel.Anonymous));
+        }
+        return result;
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpPut("country/posts")]
     public async Task SetCountryPostAsync(
       [FromBody] CountryPost param)
@@ -1406,64 +1427,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
-        var charas = await repo.Country.GetCharactersAsync(chara.CountryId);
-        IEnumerable<Character> targets = null;
-        if (param.Subject == CountryCommanderSubject.All)
-        {
-          targets = charas;
-        }
-        if (param.Subject == CountryCommanderSubject.Attribute)
-        {
-          targets = charas.Where(c => c.GetCharacterType() == (CharacterType)param.SubjectData);
-        }
-        if (param.Subject == CountryCommanderSubject.From)
-        {
-          var from = (CharacterFrom)param.SubjectData;
-          if (from == CharacterFrom.Confucianism || from == CharacterFrom.Taoism || from == CharacterFrom.Buddhism)
-          {
-            targets = charas.Where(c => c.From == CharacterFrom.Confucianism || c.From == CharacterFrom.Taoism || c.From == CharacterFrom.Buddhism);
-          }
-          else
-          {
-            targets = charas.Where(c => c.From == from);
-          }
-        }
-        if (param.Subject == CountryCommanderSubject.Private)
-        {
-          targets = charas.Where(c => c.Id == param.SubjectData);
-        }
-        if (param.Subject == CountryCommanderSubject.ExceptForReinforcements ||
-          param.Subject == CountryCommanderSubject.ContainsMyReinforcements ||
-          param.Subject == CountryCommanderSubject.OriginalCountryCharacters)
-        {
-          targets = Enumerable.Empty<Character>();
-          if (param.Subject == CountryCommanderSubject.ExceptForReinforcements ||
-            param.Subject == CountryCommanderSubject.OriginalCountryCharacters)
-          {
-            var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(chara.CountryId))
-              .Where(r => r.RequestedCountryId == chara.CountryId);
-            targets = targets.Concat(charas.Where(c => !reinforcements.Any(r => r.CharacterId == c.Id)));
-          }
-          if (param.Subject == CountryCommanderSubject.ContainsMyReinforcements ||
-            param.Subject == CountryCommanderSubject.OriginalCountryCharacters)
-          {
-            var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(chara.CountryId))
-              .Where(r => r.CharacterCountryId == chara.CountryId);
-            foreach (var cid in reinforcements.Select(r => r.CharacterId))
-            {
-              var character = await repo.Character.GetByIdAsync(cid);
-              if (character.HasData)
-              {
-                targets = targets.Append(character.Data);
-              }
-            }
-          }
-        }
-        if (param.Subject == CountryCommanderSubject.Post)
-        {
-          var posts = await repo.Country.GetPostsAsync(chara.CountryId);
-          targets = charas.Join(posts.Where(p => p.Type == (CountryPostType)param.SubjectData), c => c.Id, p => p.CharacterId, (c, p) => c);
-        }
+        var targets = await CountryService.FilterCountryCharactersAsync(repo, chara.CountryId, param.Subject, param.SubjectData, param.SubjectData2);
 
         foreach (var target in targets.Where(t => t.Id != chara.Id))
         {

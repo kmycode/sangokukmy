@@ -290,6 +290,70 @@ namespace SangokuKmy.Models.Services
       }
     }
 
+    public static async Task<IReadOnlyList<Character>> FilterCountryCharactersAsync(MainRepository repo, uint countryId, CountryCommanderSubject subject, uint subjectData, uint subjectData2)
+    {
+      var charas = await repo.Country.GetCharactersAsync(countryId);
+      IEnumerable<Character> targets = Enumerable.Empty<Character>();
+      if (subject == CountryCommanderSubject.All)
+      {
+        targets = charas;
+      }
+      if (subject == CountryCommanderSubject.Attribute)
+      {
+        targets = charas.Where(c => c.GetCharacterType() == (CharacterType)subjectData);
+      }
+      if (subject == CountryCommanderSubject.From)
+      {
+        var from = (CharacterFrom)subjectData;
+        if (from == CharacterFrom.Confucianism || from == CharacterFrom.Taoism || from == CharacterFrom.Buddhism)
+        {
+          targets = charas.Where(c => c.From == CharacterFrom.Confucianism || c.From == CharacterFrom.Taoism || c.From == CharacterFrom.Buddhism);
+        }
+        else
+        {
+          targets = charas.Where(c => c.From == from);
+        }
+      }
+      if (subject == CountryCommanderSubject.Private)
+      {
+        targets = charas.Where(c => c.Id == subjectData);
+      }
+      if (subject == CountryCommanderSubject.ExceptForReinforcements ||
+        subject == CountryCommanderSubject.ContainsMyReinforcements ||
+        subject == CountryCommanderSubject.OriginalCountryCharacters)
+      {
+        targets = Enumerable.Empty<Character>();
+        if (subject == CountryCommanderSubject.ExceptForReinforcements ||
+          subject == CountryCommanderSubject.OriginalCountryCharacters)
+        {
+          var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(countryId))
+            .Where(r => r.RequestedCountryId == countryId);
+          targets = targets.Concat(charas.Where(c => !reinforcements.Any(r => r.CharacterId == c.Id)));
+        }
+        if (subject == CountryCommanderSubject.ContainsMyReinforcements ||
+          subject == CountryCommanderSubject.OriginalCountryCharacters)
+        {
+          var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(countryId))
+            .Where(r => r.CharacterCountryId == countryId);
+          foreach (var cid in reinforcements.Select(r => r.CharacterId))
+          {
+            var character = await repo.Character.GetByIdAsync(cid);
+            if (character.HasData)
+            {
+              targets = targets.Append(character.Data);
+            }
+          }
+        }
+      }
+      if (subject == CountryCommanderSubject.Post)
+      {
+        var posts = await repo.Country.GetPostsAsync(countryId);
+        targets = charas.Join(posts.Where(p => p.Type == (CountryPostType)subjectData), c => c.Id, p => p.CharacterId, (c, p) => c);
+      }
+
+      return targets.ToArray();
+    }
+
     public static int GetSecretaryMax(IEnumerable<CountryPolicyType> policies)
     {
       return policies.GetSumOfValues(CountryPolicyEffectType.Secretary);
