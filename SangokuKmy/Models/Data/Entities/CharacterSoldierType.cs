@@ -725,6 +725,41 @@ namespace SangokuKmy.Models.Data.Entities
         Technology = 700,
         CanConscriptWithoutSkill = false,
       },
+      
+      // ----------------------------------------------------------
+      
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.LightApostle,
+        Name = "使徒見習い",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 3,
+          BaseDefend = 3,
+          TypeInfantry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 10,
+        Technology = 300,
+        Kind = SoldierKind.Religion,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Apostle,
+        Name = "使徒",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 6,
+          BaseDefend = 4,
+          TypeInfantry = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 15,
+        Technology = 500,
+        Kind = SoldierKind.Religion,
+      },
 
       // ----------------------------------------------------------
 

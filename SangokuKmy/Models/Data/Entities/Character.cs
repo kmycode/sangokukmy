@@ -790,6 +790,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// </summary>
     LongArcher = 45,
 
+    /// <summary>
+    /// 使徒
+    /// </summary>
+    Apostle = 46,
+
+    /// <summary>
+    /// 使徒見習い
+    /// </summary>
+    LightApostle = 47,
+
     Guard_Step1 = 100,
 
     Guard_Step2 = 101,
