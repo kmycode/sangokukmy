@@ -51,19 +51,33 @@ namespace SangokuKmy.Models.Services
           await StatusStreaming.Default.SendCountryAsync(commands.Select(c => ApiData.From(c)), newId);
         }
 
+        // 手紙や指令の既読
+        var read = await repo.ChatMessage.GetReadByCharacterIdAsync(chara.Id);
+        read.LastAllCommanderId = read.LastAttributeCommanderId = read.LastCountryChatMessageId =
+          read.LastFromCommanderId = read.LastPrivateCommanderId = 0;
+
+        // すべの指令をリセット
+        var oldCommanders = await repo.Country.GetCommandersAsync(chara.CountryId);
+        await StatusStreaming.Default.SendCharacterAsync(oldCommanders.Select(c =>
+          ApiData.From(new CountryCommander
+          {
+            Id = c.Id,
+            Subject = c.Subject,
+            SubjectData = c.SubjectData,
+            SubjectData2 = c.SubjectData2,
+            CountryId = c.CountryId,
+            Message = string.Empty,
+          })
+        ), chara.Id);
+
         chara.CountryId = newId;
       }
 
       StatusStreaming.Default.UpdateCache(charas);
 
       // 指令
-      var commanders = (await repo.Country.GetMessageAsync(newId, CountryMessageType.Commanders)).Data ?? new CountryMessage
-      {
-        Type = CountryMessageType.Commanders,
-        Message = string.Empty,
-        CountryId = newId,
-      };
-      await StatusStreaming.Default.SendCharacterAsync(ApiData.From(commanders), charas.Select(c => c.Id));
+      var commanders = await repo.Country.GetCommandersAsync(newId);
+      await StatusStreaming.Default.SendCharacterAsync(commanders.Select(c => ApiData.From(c)), charas.Select(c => c.Id));
 
       // 古い国のデータ、新しい国のデータ
       var country = await repo.Country.GetByIdAsync(newId);
