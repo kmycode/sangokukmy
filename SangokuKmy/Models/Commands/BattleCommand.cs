@@ -240,10 +240,10 @@ namespace SangokuKmy.Models.Commands
 
       if (log.IsSameReligion)
       {
-        targetDefenceCorrection -= 15;
+        targetDefenceCorrection -= 30;
         if (system.RuleSet == GameRuleSet.Religion)
         {
-          targetDefenceCorrection -= 15;
+          targetDefenceCorrection -= 20;
         }
       }
 

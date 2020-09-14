@@ -52,17 +52,22 @@ namespace SangokuKmy.Models.Services
       var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(country.Id, town.CountryId);
       if (alliance.HasData && (alliance.Data.Status == CountryAllianceStatus.Available || alliance.Data.Status == CountryAllianceStatus.InBreaking))
       {
-        cost *= 2;
+        cost *= 0.8f;
       }
 
+      var system = await repo.System.GetAsync();
       if (town.Religion != ReligionType.Any && town.Religion != ReligionType.None && country.Religion == town.Religion &&
         country.Religion != countryOptional.Data?.Religion)
       {
         cost *= 0.82f;
+        if (system.RuleSet == GameRuleSet.Religion)
+        {
+          cost *= 0.9f;
+        }
       }
       if (town.Religion == countryOptional.Data?.Religion)
       {
-        cost *= 1.11f;
+        cost *= 1.08f;
       }
 
       return (int)cost;
