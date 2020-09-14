@@ -327,14 +327,14 @@ namespace SangokuKmy.Models.Services
           subject == CountryCommanderSubject.OriginalCountryCharacters)
         {
           var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(countryId))
-            .Where(r => r.RequestedCountryId == countryId);
+            .Where(r => r.Status == ReinforcementStatus.Active && r.RequestedCountryId == countryId);
           targets = targets.Concat(charas.Where(c => !reinforcements.Any(r => r.CharacterId == c.Id)));
         }
         if (subject == CountryCommanderSubject.ContainsMyReinforcements ||
           subject == CountryCommanderSubject.OriginalCountryCharacters)
         {
           var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(countryId))
-            .Where(r => r.CharacterCountryId == countryId);
+            .Where(r => r.Status == ReinforcementStatus.Active && r.CharacterCountryId == countryId);
           foreach (var cid in reinforcements.Select(r => r.CharacterId))
           {
             var character = await repo.Character.GetByIdAsync(cid);
