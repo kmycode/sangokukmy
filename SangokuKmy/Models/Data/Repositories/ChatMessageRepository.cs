@@ -138,10 +138,14 @@ namespace SangokuKmy.Models.Data.Repositories
           .Where(m => m.Id < sinceId)
           .OrderByDescending(m => m.Id)
           .Take(count)
-          .Join(this.container.Context.Characters,
+          .GroupJoin(this.container.Context.Reinforcements.Where(r => r.Status == ReinforcementStatus.Active),
                 m => m.CharacterId,
+                r => r.CharacterId,
+                (m, rs) => new { Message = m, Reinforcements = rs, })
+          .Join(this.container.Context.Characters,
+                m => m.Message.CharacterId,
                 c => c.Id,
-                (m, c) => new { Message = m, Character = new CharacterChatData(c), })
+                (m, c) => new { m.Message, Character = new CharacterChatData(c, m.Reinforcements.FirstOrDefault()), })
           .Join(this.container.Context.CharacterIcons,
                 m => m.Message.CharacterIconId,
                 i => i.Id,

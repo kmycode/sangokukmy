@@ -345,7 +345,7 @@ namespace SangokuKmy.Controllers
             Message = $"<character>{chara.Name}</character> は <country>{senderCountry.Name}</country> に仕官しました",
           };
 
-          old.Character = new CharacterChatData(sender);
+          old.Character = new CharacterChatData(sender, null);
           old.ReceiverName = chara.Name;
           old.Type = message.Type;
           newCharacter = chara;
@@ -369,7 +369,7 @@ namespace SangokuKmy.Controllers
             Message = $"<character>{chara.Name}</character> は、あなたの登用を断りました",
           };
 
-          old.Character = new CharacterChatData(sender);
+          old.Character = new CharacterChatData(sender, null);
           old.ReceiverName = chara.Name;
           old.Type = message.Type;
         }

@@ -27,11 +27,18 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("isBeginner")]
     public bool IsBeginner { get; set; }
 
-    public CharacterChatData(Character character)
+    /// <summary>
+    /// 援軍情報
+    /// </summary>
+    [JsonProperty("reinforcement")]
+    public Reinforcement Reinforcement { get; set; }
+
+    public CharacterChatData(Character character, Reinforcement reinforcement)
     {
       this.Id = character.Id;
       this.Name = character.Name;
       this.IsBeginner = character.IsBeginner;
+      this.Reinforcement = reinforcement;
     }
   }
 }

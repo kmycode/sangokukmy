@@ -24,10 +24,12 @@ namespace SangokuKmy.Models.Services
     {
       ChatMessage message;
 
+      var reinforcement = await repo.Reinforcement.GetByCharacterIdAsync(chara.Id);
+
       message = new ChatMessage
       {
         CharacterId = chara.Id,
-        Character = new CharacterChatData(chara),
+        Character = new CharacterChatData(chara, reinforcement.FirstOrDefault(r => r.Status == ReinforcementStatus.Active)),
         CharacterCountryId = chara.CountryId,
         Posted = DateTime.Now,
         Message = param.Message.TrimEnd(),
