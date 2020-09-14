@@ -1072,12 +1072,18 @@ namespace SangokuKmy.Controllers
         {
           // 複数人に任命できない役職は削除
           post2 = posts.FirstOrDefault(p => p.Type == post.Type);
-          post2.IsUnAppointed = true;
-          repo.Country.RemoveCharacterPost(post2);
+          if (post2 != null)
+          {
+            post2.IsUnAppointed = true;
+            repo.Country.RemoveCharacterPost(post2);
+          }
         }
         if (post.Type == CountryPostType.UnAppointed)
         {
-          repo.Country.RemoveCharacterPosts(post.CharacterId);
+          foreach (var p in posts.Where(p => p.CharacterId == target.Id && !p.Type.IsRoleGroup()))
+          {
+            repo.Country.RemoveCharacterPost(p);
+          }
           post.IsUnAppointed = true;
         }
         else if (targetPosts.Any(p => p.Type == post.Type))
