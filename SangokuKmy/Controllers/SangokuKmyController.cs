@@ -1453,6 +1453,11 @@ namespace SangokuKmy.Controllers
             }
           }
         }
+        if (param.Subject == CountryCommanderSubject.Post)
+        {
+          var posts = await repo.Country.GetPostsAsync(chara.CountryId);
+          targets = charas.Join(posts.Where(p => p.Type == (CountryPostType)param.SubjectData), c => c.Id, p => p.CharacterId, (c, p) => c);
+        }
 
         foreach (var target in targets.Where(t => t.Id != chara.Id))
         {

@@ -138,6 +138,16 @@ namespace SangokuKmy.Models.Data.Entities
     /// 司令官
     /// </summary>
     Commander = 14,
+
+    RoleGroup_1 = 15,
+    RoleGroup_2 = 16,
+    RoleGroup_3 = 17,
+    RoleGroup_4 = 18,
+    RoleGroup_5 = 19,
+    RoleGroup_6 = 20,
+    RoleGroup_7 = 21,
+    RoleGroup_8 = 22,
+    RoleGroup_9 = 23,
   }
 
   public static class CountryPostExtentions
@@ -154,7 +164,12 @@ namespace SangokuKmy.Models.Data.Entities
     public static bool CanMultiple(this CountryPostType type)
     {
       return type == CountryPostType.Builder || type == CountryPostType.Diplomat || type == CountryPostType.PolicyLeader ||
-        type == CountryPostType.Safeguard || type == CountryPostType.SecretaryLeader || type == CountryPostType.Warrior || type == CountryPostType.Commander;
+        type == CountryPostType.Safeguard || type == CountryPostType.SecretaryLeader || type == CountryPostType.Warrior || type == CountryPostType.Commander ||
+        type.IsRoleGroup();
+    }
+    public static bool IsRoleGroup(this CountryPostType type)
+    {
+      return (short)type >= (short)CountryPostType.RoleGroup_1 && (short)type <= (short)CountryPostType.RoleGroup_9;
     }
     public static int BattleOrder(this CountryPostType type)
     {

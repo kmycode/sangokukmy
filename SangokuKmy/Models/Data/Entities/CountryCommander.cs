@@ -117,5 +117,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// ５と６の両方
     /// </summary>
     OriginalCountryCharacters = 7,
+
+    /// <summary>
+    /// 国のポスト
+    /// </summary>
+    Post = 8,
   }
 }
