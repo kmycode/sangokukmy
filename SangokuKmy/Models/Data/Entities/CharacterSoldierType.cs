@@ -472,8 +472,9 @@ namespace SangokuKmy.Models.Data.Entities
         Data = new CharacterSoldierTypeData
         {
           CavalryDefend = 2,
-          CrossbowAttack = 2,
-          RushProbability = 200,
+          CrossbowAttack = 3,
+          CrossbowDefend = 3,
+          RushProbability = 240,
           RushAttack = 12,
           TypeCavalry = 10,
           StrongEx = 1,
@@ -600,10 +601,10 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "梓弩兵",
         Data = new CharacterSoldierTypeData
         {
-          BaseAttack = 7,
-          BaseDefend = 7,
-          InfantryAttack = 7,
-          InfantryDefend = 7,
+          BaseAttack = 9,
+          BaseDefend = 9,
+          InfantryAttack = 9,
+          InfantryDefend = 9,
           ContinuousProbability = 30,
           RushProbability = 80,
           RushAttack = 8,

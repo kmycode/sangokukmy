@@ -148,6 +148,15 @@ namespace SangokuKmy.Models.Commands
         },
         new GenerateItemInfo
         {
+          From = CharacterFrom.Tactician,
+          ItemType = CharacterItemType.GodOfMilitaryArts,
+          ResourceAttribute = c => c.Leadership,
+          AddExAttribute = c => c.AddLeadershipEx(780),
+          Length = 72,
+          Contribution = 360,
+        },
+        new GenerateItemInfo
+        {
           From = CharacterFrom.Scholar,
           ItemType = CharacterItemType.AnnotationBook,
           ResourceAttribute = c => c.Intellect,

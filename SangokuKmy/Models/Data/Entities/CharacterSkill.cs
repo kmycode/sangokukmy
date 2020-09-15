@@ -751,6 +751,7 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierCorrection,
             SoldierTypeData = new CharacterSoldierTypeData
             {
+              TypeInfantryAttack = 30,
               TypeCavalryAttack = 30,
             },
           },
@@ -987,6 +988,11 @@ namespace SangokuKmy.Models.Data.Entities
               RushProbability = 1000,
               RushAttack = 80,
             },
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.GenerateItem,
+            Value = (int)CharacterItemType.GodOfMilitaryArts,
           },
         },
       },
