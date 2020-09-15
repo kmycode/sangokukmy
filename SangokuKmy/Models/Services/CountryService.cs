@@ -189,12 +189,10 @@ namespace SangokuKmy.Models.Services
 
     public static async Task<IReadOnlyList<uint>> GetPenaltyCountriesAsync(MainRepository repo, CountryWar assumptionWar = null)
     {
-      var system = await repo.System.GetAsync();
       var reinforcements = (await repo.Reinforcement.GetAllAsync()).Where(r => r.Status == ReinforcementStatus.Active);
       var characters = (await repo.Character.GetAllAliveAsync()).Where(c => c.DeleteTurn < 200 && (c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator));
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync())
-        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
-        .Where(w => w.Status != CountryWarStatus.InReady || w.IntStartGameDate - system.IntGameDateTime > 12);
+        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None);
       if (assumptionWar != null && !wars.Any(w => w.IsJoin(assumptionWar.InsistedCountryId) && w.IsJoin(assumptionWar.RequestedCountryId)))
       {
         wars = wars.Append(assumptionWar);
