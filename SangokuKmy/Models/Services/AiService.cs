@@ -831,7 +831,7 @@ namespace SangokuKmy.Models.Services
     {
       var system = await repo.System.GetAsync();
       var reinforcements = (await repo.Reinforcement.GetAllAsync()).Where(r => r.Status == ReinforcementStatus.Active);
-      var characters = (await repo.Character.GetAllAliveAsync()).Where(c => c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator);
+      var characters = (await repo.Character.GetAllAliveAsync()).Where(c => c.DeleteTurn < 200 && (c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator));
 
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync())
         .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
@@ -842,8 +842,10 @@ namespace SangokuKmy.Models.Services
         .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
         .Distinct();
 
-      // 複数国による同時宣戦にペナルティ
-      var penaltyWarCountries = wars
+      var penaltyWarCountries = new List<uint>();
+
+      // 複数国による同時宣戦を行っている国を抽出
+      var cooperateWarCountries = wars
         .GroupBy(w => w.InsistedCountryId)
         .Where(g => g.Count() >= 2)
         .SelectMany(g => g.Select(w => w.RequestedCountryId))
@@ -855,18 +857,27 @@ namespace SangokuKmy.Models.Services
         .GroupJoin(characters, rg => rg.Key, c => c.CountryId, (rg, cs) => new { CountryId = rg.Key, Reinforcements = rg, Characters = cs, });
       foreach (var data in reinforcementsOfCountry)
       {
-        // まず敵を列挙
-        var warTargetCountries = wars
-          .Where(w => w.IsJoin(data.CountryId))
-          .Select(w => w.GetEnemy(data.CountryId))
-          .Distinct()
-          .Join(reinforcementsOfCountry, a => a, b => b.CountryId, (aa, bb) => bb);
+        IEnumerable<uint> GetEnemies(IEnumerable<uint> countryIds)
+        {
+          return wars
+            .Where(w => countryIds.Any(c => w.IsJoin(c)))
+            .SelectMany(w => new uint[] { w.InsistedCountryId, w.RequestedCountryId, })
+            .Except(countryIds)
+            .Distinct();
+        }
 
-        // 敵の敵は味方ということで、敵の敵全員（ここに自分も含まれる）
-        var mySideCountries = wars
-          .Where(w => warTargetCountries.Any(wt => w.IsJoin(wt.CountryId)))
-          .SelectMany(w => warTargetCountries.Select(wt => w.GetEnemy(wt.CountryId)))
-          .Distinct()
+        // 敵（自分が相手する国）
+        var countries1 = GetEnemies(new uint[] { data.CountryId, });
+
+        // 敵の敵（味方）
+        var countries2 = GetEnemies(countries1);
+
+        // 敵の敵の敵（味方の敵）
+        var countries3 = GetEnemies(countries2);
+
+        var warTargetCountries = countries3
+          .Join(reinforcementsOfCountry, a => a, b => b.CountryId, (aa, bb) => bb);
+        var mySideCountries = countries2
           .Join(reinforcementsOfCountry, a => a, b => b.CountryId, (aa, bb) => bb);
 
         if (warTargetCountries.Any() && mySideCountries.Any())
@@ -877,13 +888,22 @@ namespace SangokuKmy.Models.Services
           var mySideReinforcementCount = mySideCountries.Sum(c => c.Reinforcements.Count());
 
           var isPenalty = false;
+
+          // 単純な過剰援軍
           if (mySideReinforcementCount > 0 && mySideCharacterCount > warTargetsCharacterCount + 3)
           {
             isPenalty = true;
           }
+          // 複数国同時布告による事実上の過剰援軍
+          else if (cooperateWarCountries.Contains(data.CountryId) &&
+            mySideCharacterCount > warTargetsCharacterCount + 5)
+          {
+            isPenalty = true;
+          }
+
           if (isPenalty)
           {
-            penaltyWarCountries = penaltyWarCountries.Append(data.CountryId);
+            penaltyWarCountries.Add(data.CountryId);
           }
         }
       }
