@@ -521,6 +521,19 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPost("country/penalties")]
+    public async Task<IEnumerable<uint>> GetPenaltyCountries(
+      [FromBody] CountryWar assumptionWar = null)
+    {
+      using (var repo = MainRepository.WithRead())
+      {
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var countries = await CountryService.GetPenaltyCountriesAsync(repo, assumptionWar);
+        return countries;
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpPut("country/{countryId}/give/{townId}")]
     public async Task GiveTownAsync(
       [FromRoute] uint townId,
