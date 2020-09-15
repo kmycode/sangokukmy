@@ -57,6 +57,10 @@ namespace SangokuKmy.Models.Commands
       }
       var type = (CharacterAiType)typeParam.NumberValue;
 
+      var targetTownParam = options.FirstOrDefault(p => p.Type == 2);
+      var targetTownId = (uint)targetTownParam.NumberValue;
+      var targetTownOptional = await repo.Town.GetByIdAsync(targetTownId);
+
       var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
       if (!countryOptional.HasData)
       {
@@ -102,7 +106,8 @@ namespace SangokuKmy.Models.Commands
       var ai = AiCharacterFactory.Create(type);
       ai.Initialize(game.GameDateTime);
       ai.Character.CountryId = character.CountryId;
-      ai.Character.TownId = country.CapitalTownId;
+      ai.Character.TownId = (type != CharacterAiType.SecretaryUnitLeader && targetTownOptional.HasData) ?
+                            targetTownId : country.CapitalTownId;
       ai.Character.Money = 10000;
       ai.Character.Rice = 10000;
       if (type == CharacterAiType.SecretaryEvangelist)
