@@ -152,7 +152,14 @@ namespace SangokuKmy.Models.Commands
       character.Contribution += 30;
       character.AddLeadershipEx(50);
       character.SkillPoint++;
-      await game.CharacterLogAsync($"政務官 <character>{ai.Character.Name}</character> を雇いました");
+      if (targetTownOptional.HasData && type != CharacterAiType.SecretaryUnitLeader)
+      {
+        await game.CharacterLogAsync($"政務官 <character>{ai.Character.Name}</character> を <town>{targetTownOptional.Data.Name}</town> で雇いました");
+      }
+      else
+      {
+        await game.CharacterLogAsync($"政務官 <character>{ai.Character.Name}</character> を雇いました");
+      }
       await game.MapLogAsync(EventType.SecretaryAdded, $"<country>{country.Name}</country> は、新しく政務官 <character>{ai.Character.Name}</character> を雇いました", false);
       await CharacterService.StreamCharacterAsync(repo, ai.Character);
     }
