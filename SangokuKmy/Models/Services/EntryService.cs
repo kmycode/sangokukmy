@@ -218,11 +218,14 @@ namespace SangokuKmy.Models.Services
         }
 
         // 金と米を仕官先国の武将の平均にあわせる
-        var countryCharacters = (await repo.Country.GetCharactersAsync(town.CountryId)).Where(c => c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator);
-        if (countryCharacters.Any())
+        if (system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12)
         {
-          chara.Money = Math.Min((int)countryCharacters.Average(c => c.Money) + 10_0000, chara.Money);
-          chara.Rice = Math.Min((int)countryCharacters.Average(c => c.Rice) + 5_0000, chara.Rice);
+          var countryCharacters = (await repo.Country.GetCharactersAsync(town.CountryId)).Where(c => c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator);
+          if (countryCharacters.Any())
+          {
+            chara.Money = Math.Min((int)countryCharacters.Average(c => c.Money) + 10_0000, chara.Money);
+            chara.Rice = Math.Min((int)countryCharacters.Average(c => c.Rice) + 5_0000, chara.Rice);
+          }
         }
 
         chara.CountryId = town.CountryId;
