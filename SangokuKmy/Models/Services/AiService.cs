@@ -830,15 +830,66 @@ namespace SangokuKmy.Models.Services
     public static async Task<bool> CreateFarmerCountryAsync(MainRepository repo, Func<EventType, string, bool, Task> mapLogAsync)
     {
       var system = await repo.System.GetAsync();
+      var reinforcements = (await repo.Reinforcement.GetAllAsync()).Where(r => r.Status == ReinforcementStatus.Active);
+      var characters = (await repo.Character.GetAllAliveAsync()).Where(c => c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator);
 
-      var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
+      var wars = (await repo.CountryDiplomacies.GetAllWarsAsync())
+        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
+        .Where(w => w.Status != CountryWarStatus.InReady || w.IntStartGameDate - system.IntGameDateTime > 12);
       var townWars = (await repo.CountryDiplomacies.GetAllTownWarsAsync())
         .Where(t => t.Status != TownWarStatus.InReady && t.Status != TownWarStatus.Available);
       var warCountries = wars
-        .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
-        .Where(w => w.Status != CountryWarStatus.InReady || w.IntStartGameDate - system.IntGameDateTime > 12)
         .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
         .Distinct();
+
+      // 複数国による同時宣戦にペナルティ
+      var penaltyWarCountries = wars
+        .GroupBy(w => w.InsistedCountryId)
+        .Where(g => g.Count() >= 2)
+        .SelectMany(g => g.Select(w => w.RequestedCountryId))
+        .Distinct();
+
+      // 過剰援軍にペナルティ
+      var reinforcementsOfCountry = reinforcements
+        .GroupBy(r => r.RequestedCountryId)
+        .GroupJoin(characters, rg => rg.Key, c => c.CountryId, (rg, cs) => new { CountryId = rg.Key, Reinforcements = rg, Characters = cs, });
+      foreach (var data in reinforcementsOfCountry)
+      {
+        // まず敵を列挙
+        var warTargetCountries = wars
+          .Where(w => w.IsJoin(data.CountryId))
+          .Select(w => w.GetEnemy(data.CountryId))
+          .Distinct()
+          .Join(reinforcementsOfCountry, a => a, b => b.CountryId, (aa, bb) => bb);
+
+        // 敵の敵は味方ということで、敵の敵全員（ここに自分も含まれる）
+        var mySideCountries = wars
+          .Where(w => warTargetCountries.Any(wt => w.IsJoin(wt.CountryId)))
+          .SelectMany(w => warTargetCountries.Select(wt => w.GetEnemy(wt.CountryId)))
+          .Distinct()
+          .Join(reinforcementsOfCountry, a => a, b => b.CountryId, (aa, bb) => bb);
+
+        if (warTargetCountries.Any() && mySideCountries.Any())
+        {
+          var warTargetsCharacterCount = warTargetCountries.Sum(c => c.Characters.Count());
+          var warTargetsReinforcementCount = warTargetCountries.Sum(c => c.Reinforcements.Count());
+          var mySideCharacterCount = mySideCountries.Sum(c => c.Characters.Count());
+          var mySideReinforcementCount = mySideCountries.Sum(c => c.Reinforcements.Count());
+
+          var isPenalty = false;
+          if (mySideReinforcementCount > 0 && mySideCharacterCount > warTargetsCharacterCount + 3)
+          {
+            isPenalty = true;
+          }
+          if (isPenalty)
+          {
+            penaltyWarCountries = penaltyWarCountries.Append(data.CountryId);
+          }
+        }
+      }
+
+      warCountries = warCountries
+        .Except(penaltyWarCountries);
       var aiCountries = (await repo.Country.GetAllAsync())
         .Where(c => !c.HasOverthrown)
         .Where(c => c.AiType == CountryAiType.Farmers)
@@ -853,7 +904,7 @@ namespace SangokuKmy.Models.Services
       var towns = allTowns
         .Where(t => !singleTownCountries.Contains(t.CountryId))
         .Where(t => !aiCountries.Contains(t.CountryId))
-        .Where(t => t.Security <= 12 && t.People <= 8000)
+        .Where(t => (t.Security <= 12 && t.People <= 8000) || penaltyWarCountries.Contains(t.CountryId))
         .Where(t => !warCountries.Contains(t.CountryId) && !townWars.Select(tt => tt.TownId).Contains(t.Id))
         .ToList();
 

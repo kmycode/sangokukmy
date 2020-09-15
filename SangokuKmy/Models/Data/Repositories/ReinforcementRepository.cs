@@ -35,6 +35,20 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<Reinforcement>> GetAllAsync()
+    {
+      try
+      {
+        return await this.container.Context.Reinforcements
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     public async Task<IReadOnlyList<Reinforcement>> GetByCharacterIdAsync(uint characterId)
     {
       try
