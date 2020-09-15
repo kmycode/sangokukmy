@@ -61,6 +61,52 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<(Character Character, CharacterIcon Icon)>> GetAllAliveWithIconAndRankingAsync()
+    {
+      try
+      {
+        var charaData = await this.container.Context.Characters
+          .Where(c => !c.HasRemoved)
+          .GroupJoin(this.container.Context.CharacterIcons, c => c.Id, i => i.CharacterId, (c, ics) => new { Character = c, Icons = ics, })
+          .GroupJoin(this.container.Context.CharacterRanking, c => c.Character.Id, r => r.CharacterId, (c, rs) => new { c.Character, c.Icons, Rankings = rs, })
+          .ToArrayAsync();
+        return charaData.Select(d =>
+        {
+          d.Character.Ranking = d.Rankings.FirstOrDefault() ?? new CharacterRanking();
+          return (d.Character, d.Icons.GetMainOrFirst().Data);
+        }).ToArray();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    public async Task<CharacterRanking> GetCharacterRankingAsync(uint charaId)
+    {
+      try
+      {
+        var old = await this.container.Context.CharacterRanking.FirstOrDefaultAsync(r => r.CharacterId == charaId);
+        if (old != null)
+        {
+          return old;
+        }
+
+        var obj = new CharacterRanking
+        {
+          CharacterId = charaId,
+        };
+        await this.container.Context.CharacterRanking.AddAsync(obj);
+        return obj;
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     /// <summary>
     /// 武将のキャッシュを取得する
     /// </summary>

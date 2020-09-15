@@ -193,11 +193,11 @@ namespace SangokuKmy.Models.Data.Entities
         Money = chara.Money,
         Rice = chara.Rice,
         Class = chara.Class,
-        BattleWonCount = chara.BattleWonCount,
-        BattleLostCount = chara.BattleLostCount,
-        BattleBrokeWallSize = chara.BattleBrokeWallSize,
-        BattleDominateCount = chara.BattleDominateCount,
-        BattleContinuousCount = chara.BattleContinuousCount,
+        BattleWonCount = chara.Ranking?.BattleWonCount ?? 0,
+        BattleLostCount = chara.Ranking?.BattleLostCount ?? 0,
+        BattleBrokeWallSize = chara.Ranking?.BattleBrokeWallSize ?? 0,
+        BattleDominateCount = chara.Ranking?.BattleDominateCount ?? 0,
+        BattleContinuousCount = chara.Ranking?.BattleContinuousCount ?? 0,
       };
     }
   }

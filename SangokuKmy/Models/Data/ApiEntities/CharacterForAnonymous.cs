@@ -97,32 +97,11 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("isBeginner")]
     public bool IsBeginner { get; set; }
 
-    [JsonProperty("battleWonCount")]
-    public int BattleWonCount { get; set; }
-
-    [JsonProperty("battleLostCount")]
-    public int BattleLostCount { get; set; }
-
-    [JsonProperty("battleBrokeWallSize")]
-    public int BattleBrokeWallSize { get; set; }
-
-    [JsonProperty("battleDominateCount")]
-    public int BattleDominateCount { get; set; }
-
-    [JsonProperty("battleContinuousCount")]
-    public int BattleContinuousCount { get; set; }
-
-    [JsonProperty("battleSchemeCount")]
-    public int BattleSchemeCount { get; set; }
-
-    [JsonProperty("battleKilledCount")]
-    public int BattleKilledCount { get; set; }
-
-    [JsonProperty("battleBeingKilledCount")]
-    public int BattleBeingKilledCount { get; set; }
-
     [JsonProperty("commands")]
     public IEnumerable<CharacterCommand> Commands { get; set; }
+
+    [JsonProperty("ranking")]
+    public CharacterRanking Ranking { get; set; }
 
     public CharacterForAnonymous(Character character, CharacterIcon mainIcon, CharacterShareLevel level)
       : this(character, mainIcon, null, null, level)
@@ -188,14 +167,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
         this.DeleteTurn = character.DeleteTurn;
         this.Class = character.Class;
         this.Message = character.Message;
-        this.BattleBrokeWallSize = character.BattleBrokeWallSize;
-        this.BattleContinuousCount = character.BattleContinuousCount;
-        this.BattleDominateCount = character.BattleDominateCount;
-        this.BattleLostCount = character.BattleLostCount;
-        this.BattleWonCount = character.BattleWonCount;
-        this.BattleSchemeCount = character.BattleSchemeCount;
-        this.BattleKilledCount = character.BattleKilledCount;
-        this.BattleBeingKilledCount = character.BattleBeingKilledCount;
+        this.Ranking = character.Ranking;
       }
     }
   }

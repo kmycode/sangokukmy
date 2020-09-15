@@ -181,7 +181,7 @@ namespace SangokuKmy.Models.Services
       await repo.SaveChangesAsync();
       
       var countries = await repo.Country.GetAllAsync();
-      var characters = await repo.Character.GetAllAliveWithIconAsync();
+      var characters = await repo.Character.GetAllAliveWithIconAndRankingAsync();
       var maplogs = await repo.MapLog.GetAllImportantsAsync();
       var towns = await repo.Town.GetAllAsync();
 

@@ -48,6 +48,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<CharacterIcon> CharacterIcons { get; set; }
 
     /// <summary>
+    /// 武将のランキングデータ
+    /// </summary>
+    public DbSet<CharacterRanking> CharacterRanking { get; set; }
+
+    /// <summary>
     /// 武将のコマンド
     /// </summary>
     public DbSet<CharacterCommand> CharacterCommands { get; set; }

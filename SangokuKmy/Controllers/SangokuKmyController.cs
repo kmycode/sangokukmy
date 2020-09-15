@@ -881,7 +881,7 @@ namespace SangokuKmy.Controllers
       IEnumerable<CharacterForAnonymous> charas;
       using (var repo = MainRepository.WithRead())
       {
-        charas = (await repo.Character.GetAllAliveWithIconAsync())
+        charas = (await repo.Character.GetAllAliveWithIconAndRankingAsync())
           .Select(c => new CharacterForAnonymous(c.Character, c.Icon, CharacterShareLevel.AllCharacterList));
       }
       return ApiData.From(charas);
