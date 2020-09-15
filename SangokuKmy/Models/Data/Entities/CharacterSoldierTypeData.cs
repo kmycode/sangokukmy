@@ -297,9 +297,9 @@ namespace SangokuKmy.Models.Data.Entities
       }
     }
 
-    public float CalcRushAttack(CharacterSoldierTypeData enemyType)
+    public float CalcRushAttack(CharacterSoldierTypeData enemyType, Character enemy)
     {
-      return Math.Max(this.RushAttack - enemyType.RushDefend, 0) / 8.0f;
+      return Math.Max(this.RushAttack - (enemyType.RushDefend + enemy.Proficiency * 0.2f), 0) / 8.0f;
     }
   }
 
