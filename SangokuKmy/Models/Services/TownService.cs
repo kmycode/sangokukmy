@@ -25,8 +25,11 @@ namespace SangokuKmy.Models.Services
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       if (wars.Any(w => w.IsJoinAvailable(town.CountryId) && w.IsJoinAvailable(country.Id)))
       {
-        // 自分の国と戦争状態にある場合
-        cost *= 3;
+        if (wars.Any(w => w.IsJoinAvailable(town.CountryId) && w.IsJoinAvailable(country.Id) && w.Mode == CountryWarMode.Battle))
+        {
+          // 自分の国と戦争状態にある場合
+          cost *= 3;
+        }
       }
       else if (wars.Any(w => w.IsJoin(town.CountryId) && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available || (w.Status == CountryWarStatus.StopRequesting && w.RequestedStopCountryId != town.CountryId))))
       {
