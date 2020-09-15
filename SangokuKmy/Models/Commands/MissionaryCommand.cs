@@ -76,7 +76,7 @@ namespace SangokuKmy.Models.Commands
 
         if (character.Religion == religion)
         {
-          add = (int)(add * 1.3f);
+          add = (int)(add * 1.4f);
         }
 
         if (town.Religion == ReligionType.Any)
