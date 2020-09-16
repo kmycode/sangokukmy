@@ -209,6 +209,16 @@ namespace SangokuKmy.Models.Updates
           // アイテムの再生成
           await ItemService.RegenerateItemOnTownsAsync(repo, allTowns);
 
+          // 国のペナルティ状況を更新
+          {
+            var penaltyCountries = await CountryService.GetPenaltyCountriesAsync(repo);
+            foreach (var country in allCountries)
+            {
+              country.IsWarPenalty = penaltyCountries.Contains(country.Id);
+            }
+            await repo.SaveChangesAsync();
+          }
+
           // 収入
           if (system.GameDateTime.Month == 1 || system.GameDateTime.Month == 7)
           {

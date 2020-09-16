@@ -195,9 +195,12 @@ namespace SangokuKmy.Models.Services
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync())
         .Where(w => !countries.Any(c => c.Id == w.RequestedCountryId && c.AiType == CountryAiType.Farmers))
         .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None);
-      if (assumptionWar != null && !wars.Any(w => w.IsJoin(assumptionWar.InsistedCountryId) && w.IsJoin(assumptionWar.RequestedCountryId)))
+      if (assumptionWar != null)
       {
-        wars = wars.Append(assumptionWar);
+        wars = wars
+          .Where(w => !(w.IsJoin(assumptionWar.InsistedCountryId) && w.IsJoin(assumptionWar.RequestedCountryId)))
+          .Append(assumptionWar)
+          .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None);
       }
 
       var penaltyWarCountries = new List<uint>();

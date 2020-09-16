@@ -832,6 +832,7 @@ namespace SangokuKmy.Models.Services
       var system = await repo.System.GetAsync();
       var reinforcements = (await repo.Reinforcement.GetAllAsync()).Where(r => r.Status == ReinforcementStatus.Active);
       var characters = (await repo.Character.GetAllAliveAsync()).Where(c => c.DeleteTurn < 200 && (c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator));
+      var countries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown);
 
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync())
         .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
@@ -842,7 +843,7 @@ namespace SangokuKmy.Models.Services
         .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
         .Distinct();
 
-      var penaltyWarCountries = await CountryService.GetPenaltyCountriesAsync(repo);
+      var penaltyWarCountries = countries.Where(c => c.IsWarPenalty).Select(c => c.Id);
 
       warCountries = warCountries
         .Except(penaltyWarCountries);

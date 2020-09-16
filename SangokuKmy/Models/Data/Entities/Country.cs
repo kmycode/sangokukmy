@@ -197,6 +197,13 @@ namespace SangokuKmy.Models.Data.Entities
       get => (short)this.Religion;
       set => this.Religion = (ReligionType)value;
     }
+
+    /// <summary>
+    /// 戦争のペナルティを受けている状態であるか
+    /// </summary>
+    [Column("is_war_penalty")]
+    [JsonProperty("isWarPenalty")]
+    public bool IsWarPenalty { get; set; }
   }
 
   public enum CountryAiType : short
