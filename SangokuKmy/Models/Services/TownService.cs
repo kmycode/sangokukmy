@@ -52,12 +52,6 @@ namespace SangokuKmy.Models.Services
         }
       }
 
-      var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(country.Id, town.CountryId);
-      if (alliance.HasData && (alliance.Data.Status == CountryAllianceStatus.Available || alliance.Data.Status == CountryAllianceStatus.InBreaking))
-      {
-        cost *= 0.8f;
-      }
-
       var system = await repo.System.GetAsync();
       if (town.Religion != ReligionType.Any && town.Religion != ReligionType.None && country.Religion == town.Religion &&
         country.Religion != countryOptional.Data?.Religion)

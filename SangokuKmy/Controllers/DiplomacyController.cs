@@ -128,7 +128,6 @@ namespace SangokuKmy.Controllers
             param.BreakingDelay = o.BreakingDelay;
             param.IsPublic = o.IsPublic;
             param.CanMissionary = o.CanMissionary;
-            param.CanBuyTown = o.CanBuyTown;
             param.Memo = o.Memo;
           }
           else if (param.Status == CountryAllianceStatus.Changed)
@@ -136,7 +135,6 @@ namespace SangokuKmy.Controllers
             param.BreakingDelay = changeTo.Data.BreakingDelay;
             param.IsPublic = changeTo.Data.IsPublic;
             param.CanMissionary = o.CanMissionary;
-            param.CanBuyTown = o.CanBuyTown;
             param.Memo = changeTo.Data.Memo;
           }
         }
@@ -167,7 +165,6 @@ namespace SangokuKmy.Controllers
           BreakingDelay = param.BreakingDelay,
           IsPublic = param.IsPublic,
           CanMissionary = param.CanMissionary,
-          CanBuyTown = param.CanBuyTown,
           Memo = param.Memo,
           Status = param.Status == CountryAllianceStatus.Changed ? CountryAllianceStatus.Available : param.Status,
         };
@@ -639,12 +636,6 @@ namespace SangokuKmy.Controllers
         if (chara.CountryId != town.CountryId)
         {
           ErrorCode.NotPermissionError.Throw();
-        }
-
-        var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(chara.CountryId, town.CountryId);
-        if (alliance.HasData && !alliance.Data.CanBuyTown)
-        {
-          ErrorCode.InvalidOperationError.Throw();
         }
 
         country.PolicyPoint -= 1000;
