@@ -191,7 +191,9 @@ namespace SangokuKmy.Models.Services
     {
       var reinforcements = (await repo.Reinforcement.GetAllAsync()).Where(r => r.Status == ReinforcementStatus.Active);
       var characters = (await repo.Character.GetAllAliveAsync()).Where(c => c.DeleteTurn < 200 && (c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator));
+      var countries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown);
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync())
+        .Where(w => !countries.Any(c => c.Id == w.RequestedCountryId && c.AiType == CountryAiType.Farmers))
         .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None);
       if (assumptionWar != null && !wars.Any(w => w.IsJoin(assumptionWar.InsistedCountryId) && w.IsJoin(assumptionWar.RequestedCountryId)))
       {
