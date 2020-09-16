@@ -1534,15 +1534,15 @@ namespace SangokuKmy.Models.Updates
           {
             var religionOfTown = allTowns.GroupBy(t => t.Religion);
             var religionOfCountry = allCountries.Where(c => !c.HasOverthrown && c.Religion != ReligionType.Any && c.Religion != ReligionType.None).GroupBy(c => c.Religion);
-            if (allTowns.All(t => t.Religion != ReligionType.Any) && religionOfTown.Count() > 1 && religionOfCountry.Count() == 1)
+            if (allTowns.All(t => t.Religion != ReligionType.Any) && religionOfTown.Any() && religionOfCountry.Any())
             {
-              var religionGroup = religionOfTown.OrderBy(t => t.Count()).First();
+              var religionGroup = religionOfTown.OrderByDescending(t => t.Count()).First();
               var religion = religionGroup.Key;
-              if ((religion != ReligionType.Any && religion != ReligionType.None && religionGroup.Count() >= allTowns.Count / 4 * 3) &&
+              if ((religion != ReligionType.Any && religion != ReligionType.None && religionGroup.Count() >= allTowns.Count * 3 / 4) &&
                 (system.RuleSet != GameRuleSet.Wandering || system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12))
               {
-                var countryGroup = religionOfCountry.First();
-                if (countryGroup.Count() == 1 && countryGroup.Key == religion)
+                var countryGroup = religionOfCountry.FirstOrDefault(c => c.Key == religion);
+                if (countryGroup?.Count() == 1)
                 {
                   var winner = countryGroup.First();
                   await AddMapLogAsync(true, EventType.ReligionWin, $"<country>{winner.Name}</country> が大半の都市の宗教を掌握して勝利しました");
