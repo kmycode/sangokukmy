@@ -111,7 +111,7 @@ namespace SangokuKmy.Models.Commands
         }
         character.SkillPoint++;
         character.Money -= 100;
-        await game.CharacterLogAsync($"<town>{town.Name}</town> の {religionName.Substring(0, religionName.Length - 1)}信仰 を <num>-{add}</num> 弾圧し、{religion.GetString()} を <num>+{add * 2}</num> 布教しました");
+        await game.CharacterLogAsync($"<town>{town.Name}</town> の {religionName.Substring(0, religionName.Length - 1)}信仰 を <num>-{add}</num> 弾圧し、{religion.GetString()} を <num>+{add}</num> 布教しました");
 
         if (town.Religion != oldReligion)
         {
