@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
 using SangokuKmy.Models.Data.Entities;
@@ -150,6 +151,12 @@ namespace SangokuKmy.Models.Commands
 
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
+      var system = await repo.System.GetAsync();
+      if (system.RuleSet == GameRuleSet.SimpleBattle)
+      {
+        ErrorCode.RuleSetError.Throw();
+      }
+
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates);
     }
   }
