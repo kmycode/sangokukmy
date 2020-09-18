@@ -1453,7 +1453,7 @@ namespace SangokuKmy.Models.Data.Entities
         IsResourceItem = true,
         ResourceLevel = 1,
         MoneyPerResource = 10000,
-        InitializeNumber = 4,
+        InitializeNumber = 10,
         DefaultResource = 10,
         RareType = CharacterItemRareType.TownOnSaleOrHidden,
       },
