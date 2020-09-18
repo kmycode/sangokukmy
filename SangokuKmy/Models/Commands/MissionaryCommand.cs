@@ -121,6 +121,9 @@ namespace SangokuKmy.Models.Commands
         character.Money -= 50;
         await game.CharacterLogAsync($"<town>{town.Name}</town> の {religionName}信仰 を <num>+" + add + "</num> 上げました");
 
+        var ranking = await repo.Character.GetCharacterRankingAsync(character.Id);
+        ranking.MissionaryCount += add;
+
         if (town.Religion != oldReligion)
         {
           if (oldReligion == ReligionType.Any || oldReligion == ReligionType.None)
@@ -131,6 +134,7 @@ namespace SangokuKmy.Models.Commands
           {
             await game.MapLogAsync(EventType.ChangeReligion, $"<town>{town.Name}</town> は {oldReligion.GetString()} から {religionName} に改宗しました", false);
           }
+          ranking.MissionaryChangeReligionCount++;
           await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
         }
 

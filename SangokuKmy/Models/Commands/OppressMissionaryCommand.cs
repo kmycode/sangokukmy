@@ -85,15 +85,15 @@ namespace SangokuKmy.Models.Commands
         }
         if (religion == ReligionType.Confucianism)
         {
-          town.Confucianism += add;
+          town.Confucianism += add * 2;
         }
         if (religion == ReligionType.Buddhism)
         {
-          town.Buddhism += add;
+          town.Buddhism += add * 2;
         }
         if (religion == ReligionType.Taoism)
         {
-          town.Taoism += add;
+          town.Taoism += add * 2;
         }
 
         // 経験値、金の増減
@@ -111,7 +111,10 @@ namespace SangokuKmy.Models.Commands
         }
         character.SkillPoint++;
         character.Money -= 100;
-        await game.CharacterLogAsync($"<town>{town.Name}</town> の {religionName.Substring(0, religionName.Length - 1)}信仰 を <num>-{add}</num> 弾圧し、{religion.GetString()} を <num>+{add}</num> 布教しました");
+        await game.CharacterLogAsync($"<town>{town.Name}</town> の {religionName.Substring(0, religionName.Length - 1)}信仰 を <num>-{add}</num> 弾圧し、{religion.GetString()} を <num>+{add * 2}</num> 布教しました");
+
+        var ranking = await repo.Character.GetCharacterRankingAsync(character.Id);
+        ranking.MissionaryCount += add * 2;
 
         if (town.Religion != oldReligion)
         {
@@ -123,6 +126,7 @@ namespace SangokuKmy.Models.Commands
           {
             var newReligionName = town.Religion.GetString();
             await game.MapLogAsync(EventType.ChangeReligion, $"<town>{town.Name}</town> は {oldReligion.GetString()} から {newReligionName} に改宗しました", false);
+            ranking.MissionaryChangeReligionCount++;
           }
           await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
         }
