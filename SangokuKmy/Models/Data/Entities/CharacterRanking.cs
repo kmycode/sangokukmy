@@ -70,5 +70,19 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("battle_being_killed_count")]
     [JsonProperty("battleBeingKilledCount")]
     public int BattleBeingKilledCount { get; set; }
+
+    /// <summary>
+    /// 布教した数
+    /// </summary>
+    [Column("missionary_count")]
+    [JsonProperty("missionaryCount")]
+    public int MissionaryCount { get; set; }
+
+    /// <summary>
+    /// 改宗させた数
+    /// </summary>
+    [Column("missionary_change_religion_count")]
+    [JsonProperty("missionaryChangeReligionCount")]
+    public int MissionaryChangeReligionCount { get; set; }
   }
 }

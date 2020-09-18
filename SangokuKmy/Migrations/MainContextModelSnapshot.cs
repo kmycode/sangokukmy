@@ -629,6 +629,12 @@ namespace SangokuKmy.Migrations
                     b.Property<uint>("CharacterId")
                         .HasColumnName("character_id");
 
+                    b.Property<int>("MissionaryChangeReligionCount")
+                        .HasColumnName("missionary_change_religion_count");
+
+                    b.Property<int>("MissionaryCount")
+                        .HasColumnName("missionary_count");
+
                     b.HasKey("Id");
 
                     b.ToTable("character_ranking");

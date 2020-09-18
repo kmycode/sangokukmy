@@ -206,7 +206,8 @@ namespace SangokuKmy.Models.Services
         }
       }
 
-      return await CreateWarAsync(repo, self, target, startDate, (self.AiType == CountryAiType.Farmers && self.Religion != ReligionType.Any && self.Religion != ReligionType.None) ? CountryWarMode.Religion : CountryWarMode.Battle);
+      return await CreateWarAsync(repo, self, target, startDate,
+        (self.AiType == CountryAiType.Farmers && self.Religion != ReligionType.Any && self.Religion != ReligionType.None && self.Religion != target.Religion) ? CountryWarMode.Religion : CountryWarMode.Battle);
     }
 
     public static GameDateTime GetWarStartDateTime(GameDateTime current, AiCountryWarStartDatePolicy policy = AiCountryWarStartDatePolicy.First21)
@@ -861,7 +862,7 @@ namespace SangokuKmy.Models.Services
       var towns = allTowns
         .Where(t => !singleTownCountries.Contains(t.CountryId))
         .Where(t => !aiCountries.Contains(t.CountryId))
-        .Where(t => (t.Security <= 12 && t.People <= 8000) || penaltyWarCountries.Contains(t.CountryId))
+        .Where(t => (t.Security <= 8 && t.People <= 8000) || penaltyWarCountries.Contains(t.CountryId))
         .Where(t => !warCountries.Contains(t.CountryId) && !townWars.Select(tt => tt.TownId).Contains(t.Id))
         .ToList();
 

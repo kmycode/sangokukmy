@@ -1299,7 +1299,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 40) == 0)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 32) == 0)
           {
             var isCreated = await AiService.CreateFarmerCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
             if (isCreated)
@@ -1309,12 +1309,12 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱（宗教）
-          if (!system.IsWaitingReset && system.Period >= 22 && RandomService.Next(0, 40) == 0)
+          if (!system.IsWaitingReset && RandomService.Next(0, 40) == 0)
           {
             var targetTowns = new List<Town>();
             var defenders = await repo.Town.GetAllDefendersAsync();
             foreach (var country in countryData.Where(c =>
-              c.Country.AiType != CountryAiType.Farmers && c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && allWars.All(w => !w.IsJoinAvailable(c.Country.Id))))
+              c.Country.AiType != CountryAiType.Farmers && c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && (c.Country.IsWarPenalty || allWars.All(w => !w.IsJoinAvailable(c.Country.Id)))))
             {
               foreach (var town in country.Towns.Where(t =>
                 t.Religion != country.Country.Religion && t.Religion != ReligionType.Any && t.TopReligionPoint > (t.Confucianism + t.Taoism + t.Buddhism - t.TopReligionPoint) * 3 && !defenders.Any(d => d.TownId == t.Id)))
@@ -1351,18 +1351,39 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
+          // ペナルティを受ける国は守備が勝手に外れる
+          if (RandomService.Next(0, 28) == 0)
+          {
+            var targetTowns = allTowns.Where(t => allCountries.Any(c => c.Id == t.CountryId && c.IsWarPenalty));
+            var defenders = (await repo.Town.GetAllDefendersAsync()).Where(d => targetTowns.Any(t => t.Id == d.TownId));
+            if (defenders.Any())
+            {
+              var defender = RandomService.Next(defenders);
+              var chara = allCharacters.FirstOrDefault(c => c.Id == defender.CharacterId);
+              var town = allTowns.FirstOrDefault(t => t.Id == defender.TownId);
+              repo.Town.RemoveDefender(defender.CharacterId);
+              if (chara != null && town != null)
+              {
+                defender.Status = TownDefenderStatus.Losed;
+                await StatusStreaming.Default.SendCountryAsync(ApiData.From(defender), chara.CountryId);
+                await StatusStreaming.Default.SendCharacterAsync(ApiData.From(defender), allCharacters.Where(c => c.TownId == defender.TownId).Where(tc => tc.CountryId != chara.CountryId).Select(tc => tc.Id));
+                await AddLogAsync(chara.Id, $"援軍ペナルティにより、農民反乱を抑えるため <town>{town.Name}</town> の守備から外れました");
+              }
+            }
+          }
+
           // 黄巾の出現とバトルロワイヤルモード
           var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthAsync();
           if (!system.IsBattleRoyaleMode && !system.IsWaitingReset && system.RuleSet != GameRuleSet.SimpleBattle &&
-            (lastBattleMonth.ToInt() + 12 * 12 * 6 == system.IntGameDateTime ||
+            (lastBattleMonth.ToInt() + 12 * 12 * 4 == system.IntGameDateTime ||
             (system.GameDateTime.Year == 348 && system.GameDateTime.Month == 1)))
           {
-            await AddMapLogAsync(true, EventType.Event, "黄巾が反乱の時期を伺っています");
+            await AddMapLogAsync(false, EventType.Event, "黄巾が反乱の時期を伺っています");
           }
-          if (!system.IsWaitingReset && (!system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 70) == 0 || isKokinForce))
+          if (!system.IsWaitingReset && (!system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 40) == 0 || isKokinForce))
           {
             if ((!allWars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
-              lastBattleMonth.ToInt() + 12 * 12 * 7 <= system.IntGameDateTime) ||
+              lastBattleMonth.ToInt() + 12 * 12 * 5 <= system.IntGameDateTime) ||
               (system.GameDateTime.Year >= 360) || isKokinForce)
             {
               // 候補都市一覧
@@ -1540,7 +1561,8 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 宗教勝利
-          if (!system.IsWaitingReset)
+          if (!system.IsWaitingReset &&
+                (system.RuleSet != GameRuleSet.Wandering || system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12))
           {
             var religionOfTown = allTowns.GroupBy(t => t.Religion);
             var religionOfCountry = allCountries.Where(c => !c.HasOverthrown && c.Religion != ReligionType.Any && c.Religion != ReligionType.None).GroupBy(c => c.Religion);
@@ -1548,8 +1570,7 @@ namespace SangokuKmy.Models.Updates
             {
               var religionGroup = religionOfTown.OrderByDescending(t => t.Count()).First();
               var religion = religionGroup.Key;
-              if ((religion != ReligionType.Any && religion != ReligionType.None && religionGroup.Count() >= allTowns.Count * 3 / 4) &&
-                (system.RuleSet != GameRuleSet.Wandering || system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12))
+              if (religion != ReligionType.Any && religion != ReligionType.None && religionGroup.Count() >= allTowns.Count * 3 / 4)
               {
                 var countryGroup = religionOfCountry.FirstOrDefault(c => c.Key == religion);
                 if (countryGroup?.Count() == 1)
@@ -1576,7 +1597,7 @@ namespace SangokuKmy.Models.Updates
                 var religion = character.First().Religion;
                 if (town.Religion != ReligionType.Any && town.Religion != ReligionType.None)
                 {
-                  religion = town.Religion;
+                  religion = character.First().Religion = town.Religion;
                 }
 
                 if (religion == ReligionType.Confucianism)

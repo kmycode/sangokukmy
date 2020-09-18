@@ -42,7 +42,7 @@ namespace SangokuKmy.Models.Updates.Ai
     {
       this.Character.Religion = RandomService.Next(new ReligionType[] { ReligionType.Buddhism, ReligionType.Confucianism, ReligionType.Taoism, });
       this.Character.Name = "伝道師";
-      this.Character.Intellect = (short)(100 + current.Year / 3.3f);
+      this.Character.Intellect = (short)(100 + current.Year / 2.9f);
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;
     }

@@ -254,6 +254,8 @@ namespace SangokuKmy.Models.Data.Entities
       }
     }
 
+    [NotMapped]
+    [JsonIgnore]
     public int TopReligionPoint
     {
       get
@@ -272,6 +274,23 @@ namespace SangokuKmy.Models.Data.Entities
         }
         return 0;
       }
+    }
+
+    public int GetReligionPoint(ReligionType religion)
+    {
+      if (religion == ReligionType.Confucianism)
+      {
+        return this.Confucianism;
+      }
+      if (religion == ReligionType.Taoism)
+      {
+        return this.Taoism;
+      }
+      if (religion == ReligionType.Buddhism)
+      {
+        return this.Buddhism;
+      }
+      return 0;
     }
 
     [NotMapped]

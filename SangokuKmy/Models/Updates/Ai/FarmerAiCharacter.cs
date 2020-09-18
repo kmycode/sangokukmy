@@ -60,6 +60,7 @@ namespace SangokuKmy.Models.Updates.Ai
     {
       if (this.Wars.Any(w => w.Mode == CountryWarMode.Religion))
       {
+        return SoldierType.LightApostle;
       }
       return SoldierType.Common;
     }
