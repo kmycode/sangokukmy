@@ -134,23 +134,12 @@ namespace SangokuKmy.Controllers
         }
 
         // オンライン状態の通知
-        var onlineData = await repo.Character.CountAllCharacterOnlineMonthAsync();
-        var myOnline = onlineData.FirstOrDefault(h => h.CharacterId == chara.Id);
-        if (myOnline.CharacterId != default)
+        var myOnline = await repo.Character.CountOnlineMonthAsync(chara.Id);
+        onlineInfo = new ApiSignal
         {
-          var rank = onlineData
-            .OrderByDescending(h => h.Count)
-            .Select((h, i) => new { h.CharacterId, h.Count, Rank = i + 1, })
-            .FirstOrDefault(h => h.CharacterId == chara.Id);
-          if (rank != null)
-          {
-            onlineInfo = new ApiSignal
-            {
-              Type = SignalType.CharacterOnline,
-              Data = new { count = rank.Count, rank = rank.Rank, },
-            };
-          }
-        }
+          Type = SignalType.CharacterOnline,
+          Data = new { count = myOnline, },
+        };
       }
 
       // HTTPヘッダを設定する

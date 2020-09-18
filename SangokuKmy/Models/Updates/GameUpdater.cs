@@ -1783,23 +1783,12 @@ namespace SangokuKmy.Models.Updates
       try
       {
         // オンライン状態の通知
-        var onlineData = await repo.Character.CountAllCharacterOnlineMonthAsync();
-        var myOnline = onlineData.FirstOrDefault(h => h.CharacterId == character.Id);
-        if (myOnline.CharacterId != default)
+        var myOnline = await repo.Character.CountOnlineMonthAsync(character.Id);
+        await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
         {
-          var rank = onlineData
-            .OrderByDescending(h => h.Count)
-            .Select((h, i) => new { h.CharacterId, h.Count, Rank = i + 1, })
-            .FirstOrDefault(h => h.CharacterId == character.Id);
-          if (rank != null)
-          {
-            await StatusStreaming.Default.SendCharacterAsync(ApiData.From(new ApiSignal
-            {
-              Type = SignalType.CharacterOnline,
-              Data = new { count = rank.Count, rank = rank.Rank, },
-            }), character.Id);
-          }
-        }
+          Type = SignalType.CharacterOnline,
+          Data = new { count = myOnline, },
+        }), character.Id);
       }
       catch (Exception ex)
       {
