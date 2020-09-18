@@ -163,6 +163,11 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"兵種 {mySoldierTypeInfo.Name} は、宗教戦争で使うことはできません");
         return;
       }
+      if (mySoldierTypeInfo.Kind == SoldierKind.Religion && (targetTown.CountryId == 0 || !targetCountryOptional.HasData))
+      {
+        await game.CharacterLogAsync($"兵種 {mySoldierTypeInfo.Name} は、無所属都市との戦闘で使うことはできません");
+        return;
+      }
 
       // 連戦カウント
       var continuousCount = options.FirstOrDefault(o => o.Type == 32)?.NumberValue ?? 1;
@@ -351,6 +356,10 @@ namespace SangokuKmy.Models.Commands
           if (system.RuleSet == GameRuleSet.Religion)
           {
             evaluationTechnology -= RandomService.Next(32, 72);
+          }
+          if (RandomService.Next(0, 32) == 0)
+          {
+            evaluationTechnology -= RandomService.Next(60, 500);
           }
         }
         targetCharacter.SoldierType = evaluationTechnology >= 1700 ? SoldierType.Guard_Step6 :

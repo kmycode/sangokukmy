@@ -24,6 +24,7 @@ namespace SangokuKmy.Models.Commands
     public override async Task ExecuteAsync(MainRepository repo, Character character, IEnumerable<CharacterCommandParameter> options, CommandSystemData game)
     {
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
+      var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
       var soldierTypeOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
       var soldierNumberOptional = options.FirstOrDefault(p => p.Type == 2).ToOptional();
       var skills = await repo.Character.GetSkillsAsync(character.Id);
@@ -34,6 +35,10 @@ namespace SangokuKmy.Models.Commands
       {
         await game.CharacterLogAsync("ID:" + character.TownId + " の都市は存在しません。<emerge>管理者にお問い合わせください</emerge>");
       }
+      else if (!countryOptional.HasData)
+      {
+        await game.CharacterLogAsync("徴兵しようとしましたが、国に所属していません");
+      }
       else if (!soldierTypeOptional.HasData || !soldierNumberOptional.HasData)
       {
         await game.CharacterLogAsync("徴兵のパラメータが不正です。<emerge>管理者にお問い合わせください</emerge>");
@@ -41,6 +46,7 @@ namespace SangokuKmy.Models.Commands
       else
       {
         var town = townOptional.Data;
+        var country = countryOptional.Data;
         var soldierTypeName = string.Empty;
         var soldierType = (SoldierType)soldierTypeOptional.Data.NumberValue;
         var soldierNumber = soldierNumberOptional.Data.NumberValue;
@@ -54,14 +60,10 @@ namespace SangokuKmy.Models.Commands
         // 首都なら雑兵ではなく禁兵
         if (soldierType == SoldierType.Common)
         {
-          var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
-          countryOptional.Some((country) =>
+          if (country.CapitalTownId == character.TownId)
           {
-            if (country.CapitalTownId == character.TownId)
-            {
-              soldierType = SoldierType.Guard;
-            }
-          });
+            soldierType = SoldierType.Guard;
+          }
         }
 
         // 実際に徴兵する数を計算する
@@ -87,7 +89,6 @@ namespace SangokuKmy.Models.Commands
         }
 
         CharacterSoldierTypeData soldierTypeData = null;
-
 
         var type = DefaultCharacterSoldierTypeParts.Get(soldierType).Data;
         if (type == null)
@@ -152,7 +153,8 @@ namespace SangokuKmy.Models.Commands
         {
           await game.CharacterLogAsync("農民が足りません。");
         }
-        else if (town.Security < add / 10)
+        else if ((type.Kind == SoldierKind.Battle && town.Security < add / 10) ||
+          (type.Kind == SoldierKind.Religion && town.GetReligionPoint(country.Religion) < add / 10))
         {
           await game.CharacterLogAsync("農民が拒否しました。");
         }
@@ -238,7 +240,25 @@ namespace SangokuKmy.Models.Commands
             character.SkillPoint++;
             character.Money -= needMoney;
             town.People -= (int)(add * Config.SoldierPeopleCost);
-            town.Security -= (short)(add / 10);
+            if (type.Kind == SoldierKind.Battle)
+            {
+              town.Security -= (short)(add / 10);
+            }
+            else
+            {
+              if (country.Religion == ReligionType.Buddhism)
+              {
+                town.Buddhism -= add / 10;
+              }
+              if (country.Religion == ReligionType.Taoism)
+              {
+                town.Taoism -= add / 10;
+              }
+              if (country.Religion == ReligionType.Confucianism)
+              {
+                town.Confucianism -= add / 10;
+              }
+            }
 
             await game.CharacterLogAsync($"金 <num>{needMoney}</num> を費やして、{soldierTypeName} を <num>+{add}</num> 徴兵しました");
             character.AddLeadershipEx(50);
