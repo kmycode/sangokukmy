@@ -20,7 +20,7 @@ namespace SangokuKmy.Models.Services
       var townTypeCost = (countryOptional.HasData && countryOptional.Data.CapitalTownId == town.Id) ? 12000 :
         town.Type == TownType.Large ? 10000 : 8000;
 
-      var cost = townTypeCost * (Math.Pow(1.07f, townCount) + Math.Pow(1.1f, characterCount)) + town.TakeoverDefensePoint;
+      var cost = townTypeCost * (Math.Pow(1.07f, townCount) + Math.Pow(1.1f, characterCount)) + town.TakeoverDefensePoint * 1.5f;
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       if (wars.Any(w => w.IsJoinAvailable(town.CountryId) && w.IsJoinAvailable(country.Id)))
@@ -28,10 +28,10 @@ namespace SangokuKmy.Models.Services
         if (wars.Any(w => w.IsJoinAvailable(town.CountryId) && w.IsJoinAvailable(country.Id) && w.Mode == CountryWarMode.Battle))
         {
           // 自分の国と戦争状態にある場合
-          cost *= 3;
+          cost *= 2.4f;
         }
       }
-      else if (wars.Any(w => w.IsJoin(town.CountryId) && (w.Status == CountryWarStatus.InReady || w.Status == CountryWarStatus.Available || (w.Status == CountryWarStatus.StopRequesting && w.RequestedStopCountryId != town.CountryId))))
+      else if (wars.Any(w => w.IsJoin(town.CountryId) && (w.Status == CountryWarStatus.Available || (w.Status == CountryWarStatus.StopRequesting && w.RequestedStopCountryId != town.CountryId))))
       {
         // 他の国と戦争状態にある場合
         // 停戦協議中の場合はコストを増やさない（停戦協議の濫用が最近多いのであえて）

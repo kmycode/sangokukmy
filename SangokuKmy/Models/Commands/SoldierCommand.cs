@@ -151,12 +151,15 @@ namespace SangokuKmy.Models.Commands
         }
         else if (town.People < add * Config.SoldierPeopleCost)
         {
-          await game.CharacterLogAsync("農民が足りません。");
+          await game.CharacterLogAsync("徴兵しようとしましたが、農民が足りません。");
         }
-        else if ((type.Kind == SoldierKind.Battle && town.Security < add / 10) ||
-          (type.Kind == SoldierKind.Religion && town.GetReligionPoint(country.Religion) < add / 10))
+        else if (type.Kind == SoldierKind.Battle && town.Security < add / 10)
         {
-          await game.CharacterLogAsync("農民が拒否しました。");
+          await game.CharacterLogAsync("徴兵しようとしましたが、都市の民忠不足のため、農民が拒否しました。");
+        }
+        else if (type.Kind == SoldierKind.Religion && town.GetReligionPoint(country.Religion) < add / 10)
+        {
+          await game.CharacterLogAsync("徴兵しようとしましたが、都市の宗教ポイント不足のため、農民が拒否しました。");
         }
         else
         {

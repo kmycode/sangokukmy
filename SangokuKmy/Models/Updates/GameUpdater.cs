@@ -1329,7 +1329,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱（宗教）
-          if (!system.IsWaitingReset && RandomService.Next(0, 40) == 0)
+          if (!system.IsWaitingReset && RandomService.Next(0, system.RuleSet == GameRuleSet.Religion ? 40 : 100) == 0)
           {
             var targetTowns = new List<Town>();
             var defenders = await repo.Town.GetAllDefendersAsync();
@@ -1604,8 +1604,8 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
-          // 無所属宣教師の追加
-          if (!system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear && system.GameDateTime.Year % 16 == 0 && system.GameDateTime.Month == 1)
+          // 無所属伝道師の追加
+          if (!system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1)
           {
             var targetTowns = allTowns.Where(t => t.Religion != ReligionType.Any && t.Religion != ReligionType.None);
             if (targetTowns.Any())

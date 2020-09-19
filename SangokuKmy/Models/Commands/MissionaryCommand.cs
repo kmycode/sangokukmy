@@ -80,11 +80,6 @@ namespace SangokuKmy.Models.Commands
           add = (int)(add * 1.4f);
         }
 
-        if (town.Religion == ReligionType.Any)
-        {
-          add = (int)(add * 2.25f);
-        }
-
         var oldReligion = town.Religion;
 
         string religionName = string.Empty;

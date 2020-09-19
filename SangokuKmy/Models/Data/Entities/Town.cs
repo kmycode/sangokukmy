@@ -311,6 +311,10 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("unique_character_id")]
     [JsonIgnore]
     public uint UniqueCharacterId { get; set; }
+
+    [Column("is_may_be_bought")]
+    [JsonProperty("isMayBeBought")]
+    public bool IsMayBeBought { get; set; }
   }
 
   public enum TownType : byte

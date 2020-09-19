@@ -754,6 +754,12 @@ namespace SangokuKmy.Controllers
           await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(d), repo, targetTown);
         }
         targetTown.CountryId = chara.CountryId;
+        targetTown.Agriculture = (int)(targetTown.Agriculture * 0.9f);
+        targetTown.Commercial = (int)(targetTown.Commercial * 0.9f);
+        targetTown.Technology = (int)(targetTown.Technology * 0.8f);
+        targetTown.TownBuildingValue = (int)(targetTown.TownBuildingValue * 0.8f);
+        targetTown.People = (int)(targetTown.People * 0.8f);
+        targetTown.Security = (short)(targetTown.Security * 0.8f);
         var townCharacters = await repo.Town.GetCharactersAsync(townId);
         foreach (var character in townCharacters)
         {
