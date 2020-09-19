@@ -219,6 +219,26 @@ namespace SangokuKmy.Models.Updates
             await repo.SaveChangesAsync();
           }
 
+          // 都市の購入可能性を更新
+          {
+            foreach (var town in allTowns.Where(t => t.CountryId > 0))
+            {
+              var aroundCountries = allTowns
+                .GetAroundCountries(town)
+                .Join(allCountries, cid => cid, c => c.Id, (id, c) => c);
+
+              town.IsMayBeBought = false;
+              foreach (var country in aroundCountries)
+              {
+                town.IsMayBeBought = await TownService.GetTownBuyCostAsync(repo, town, country) - 5000 >= country.PolicyPoint;
+                if (town.IsMayBeBought)
+                {
+                  break;
+                }
+              }
+            }
+          }
+
           // 収入
           if (system.GameDateTime.Month == 1 || system.GameDateTime.Month == 7)
           {
