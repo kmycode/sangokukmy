@@ -189,6 +189,9 @@ namespace SangokuKmy.Models.Services
 
     public static async Task<IReadOnlyList<uint>> GetPenaltyCountriesAsync(MainRepository repo, CountryWar assumptionWar = null)
     {
+      return Enumerable.Empty<uint>().ToArray();
+
+      /*
       var reinforcements = (await repo.Reinforcement.GetAllAsync()).Where(r => r.Status == ReinforcementStatus.Active);
       var characters = (await repo.Character.GetAllAliveAsync()).Where(c => c.DeleteTurn < 200 && (c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator));
       var countries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown);
@@ -270,6 +273,7 @@ namespace SangokuKmy.Models.Services
       }
 
       return penaltyWarCountries;
+      */
     }
 
     public static async Task<bool> SetPolicyAndSaveAsync(MainRepository repo, Country country, CountryPolicyType type, CountryPolicyStatus status = CountryPolicyStatus.Available, bool isCheckSubjects = true)
