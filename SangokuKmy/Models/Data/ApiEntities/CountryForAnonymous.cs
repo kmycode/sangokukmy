@@ -46,6 +46,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("religion")]
     public short ApiReligion { get; set; }
 
+    [JsonProperty("townSubBuildingExtraSpace")]
+    public short TownSubBuildingExtraSpace { get; set; }
+
     public CountryForAnonymous(Country country)
     {
       this.Id = country.Id;
@@ -58,6 +61,7 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.IsHaveGyokuji = country.IsHaveGyokuji;
       this.GyokujiGameDate = country.GyokujiGameDate;
       this.ApiReligion = country.ApiReligion;
+      this.TownSubBuildingExtraSpace = country.TownSubBuildingExtraSpace;
     }
   }
 }
