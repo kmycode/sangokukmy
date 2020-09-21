@@ -314,6 +314,8 @@ namespace SangokuKmy.Models.Services
         {
           status = param.Status = CountryPolicyStatus.Availabling;
         }
+
+        // 採用した瞬間に効果を発揮する政策
         await RunCountryPolicyAsync(repo, country, type);
       }
       if (old != null)
@@ -326,6 +328,7 @@ namespace SangokuKmy.Models.Services
 
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(param), country.Id);
       await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
+      await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
       foreach (CountryPolicyType boostType in info.Data.Effects.Where(e => e.Type == CountryPolicyEffectType.BoostWith).Select(e => e.Value))
       {
@@ -354,7 +357,7 @@ namespace SangokuKmy.Models.Services
         }
         await LogService.AddMapLogAsync(repo, true, EventType.Policy, $"<country>{country.Name}</country> は、国民総動員を発動しました");
       }
-      if (type == CountryPolicyType.TotalMobilizationWall || type == CountryPolicyType.TotalMobilizationWall2)
+      else if (type == CountryPolicyType.TotalMobilizationWall || type == CountryPolicyType.TotalMobilizationWall2)
       {
         foreach (var town in await repo.Town.GetByCountryIdAsync(country.Id))
         {
@@ -364,7 +367,7 @@ namespace SangokuKmy.Models.Services
         }
         await LogService.AddMapLogAsync(repo, true, EventType.Policy, $"<country>{country.Name}</country> は、城壁作業員総動員を発動しました");
       }
-      if (type == CountryPolicyType.Austerity || type == CountryPolicyType.Austerity2)
+      else if (type == CountryPolicyType.Austerity || type == CountryPolicyType.Austerity2)
       {
         foreach (var chara in await repo.Country.GetCharactersAsync(country.Id))
         {
@@ -372,6 +375,15 @@ namespace SangokuKmy.Models.Services
           await CharacterService.StreamCharacterAsync(repo, chara);
         }
         await LogService.AddMapLogAsync(repo, true, EventType.Policy, $"<country>{country.Name}</country> は、緊縮財政を発動しました");
+      }
+
+      var info = CountryPolicyTypeInfoes.Get(type);
+      if (info.HasData && info.Data.Effects.Any(e => e.Type == CountryPolicyEffectType.SubBuildingSizeMax))
+      {
+        country.TownSubBuildingExtraSpace +=
+          (short)info.Data.Effects
+            .Where(e => e.Type == CountryPolicyEffectType.SubBuildingSizeMax)
+            .Sum(e => e.Value);
       }
     }
 

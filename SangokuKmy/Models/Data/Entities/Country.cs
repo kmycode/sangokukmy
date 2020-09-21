@@ -204,6 +204,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("is_war_penalty")]
     [JsonProperty("isWarPenalty")]
     public bool IsWarPenalty { get; set; }
+
+    /// <summary>
+    /// 建築物の追加敷地
+    /// </summary>
+    [Column("town_sub_building_extra_space")]
+    [JsonProperty("townSubBuildingExtraSpace")]
+    public short TownSubBuildingExtraSpace { get; set; }
   }
 
   public enum CountryAiType : short

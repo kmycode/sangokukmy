@@ -80,7 +80,7 @@ namespace SangokuKmy.Models.Commands
         town.Type == TownType.Commercial ? 2 :
         town.Type == TownType.Fortress ? 3 :
         town.Type == TownType.Large ? 4 : 0;
-      sizeMax += policies.GetSumOfValues(CountryPolicyEffectType.SubBuildingSizeMax);
+      sizeMax += country.TownSubBuildingExtraSpace;
       sizeMax += town.TownSubBuildingExtraSpace;
       var currentSize = townSubBuildings.GetInfoes().Sum(i => i.Size);
       if (currentSize + info.Size > sizeMax && country.AiType == CountryAiType.Human)
