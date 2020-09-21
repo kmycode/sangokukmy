@@ -261,6 +261,10 @@ namespace SangokuKmy.Models.Updates
                         val = (int)(val * 1.05f);
                       }
                     }
+                    if (country.Country.IsWarPenalty)
+                    {
+                      val = (int)(val * 0.95f);
+                    }
 
                     return val;
                   }),
@@ -626,16 +630,20 @@ namespace SangokuKmy.Models.Updates
                   peopleAdd = (int)((((float)town.TownBuildingValue / Config.TownBuildingMax) * 0.3f + 1.0f) * peopleAdd);
                 }
 
+                var country = countryData.FirstOrDefault(c => c.Country.Id == town.Id);
                 if (countryData
                   .Where(c => c.Country.Religion != ReligionType.None && c.Country.Religion != ReligionType.Any)
                   .GroupBy(c => c.Country.Religion)
                   .Count() > 1)
                 {
-                  var country = countryData.FirstOrDefault(c => c.Country.Id == town.Id);
                   if (town.Religion != ReligionType.None && town.Religion != ReligionType.Any && town.Religion == country?.Country.Religion)
                   {
                     peopleAdd = (int)(peopleAdd * 1.05f);
                   }
+                }
+                if (country?.Country.IsWarPenalty == true)
+                {
+                  peopleAdd = (int)(peopleAdd * 0.95f);
                 }
               }
               else if (town.Security < 50)
