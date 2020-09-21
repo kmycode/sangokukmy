@@ -60,10 +60,11 @@ namespace SangokuKmy.Models.Updates.Ai
     public override void Initialize(GameDateTime current)
     {
       this.Character.Name = "異民族_武将";
-      this.Character.Strong = (short)Math.Max(current.ToInt() * 0.81f / 12 + 60, 100);
+      this.Character.Strong = (short)Math.Max(current.ToInt() * 0.87f / 12 + 60, 100);
       this.Character.Leadership = (short)Math.Min(current.ToInt() * 0.3f / 12 + 83, 150.0f);
       this.Character.Money = 99999999;
       this.Character.Rice = 99999999;
+      this.Character.SkillPoint = 40 * 20;
     }
 
     protected override async Task ActionAsync(MainRepository repo)
@@ -103,29 +104,10 @@ namespace SangokuKmy.Models.Updates.Ai
     {
     }
 
-    protected override SoldierType FindSoldierType()
-    {
-      if (this.Town.Technology >= 950)
-      {
-        return SoldierType.TerroristCommonC;
-      }
-      if (this.Town.Technology >= 700)
-      {
-        return SoldierType.TerroristCommonB;
-      }
-      if (this.Town.Technology >= 400)
-      {
-        return SoldierType.TerroristCommonA;
-      }
-      return SoldierType.LightInfantry;
-    }
-
     public override void Initialize(GameDateTime current)
     {
       base.Initialize(current);
       this.Character.Name = "異民族_呂布";
-      this.Character.Strong = (short)Math.Max(70, this.Character.Strong - 100);
-      this.Character.Leadership = 90;
     }
   }
 

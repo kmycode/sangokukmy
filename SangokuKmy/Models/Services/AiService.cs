@@ -320,7 +320,7 @@ namespace SangokuKmy.Models.Services
       var size = RandomService.Next(3, 10);
       var charas = new List<CharacterAiType>
       {
-        CharacterAiType.TerroristBattler,
+        CharacterAiType.TerroristRyofu,
         CharacterAiType.TerroristCivilOfficial,
         CharacterAiType.TerroristPatroller,
       };
