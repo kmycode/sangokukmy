@@ -1326,6 +1326,16 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
+          // 都市を持たない国の強制滅亡（４８年以降となっているのは放浪ルールを考慮）
+          if (system.GameDateTime.Year >= 48)
+          {
+            foreach (var country in countryData.Where(c => !c.Country.HasOverthrown)
+                                               .Where(c => !c.Towns.Any()))
+            {
+              await CountryService.OverThrowAsync(repo, country.Country, null);
+            }
+          }
+
           // 農民反乱
           if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 32) == 0)
           {
