@@ -1231,7 +1231,7 @@ namespace SangokuKmy.Models.Updates.Ai
         var posts = await repo.Country.GetPostsAsync(this.Country.Id);
         if (posts.Any(p => p.Type == CountryPostType.GrandGeneral && p.CharacterId != this.Character.Id))
         {
-          var p = posts.First(p => p.Type == CountryPostType.GrandGeneral);
+          var p = posts.First(pp => pp.Type == CountryPostType.GrandGeneral);
           repo.Country.RemoveCharacterPost(p);
           p.Type = CountryPostType.UnAppointed;
           await StatusStreaming.Default.SendAllAsync(ApiData.From(p));
