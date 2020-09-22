@@ -226,7 +226,7 @@ namespace SangokuKmy.Models.Updates
               var aroundCountries = allTowns
                 .GetAroundCountries(town)
                 .Join(allCountries, cid => cid, c => c.Id, (id, c) => c)
-                .Where(c => c.AiType == CountryAiType.Human);
+                .Where(c => c.AiType == CountryAiType.Human && c.Id != town.CountryId);
 
               town.IsMayBeBought = false;
               foreach (var country in aroundCountries)
