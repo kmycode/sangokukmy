@@ -1337,7 +1337,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱（宗教）
-          if (!system.IsWaitingReset && RandomService.Next(0, system.RuleSet == GameRuleSet.Religion ? 40 : 100) == 0)
+          if (!system.IsWaitingReset && RandomService.Next(0, system.RuleSet == GameRuleSet.Religion ? 20 : 40) == 0)
           {
             var targetTowns = new List<Town>();
             var defenders = await repo.Town.GetAllDefendersAsync();
@@ -1410,8 +1410,7 @@ namespace SangokuKmy.Models.Updates
           }
           if (!system.IsWaitingReset && (!system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 40) == 0 || isKokinForce))
           {
-            if ((!allWars.Any(w => w.IntStartGameDate + 3 >= system.IntGameDateTime) &&
-              lastBattleMonth.ToInt() + 12 * 12 * 5 <= system.IntGameDateTime) ||
+            if ((lastBattleMonth.ToInt() + 12 * 12 * 5 <= system.IntGameDateTime) ||
               (system.GameDateTime.Year >= 360) || isKokinForce)
             {
               // 候補都市一覧
