@@ -1588,6 +1588,26 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
+      // 必要な建築物を決める
+      var warCountries = this.GetReadyForWarCountries().Concat(this.GetWaringCountries());
+      var towns = await repo.Town.GetAllAsync();
+      var aroundWarTowns = towns.GetAroundTowns(this.Town).Where(t => warCountries.Contains(t.CountryId));
+      var aroundWaringSubbuildings = new List<TownSubBuilding>();
+      foreach (var town in aroundWarTowns)
+      {
+        aroundWaringSubbuildings.AddRange(await repo.Town.GetSubBuildingsAsync(town.Id));
+      }
+      var needs = new List<TownSubBuildingType>
+      {
+        TownSubBuildingType.Workshop,
+        TownSubBuildingType.Houses,
+      };
+      if (aroundWaringSubbuildings.Count(ts => ts.Type == TownSubBuildingType.Agitation) >= 2)
+      {
+        needs.Remove(TownSubBuildingType.Houses);
+        needs.Add(TownSubBuildingType.DefenseStation);
+      }
+
       var subBuildings = await repo.Town.GetSubBuildingsAsync(this.Town.Id);
 
       if (subBuildings.Any(s => (s.Status == TownSubBuildingStatus.UnderConstruction || s.Status == TownSubBuildingStatus.Removing) &&
@@ -1596,8 +1616,8 @@ namespace SangokuKmy.Models.Updates.Ai
         return false;
       }
 
-      var removeTarget = subBuildings.FirstOrDefault(s => s.Status == TownSubBuildingStatus.Available &&
-          s.Type != TownSubBuildingType.Workshop && s.Type != TownSubBuildingType.Houses);
+      // 撤去する
+      var removeTarget = subBuildings.FirstOrDefault(s => s.Status == TownSubBuildingStatus.Available && !needs.Contains(s.Type));
       if (removeTarget != null)
       {
         this.command.Parameters.Add(new CharacterCommandParameter
@@ -1609,28 +1629,33 @@ namespace SangokuKmy.Models.Updates.Ai
         return true;
       }
 
-      if (!subBuildings.Any(s => s.Type == TownSubBuildingType.Workshop))
+      // 建設する
+      if (needs.Count < 1 || subBuildings.Count() >= needs.Count())
+      {
+        return false;
+      }
+      if (!subBuildings.Any(s => s.Type == needs[0]))
       {
         this.command.Parameters.Add(new CharacterCommandParameter
         {
           Type = 1,
-          NumberValue = (int)TownSubBuildingType.Workshop,
+          NumberValue = (int)needs[0],
         });
         this.command.Type = CharacterCommandType.BuildSubBuilding;
         return true;
       }
 
-      if (this.Town.Type != TownType.Large)
+      if (this.Town.Type != TownType.Large || needs.Count < 2)
       {
         return false;
       }
 
-      if (!subBuildings.Any(s => s.Type == TownSubBuildingType.Houses))
+      if (!subBuildings.Any(s => s.Type == needs[1]))
       {
         this.command.Parameters.Add(new CharacterCommandParameter
         {
           Type = 1,
-          NumberValue = (int)TownSubBuildingType.Houses,
+          NumberValue = (int)needs[1],
         });
         this.command.Type = CharacterCommandType.BuildSubBuilding;
         return true;
