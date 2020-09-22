@@ -229,6 +229,15 @@ namespace SangokuKmy.Models.Services
           await AnonymousStreaming.Default.SendAllAsync(ApiData.From(town));
 
           await LogService.AddMapLogAsync(repo, true, EventType.TownRemoved, $"<character>{character.Name}</character> の建設した <town>{town.Name}</town> は消滅しました");
+
+          if (!towns.Any(t => t.CountryId == town.CountryId && t.Type != TownType.Removed))
+          {
+            var countryOptional = await repo.Country.GetAliveByIdAsync(town.CountryId);
+            if (countryOptional.HasData)
+            {
+              await CountryService.OverThrowAsync(repo, countryOptional.Data, null);
+            }
+          }
         }
       }
 
