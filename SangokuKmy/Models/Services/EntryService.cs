@@ -338,6 +338,7 @@ namespace SangokuKmy.Models.Services
                     extraTown.Taoism = 500;
                   }
                   await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(extraTown), repo);
+                  await AnonymousStreaming.Default.SendAllAsync(ApiData.From(extraTown));
                   await LogService.AddMapLogAsync(repo, true, EventType.TakeAwayWithReligion, $"<country>{country.Name}</country> は {country.Religion.GetString()} の創始ボーナスとして <town>{extraTown.Name}</town> を入手しました");
                 }
               };
