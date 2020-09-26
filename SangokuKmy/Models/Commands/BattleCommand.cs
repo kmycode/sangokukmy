@@ -679,6 +679,8 @@ namespace SangokuKmy.Models.Commands
             targetTown.TownBuildingValue = (int)(targetTown.TownBuildingValue * 0.8f);
             targetTown.People = (int)(targetTown.People * 0.8f);
             targetTown.Security = (short)(targetTown.Security * 0.8f);
+
+            var oldReligion = targetTown.Religion;
             if (myCountry.Religion != ReligionType.Confucianism)
             {
               targetTown.Confucianism = (int)(targetTown.Confucianism * 0.9f);
@@ -691,6 +693,21 @@ namespace SangokuKmy.Models.Commands
             {
               targetTown.Buddhism = (int)(targetTown.Buddhism * 0.9f);
             }
+            if (targetTown.Religion != oldReligion)
+            {
+              if (targetTown.Religion == ReligionType.Any)
+              {
+                await game.MapLogAsync(EventType.StopReligion, $"<town>{targetTown.Name}</town> は宗教の信仰をやめました", false);
+              }
+              else
+              {
+                var newReligionName = targetTown.Religion.GetString();
+                await game.MapLogAsync(EventType.ChangeReligion, $"<town>{targetTown.Name}</town> は {oldReligion.GetString()} から {newReligionName} に改宗しました", false);
+                myRanking.MissionaryChangeReligionCount++;
+              }
+              await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(targetTown), repo);
+            }
+
             myExperience += 50;
             myContribution += 50;
             character.TownId = targetTown.Id;
