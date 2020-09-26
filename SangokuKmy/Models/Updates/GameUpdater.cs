@@ -231,7 +231,7 @@ namespace SangokuKmy.Models.Updates
               town.IsMayBeBought = false;
               foreach (var country in aroundCountries)
               {
-                town.IsMayBeBought = await TownService.GetTownBuyCostAsync(repo, town, country) - 5000 >= country.PolicyPoint;
+                town.IsMayBeBought = await TownService.GetTownBuyCostAsync(repo, town, country) - 5000 <= country.PolicyPoint;
                 if (town.IsMayBeBought)
                 {
                   break;
@@ -1333,6 +1333,14 @@ namespace SangokuKmy.Models.Updates
             foreach (var country in countryData.Where(c => !c.Country.HasOverthrown)
                                                .Where(c => !c.Towns.Any()))
             {
+              if (system.RuleSet == GameRuleSet.Wandering)
+              {
+                foreach (var chara in country.Characters)
+                {
+                  chara.Money = chara.Money % 100_0000;
+                  await AddLogAsync(chara.Id, $"期限が過ぎたため、未建国の放浪軍は滅亡しました。放浪時に与えられた金も消滅しました");
+                }
+              }
               await CountryService.OverThrowAsync(repo, country.Country, null);
             }
           }
