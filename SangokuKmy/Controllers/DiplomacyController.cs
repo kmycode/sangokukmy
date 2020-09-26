@@ -134,7 +134,7 @@ namespace SangokuKmy.Controllers
           {
             param.BreakingDelay = changeTo.Data.BreakingDelay;
             param.IsPublic = changeTo.Data.IsPublic;
-            param.CanMissionary = o.CanMissionary;
+            param.CanMissionary = changeTo.Data.CanMissionary;
             param.Memo = changeTo.Data.Memo;
           }
         }
