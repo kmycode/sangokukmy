@@ -683,15 +683,15 @@ namespace SangokuKmy.Models.Commands
             var oldReligion = targetTown.Religion;
             if (myCountry.Religion != ReligionType.Confucianism)
             {
-              targetTown.Confucianism = (int)(targetTown.Confucianism * 0.9f);
+              targetTown.Confucianism = (int)(targetTown.Confucianism * 0.95f);
             }
             if (myCountry.Religion != ReligionType.Taoism)
             {
-              targetTown.Taoism = (int)(targetTown.Taoism * 0.9f);
+              targetTown.Taoism = (int)(targetTown.Taoism * 0.95f);
             }
             if (myCountry.Religion != ReligionType.Buddhism)
             {
-              targetTown.Buddhism = (int)(targetTown.Buddhism * 0.9f);
+              targetTown.Buddhism = (int)(targetTown.Buddhism * 0.95f);
             }
             if (targetTown.Religion != oldReligion)
             {
