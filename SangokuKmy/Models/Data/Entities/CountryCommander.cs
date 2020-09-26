@@ -49,7 +49,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 指令内容
     /// </summary>
-    [Column("message", TypeName = "varchar(64)")]
+    [Column("message")]
     [JsonProperty("message")]
     public string Message { get; set; }
 
