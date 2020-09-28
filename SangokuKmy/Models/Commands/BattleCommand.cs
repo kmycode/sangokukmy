@@ -168,6 +168,11 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync($"兵種 {mySoldierTypeInfo.Name} は、無所属都市との戦闘で使うことはできません");
         return;
       }
+      if (mySoldierTypeInfo.Kind == SoldierKind.Religion && system.IsBattleRoyaleMode)
+      {
+        await game.CharacterLogAsync($"兵種 {mySoldierTypeInfo.Name} は、全国戦争で使うことはできません");
+        return;
+      }
 
       // 連戦カウント
       var continuousCount = options.FirstOrDefault(o => o.Type == 32)?.NumberValue ?? 1;
