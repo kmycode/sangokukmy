@@ -87,14 +87,27 @@ namespace SangokuKmy.Models.Services
       system.IsBattleRoyaleMode = false;
       system.RuleSet = system.RuleSetNextPeriod;
       system.RuleSetNextPeriod = system.RuleSetAfterNextPeriod;
-      system.RuleSetAfterNextPeriod =
-        RandomService.Next(0, 7) <= 3 ? GameRuleSet.Normal : RandomService.Next(new GameRuleSet[] {
-          GameRuleSet.SimpleBattle,
-          GameRuleSet.Wandering,
-          GameRuleSet.BattleRoyale,
-          GameRuleSet.Gyokuji,
-          GameRuleSet.Religion,
-        });
+
+      if (system.RuleSet != GameRuleSet.Normal && system.RuleSetNextPeriod != GameRuleSet.Normal)
+      {
+        system.RuleSetAfterNextPeriod = GameRuleSet.Normal;
+      }
+      else if ((system.RuleSet == GameRuleSet.Normal && system.RuleSetNextPeriod == GameRuleSet.Normal) || RandomService.Next(0, 2) <= 0)
+      {
+        system.RuleSetAfterNextPeriod =
+          RandomService.Next(new GameRuleSet[] {
+            GameRuleSet.SimpleBattle,
+            GameRuleSet.Wandering,
+            GameRuleSet.BattleRoyale,
+            GameRuleSet.Gyokuji,
+            GameRuleSet.Religion,
+          });
+      }
+      else
+      {
+        system.RuleSetAfterNextPeriod = GameRuleSet.Normal;
+      }
+
       if (system.IsNextPeriodBeta)
       {
         system.BetaVersion++;
@@ -137,7 +150,8 @@ namespace SangokuKmy.Models.Services
         system.RuleSet == GameRuleSet.Wandering ? "放浪" :
         system.RuleSet == GameRuleSet.SimpleBattle ? "原理" :
         system.RuleSet == GameRuleSet.BattleRoyale ? "全国戦争" :
-        system.RuleSet == GameRuleSet.Gyokuji ? "玉璽" : "";
+        system.RuleSet == GameRuleSet.Gyokuji ? "玉璽" :
+        system.RuleSet == GameRuleSet.Religion ? "宗教" : "";
       await repo.MapLog.AddAsync(new MapLog
       {
         EventType = EventType.Reset,
