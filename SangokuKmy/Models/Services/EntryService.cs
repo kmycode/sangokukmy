@@ -292,15 +292,21 @@ namespace SangokuKmy.Models.Services
           {
             if (country.Religion == ReligionType.Buddhism)
             {
-              town.Buddhism = point;
+              town.Buddhism += point;
+              town.Confucianism = Math.Min(town.Confucianism, 999);
+              town.Taoism = Math.Min(town.Taoism, 999);
             }
             if (country.Religion == ReligionType.Confucianism)
             {
-              town.Confucianism = point;
+              town.Confucianism += point;
+              town.Buddhism = Math.Min(town.Buddhism, 999);
+              town.Taoism = Math.Min(town.Taoism, 999);
             }
             if (country.Religion == ReligionType.Taoism)
             {
-              town.Taoism = point;
+              town.Taoism += point;
+              town.Buddhism = Math.Min(town.Buddhism, 999);
+              town.Confucianism = Math.Min(town.Confucianism, 999);
             }
 
             if (isFirstReligion)
@@ -327,18 +333,18 @@ namespace SangokuKmy.Models.Services
                   extraTown.CountryId = country.Id;
                   if (country.Religion == ReligionType.Confucianism)
                   {
-                    extraTown.Confucianism = 500;
+                    extraTown.Confucianism += 500;
                   }
                   if (country.Religion == ReligionType.Buddhism)
                   {
-                    extraTown.Buddhism = 500;
+                    extraTown.Buddhism += 500;
                   }
                   if (country.Religion == ReligionType.Taoism)
                   {
-                    extraTown.Taoism = 500;
+                    extraTown.Taoism += 500;
                   }
                   await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(extraTown), repo);
-                  await AnonymousStreaming.Default.SendAllAsync(ApiData.From(extraTown));
+                  await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(extraTown)));
                   await LogService.AddMapLogAsync(repo, true, EventType.TakeAwayWithReligion, $"<country>{country.Name}</country> は {country.Religion.GetString()} の創始ボーナスとして <town>{extraTown.Name}</town> を入手しました");
                 }
               };
