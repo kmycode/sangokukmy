@@ -27,7 +27,7 @@ namespace SangokuKmy.Models.Commands
         // 内政値に加算する
         // $kgat += int($klea/6 + rand($klea/6));
         var current = character.Proficiency;
-        var add = (int)(character.Leadership / 6.0f + RandomService.Next(0, character.Leadership / 6));
+        var add = (int)(character.Leadership / 6.0f + RandomService.Next(0, character.Leadership) / 6.0f);
         if (add < 1)
         {
           add = 1;

@@ -66,7 +66,7 @@ namespace SangokuKmy.Models.Commands
         // $kgat += int($klea/6 + rand($klea/6));
         var current = character.Proficiency;
         var attribute = Math.Max(character.Intellect, character.Popularity);
-        var add = (int)(attribute / 20.0f + RandomService.Next(0, attribute / 40));
+        var add = (int)(attribute / 20.0f + RandomService.Next(0, attribute) / 40.0f);
         if (add < 1)
         {
           add = 1;

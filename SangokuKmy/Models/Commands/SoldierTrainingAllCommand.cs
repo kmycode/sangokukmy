@@ -33,7 +33,7 @@ namespace SangokuKmy.Models.Commands
           return;
         }
 
-        var add = (int)(character.Leadership / 6.0f + RandomService.Next(0, character.Leadership / 6));
+        var add = (int)(character.Leadership / 6.0f + RandomService.Next(0, character.Leadership) / 6.0f);
         if (add < 1)
         {
           add = 1;
