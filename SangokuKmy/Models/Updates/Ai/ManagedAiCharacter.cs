@@ -18,12 +18,6 @@ namespace SangokuKmy.Models.Updates.Ai
     protected override DefendSeiranLevel NeedDefendSeiranLevel => this._seiranLevel;
     private DefendSeiranLevel _seiranLevel = DefendSeiranLevel.NotCare;
 
-    protected override UnitPolicyLevel UnitLevel => this._unitLevel;
-    private UnitPolicyLevel _unitLevel = UnitPolicyLevel.NotCare;
-
-    protected override UnitGatherPolicyLevel UnitGatherLevel => this._unitGatherLevel;
-    private UnitGatherPolicyLevel _unitGatherLevel = UnitGatherPolicyLevel.Always;
-
     protected override ForceDefendPolicyLevel ForceDefendPolicy => this._forceDefendLevel;
     private ForceDefendPolicyLevel _forceDefendLevel = ForceDefendPolicyLevel.NotCare;
 
@@ -94,64 +88,6 @@ namespace SangokuKmy.Models.Updates.Ai
                             m.SeiranPolicy == AgainstSeiranPolicy.NotCareMuch ? DefendSeiranLevel.HalfSeirans :
                             m.SeiranPolicy == AgainstSeiranPolicy.Gonorrhea ? DefendSeiranLevel.SeiransWithUnits :
                             DefendSeiranLevel.Seirans;
-      }
-
-      // 部隊を使うか
-      if (management.HasData)
-      {
-        var m = management.Data;
-        if (!(await this.IsWarAsync(repo)))
-        {
-          this._unitLevel = UnitPolicyLevel.NotCare;
-        }
-        else
-        {
-          if (m.UnitPolicy == AiCountryUnitPolicy.NotCare)
-          {
-            this._unitLevel = UnitPolicyLevel.NotCare;
-          }
-          if (m.UnitPolicy == AiCountryUnitPolicy.BorderTownOnly)
-          {
-            if (m.CharacterSize == AiCountryCharacterSize.Medium)
-            {
-              this._unitGatherLevel = UnitGatherPolicyLevel.Need1_2;
-              this._unitLevel = UnitPolicyLevel.BorderOnly;
-            }
-            else if (m.CharacterSize == AiCountryCharacterSize.Large)
-            {
-              this._unitGatherLevel = UnitGatherPolicyLevel.Need1_3;
-              this._unitLevel = UnitPolicyLevel.BorderOnly;
-            }
-            else
-            {
-              this._unitLevel = UnitPolicyLevel.NotCare;
-            }
-          }
-          if (m.UnitPolicy == AiCountryUnitPolicy.BorderAndMainTown)
-          {
-            if (m.CharacterSize == AiCountryCharacterSize.Medium)
-            {
-              this._unitGatherLevel = UnitGatherPolicyLevel.Need1_3;
-              this._unitLevel = UnitPolicyLevel.BorderOnly;
-            }
-            else if (m.CharacterSize == AiCountryCharacterSize.Large)
-            {
-              this._unitGatherLevel = UnitGatherPolicyLevel.Always;
-              this._unitLevel = UnitPolicyLevel.BorderOnly;
-            }
-            else
-            {
-              this._unitLevel = UnitPolicyLevel.NotCare;
-            }
-          }
-          if (this._unitLevel == UnitPolicyLevel.BorderOnly)
-          {
-            if (m.UnitGatherPolicy == AiCountryUnitGatherPolicy.BeforePeopleChanges)
-            {
-              this._unitLevel = UnitPolicyLevel.BorderOnlyAndBeforePeopleChange;
-            }
-          }
-        }
       }
 
       // 強制守備ループに入るときの兵糧攻め判定基準
@@ -558,11 +494,6 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (await this.InputGatherUnitAsync(repo))
-      {
-        return;
-      }
-
       if (await this.InputCountryForceDefendLoopAsync(repo))
       {
         return;
@@ -789,11 +720,6 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (await this.InputGatherUnitAsync(repo))
-      {
-        return;
-      }
-
       if (await this.InputCountryForceDefendLoopAsync(repo))
       {
         return;
@@ -954,11 +880,6 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
     {
-      if (await this.InputGatherUnitAsync(repo))
-      {
-        return;
-      }
-
       if (await this.InputCountryForceDefendLoopAsync(repo))
       {
         return;

@@ -50,12 +50,6 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("character_size")]
     public AiCountryCharacterSize CharacterSize { get; set; }
 
-    [Column("unit_policy")]
-    public AiCountryUnitPolicy UnitPolicy { get; set; }
-
-    [Column("unit_gather_policy")]
-    public AiCountryUnitGatherPolicy UnitGatherPolicy { get; set; }
-
     [Column("force_defend_policy")]
     public AiCountryForceDefendPolicy ForceDefendPolicy { get; set; }
 
@@ -132,21 +126,6 @@ namespace SangokuKmy.Models.Data.Entities
     Small = 1,
     Medium = 2,
     Large = 3,
-  }
-
-  public enum AiCountryUnitPolicy : short
-  {
-    Unknown = 0,
-    NotCare = 1,
-    BorderTownOnly = 2,
-    BorderAndMainTown = 3,
-  }
-
-  public enum AiCountryUnitGatherPolicy : short
-  {
-    Unknown = 0,
-    Always = 1,
-    BeforePeopleChanges = 2,
   }
 
   public enum AiCountryForceDefendPolicy : short

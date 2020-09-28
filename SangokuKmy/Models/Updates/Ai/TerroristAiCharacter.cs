@@ -10,10 +10,6 @@ namespace SangokuKmy.Models.Updates.Ai
 {
   public class TerroristBattlerAiCharacter : WorkerAiCharacter
   {
-    protected override UnitPolicyLevel UnitLevel => UnitPolicyLevel.NotCare;
-
-    protected override UnitGatherPolicyLevel UnitGatherLevel => UnitGatherPolicyLevel.Always;
-
     protected override DefendSeiranLevel NeedDefendSeiranLevel => DefendSeiranLevel.HalfSeirans;
 
     public TerroristBattlerAiCharacter(Character character) : base(character)
@@ -141,10 +137,6 @@ namespace SangokuKmy.Models.Updates.Ai
 
   public class TerroristCivilOfficialAiCharacter : WorkerAiCharacter
   {
-    protected override UnitPolicyLevel UnitLevel => UnitPolicyLevel.NotCare;
-
-    protected override UnitGatherPolicyLevel UnitGatherLevel => UnitGatherPolicyLevel.Always;
-
     protected override DefendSeiranLevel NeedDefendSeiranLevel => DefendSeiranLevel.HalfSeirans;
 
     public TerroristCivilOfficialAiCharacter(Character character) : base(character)

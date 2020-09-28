@@ -582,8 +582,6 @@ namespace SangokuKmy.Models.Services
       var policyTargets = new AiCountryPolicyTarget[] { AiCountryPolicyTarget.Money, AiCountryPolicyTarget.WallAttack, AiCountryPolicyTarget.WallDefend, };
       var seiranPolicies = new AgainstSeiranPolicy[] { AgainstSeiranPolicy.Gonorrhea, AgainstSeiranPolicy.Mindful, AgainstSeiranPolicy.NotCare, AgainstSeiranPolicy.NotCare, };
       var warStyles = new AiCountryWarStyle[] { AiCountryWarStyle.Aggressive, AiCountryWarStyle.Negative, AiCountryWarStyle.Normal, AiCountryWarStyle.NotCare, };
-      var unitPolicies = new AiCountryUnitPolicy[] { AiCountryUnitPolicy.NotCare, };
-      var unitGatherPolicies = new AiCountryUnitGatherPolicy[] { AiCountryUnitGatherPolicy.Always, AiCountryUnitGatherPolicy.BeforePeopleChanges, };
       var forceDefendPolicies = new AiCountryForceDefendPolicy[] { AiCountryForceDefendPolicy.NotCare, AiCountryForceDefendPolicy.Negative, AiCountryForceDefendPolicy.Medium, AiCountryForceDefendPolicy.Aggressive, };
       var developStyles = new AiCountryDevelopStyle[] { AiCountryDevelopStyle.BorderTownFirst, AiCountryDevelopStyle.HigherTownFirst, AiCountryDevelopStyle.LowerTownFirst, AiCountryDevelopStyle.NotCare, };
       var warTargetPolicies = new AiCountryWarTargetPolicy[] { AiCountryWarTargetPolicy.EqualityStronger, AiCountryWarTargetPolicy.EqualityWeaker, AiCountryWarTargetPolicy.Random, AiCountryWarTargetPolicy.Weakest, };
@@ -596,8 +594,6 @@ namespace SangokuKmy.Models.Services
         PolicyTarget = RandomService.Next(policyTargets),
         SeiranPolicy = RandomService.Next(seiranPolicies),
         WarStyle = RandomService.Next(warStyles),
-        UnitPolicy = RandomService.Next(unitPolicies),
-        UnitGatherPolicy = RandomService.Next(unitGatherPolicies),
         ForceDefendPolicy = RandomService.Next(forceDefendPolicies),
         DevelopStyle = RandomService.Next(developStyles),
         WarTargetPolicy = RandomService.Next(warTargetPolicies),

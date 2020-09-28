@@ -46,10 +46,6 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected virtual DefendSeiranLevel NeedDefendSeiranLevel => DefendSeiranLevel.Seirans;
 
-    protected virtual UnitPolicyLevel UnitLevel => UnitPolicyLevel.NotCare;
-
-    protected virtual UnitGatherPolicyLevel UnitGatherLevel => UnitGatherPolicyLevel.Always;
-
     protected virtual SoldierType FindSoldierType()
     {
       return SoldierType.Common;
@@ -138,14 +134,11 @@ namespace SangokuKmy.Models.Updates.Ai
 
         targetOrder = old.Data.TargetOrder;
 
-        var units = await repo.Unit.GetByCountryIdAsync(this.Country.Id);
         var main = this.towns.FirstOrDefault(t => t.Id == old.Data.MainTownId);
         var target = this.towns.FirstOrDefault(t => t.Id == old.Data.TargetTownId);
         var border = this.towns.FirstOrDefault(t => t.Id == old.Data.BorderTownId);
         var nextTarget = this.towns.FirstOrDefault(t => t.Id == old.Data.NextTargetTownId);
         this.data.DevelopTown = this.towns.FirstOrDefault(t => t.Id == old.Data.DevelopTownId);
-        this.data.MainUnit = units.FirstOrDefault(u => u.Id == old.Data.MainUnitId);
-        this.data.BorderUnit = units.FirstOrDefault(u => u.Id == old.Data.BorderUnitId);
         this.data.IsDefendForce = old.Data.IsDefendForce && this.ForceDefendPolicy != ForceDefendPolicyLevel.NotCare;
 
         if (main != null && main.CountryId == this.Country.Id)
@@ -390,36 +383,6 @@ namespace SangokuKmy.Models.Updates.Ai
         }
       }
 
-      // 部隊作成、解散
-      if (this.data.BorderTown != null && (this.UnitLevel == UnitPolicyLevel.BorderOnly || this.UnitLevel == UnitPolicyLevel.BorderOnlyAndBeforePeopleChange))
-      {
-        if (this.data.BorderUnit != null)
-        {
-          var leader = this.data.BorderUnit.Members.FirstOrDefault(m => m.Post == UnitMemberPostType.Leader);
-          if (leader == null || leader.Character.TownId != this.data.BorderTown.Id)
-          {
-            await UnitService.RemoveAsync(repo, this.data.BorderUnit.Id);
-            this.data.BorderUnit = null;
-          }
-        }
-        if (this.data.BorderUnit == null)
-        {
-          var charas = await repo.Country.GetCharactersAsync(this.Country.Id);
-          var leader = charas.Where(c => c.TownId == this.data.BorderTown.Id).FirstOrDefault();
-          if (leader != null)
-          {
-            var unit = new Unit
-            {
-              CountryId = this.Country.Id,
-              Name = $"前線 {this.data.BorderTown.Name} 集合部隊",
-            };
-            await UnitService.CreateAndSaveAsync(repo, unit, leader.Id);
-
-            this.data.BorderUnit = (await repo.Unit.GetByCountryIdAsync(this.Country.Id)).FirstOrDefault(u => u.Id == unit.Id);
-          }
-        }
-      }
-
       // 強制的に全員守備ループするかどうか
       if (this.ForceDefendPolicy != ForceDefendPolicyLevel.NotCare)
       {
@@ -498,8 +461,6 @@ namespace SangokuKmy.Models.Updates.Ai
       oldData.BorderTownId = this.data.BorderTown?.Id ?? 0;
       oldData.NextTargetTownId = this.data.NextBattleTown?.Id ?? 0;
       oldData.TargetTownId = this.data.TargetTown?.Id ?? 0;
-      oldData.MainUnitId = this.data.MainUnit?.Id ?? 0;
-      oldData.BorderUnitId = this.data.BorderUnit?.Id ?? 0;
       oldData.IsDefendForce = this.data.IsDefendForce && this.ForceDefendPolicy != ForceDefendPolicyLevel.NotCare;
       if (!old.HasData)
       {
@@ -724,148 +685,6 @@ namespace SangokuKmy.Models.Updates.Ai
       return int.MaxValue;
     }
 
-    private async Task<bool> IsGatherUnitNextTurnAsync(MainRepository repo, UnitPolicyLevel level, Unit unit)
-    {
-      if (level == UnitPolicyLevel.NotCare)
-      {
-        return false;
-      }
-
-      var leader = unit.Members.FirstOrDefault(m => m.Post == UnitMemberPostType.Leader);
-      if (leader == null)
-      {
-        return false;
-      }
-
-      var town = await repo.Town.GetByIdAsync(leader.Character.TownId);
-      if (!town.HasData)
-      {
-        return false;
-      }
-
-      if (level == UnitPolicyLevel.BorderOnlyAndBeforePeopleChange)
-      {
-        if (town.Data.Security >= 50)
-        {
-          var month = leader.Character.LastUpdatedGameDate.NextMonth().Month;
-          if (month != 11 && month != 12 && month != 5 && month != 6)
-          {
-            return false;
-          }
-        }
-      }
-
-      var defenders = await repo.Town.GetDefendersAsync(town.Data.Id);
-      if (!defenders.Any())
-      {
-        return false;
-      }
-
-      var memberCount = unit.Members.Count(m => m.CharacterId != this.Character.Id) + 1;
-      var needMemberCount = unit.Members.Count(m => m.Character.TownId != leader.Character.TownId && m.CharacterId != this.Character.Id);
-      if (this.Character.TownId != leader.Character.TownId)
-      {
-        needMemberCount++;
-      }
-      if (this.UnitGatherLevel == UnitGatherPolicyLevel.Always)
-      {
-        return needMemberCount > 0;
-      }
-      if (this.UnitGatherLevel == UnitGatherPolicyLevel.Need1_2)
-      {
-        return needMemberCount >= memberCount / 2;
-      }
-      if (this.UnitGatherLevel == UnitGatherPolicyLevel.Need1_3)
-      {
-        return needMemberCount >= memberCount / 3;
-      }
-
-      return false;
-    }
-
-    private async Task LeaveAllUnitsAsync(MainRepository repo)
-    {
-      async Task RunAsync(Unit unit)
-      {
-        if (unit != null)
-        {
-          var member = unit.Members.FirstOrDefault(u => u.CharacterId == this.Character.Id);
-          if (member != null)
-          {
-            if (member.Post == UnitMemberPostType.Leader)
-            {
-              await UnitService.RemoveAsync(repo, unit.Id);
-            }
-            else
-            {
-              UnitService.Leave(repo, this.Character.Id);
-            }
-          }
-        }
-      }
-
-      await RunAsync(this.data.BorderUnit);
-      await RunAsync(this.data.MainUnit);
-    }
-
-    private async Task<Unit> JoinUnitAsync(MainRepository repo, uint targetTownId)
-    {
-      async Task<bool> RunAsync(Unit u, Town t)
-      {
-        if (u != null &&
-          t != null &&
-          t.Id == targetTownId)
-        {
-          if (!u.Members.Any(uu => uu.Character.Id == this.Character.Id))
-          {
-            await UnitService.EntryAsync(repo, u.Id, this.Character.Id);
-          }
-          return true;
-        }
-        else if (u != null)
-        {
-          var member = u.Members.FirstOrDefault(uu => uu.CharacterId == this.Character.Id);
-          if (member != null)
-          {
-            if (member.Post == UnitMemberPostType.Leader)
-            {
-              await UnitService.RemoveAsync(repo, u.Id);
-            }
-            else
-            {
-              UnitService.Leave(repo, this.Character.Id);
-            }
-          }
-        }
-        return false;
-      }
-
-      Unit unit = null;
-
-      if (await RunAsync(this.data.BorderUnit, this.data.BorderTown))
-      {
-        unit = this.data.BorderUnit;
-      }
-
-      if (await RunAsync(this.data.MainUnit, this.data.MainTown))
-      {
-        unit = this.data.MainUnit;
-      }
-
-      return unit;
-    }
-
-    private async Task<bool> InputMoveOrJoinUnitAsync(MainRepository repo, uint townId)
-    {
-      var unit = await this.JoinUnitAsync(repo, townId);
-      if (unit != null)
-      {
-        return await this.IsGatherUnitNextTurnAsync(repo, this.UnitLevel, unit);
-      }
-
-      return await this.InputMoveToTownAsync(repo, townId);
-    }
-
     private async Task<bool> InputMoveToTownAsync(MainRepository repo, uint townId)
     {
       var town = await repo.Town.GetByIdAsync(townId);
@@ -950,7 +769,7 @@ namespace SangokuKmy.Models.Updates.Ai
         if (!this.CanSoldierForce || this.Town.CountryId != this.Character.CountryId)
         {
           var town = this.GetTownForSoldiers();
-          var isMove = await this.InputMoveOrJoinUnitAsync(repo, town.Id);
+          var isMove = await this.InputMoveToTownAsync(repo, town.Id);
           if (isMove)
           {
             return true;
@@ -973,12 +792,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
         if (this.Town.People + 1 < num * Config.SoldierPeopleCost || this.Town.Security + 1 < num / 10)
         {
-          return await this.InputMoveOrJoinUnitAsync(repo, this.GetTownForSoldiers(num).Id);
-        }
-
-        if ((this.GetWaringCountries().Any() || this.GetNearReadyForWarCountries().Any()) && this.data.BorderTown != null)
-        {
-          await this.JoinUnitAsync(repo, this.data.BorderTown.Id);
+          return await this.InputMoveToTownAsync(repo, this.GetTownForSoldiers(num).Id);
         }
 
         this.command.Parameters.Add(new CharacterCommandParameter
@@ -1226,8 +1040,6 @@ namespace SangokuKmy.Models.Updates.Ai
 
       if (targetTown != null && (this.GetWaringCountries().Any() || this.GetAvailableTownWar().HasData))
       {
-        await this.LeaveAllUnitsAsync(repo);
-
         var posts = await repo.Country.GetPostsAsync(this.Country.Id);
         if (posts.Any(p => p.Type == CountryPostType.GrandGeneral && p.CharacterId != this.Character.Id))
         {
@@ -1500,12 +1312,12 @@ namespace SangokuKmy.Models.Updates.Ai
 
       if (this.data.BorderTown != null && this.data.BorderTown.IsNextToTown(this.Town))
       {
-        return await this.InputMoveOrJoinUnitAsync(repo, this.data.BorderTown.Id);
+        return await this.InputMoveToTownAsync(repo, this.data.BorderTown.Id);
       }
 
       if (this.data.MainTown != null && this.data.MainTown.IsNextToTown(this.Town))
       {
-        return await this.InputMoveOrJoinUnitAsync(repo, this.data.MainTown.Id);
+        return await this.InputMoveToTownAsync(repo, this.data.MainTown.Id);
       }
 
       return false;
@@ -1529,9 +1341,9 @@ namespace SangokuKmy.Models.Updates.Ai
       if (this.data.BorderTown != null && (this.data.BorderTown.Technology < this.data.BorderTown.TechnologyMax ||
                                            this.data.BorderTown.Wall < this.data.BorderTown.WallMax))
       {
-        return await this.InputMoveOrJoinUnitAsync(repo, this.data.BorderTown.Id);
+        return await this.InputMoveToTownAsync(repo, this.data.BorderTown.Id);
       }
-      return await this.InputMoveOrJoinUnitAsync(repo, this.data.DevelopTown.Id);
+      return await this.InputMoveToTownAsync(repo, this.data.DevelopTown.Id);
     }
 
     protected async Task<bool> InputMoveToBorderTownInWarAsync(MainRepository repo)
@@ -1566,12 +1378,12 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         return false;
       }
-      return await this.InputMoveOrJoinUnitAsync(repo, this.data.BorderTown.Id);
+      return await this.InputMoveToTownAsync(repo, this.data.BorderTown.Id);
     }
 
     protected async Task<bool> InputMoveToMainTownAsync(MainRepository repo)
     {
-      return await this.InputMoveOrJoinUnitAsync(repo, this.data.MainTown.Id);
+      return await this.InputMoveToTownAsync(repo, this.data.MainTown.Id);
     }
 
     protected async Task<bool> InputBuildSubBuildingAsync(MainRepository repo)
@@ -1995,21 +1807,6 @@ namespace SangokuKmy.Models.Updates.Ai
       this.command.Type = CharacterCommandType.SecretaryToTown;
     }
 
-    protected void InputSetUnitSecretary(uint id, uint unitId)
-    {
-      this.command.Parameters.Add(new CharacterCommandParameter
-      {
-        Type = 1,
-        NumberValue = (int)id,
-      });
-      this.command.Parameters.Add(new CharacterCommandParameter
-      {
-        Type = 2,
-        NumberValue = (int)unitId,
-      });
-      this.command.Type = CharacterCommandType.Secretary;
-    }
-
     protected void InputRemoveSecretary(uint id)
     {
       this.command.Parameters.Add(new CharacterCommandParameter
@@ -2236,32 +2033,6 @@ namespace SangokuKmy.Models.Updates.Ai
       return true;
     }
 
-    protected async Task<bool> InputGatherUnitAsync(MainRepository repo)
-    {
-      async Task<bool> RunAsync(Unit unit)
-      {
-        if (unit == null)
-        {
-          return false;
-        }
-
-        if (!unit.Members.Any(m => m.Post == UnitMemberPostType.Leader && m.CharacterId == this.Character.Id))
-        {
-          return false;
-        }
-
-        if (!(await this.IsGatherUnitNextTurnAsync(repo, this.UnitLevel, unit)))
-        {
-          return false;
-        }
-
-        this.command.Type = CharacterCommandType.Gather;
-        return true;
-      }
-
-      return await RunAsync(this.data.BorderUnit) || await RunAsync(this.data.MainUnit);
-    }
-
     protected void MoveToRandomTown()
     {
       var arounds = this.towns.GetAroundTowns(this.Town);
@@ -2310,20 +2081,6 @@ namespace SangokuKmy.Models.Updates.Ai
       GetTown,
     }
 
-    protected enum UnitPolicyLevel
-    {
-      NotCare,
-      BorderOnlyAndBeforePeopleChange,
-      BorderOnly,
-    }
-
-    protected enum UnitGatherPolicyLevel
-    {
-      Always,
-      Need1_3,
-      Need1_2,
-    }
-
     private class AiCountryData
     {
       /// <summary>
@@ -2355,16 +2112,6 @@ namespace SangokuKmy.Models.Updates.Ai
       /// 攻略対象候補
       /// </summary>
       public Town WillTownWarTown { get; set; }
-
-      /// <summary>
-      /// 前線の部隊
-      /// </summary>
-      public Unit BorderUnit { get; set; }
-
-      /// <summary>
-      /// メインの部隊
-      /// </summary>
-      public Unit MainUnit { get; set; }
 
       public bool IsDefendForce { get; set; }
     }
