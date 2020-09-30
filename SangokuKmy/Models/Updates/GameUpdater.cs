@@ -738,7 +738,8 @@ namespace SangokuKmy.Models.Updates
               // 宗教による追加の政策ポイント
               if (countryData.Any(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && c.Country.Religion != country.Country.Religion))
               {
-                country.Country.PolicyPoint += allTowns.Count(t => t.Religion == country.Country.Religion) * 5;
+                country.Country.PolicyPoint += allTowns.Where(t => t.CountryId == country.Country.Id).Count(t => t.Religion == country.Country.Religion) * 5;
+                country.Country.PolicyPoint += allTowns.Where(t => t.CountryId != country.Country.Id).Count(t => t.Religion == country.Country.Religion) * 2;
               }
             }
           }
