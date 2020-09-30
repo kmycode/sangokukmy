@@ -247,11 +247,6 @@ namespace SangokuKmy.Models.Services
           ErrorCode.DuplicateCountryNameOrColorError.Throw();
         }
 
-        if (newCountry.Religion != ReligionType.Any && newCountry.Religion != ReligionType.None && system.RuleSet == GameRuleSet.SimpleBattle)
-        {
-          ErrorCode.RuleSetError.Throw();
-        }
-
         var country = new Country
         {
           Name = newCountry.Name,
@@ -263,7 +258,7 @@ namespace SangokuKmy.Models.Services
           LastMoneyIncomes = 0,
           LastRiceIncomes = 0,
           PolicyPoint = 10000,
-          Religion = newCountry.Religion,
+          Religion = RandomService.Next(new ReligionType[] { ReligionType.Buddhism, ReligionType.Confucianism, ReligionType.Taoism, }),
         };
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
