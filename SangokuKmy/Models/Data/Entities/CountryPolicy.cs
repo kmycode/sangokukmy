@@ -405,7 +405,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CountryPolicyEffect
           {
             Type = CountryPolicyEffectType.CountrySafeCollectionMax,
-            Value = 2000,
+            Value = 4000,
           },
         },
       },
