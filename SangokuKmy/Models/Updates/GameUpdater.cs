@@ -231,7 +231,7 @@ namespace SangokuKmy.Models.Updates
               town.IsMayBeBought = false;
               foreach (var country in aroundCountries)
               {
-                town.IsMayBeBought = await TownService.GetTownBuyCostAsync(repo, town, country) - 5000 <= country.PolicyPoint;
+                town.IsMayBeBought = await TownService.GetTownBuyCostAsync(repo, town, country) - 2000 <= country.PolicyPoint;
                 if (town.IsMayBeBought)
                 {
                   break;
