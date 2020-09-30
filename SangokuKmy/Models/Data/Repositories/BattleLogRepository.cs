@@ -135,13 +135,14 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
-    /// 最後に戦闘のあった年月を取得する
+    /// 最後に戦闘のあった年月を取得する（黄巾処理用）
     /// </summary>
-    public async Task<GameDateTime> GetLastBattleMonthAsync()
+    public async Task<GameDateTime> GetLastBattleMonthForKokinAsync()
     {
-      if (this.container.Context.BattleLogs.Any())
+      var logs = this.container.Context.BattleLogs.Where(b => b.Cause != BattleCause.TownWar);
+      if (logs.Any())
       {
-        var max = this.container.Context.BattleLogs.Max(b => b.MapLogId);
+        var max = logs.Max(b => b.MapLogId);
         var lastMapLog = await this.container.Context.MapLogs.FirstOrDefaultAsync(m => m.Id == max);
         if (lastMapLog != null)
         {

@@ -1420,7 +1420,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 黄巾の出現とバトルロワイヤルモード
-          var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthAsync();
+          var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthForKokinAsync();
           if (!system.IsBattleRoyaleMode && !system.IsWaitingReset && system.RuleSet != GameRuleSet.SimpleBattle &&
             (lastBattleMonth.ToInt() + 12 * 12 * 4 == system.IntGameDateTime ||
             (system.GameDateTime.Year == 348 && system.GameDateTime.Month == 1)))

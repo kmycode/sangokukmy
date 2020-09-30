@@ -119,6 +119,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("is_same_religion")]
     [JsonProperty("isSameReligion")]
     public bool IsSameReligion { get; set; }
+
+    /// <summary>
+    /// 戦闘の原因
+    /// </summary>
+    [Column("cause")]
+    [JsonIgnore]
+    public BattleCause Cause { get; set; }
   }
 
   public enum DefenderType : short
@@ -132,5 +139,18 @@ namespace SangokuKmy.Models.Data.Entities
     /// 城壁
     /// </summary>
     Wall = 3,
+  }
+
+  public enum BattleCause : short
+  {
+    /// <summary>
+    /// 戦争、その他
+    /// </summary>
+    War = 0,
+
+    /// <summary>
+    /// 攻略
+    /// </summary>
+    TownWar = 1,
   }
 }

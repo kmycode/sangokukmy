@@ -94,6 +94,7 @@ namespace SangokuKmy.Models.Commands
 
       var targetCountryOptional = await repo.Country.GetByIdAsync(targetTown.CountryId);
       var system = await repo.System.GetAsync();
+      var cause = BattleCause.War;
       if (targetCountryOptional.HasData && !system.IsBattleRoyaleMode)
       {
         if (targetCountryOptional.Data.IntEstablished + Config.CountryBattleStopDuring > game.GameDateTime.ToInt())
@@ -114,6 +115,7 @@ namespace SangokuKmy.Models.Commands
             if (townWar.Status == TownWarStatus.Available && townWar.RequestedCountryId == character.CountryId)
             {
               isTownWar = true;
+              cause = BattleCause.TownWar;
             }
           }
 
@@ -184,6 +186,7 @@ namespace SangokuKmy.Models.Commands
         AttackerCharacterId = character.Id,
         IsSameReligion = myCountry.Religion != ReligionType.Any && myCountry.Religion != ReligionType.None &&
           myCountry.Religion != targetCountryOptional.Data?.Religion && myCountry.Religion == targetTown.Religion,
+        Cause = cause,
       };
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
