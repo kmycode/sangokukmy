@@ -17,7 +17,7 @@ namespace SangokuKmy.Models.Services
     public static int GetAttributeMax(GameDateTime current) => 100 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.9f * 0.75f);
     public static int GetAttributeSumMax(GameDateTime current) => 200 + (int)((Math.Max(current.Year, Config.UpdateStartYear) - Config.UpdateStartYear) * 0.9f);
 
-    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode, bool isFreeCountry, uint extraTownId)
+    public static async Task EntryAsync(MainRepository repo, string ipAddress, Character newChara, CharacterIcon newIcon, string password, Country newCountry, string invitationCode, bool isFreeCountry)
     {
       var town = await repo.Town.GetByIdAsync(newChara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
 
@@ -176,8 +176,6 @@ namespace SangokuKmy.Models.Services
         chara.IntLastUpdatedGameDate++;
       }
 
-      Func<Task> onSucceed = null;
-
       if (isFreeCountry)
       {
         // 無所属で開始
@@ -271,15 +269,7 @@ namespace SangokuKmy.Models.Services
         await repo.Country.AddAsync(country);
 
         var countries = await repo.Country.GetAllAsync();
-        var isFirstReligion = !countries.Where(c => !c.HasOverthrown).Any(c => c.Religion == country.Religion);
-        var point = isFirstReligion ? 1000 : 500;
-
-        // 宗教創始ボーナス
-        if (isFirstReligion)
-        {
-          country.PolicyPoint += 3000;
-          items.Add(CharacterItemType.TownPlanningDocument);
-        }
+        var point = 500;
 
         if (system.RuleSet != GameRuleSet.Wandering)
         {
@@ -308,47 +298,6 @@ namespace SangokuKmy.Models.Services
               town.Buddhism = Math.Min(town.Buddhism, 999);
               town.Confucianism = Math.Min(town.Confucianism, 999);
             }
-
-            if (isFirstReligion)
-            {
-              var extraTownOptional = await repo.Town.GetByIdAsync(extraTownId);
-              if (extraTownId != 0)
-              {
-                if (extraTownOptional.HasData)
-                {
-                  var extraTown = extraTownOptional.Data;
-                  if (!extraTown.IsNextToTown(town) || extraTown.CountryId != 0)
-                  {
-                    ErrorCode.InvalidParameterError.Throw();
-                  }
-                }
-              }
-              onSucceed = async () =>
-              {
-                await LogService.AddMapLogAsync(repo, false, EventType.NewReligion, $"<town>{town.Name}</town> は {country.Religion.GetString()} を国教とする最初の国が建国されたため、信仰を開始しました");
-
-                if (extraTownOptional.HasData)
-                {
-                  var extraTown = extraTownOptional.Data;
-                  extraTown.CountryId = country.Id;
-                  if (country.Religion == ReligionType.Confucianism)
-                  {
-                    extraTown.Confucianism += 500;
-                  }
-                  if (country.Religion == ReligionType.Buddhism)
-                  {
-                    extraTown.Buddhism += 500;
-                  }
-                  if (country.Religion == ReligionType.Taoism)
-                  {
-                    extraTown.Taoism += 500;
-                  }
-                  await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(extraTown), repo);
-                  await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new TownForAnonymous(extraTown)));
-                  await LogService.AddMapLogAsync(repo, true, EventType.TakeAwayWithReligion, $"<country>{country.Name}</country> は {country.Religion.GetString()} の創始ボーナスとして <town>{extraTown.Name}</town> を入手しました");
-                }
-              };
-            }
           }
         }
         else {
@@ -356,11 +305,6 @@ namespace SangokuKmy.Models.Services
           items.Add(CharacterItemType.CastleBlueprint);
           items.Add(CharacterItemType.CastleBlueprint);
           items.Add(CharacterItemType.CastleBlueprint);
-          if (isFirstReligion)
-          {
-            items.Add(CharacterItemType.CastleBlueprint);
-            chara.Money += 200_0000;
-          }
           chara.Money += 200_0000 * 3;
         }
 
@@ -580,12 +524,6 @@ namespace SangokuKmy.Models.Services
       var maplogData = ApiData.From(maplog);
       await AnonymousStreaming.Default.SendAllAsync(maplogData);
       await StatusStreaming.Default.SendAllAsync(maplogData);
-
-      if (onSucceed != null)
-      {
-        await onSucceed();
-        await repo.SaveChangesAsync();
-      }
 
       await AnonymousStreaming.Default.SendAllAsync(townData);
       await StatusStreaming.Default.SendAllAsync(townData);
