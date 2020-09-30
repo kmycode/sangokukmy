@@ -1525,7 +1525,11 @@ namespace SangokuKmy.Models.Updates
             var gyokujiWinner = allCountries.FirstOrDefault(c => c.GyokujiStatus == CountryGyokujiStatus.HasGenuine && c.IntGyokujiGameDate + 10 * 12 * 12 <= system.IntGameDateTime);
             if (gyokujiWinner != null)
             {
-              if (system.RuleSet == GameRuleSet.Gyokuji || !allWars.Any(w => w.IsJoinAvailable(gyokujiWinner.Id)))
+              var warableTargets = allWars
+                .Where(w => w.IsJoinAvailable(gyokujiWinner.Id))
+                .Select(w => w.GetEnemy(gyokujiWinner.Id))
+                .Where(wtid => allTowns.GetAroundCountries(allTowns.Where(t => t.CountryId == gyokujiWinner.Id)).Contains(wtid));
+              if (system.RuleSet == GameRuleSet.Gyokuji || !warableTargets.Any())
               {
                 await AddMapLogAsync(true, EventType.Gyokuji, $"<country>{gyokujiWinner.Name}</country> は玉璽を行使し、天下に覇を唱えました");
                 await CountryService.UnifyCountryAsync(repo, gyokujiWinner);
