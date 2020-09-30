@@ -10,6 +10,7 @@ namespace SangokuKmy.Models.Services
   {
     public async static Task<int> GetTownBuyCostAsync(MainRepository repo, Town town, Country country)
     {
+      var system = await repo.System.GetAsync();
       var countryOptional = await repo.Country.GetAliveByIdAsync(town.CountryId);
 
       var reinforcements = (await repo.Reinforcement.GetByCountryIdAsync(country.Id))
@@ -26,8 +27,8 @@ namespace SangokuKmy.Models.Services
       if (wars.Any(w => w.IsJoinAvailable(town.CountryId) && w.IsJoinAvailable(country.Id)))
       {
         if (wars.Any(w => w.IsJoinAvailable(town.CountryId) && w.IsJoinAvailable(country.Id) &&
-          (w.Status == CountryWarStatus.Available || (w.Status == CountryWarStatus.StopRequesting && town.CountryId != w.RequestedStopCountryId)) &&
-          w.Mode == CountryWarMode.Battle))
+          　　　　　　　　　　(w.Status == CountryWarStatus.Available || (w.Status == CountryWarStatus.StopRequesting && town.CountryId != w.RequestedStopCountryId)) &&
+          　　　　　　　　　　w.Mode == CountryWarMode.Battle && w.IntStartGameDate - 6 > system.IntGameDateTime))
         {
           // 自分の国と戦争状態にある場合
           cost *= 2.4f;
@@ -54,7 +55,6 @@ namespace SangokuKmy.Models.Services
         }
       }
 
-      var system = await repo.System.GetAsync();
       if (town.Religion != ReligionType.Any && town.Religion != ReligionType.None && country.Religion == town.Religion &&
         country.Religion != countryOptional.Data?.Religion)
       {
