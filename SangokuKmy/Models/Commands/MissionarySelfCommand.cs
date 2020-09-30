@@ -102,22 +102,24 @@ namespace SangokuKmy.Models.Commands
           }
         }
 
+        var religionPoints = new int[] { town.Confucianism, town.Buddhism, town.Taoism, };
+        var max = religionPoints.OrderByDescending(p => p).ElementAt(1) + 3000;
         var oldReligion = town.Religion;
 
         string religionName = string.Empty;
         if (religion == ReligionType.Confucianism)
         {
-          town.Confucianism += add;
+          town.Confucianism = Math.Min(town.Confucianism + add, max);
           religionName = "儒教";
         }
         else if (religion == ReligionType.Buddhism)
         {
-          town.Buddhism += add;
+          town.Buddhism = Math.Min(town.Buddhism + add, max);
           religionName = "仏教";
         }
         else if (religion == ReligionType.Taoism)
         {
-          town.Taoism += add;
+          town.Taoism = Math.Min(town.Taoism + add, max);
           religionName = "道教";
         }
 
