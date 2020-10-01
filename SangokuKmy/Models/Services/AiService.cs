@@ -367,6 +367,13 @@ namespace SangokuKmy.Models.Services
       town.Data.Name = name;
       town.Data.TownBuilding = TownBuilding.TerroristHouse;
 
+      await repo.Town.AddSubBuildingAsync(new TownSubBuilding
+      {
+        TownId = town.Data.Id,
+        Status = TownSubBuildingStatus.Available,
+        Type = TownSubBuildingType.DefenseStation,
+      });
+
       var country = await CreateCountryAsync(repo, system, town.Data, charas.ToArray());
       country.CountryColorId = countryColor;
       country.Name = name;

@@ -117,15 +117,15 @@ namespace SangokuKmy.Models.Updates.Ai
     {
       if (this.Town.Technology >= 500)
       {
-        return SoldierType.Seiran;
+        return SoldierType.StoneSlingshot;
       }
       if (this.Town.Technology >= 300)
       {
-        return SoldierType.TerroristCommonB;
+        return SoldierType.Seiran;
       }
       if (this.Town.Technology >= 100)
       {
-        return SoldierType.TerroristCommonA;
+        return SoldierType.TerroristCommonB;
       }
       return SoldierType.LightInfantry;
     }

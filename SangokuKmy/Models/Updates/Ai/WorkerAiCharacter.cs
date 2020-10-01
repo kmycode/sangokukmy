@@ -1257,7 +1257,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected bool InputSecurityInWar()
     {
-      if (!this.GetWaringCountries().Any())
+      if (!this.GetReadyForWarCountries().Any())
       {
         return false;
       }
@@ -1267,7 +1267,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return true;
       }
 
-      if (this.Town.People < this.Town.PeopleMax - 20000)
+      if (this.Town.People < this.Town.PeopleMax - 15000)
       {
         this.command.Type = CharacterCommandType.PeopleIncrease;
         return true;
