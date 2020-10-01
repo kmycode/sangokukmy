@@ -533,6 +533,9 @@ namespace SangokuKmy.Models.Data.Repositories
         this.container.Context.CountryMessages.RemoveRange(
           this.container.Context.CountryMessages
             .Where(cm => cm.CountryId == countryId));
+        this.container.Context.CountryCommanders.RemoveRange(
+          this.container.Context.CountryCommanders
+            .Where(cc => cc.CountryId == countryId));
       }
       catch (Exception ex)
       {
@@ -551,6 +554,7 @@ namespace SangokuKmy.Models.Data.Repositories
         await this.container.RemoveAllRowsAsync(typeof(CountryPost));
         await this.container.RemoveAllRowsAsync(typeof(CountryMessage));
         await this.container.RemoveAllRowsAsync(typeof(CountryPolicy));
+        await this.container.RemoveAllRowsAsync(typeof(CountryCommander));
       }
       catch (Exception ex)
       {
