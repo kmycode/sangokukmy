@@ -480,7 +480,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.ItemAppearOnDomesticAffairThousandth,
-            Value = 80,
+            Value = 200,
           },
         },
       },
