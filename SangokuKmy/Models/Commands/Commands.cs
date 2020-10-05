@@ -69,6 +69,7 @@ namespace SangokuKmy.Models.Commands
       new MissionaryCommand(),
       new OppressMissionaryCommand(),
       new MissionarySelfCommand(),    // AI専用
+      new BuyTownCommand(),
     };
 
     public static Optional<Command> Get(CharacterCommandType type)

@@ -411,5 +411,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 自教布教
     /// </summary>
     MissionarySelf = 73,
+
+    /// <summary>
+    /// 都市購入
+    /// </summary>
+    BuyTown = 74,
   }
 }

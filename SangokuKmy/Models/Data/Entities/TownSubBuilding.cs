@@ -296,7 +296,6 @@ namespace SangokuKmy.Models.Data.Entities
         Size = 2,
         Money = 30000,
         BuildDuring = 36,
-        BuildSubject = c => c.Intellect >= 100,
       },
       new TownSubBuildingTypeInfo
       {

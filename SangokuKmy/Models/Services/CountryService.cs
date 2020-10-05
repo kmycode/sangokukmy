@@ -15,13 +15,16 @@ namespace SangokuKmy.Models.Services
 {
   public static class CountryService
   {
-    public static async Task OverThrowAsync(MainRepository repo, Country country, Country winnerCountry)
+    public static async Task OverThrowAsync(MainRepository repo, Country country, Country winnerCountry, bool isLog = true)
     {
       var system = await repo.System.GetAsync();
       country.HasOverthrown = true;
       country.OverthrownGameDate = system.GameDateTime;
 
-      await LogService.AddMapLogAsync(repo, true, EventType.Overthrown, $"<country>{country.Name}</country> は滅亡しました");
+      if (isLog)
+      {
+        await LogService.AddMapLogAsync(repo, true, EventType.Overthrown, $"<country>{country.Name}</country> は滅亡しました");
+      }
 
       var targetCountryCharacters = await repo.Character.RemoveCountryAsync(country.Id);
       repo.Unit.RemoveUnitsByCountryId(country.Id);

@@ -21,7 +21,7 @@ namespace SangokuKmy.Models.Services
       var townTypeCost = (countryOptional.HasData && countryOptional.Data.CapitalTownId == town.Id) ? 12000 :
         town.Type == TownType.Large ? 10000 : 8000;
 
-      var cost = townTypeCost * (Math.Pow(1.07f, townCount) + Math.Pow(1.1f, characterCount)) + town.TakeoverDefensePoint * 1.5f;
+      var cost = townTypeCost * (Math.Pow(1.07f, townCount) + Math.Pow(1.1f, characterCount)) + town.TakeoverDefensePoint * 2.0f;
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
       if (wars.Any(w => w.IsJoinAvailable(town.CountryId) && w.IsJoinAvailable(country.Id)))

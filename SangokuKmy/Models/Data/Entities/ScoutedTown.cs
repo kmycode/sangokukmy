@@ -38,6 +38,7 @@ namespace SangokuKmy.Models.Data.Entities
         Confucianism = town.Confucianism,
         Taoism = town.Taoism,
         Buddhism = town.Buddhism,
+        TakeoverDefensePoint = town.TakeoverDefensePoint,
       };
       return t;
     }

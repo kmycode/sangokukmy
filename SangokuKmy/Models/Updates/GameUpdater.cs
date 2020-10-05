@@ -1015,7 +1015,7 @@ namespace SangokuKmy.Models.Updates
                   {
                     var isDefense = availableSubBuildings.Any(b => b.TownId == atown.Id && b.Type == TownSubBuildingType.DefenseStation);
                     var value = Math.Max(4 / (isDefense ? 3 : 1), 1);
-                    var value2 = 600 / (isDefense ? 3 : 1);
+                    var value2 = 400 / (isDefense ? 3 : 1);
                     atown.Security = (short)Math.Max(0, atown.Security - value);
                     atown.People = Math.Max(0, atown.People - value2);
                   }
@@ -1043,21 +1043,21 @@ namespace SangokuKmy.Models.Updates
                   {
                     town.TechnologyMax += 3;
                     town.WallMax += 7;
-                  }
 
-                  foreach (var atown in aroundTowns)
-                  {
-                    if (religion == ReligionType.Confucianism)
+                    foreach (var atown in aroundTowns)
                     {
-                      atown.Confucianism += 4;
-                    }
-                    if (religion == ReligionType.Buddhism)
-                    {
-                      atown.Buddhism += 4;
-                    }
-                    if (religion == ReligionType.Taoism)
-                    {
-                      atown.Taoism += 4;
+                      if (religion == ReligionType.Confucianism)
+                      {
+                        atown.Confucianism += 4;
+                      }
+                      if (religion == ReligionType.Buddhism)
+                      {
+                        atown.Buddhism += 4;
+                      }
+                      if (religion == ReligionType.Taoism)
+                      {
+                        atown.Taoism += 4;
+                      }
                     }
                   }
                 }
