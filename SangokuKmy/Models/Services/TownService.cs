@@ -27,8 +27,8 @@ namespace SangokuKmy.Models.Services
       if (wars.Any(w => w.IsJoinAvailable(town.CountryId) && w.IsJoinAvailable(country.Id)))
       {
         if (wars.Any(w => w.IsJoinAvailable(town.CountryId) && w.IsJoinAvailable(country.Id) &&
-          　　　　　　　　　　(w.Status == CountryWarStatus.Available || (w.Status == CountryWarStatus.StopRequesting && town.CountryId != w.RequestedStopCountryId)) &&
-          　　　　　　　　　　w.Mode == CountryWarMode.Battle && w.IntStartGameDate - 6 > system.IntGameDateTime))
+          　　　　　　　　　　(w.Status == CountryWarStatus.Available || (w.Status == CountryWarStatus.StopRequesting && town.CountryId != w.RequestedStopCountryId) || (w.Status == CountryWarStatus.InReady && w.IntStartGameDate - 6 < system.IntGameDateTime)) &&
+          　　　　　　　　　　w.Mode == CountryWarMode.Battle))
         {
           // 自分の国と戦争状態にある場合
           cost *= 2.4f;
