@@ -53,7 +53,7 @@ namespace SangokuKmy.Models.Common
     /// <summary>
     /// 階級の数（新規登録直後に与えられる階級も含まれるので注意）
     /// </summary>
-    public static short LankCount { get; } = 21;
+    public static short LankCount { get; } = 26;
 
     /// <summary>
     /// 次の階級までに必要な階級値
