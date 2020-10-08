@@ -84,6 +84,20 @@ namespace SangokuKmy.Models.Data.Entities
     [NotMapped]
     [JsonProperty("startGameDate")]
     public GameDateTime StartGameDate { get; set; }
+
+    /// <summary>
+    /// 布告した国の最大武将数
+    /// </summary>
+    [Column("requested_country_character_max")]
+    [JsonIgnore]
+    public short RequestedCountryCharacterMax { get; set; }
+
+    /// <summary>
+    /// 布告された国の最大武将数
+    /// </summary>
+    [Column("insisted_country_character_max")]
+    [JsonIgnore]
+    public short InsistedCountryCharacterMax { get; set; }
   }
 
   public enum CountryWarStatus : short

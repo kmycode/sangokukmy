@@ -1171,6 +1171,16 @@ namespace SangokuKmy.Models.Updates
                 await StatusStreaming.Default.SendAllAsync(ApiData.From(war));
               }
             }
+            foreach (var war in allWars.Where(cw => cw.Status != CountryWarStatus.Stoped))
+            {
+              var country1 = countryData.FirstOrDefault(c => c.Country.Id == war.RequestedCountryId);
+              var country2 = countryData.FirstOrDefault(c => c.Country.Id == war.InsistedCountryId);
+              if (country1 != null && country2 != null)
+              {
+                war.RequestedCountryCharacterMax = (short)Math.Max(war.RequestedCountryCharacterMax, country1.Characters.Count());
+                war.InsistedCountryCharacterMax = (short)Math.Max(war.InsistedCountryCharacterMax, country2.Characters.Count());
+              }
+            }
             foreach (var war in (await repo.CountryDiplomacies.GetAllTownWarsAsync()))
             {
               if (war.Status == TownWarStatus.InReady)

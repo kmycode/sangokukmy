@@ -26,6 +26,20 @@ namespace SangokuKmy.Models.Services
         await LogService.AddMapLogAsync(repo, true, EventType.Overthrown, $"<country>{country.Name}</country> は滅亡しました");
       }
 
+      // 戦争勝利ボーナス
+      var wars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.IsJoin(country.Id));
+      foreach (var war in wars)
+      {
+        var targetId = war.GetEnemy(country.Id);
+        var target = winnerCountry?.Id == targetId ? winnerCountry : (await repo.Country.GetAliveByIdAsync(targetId)).Data;
+        if (target != null)
+        {
+          var characterCount = war.RequestedCountryId == country.Id ? war.RequestedCountryCharacterMax : war.InsistedCountryCharacterMax;
+          target.SafeMoney += characterCount * 20_0000;
+          await StatusStreaming.Default.SendCountryAsync(ApiData.From(target), target.Id);
+        }
+      }
+
       var targetCountryCharacters = await repo.Character.RemoveCountryAsync(country.Id);
       repo.Unit.RemoveUnitsByCountryId(country.Id);
       repo.Reinforcement.RemoveByCountryId(country.Id);
