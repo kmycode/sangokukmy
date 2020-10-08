@@ -460,7 +460,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.RiceBuyMax,
-            Value = 10000,
+            Value = 15000,
           },
         },
       },
@@ -495,7 +495,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.RiceBuyMax,
-            Value = 10000,
+            Value = 15000,
           },
         },
       },
