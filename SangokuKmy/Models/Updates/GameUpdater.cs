@@ -253,7 +253,7 @@ namespace SangokuKmy.Models.Updates
                   .Towns
                   .Sum(t =>
                   {
-                    var val = (long)(system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 8 * t.People / 10000;
+                    var val = (long)(system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 7.2f * t.People / 10000.0f;
 
                     if (countryData.Any(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && c.Country.Religion != country.Country.Religion))
                     {
