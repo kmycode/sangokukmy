@@ -253,18 +253,18 @@ namespace SangokuKmy.Models.Updates
                   .Towns
                   .Sum(t =>
                   {
-                    var val = (long)(system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 7.2f * t.People / 10000.0f;
+                    var val = (system.GameDateTime.Month == 1 ? t.Commercial : t.Agriculture) * 7.2 * (t.People / 10000.0);
 
                     if (countryData.Any(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && c.Country.Religion != country.Country.Religion))
                     {
                       if (t.Religion == country.Country.Religion)
                       {
-                        val = (int)(val * 1.05f);
+                        val = val * 1.05;
                       }
                     }
                     if (country.Country.IsWarPenalty)
                     {
-                      val = (int)(val * 0.95f);
+                      val = val * 0.95;
                     }
 
                     return val;
