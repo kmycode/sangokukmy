@@ -638,12 +638,6 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
-        var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(chara.CountryId, town.CountryId);
-        if (alliance.HasData)
-        {
-          ErrorCode.InvalidOperationError.Throw();
-        }
-
         country.PolicyPoint -= 1000;
         town.TakeoverDefensePoint += 1000;
 
