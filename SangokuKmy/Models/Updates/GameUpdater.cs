@@ -1356,6 +1356,12 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
+          // 放浪ルールの場合、任意のタイミングでアイテムを生成
+          if (system.RuleSet == GameRuleSet.Wandering && system.GameDateTime.Year == 36 && system.GameDateTime.Month == 1)
+          {
+            await ItemService.InitializeItemOnTownsAsync(repo, allTowns);
+          }
+
           // 農民反乱
           if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle && RandomService.Next(0, 32) == 0)
           {

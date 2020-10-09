@@ -276,8 +276,11 @@ namespace SangokuKmy.Models.Services
       await repo.Town.AddTownsAsync(towns);
       await repo.SaveChangesAsync();
 
-      await ItemService.InitializeItemOnTownsAsync(repo, towns);
-      await repo.SaveChangesAsync();
+      if (ruleSet != GameRuleSet.Wandering)
+      {
+        await ItemService.InitializeItemOnTownsAsync(repo, towns);
+        await repo.SaveChangesAsync();
+      }
     }
   }
 }
