@@ -198,6 +198,7 @@ namespace SangokuKmy.Models.Services
       var characters = await repo.Character.GetAllAliveWithIconAndRankingAsync();
       var maplogs = await repo.MapLog.GetAllImportantsAsync();
       var towns = await repo.Town.GetAllAsync();
+      var chatMessages = await repo.ChatMessage.GetAllAsync();
 
       var unifiedCountry = countries.FirstOrDefault(c => c.Id == unifiedCountryId);
       var posts = Enumerable.Empty<CountryPost>();
@@ -238,6 +239,11 @@ namespace SangokuKmy.Models.Services
         {
           var town = HistoricalTown.FromTown(t);
           return town;
+        }).ToArray(),
+        ChatMessages = chatMessages.Select(c =>
+        {
+          var chat = HistoricalChatMessage.FromChatMessage(c);
+          return chat;
         }).ToArray(),
       };
 

@@ -76,5 +76,9 @@ namespace SangokuKmy.Models.Data.Entities
     [NotMapped]
     [JsonProperty("towns")]
     public IEnumerable<HistoricalTown> Towns { get; set; }
+
+    [NotMapped]
+    [JsonIgnore]
+    public IEnumerable<HistoricalChatMessage> ChatMessages { get; set; }
   }
 }

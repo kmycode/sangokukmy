@@ -298,6 +298,11 @@ namespace SangokuKmy.Models.Data
     public DbSet<HistoricalTown> HistoricalTowns { get; set; }
 
     /// <summary>
+    /// 統一記録の手紙一覧
+    /// </summary>
+    public DbSet<HistoricalChatMessage> HistoricalChatMessages { get; set; }
+
+    /// <summary>
     /// 援軍
     /// </summary>
     public DbSet<Reinforcement> Reinforcements { get; set; }

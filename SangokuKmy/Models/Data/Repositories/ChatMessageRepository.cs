@@ -20,6 +20,19 @@ namespace SangokuKmy.Models.Data.Repositories
       this.container = container;
     }
 
+    public async Task<IReadOnlyList<ChatMessage>> GetAllAsync()
+    {
+      try
+      {
+        return await this.container.Context.ChatMessages.ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     /// <summary>
     /// メッセージIDからメッセージを取得する
     /// </summary>
