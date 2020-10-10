@@ -2151,9 +2151,16 @@ namespace SangokuKmy.Models.Updates.Ai
               this.command.Type = CharacterCommandType.HandOverItem;
               return true;
             }
-            else if (isGet)
+            else
             {
-              await ItemService.SetCharacterAsync(repo, item, this.Character);
+              if (isGet)
+              {
+                await ItemService.SetCharacterAsync(repo, item, this.Character);
+              }
+              else
+              {
+                await ItemService.ReleaseCharacterAsync(repo, item, this.Character);
+              }
             }
           }
         }
