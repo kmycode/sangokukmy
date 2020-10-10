@@ -114,7 +114,7 @@ namespace SangokuKmy.Models.Commands
       newTown.Y = (short)y;
       newTown.Name = MapService.GetTownName((short)x, (short)y);
       newTown.CountryId = character.CountryId;
-      newTown.UniqueCharacterId = item.UniqueCharacterId;
+      newTown.UniqueCharacterId = item.UniqueCharacterId != 0 ? item.UniqueCharacterId : character.Id;
       if (isCapital)
       {
         newTown.SubType = townType;

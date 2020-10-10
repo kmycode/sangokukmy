@@ -23,7 +23,7 @@ namespace SangokuKmy.Models.Services
         var countries = await repo.Country.GetAllAsync();
         var messages = await repo.ChatMessage.GetAllAsync();
 
-        history.Data.ChatMessages = messages.Select(m => HistoricalChatMessage.FromChatMessage(m));
+        history.Data.ChatMessages = messages.Select(m => HistoricalChatMessage.FromChatMessage(m)).ToArray();
         await repo.History.RecordChatMessagesAndSaveAsync(history.Data);
 
         var unifiedCountry = countries.FirstOrDefault(c => !c.HasOverthrown);
