@@ -630,6 +630,10 @@ namespace SangokuKmy.Models.Services
         {
           ErrorCode.CantPublisAtSuchTownhError.Throw();
         }
+        if (country.BattlePolicy == CountryBattlePolicy.None)
+        {
+          ErrorCode.InvalidParameterError.Throw();
+        }
       }
       else
       {
