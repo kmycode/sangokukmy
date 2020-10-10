@@ -30,8 +30,8 @@ namespace SangokuKmy.Models.Services
         CountryMessage unifiedCountryMessage = null;
         if (unifiedCountry != null)
         {
-          var messageOptional = await repo.Country.GetMessageAsync(unifiedCountry.Id, CountryMessageType.Unified);
-          messageOptional.Some((message) => unifiedCountryMessage = message);
+          var msgs = await repo.Country.GetMessagesAsync(CountryMessageType.Unified);
+          unifiedCountryMessage = msgs.FirstOrDefault();
         }
         if (unifiedCountryMessage != null)
         {

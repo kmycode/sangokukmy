@@ -341,6 +341,21 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public async Task<IReadOnlyList<CountryMessage>> GetMessagesAsync(CountryMessageType type)
+    {
+      try
+      {
+        return await this.container.Context.CountryMessages
+          .Where(m => m.Type == type)
+          .ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
     /// <summary>
     /// 国のメッセージデータを取得する
     /// </summary>
