@@ -2054,7 +2054,7 @@ namespace SangokuKmy.Models.Updates.Ai
         if (infoOptional.HasData)
         {
           var info = infoOptional.Data;
-          if (info.UsingEffects != null)
+          if (info.UsingEffects != null && info.CanUse)
           {
             if (info.UsingEffects.Any(e => e.Type == CharacterItemEffectType.FormationEx ||
               e.Type == CharacterItemEffectType.Money ||
@@ -2075,17 +2075,56 @@ namespace SangokuKmy.Models.Updates.Ai
           if (info.Effects != null && item.Status == CharacterItemStatus.CharacterPending)
           {
             var isGet = false;
-            if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Strong) && this.Character.GetCharacterType() == CharacterType.Strong)
+            var isHandOver = false;
+            var handOverTargetId = (uint)0;
+            var countryCharacters = await repo.Country.GetCharactersAsync(this.Character.CountryId);
+            if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Strong && e.Value >= 5))
             {
-              isGet = true;
+              if (this.Character.GetCharacterType() == CharacterType.Strong)
+              {
+                isGet = true;
+              }
+              else
+              {
+                var target = countryCharacters.FirstOrDefault(c => c.GetCharacterType() == CharacterType.Strong);
+                if (target != null)
+                {
+                  handOverTargetId = target.Id;
+                  isHandOver = true;
+                }
+              }
             }
-            if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Intellect) && this.Character.GetCharacterType() == CharacterType.Intellect)
+            if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Intellect && e.Value >= 5))
             {
-              isGet = true;
+              if (this.Character.GetCharacterType() == CharacterType.Intellect)
+              {
+                isGet = true;
+              }
+              else
+              {
+                var target = countryCharacters.FirstOrDefault(c => c.GetCharacterType() == CharacterType.Intellect);
+                if (target != null)
+                {
+                  handOverTargetId = target.Id;
+                  isHandOver = true;
+                }
+              }
             }
-            if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Popularity) && this.Character.GetCharacterType() == CharacterType.Popularity)
+            if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Popularity && e.Value >= 5))
             {
-              isGet = true;
+              if (this.Character.GetCharacterType() == CharacterType.Popularity)
+              {
+                isGet = true;
+              }
+              else
+              {
+                var target = countryCharacters.FirstOrDefault(c => c.GetCharacterType() == CharacterType.Popularity);
+                if (target != null)
+                {
+                  handOverTargetId = target.Id;
+                  isHandOver = true;
+                }
+              }
             }
             if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Leadership ||
               e.Type == CharacterItemEffectType.ProficiencyMinimum ||
@@ -2096,7 +2135,23 @@ namespace SangokuKmy.Models.Updates.Ai
             {
               isGet = true;
             }
-            if (isGet)
+
+            if (isHandOver)
+            {
+              this.command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 1,
+                NumberValue = (int)item.Type,
+              });
+              this.command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 2,
+                NumberValue = (int)handOverTargetId,
+              });
+              this.command.Type = CharacterCommandType.HandOverItem;
+              return true;
+            }
+            else if (isGet)
             {
               await ItemService.SetCharacterAsync(repo, item, this.Character);
             }
