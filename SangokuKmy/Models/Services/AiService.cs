@@ -60,7 +60,9 @@ namespace SangokuKmy.Models.Services
           AiType = type,
           CountryId = countryId,
           TownId = townId,
-          LastUpdated = system.CurrentMonthStartDateTime.AddSeconds(RandomService.Next(0, Config.UpdateTime)),
+          LastUpdated = system.CurrentMonthStartDateTime.AddMilliseconds(
+            (type == CharacterAiType.ManagedPatroller || type == CharacterAiType.TerroristPatroller || type == CharacterAiType.TerroristMainPatroller) ?
+              2000 + RandomService.Next(0, 2000) : 100 + RandomService.Next(0, 600)),
           LastUpdatedGameDate = system.GameDateTime,
         };
         var ai = AiCharacterFactory.Create(chara);
