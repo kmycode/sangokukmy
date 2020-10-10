@@ -323,7 +323,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.DomesticAffairMulPercentageInWar,
-            Value = 40,
+            Value = 35,
           },
           new CharacterSkillEffect
           {
@@ -363,7 +363,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.DomesticAffairMulPercentageInWar,
-            Value = 40,
+            Value = 35,
           },
           new CharacterSkillEffect
           {
