@@ -15,6 +15,9 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("history_id")]
     public uint HistoryId { get; set; }
 
+    [Column("chat_message_id")]
+    public uint ChatMessageId { get; set; }
+
     [Column("character_id")]
     public uint CharacterId { get; set; }
 
@@ -38,6 +41,7 @@ namespace SangokuKmy.Models.Data.Entities
     {
       return new HistoricalChatMessage
       {
+        ChatMessageId = message.Id,
         CharacterId = message.CharacterId,
         Type = message.Type,
         TypeData = message.TypeData,
