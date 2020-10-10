@@ -211,6 +211,21 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("town_sub_building_extra_space")]
     [JsonProperty("townSubBuildingExtraSpace")]
     public short TownSubBuildingExtraSpace { get; set; }
+
+    /// <summary>
+    /// 国の方針
+    /// </summary>
+    [Column("policy")]
+    [JsonIgnore]
+    public CountryBattlePolicy BattlePolicy { get; set; }
+
+    [NotMapped]
+    [JsonProperty("policy")]
+    public short ApiPolicy
+    {
+      get => (short)this.BattlePolicy;
+      set => this.BattlePolicy = (CountryBattlePolicy)value;
+    }
   }
 
   public enum CountryAiType : short
@@ -245,5 +260,28 @@ namespace SangokuKmy.Models.Data.Entities
     /// 配布時に拒否する
     /// </summary>
     Refused = 3,
+  }
+
+  public enum CountryBattlePolicy : short
+  {
+    /// <summary>
+    /// なし　
+    /// </summary>
+    None = 0,
+
+    /// <summary>
+    /// 統一重視
+    /// </summary>
+    Unification = 1,
+
+    /// <summary>
+    /// まったり
+    /// </summary>
+    Relax = 2,
+
+    /// <summary>
+    /// 放任主義
+    /// </summary>
+    LaissezFaire = 3,
   }
 }

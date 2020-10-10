@@ -73,6 +73,7 @@ namespace SangokuKmy.Models.Services
         Message = newChara.Message,
         Money = 10_0000 + Math.Max(system.GameDateTime.ToInt() - (Config.StartYear + Config.UpdateStartYear + 4) * 12 - Config.StartMonth, 0) * 800,
         Rice = 5_0000 + Math.Max(system.GameDateTime.ToInt() - (Config.StartYear + Config.UpdateStartYear + 4) * 12 - Config.StartMonth, 0) * 400,
+        SkillPoint = Math.Max(0, (int)((system.IntGameDateTime - Config.UpdateStartYear * 12) * 0.8f)),
         SoldierType = SoldierType.Common,
         SoldierNumber = 0,
         Proficiency = 0,
@@ -259,6 +260,7 @@ namespace SangokuKmy.Models.Services
           LastRiceIncomes = 0,
           PolicyPoint = 10000,
           Religion = RandomService.Next(new ReligionType[] { ReligionType.Buddhism, ReligionType.Confucianism, ReligionType.Taoism, }),
+          BattlePolicy = newCountry.BattlePolicy,
         };
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
