@@ -642,12 +642,17 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.StrongOrIntellectExRegularly,
-            Value = 9,
+            Value = 10,
           },
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.Command,
             Value = (int)CharacterCommandType.PeopleIncrease,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.RiceBuyContribution,
+            Value = 15,
           },
         },
       },
@@ -719,7 +724,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CharacterSkillEffect
           {
             Type = CharacterSkillEffectType.StrongOrIntellectExRegularly,
-            Value = 4,
+            Value = 6,
           },
         },
       },

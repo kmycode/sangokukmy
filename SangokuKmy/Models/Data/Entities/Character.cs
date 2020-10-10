@@ -808,7 +808,7 @@ namespace SangokuKmy.Models.Data.Entities
   {
     public static bool IsForWall(this SoldierType type)
     {
-      return type == SoldierType.Seiran;
+      return type == SoldierType.Seiran || type == SoldierType.StoneSlingshot;
     }
   }
 

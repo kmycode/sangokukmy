@@ -274,7 +274,7 @@ namespace SangokuKmy.Models.Services
 
     public static async Task<Optional<CharacterItemInfo>> PickTownHiddenItemAsync(MainRepository repo, uint townId, Character chara)
     {
-      if (chara.AiType != CharacterAiType.Human && chara.AiType != CharacterAiType.Administrator)
+      if (chara.AiType != CharacterAiType.Human && chara.AiType != CharacterAiType.Administrator && !chara.AiType.IsManaged())
       {
         return default;
       }

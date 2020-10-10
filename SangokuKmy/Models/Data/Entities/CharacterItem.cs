@@ -1368,6 +1368,7 @@ namespace SangokuKmy.Models.Data.Entities
           CharacterFrom.Warrior,
           CharacterFrom.Terrorist,
           CharacterFrom.Staff,
+          CharacterFrom.Ai,
         },
       },
       new CharacterItemInfo

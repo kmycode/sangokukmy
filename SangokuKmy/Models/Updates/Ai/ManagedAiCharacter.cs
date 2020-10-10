@@ -387,9 +387,9 @@ namespace SangokuKmy.Models.Updates.Ai
               TownCountryId = this.NextBattleTown.CountryId,
             }) == AiBattleTargetType.Wall)))
         {
-          this.soldierTypeCache = SoldierType.Seiran;
+          this.soldierTypeCache = SoldierType.StoneSlingshot;
         }
-        else if (this.Town.Technology >= 1000 && this.Character.Money > this.Character.Leadership * 240 + 45_0000 && this.GameDateTime.Year >= 150)
+        else if (this.Town.Technology >= 1000 && this.Character.Money > this.Character.Leadership * 240 + 45_0000 && this.GameDateTime.Year >= 80)
         {
           if (soldierTypeNumber % 3 == 0)
           {
@@ -489,6 +489,11 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
     {
+      if (await this.InputUseItemAsync(repo))
+      {
+        return;
+      }
+
       if (await this.InputFirstSecurityAsync(repo))
       {
         return;
@@ -715,6 +720,11 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
     {
+      if (await this.InputUseItemAsync(repo))
+      {
+        return;
+      }
+
       if (await this.InputFirstSecurityAsync(repo))
       {
         return;
@@ -880,6 +890,11 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
     {
+      if (await this.InputUseItemAsync(repo))
+      {
+        return;
+      }
+
       if (await this.InputCountryForceDefendLoopAsync(repo))
       {
         return;
@@ -968,6 +983,11 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task ActionPersonalAsync(MainRepository repo)
     {
+      if (await this.InputUseItemAsync(repo))
+      {
+        return;
+      }
+
       if (await this.InputExpandRicePriceRangeAsync(repo))
       {
         return;

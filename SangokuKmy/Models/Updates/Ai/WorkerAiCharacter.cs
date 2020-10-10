@@ -2033,6 +2033,68 @@ namespace SangokuKmy.Models.Updates.Ai
       return true;
     }
 
+    protected async Task<bool> InputUseItemAsync(MainRepository repo)
+    {
+      var items = await repo.Character.GetItemsAsync(this.Character.Id);
+      foreach (var item in items)
+      {
+        var infoOptional = item.GetInfo();
+        if (infoOptional.HasData)
+        {
+          var info = infoOptional.Data;
+          if (info.UsingEffects != null)
+          {
+            if (info.UsingEffects.Any(e => e.Type == CharacterItemEffectType.FormationEx ||
+              e.Type == CharacterItemEffectType.Money ||
+              e.Type == CharacterItemEffectType.IntellectEx ||
+              e.Type == CharacterItemEffectType.SkillPoint ||
+              e.Type == CharacterItemEffectType.SoldierCorrectionResource ||
+              e.Type == CharacterItemEffectType.TerroristEnemy))
+            {
+              this.command.Parameters.Add(new CharacterCommandParameter
+              {
+                Type = 1,
+                NumberValue = (int)item.Type,
+              });
+              this.command.Type = CharacterCommandType.UseItem;
+              return true;
+            }
+          }
+          if (info.Effects != null && item.Status == CharacterItemStatus.CharacterPending)
+          {
+            var isGet = false;
+            if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Strong) && this.Character.GetCharacterType() == CharacterType.Strong)
+            {
+              isGet = true;
+            }
+            if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Intellect) && this.Character.GetCharacterType() == CharacterType.Intellect)
+            {
+              isGet = true;
+            }
+            if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Popularity) && this.Character.GetCharacterType() == CharacterType.Popularity)
+            {
+              isGet = true;
+            }
+            if (info.Effects.Any(e => e.Type == CharacterItemEffectType.Leadership ||
+              e.Type == CharacterItemEffectType.ProficiencyMinimum ||
+              e.Type == CharacterItemEffectType.DiscountCavalrySoldierPercentage ||
+              e.Type == CharacterItemEffectType.DiscountCrossbowSoldierPercentage ||
+              e.Type == CharacterItemEffectType.DiscountInfantrySoldierPercentage ||
+              e.Type == CharacterItemEffectType.DiscountSoldierPercentageWithResource))
+            {
+              isGet = true;
+            }
+            if (isGet)
+            {
+              await ItemService.SetCharacterAsync(repo, item, this.Character);
+            }
+          }
+        }
+      }
+
+      return false;
+    }
+
     protected void MoveToRandomTown()
     {
       var arounds = this.towns.GetAroundTowns(this.Town);
