@@ -877,6 +877,18 @@ namespace SangokuKmy.Models.Updates.Ai
           }
         }
       }
+      {
+        // 謀略建築物
+        var targets = this.GetAroundTargetTowns();
+        var subbuildings = await repo.Town.GetSubBuildingsAsync();
+        var targetsData = targets
+          .GroupJoin(subbuildings, t => t.Id, sb => sb.TownId, (t, sbs) => new { Town = t, SubBuildings = sbs.Where(ssb => ssb.Type == TownSubBuildingType.Agitation), })
+          .OrderByDescending(t => t.SubBuildings.Count());
+        if (targetsData.FirstOrDefault()?.SubBuildings.Any() ?? false)
+        {
+          targetTown = targetsData.First().Town;
+        }
+      }
 
       return (targetTown, null);
     }
