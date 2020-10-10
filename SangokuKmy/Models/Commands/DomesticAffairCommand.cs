@@ -71,6 +71,11 @@ namespace SangokuKmy.Models.Commands
         if (this is SecurityCommand || this is SuperSecurityCommand)
         {
           add = (int)(add * (1 + skills.GetSumOfValues(CharacterSkillEffectType.SecurityCommandMulPercentage) / 100.0f));
+
+          if (country.AiType == CountryAiType.Terrorists || country.AiType == CountryAiType.TerroristsEnemy)
+          {
+            town.People = Math.Min(town.PeopleMax, town.People + 1600);
+          }
         }
 
         if (country.Religion != ReligionType.Any && country.Religion != ReligionType.None && country.Religion == town.Religion)
