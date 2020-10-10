@@ -21,6 +21,10 @@ namespace SangokuKmy.Models.Services
       if (history.HasData)
       {
         var countries = await repo.Country.GetAllAsync();
+        var messages = await repo.ChatMessage.GetAllAsync();
+
+        history.Data.ChatMessages = messages.Select(m => HistoricalChatMessage.FromChatMessage(m));
+        await repo.History.RecordChatMessagesAndSaveAsync(history.Data);
 
         var unifiedCountry = countries.FirstOrDefault(c => !c.HasOverthrown);
         CountryMessage unifiedCountryMessage = null;
@@ -198,7 +202,6 @@ namespace SangokuKmy.Models.Services
       var characters = await repo.Character.GetAllAliveWithIconAndRankingAsync();
       var maplogs = await repo.MapLog.GetAllImportantsAsync();
       var towns = await repo.Town.GetAllAsync();
-      var chatMessages = await repo.ChatMessage.GetAllAsync();
 
       var unifiedCountry = countries.FirstOrDefault(c => c.Id == unifiedCountryId);
       var posts = Enumerable.Empty<CountryPost>();
@@ -239,11 +242,6 @@ namespace SangokuKmy.Models.Services
         {
           var town = HistoricalTown.FromTown(t);
           return town;
-        }).ToArray(),
-        ChatMessages = chatMessages.Select(c =>
-        {
-          var chat = HistoricalChatMessage.FromChatMessage(c);
-          return chat;
         }).ToArray(),
       };
 

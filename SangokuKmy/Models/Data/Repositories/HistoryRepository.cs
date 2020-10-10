@@ -58,6 +58,18 @@ namespace SangokuKmy.Models.Data.Repositories
         }
         await this.container.Context.HistoricalTowns.AddRangeAsync(history.Towns);
 
+        await this.container.Context.SaveChangesAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
+    public async Task RecordChatMessagesAndSaveAsync(History history)
+    {
+      try
+      {
         foreach (var message in history.ChatMessages)
         {
           message.HistoryId = history.Id;
