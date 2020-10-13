@@ -119,9 +119,9 @@ namespace SangokuKmy.Models.Commands
             }
           }
 
-          if (!isTownWar && targetCountryOptional.Data.AiType != CountryAiType.Farmers)
+          if (!isTownWar)
           {
-            if (!warOptional.HasData)
+            if (!warOptional.HasData && targetCountryOptional.Data.AiType != CountryAiType.Farmers)
             {
               await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> の所持国 <country>" + targetCountryOptional.Data.Name + "</country> とは宣戦の関係にありません");
               return;
@@ -174,6 +174,27 @@ namespace SangokuKmy.Models.Commands
       {
         await game.CharacterLogAsync($"兵種 {mySoldierTypeInfo.Name} は、全国戦争で使うことはできません");
         return;
+      }
+
+      if (targetCountryOptional.HasData && targetCountryOptional.Data.AiType == CountryAiType.Farmers)
+      {
+        var farmerWars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.IsJoinAvailable(targetCountryOptional.Data.Id));
+        if (farmerWars.Any(w => w.Mode == CountryWarMode.Religion))
+        {
+          if (mySoldierTypeInfo.Kind != SoldierKind.Religion)
+          {
+            await game.CharacterLogAsync($"兵種 {mySoldierTypeInfo.Name} は、宗教戦争を布告している農民国家に対して使うことはできません");
+            return;
+          }
+        }
+        if (farmerWars.Any(w => w.Mode == CountryWarMode.Battle))
+        {
+          if (mySoldierTypeInfo.Kind != SoldierKind.Battle)
+          {
+            await game.CharacterLogAsync($"兵種 {mySoldierTypeInfo.Name} は、通常戦争を布告している農民国家に対して使うことはできません");
+            return;
+          }
+        }
       }
 
       // 連戦カウント
