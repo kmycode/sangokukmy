@@ -1344,15 +1344,19 @@ namespace SangokuKmy.Models.Updates
             foreach (var country in countryData.Where(c => !c.Country.HasOverthrown)
                                                .Where(c => !c.Towns.Any()))
             {
-              if (system.RuleSet == GameRuleSet.Wandering)
-              {
-                foreach (var chara in country.Characters)
-                {
-                  chara.Money -= 600_0000;
-                  await AddLogAsync(chara.Id, $"期限が過ぎたため、未建国の放浪軍は滅亡しました。放浪時に与えられた金も消滅しました");
-                }
-              }
               await CountryService.OverThrowAsync(repo, country.Country, null);
+            }
+          }
+          if (system.RuleSet == GameRuleSet.Wandering && system.GameDateTime.Year == 48 && system.GameDateTime.Month == 1)
+          {
+            foreach (var country in countryData.Where(c => !c.Country.HasOverthrown))
+            {
+              foreach (var chara in country.Characters)
+              {
+                var items = await repo.Character.GetItemsAsync(chara.Id);
+                chara.Money -= items.Count(i => i.Type == CharacterItemType.CastleBlueprint) * 200_0000;
+                await AddLogAsync(chara.Id, $"期限が過ぎたため、未建国の放浪軍は滅亡しました。放浪時に与えられた金も消滅しました");
+              }
             }
           }
 
