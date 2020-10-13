@@ -1381,7 +1381,9 @@ namespace SangokuKmy.Models.Updates
               c.Country.AiType != CountryAiType.Farmers && c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && (c.Country.IsWarPenalty || allWars.All(w => !w.IsJoinAvailable(c.Country.Id)))))
             {
               foreach (var town in country.Towns.Where(t =>
-                t.Religion != country.Country.Religion && t.Religion != ReligionType.Any && !defenders.Any(d => d.TownId == t.Id)))
+                t.Religion != country.Country.Religion && t.Religion != ReligionType.Any &&
+                !defenders.Any(d => d.TownId == t.Id) &&
+                t.Security <= 80))
               {
                 var aroundCountries = allTowns
                   .GetAroundCountries(town)

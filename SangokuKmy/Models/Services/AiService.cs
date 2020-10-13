@@ -193,6 +193,15 @@ namespace SangokuKmy.Models.Services
 
       if (target == null)
       {
+        if (self.AiType == CountryAiType.Farmers && self.Religion != ReligionType.Any && self.Religion != ReligionType.None)
+        {
+          targets = targets.Where(t => t.Religion != self.Religion);
+          if (!targets.Any())
+          {
+            return false;
+          }
+        }
+
         var targetOptional = await repo.Country.GetAliveByIdAsync(targets.ElementAt(RandomService.Next(0, targets.Count())).Id);
         if (!targetOptional.HasData)
         {
@@ -209,7 +218,7 @@ namespace SangokuKmy.Models.Services
       }
 
       return await CreateWarAsync(repo, self, target, startDate,
-        (self.AiType == CountryAiType.Farmers && self.Religion != ReligionType.Any && self.Religion != ReligionType.None) ? CountryWarMode.Religion : CountryWarMode.Battle);
+        (self.AiType == CountryAiType.Farmers && self.Religion != ReligionType.Any && self.Religion != ReligionType.None && self.Religion != target.Religion) ? CountryWarMode.Religion : CountryWarMode.Battle);
     }
 
     public static GameDateTime GetWarStartDateTime(GameDateTime current, AiCountryWarStartDatePolicy policy = AiCountryWarStartDatePolicy.First21)
@@ -790,7 +799,7 @@ namespace SangokuKmy.Models.Services
       country.AiType = CountryAiType.Farmers;
       if (isReligion)
       {
-        country.Religion = RandomService.Next(new ReligionType[] { ReligionType.Buddhism, ReligionType.Confucianism, ReligionType.Taoism, });
+        country.Religion = town.Religion;
       }
 
       var myCharas = (await repo.Country.GetCharactersAsync(country.Id)).Where(c => !c.HasRemoved).ToArray();
