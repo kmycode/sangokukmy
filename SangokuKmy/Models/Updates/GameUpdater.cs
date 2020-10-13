@@ -1373,7 +1373,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 農民反乱（宗教）
-          if (!system.IsWaitingReset && RandomService.Next(0, system.RuleSet == GameRuleSet.Religion ? 20 : 40) == 0)
+          if (!system.IsWaitingReset && RandomService.Next(0, system.RuleSet == GameRuleSet.Religion ? 20 : 60) == 0)
           {
             var targetTowns = new List<Town>();
             var defenders = await repo.Town.GetAllDefendersAsync();
