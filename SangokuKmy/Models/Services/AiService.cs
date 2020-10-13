@@ -209,7 +209,7 @@ namespace SangokuKmy.Models.Services
       }
 
       return await CreateWarAsync(repo, self, target, startDate,
-        (self.AiType == CountryAiType.Farmers && self.Religion != ReligionType.Any && self.Religion != ReligionType.None && self.Religion != target.Religion) ? CountryWarMode.Religion : CountryWarMode.Battle);
+        (self.AiType == CountryAiType.Farmers && self.Religion != ReligionType.Any && self.Religion != ReligionType.None) ? CountryWarMode.Religion : CountryWarMode.Battle);
     }
 
     public static GameDateTime GetWarStartDateTime(GameDateTime current, AiCountryWarStartDatePolicy policy = AiCountryWarStartDatePolicy.First21)
@@ -788,6 +788,10 @@ namespace SangokuKmy.Models.Services
       country.CountryColorId = countryColor;
       country.Name = isKokin ? "黄巾" : $"{town.Name}農民団";
       country.AiType = CountryAiType.Farmers;
+      if (isReligion)
+      {
+        country.Religion = RandomService.Next(new ReligionType[] { ReligionType.Buddhism, ReligionType.Confucianism, ReligionType.Taoism, });
+      }
 
       var myCharas = (await repo.Country.GetCharactersAsync(country.Id)).Where(c => !c.HasRemoved).ToArray();
       foreach (var chara in myCharas)
@@ -820,7 +824,7 @@ namespace SangokuKmy.Models.Services
       await StatusStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(new CountryForAnonymous(country)));
 
-      if (targetCountryOptional.HasData && !isForce)
+      if (targetCountryOptional.HasData && (!isForce || isReligion))
       {
         await CreateWarQuicklyAsync(repo, country, targetCountryOptional.Data, isReligion ? CountryWarMode.Religion : CountryWarMode.Battle);
       }

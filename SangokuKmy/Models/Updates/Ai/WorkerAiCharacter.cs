@@ -1801,6 +1801,11 @@ namespace SangokuKmy.Models.Updates.Ai
         Type = 1,
         NumberValue = (int)type,
       });
+      this.command.Parameters.Add(new CharacterCommandParameter
+      {
+        Type = 2,
+        NumberValue = (int)this.Country.CapitalTownId,
+      });
       this.command.Type = CharacterCommandType.AddSecretary;
     }
 

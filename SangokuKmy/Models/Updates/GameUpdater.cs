@@ -1348,7 +1348,7 @@ namespace SangokuKmy.Models.Updates
               {
                 foreach (var chara in country.Characters)
                 {
-                  chara.Money = chara.Money % 100_0000;
+                  chara.Money -= 600_0000;
                   await AddLogAsync(chara.Id, $"期限が過ぎたため、未建国の放浪軍は滅亡しました。放浪時に与えられた金も消滅しました");
                 }
               }
@@ -1736,6 +1736,15 @@ namespace SangokuKmy.Models.Updates
             if (month.ToInt() != nextMonth.ToInt())
             {
               var isCreated = await AiService.CreateWarIfNotWarAsync(repo, month);
+              if (isCreated)
+              {
+                await repo.SaveChangesAsync();
+              }
+            }
+
+            foreach (var country in allCountries.Where(c => c.AiType == CountryAiType.Farmers && c.Religion != ReligionType.Any && c.Religion != ReligionType.None))
+            {
+              var isCreated = await AiService.CreateWarIfNotWarAsync(repo, country);
               if (isCreated)
               {
                 await repo.SaveChangesAsync();

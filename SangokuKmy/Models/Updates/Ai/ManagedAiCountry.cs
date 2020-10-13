@@ -360,6 +360,7 @@ namespace SangokuKmy.Models.Updates.Ai
 
     private async Task<bool> SetWarAsync(MainRepository repo, IEnumerable<Town> allTowns, IEnumerable<Character> allCharacters)
     {
+      var system = await repo.System.GetAsync();
       var policies = await repo.Country.GetPoliciesAsync(this.Country.Id);
       var towns = allTowns.Where(t => t.CountryId == this.Country.Id);
       var characters = allCharacters.Where(c => c.CountryId == this.Country.Id && !c.AiType.IsSecretary());
@@ -367,6 +368,11 @@ namespace SangokuKmy.Models.Updates.Ai
       var charactersInReady = characters.Where(c => this.IsReadyForWar(c));
       var characterGroupInReady = charactersInReady.GroupBy(c => c.GetCharacterType());
       var storageOptional = await repo.AiCountry.GetStorategyByCountryIdAsync(this.Country.Id);
+
+      if (system.RuleSet == GameRuleSet.BattleRoyale)
+      {
+        return false;
+      }
 
       if (!characterGroupInReady.Any(g => g.Key == CharacterType.Strong || g.Key == CharacterType.Intellect))
       {
