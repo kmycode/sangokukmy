@@ -1382,8 +1382,8 @@ namespace SangokuKmy.Models.Updates
             {
               foreach (var town in country.Towns.Where(t =>
                 t.Religion != country.Country.Religion && t.Religion != ReligionType.Any &&
-                !defenders.Any(d => d.TownId == t.Id) &&
-                t.Security <= 80))
+                !defenders.Any(d => d.TownId == t.Id) /* &&
+                t.Security <= 80 */))
               {
                 var aroundCountries = allTowns
                   .GetAroundCountries(town)
