@@ -1355,7 +1355,7 @@ namespace SangokuKmy.Models.Updates
               {
                 var items = await repo.Character.GetItemsAsync(chara.Id);
                 chara.Money -= items.Count(i => i.Type == CharacterItemType.CastleBlueprint) * 200_0000;
-                await AddLogAsync(chara.Id, $"期限が過ぎたため、未建国の放浪軍は滅亡しました。放浪時に与えられた金も消滅しました");
+                await AddLogAsync(chara.Id, $"アイテム 城の設計図 の所持数に応じて、所持金を減らしました。借金状態になる場合もあります");
               }
             }
           }

@@ -288,7 +288,7 @@ namespace SangokuKmy.Models.Services
 
     public static async Task<bool> CreateWarQuicklyAsync(MainRepository repo, Country self, Country target, CountryWarMode mode = CountryWarMode.Battle)
     {
-      var startMonth = (await repo.System.GetAsync()).GameDateTime;
+      var startMonth = (await repo.System.GetAsync()).GameDateTime.NextMonth();
       var war = new CountryWar
       {
         RequestedCountryId = self.Id,

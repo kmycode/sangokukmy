@@ -213,8 +213,6 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Name = "農民_武将";
       this.Character.Strong = (short)Math.Max(current.ToInt() * 0.9f / 12 + 100, 100);
       this.Character.Leadership = 100;
-      this.Character.SoldierNumber = this.Character.Leadership;
-      this.Character.SoldierType = SoldierType.Guard;
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;
     }
@@ -235,8 +233,6 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Name = "農民_文官";
       this.Character.Intellect = (short)Math.Max(current.ToInt() * 0.9f / 12 + 100, 100);
       this.Character.Leadership = 100;
-      this.Character.SoldierNumber = this.Character.Leadership;
-      this.Character.SoldierType = this.SoldierType;
       this.Character.Money = 1000000;
       this.Character.Rice = 1000000;
     }
