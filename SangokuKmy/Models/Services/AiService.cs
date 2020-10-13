@@ -200,6 +200,7 @@ namespace SangokuKmy.Models.Services
           {
             return false;
           }
+          startDate = GetWarStartDateTime((await repo.System.GetAsync()).GameDateTime, AiCountryWarStartDatePolicy.HurryUp);
         }
 
         var targetOptional = await repo.Country.GetAliveByIdAsync(targets.ElementAt(RandomService.Next(0, targets.Count())).Id);
