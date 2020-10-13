@@ -119,9 +119,9 @@ namespace SangokuKmy.Models.Commands
             }
           }
 
-          if (!isTownWar)
+          if (!isTownWar && targetCountryOptional.Data.AiType != CountryAiType.Farmers)
           {
-            if (!warOptional.HasData && targetCountryOptional.Data.AiType != CountryAiType.Farmers)
+            if (!warOptional.HasData)
             {
               await game.CharacterLogAsync("<town>" + targetTown.Name + "</town> の所持国 <country>" + targetCountryOptional.Data.Name + "</country> とは宣戦の関係にありません");
               return;
