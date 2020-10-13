@@ -1398,7 +1398,7 @@ namespace SangokuKmy.Models.Updates
             if (targetTowns.Any())
             {
               var town = RandomService.Next(targetTowns);
-              var isCreated = await AiService.CreateFarmerCountryAsync(repo, town, null, true,
+              var isCreated = await AiService.CreateFarmerCountryAsync(repo, town, async (ev, message, isImportant) => await AddMapLogAsync(isImportant, ev, message), true,
                 isReligion: true,
                 callbackAsync: async (cc, tt) =>
                 {
