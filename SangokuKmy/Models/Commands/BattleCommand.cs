@@ -176,7 +176,7 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      if (targetCountryOptional.HasData && targetCountryOptional.Data.AiType == CountryAiType.Farmers)
+      if (targetCountryOptional.HasData && targetCountryOptional.Data.AiType == CountryAiType.Farmers && !warOptional.HasData)
       {
         var farmerWars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.IsJoinAvailable(targetCountryOptional.Data.Id));
         if (farmerWars.Any(w => w.Mode == CountryWarMode.Religion))
