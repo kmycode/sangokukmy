@@ -567,21 +567,21 @@ namespace SangokuKmy.Models.Commands
           var targetDamage = targetFirstNumber - targetCharacter.SoldierNumber;
           if (religion == ReligionType.Confucianism)
           {
-            targetDamage -= targetTown.Confucianism;
+            // targetDamage -= targetTown.Confucianism;
             var rate = Math.Max(0.0f, 1.0f - (float)targetDamage / targetFirstNumber);
             targetTown.Taoism = (int)(targetTown.Taoism * rate);
             targetTown.Buddhism = (int)(targetTown.Buddhism * rate);
           }
           if (religion == ReligionType.Taoism)
           {
-            targetDamage -= targetTown.Taoism;
+            // targetDamage -= targetTown.Taoism;
             var rate = Math.Max(0.0f, 1.0f - (float)targetDamage / targetFirstNumber);
             targetTown.Confucianism = (int)(targetTown.Confucianism * rate);
             targetTown.Buddhism = (int)(targetTown.Buddhism * rate);
           }
           if (religion == ReligionType.Buddhism)
           {
-            targetDamage -= targetTown.Buddhism;
+            // targetDamage -= targetTown.Buddhism;
             var rate = Math.Max(0.0f, 1.0f - (float)targetDamage / targetFirstNumber);
             targetTown.Confucianism = (int)(targetTown.Confucianism * rate);
             targetTown.Taoism = (int)(targetTown.Taoism * rate);
