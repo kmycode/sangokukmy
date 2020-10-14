@@ -390,12 +390,12 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected async Task<bool> MoveToMyCountryTownNextToCountryAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, bool> subject, Func<TownBase, object> order, uint countryId, CharacterCommand command)
     {
-      return await this.MoveToMyCountryTownAsync(repo, towns, t => subject(t) && towns.GetAroundTowns(this.Town).Any(tt => tt.CountryId == countryId), order, command);
+      return await this.MoveToMyCountryTownAsync(repo, towns, t => subject(t) && towns.GetAroundTowns(t).Any(tt => tt.CountryId == countryId), order, command);
     }
 
     protected async Task<bool> MoveToMyCountryTownNextToCountryAsync(MainRepository repo, IEnumerable<Town> towns, Func<TownBase, bool> subject, Func<TownBase, object> order, IEnumerable<uint> countryIds, CharacterCommand command)
     {
-      return await this.MoveToMyCountryTownAsync(repo, towns, t => subject(t) && towns.GetAroundTowns(this.Town).Any(tt => countryIds.Contains(tt.CountryId)), order, command);
+      return await this.MoveToMyCountryTownAsync(repo, towns, t => subject(t) && towns.GetAroundTowns(t).Any(tt => countryIds.Contains(tt.CountryId)), order, command);
     }
 
     public abstract void Initialize(GameDateTime current);
