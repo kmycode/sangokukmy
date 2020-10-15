@@ -45,6 +45,7 @@ namespace SangokuKmy.Controllers
     public async Task PostCountryChatMessageAsync(
       [FromBody] ChatMessage param)
     {
+      var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
       ChatMessage message;
       Character chara;
 
@@ -62,7 +63,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.BlockedActionError.Throw();
         }
 
-        message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.SelfCountry, chara.CountryId);
+        message = await ChatService.PostChatMessageAsync(repo, param, chara, ip, ChatMessageType.SelfCountry, chara.CountryId);
         await repo.SaveChangesAsync();
       }
 
@@ -89,6 +90,7 @@ namespace SangokuKmy.Controllers
     public async Task PostGlobalChatMessageAsync(
       [FromBody] ChatMessage param)
     {
+      var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
       ChatMessage message;
       Character chara;
 
@@ -106,7 +108,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.BlockedActionError.Throw();
         }
 
-        message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.Global, param.TypeData);
+        message = await ChatService.PostChatMessageAsync(repo, param, chara, ip, ChatMessageType.Global, param.TypeData);
         await repo.SaveChangesAsync();
       }
 
@@ -133,6 +135,7 @@ namespace SangokuKmy.Controllers
       [FromRoute] uint id,
       [FromBody] ChatMessage param)
     {
+      var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
       ChatMessage message;
       Character chara;
 
@@ -151,7 +154,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.MeaninglessOperationError.Throw();
         }
 
-        message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.Private, chara.Id, id);
+        message = await ChatService.PostChatMessageAsync(repo, param, chara, ip, ChatMessageType.Private, chara.Id, id);
         await repo.SaveChangesAsync();
       }
 
@@ -223,6 +226,7 @@ namespace SangokuKmy.Controllers
       [FromRoute] uint id,
       [FromBody] ChatMessage param)
     {
+      var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
       ChatMessage message;
       Character chara;
 
@@ -249,7 +253,7 @@ namespace SangokuKmy.Controllers
           ErrorCode.NotPermissionError.Throw();
         }
 
-        message = await ChatService.PostChatMessageAsync(repo, param, chara, ChatMessageType.OtherCountry, chara.CountryId, id);
+        message = await ChatService.PostChatMessageAsync(repo, param, chara, ip, ChatMessageType.OtherCountry, chara.CountryId, id);
         await repo.SaveChangesAsync();
       }
 

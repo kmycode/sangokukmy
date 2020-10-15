@@ -36,6 +36,9 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("posted")]
     public DateTime Posted { get; set; }
 
+    [Column("ip_address", TypeName = "varchar(128)")]
+    public string IpAddress { get; set; }
+
 
     public static HistoricalChatMessage FromChatMessage(ChatMessage message)
     {
@@ -48,6 +51,7 @@ namespace SangokuKmy.Models.Data.Entities
         TypeData2 = message.TypeData2,
         Message = message.Message,
         Posted = message.Posted,
+        IpAddress = message.IpAddress,
       };
     }
   }

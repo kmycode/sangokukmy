@@ -20,7 +20,7 @@ namespace SangokuKmy.Models.Services
   {
     private static bool isUploadingImage = false;
 
-    public static async Task<ChatMessage> PostChatMessageAsync(MainRepository repo, ChatMessage param, Character chara, ChatMessageType type, uint typeData = default, uint typeData2 = default)
+    public static async Task<ChatMessage> PostChatMessageAsync(MainRepository repo, ChatMessage param, Character chara, string ip, ChatMessageType type, uint typeData = default, uint typeData2 = default)
     {
       ChatMessage message;
 
@@ -33,6 +33,7 @@ namespace SangokuKmy.Models.Services
         CharacterCountryId = chara.CountryId,
         Posted = DateTime.Now,
         Message = param.Message.TrimEnd(),
+        IpAddress = ip,
         Type = type,
         TypeData = typeData,
         TypeData2 = typeData2,

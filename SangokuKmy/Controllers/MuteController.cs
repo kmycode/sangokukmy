@@ -26,6 +26,7 @@ namespace SangokuKmy.Controllers
     [HttpPost("mutes")]
     public async Task AddMuteAsync([FromBody] Mute mute)
     {
+      var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
       IList<ChatMessage> chats = null;
       IEnumerable<Character> admins = null;
 
@@ -115,7 +116,7 @@ namespace SangokuKmy.Controllers
             chats.Add(await ChatService.PostChatMessageAsync(repo, new ChatMessage
             {
               Message = $"[r][s]【報告】[-s][-r]\n\nMute ID: {mute.Id}\n\n武将名: {targetCharacterName}\n\n{targetType}: {targetMessage}\n\n追加でメッセージがある場合は、続けて個宛してください（右下の再送ボタンより送れます）",
-            }, chara, ChatMessageType.Private, chara.Id, admin.Id));
+            }, chara, ip, ChatMessageType.Private, chara.Id, admin.Id));
           }
           await repo.SaveChangesAsync();
         }
@@ -131,6 +132,7 @@ namespace SangokuKmy.Controllers
     [HttpDelete("mutes")]
     public async Task RemoveMuteAsync([FromBody] Mute mute)
     {
+      var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
       IList<ChatMessage> chats = null;
       IEnumerable<Character> admins = null;
 
@@ -166,7 +168,7 @@ namespace SangokuKmy.Controllers
             chats.Add(await ChatService.PostChatMessageAsync(repo, new ChatMessage
             {
               Message = $"[b][s]【報告解除】[-s][-b]\n\nMute ID: {mute.Id}",
-            }, chara, ChatMessageType.Private, admin.Id, admin.Id));
+            }, chara, ip, ChatMessageType.Private, admin.Id, admin.Id));
           }
         }
 

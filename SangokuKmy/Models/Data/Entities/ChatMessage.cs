@@ -133,6 +133,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("image_key")]
     [JsonProperty("imageKey")]
     public int ImageKey { get; set; }
+
+    /// <summary>
+    /// IPアドレス
+    /// </summary>
+    [Column("ip_address", TypeName = "varchar(128)")]
+    [JsonIgnore]
+    public string IpAddress { get; set; }
   }
 
   public enum ChatMessageType : short

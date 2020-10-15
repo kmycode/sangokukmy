@@ -60,7 +60,7 @@ namespace SangokuKmy.Models.Commands
       {
         CharacterIconId = iconOptional.Data.Id,
         Message = messageParameter.StringValue,
-      }, character, ChatMessageType.Promotion, character.Id, targetCharacterOptional.Data.Id);
+      }, character, string.Empty, ChatMessageType.Promotion, character.Id, targetCharacterOptional.Data.Id);
 
       await game.CharacterLogAsync($"<character>{targetCharacterOptional.Data.Name}</character> に登用を送りました");
 

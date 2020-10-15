@@ -1412,6 +1412,7 @@ namespace SangokuKmy.Controllers
     public async Task SetCountryCommanderMessageAsync(
       [FromBody] CountryCommander param)
     {
+      var ip = this.HttpContext.Connection.RemoteIpAddress?.ToString();
       if (param.Message.Length > 400)
       {
         ErrorCode.StringLengthError.Throw(new ErrorCode.RangeErrorParameter("message", param.Message.Length, 0, 400));
@@ -1434,7 +1435,7 @@ namespace SangokuKmy.Controllers
           var chat = await ChatService.PostChatMessageAsync(repo, new ChatMessage
           {
             Message = $"[r][s]【一斉送信】[-s][-r]\n\n{param.Message}",
-          }, chara, ChatMessageType.Private, chara.Id, target.Id);
+          }, chara, ip, ChatMessageType.Private, chara.Id, target.Id);
           await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chat), new uint[] { chara.Id, target.Id, });
         }
 
