@@ -42,14 +42,28 @@ namespace SangokuKmy.Models.Commands
       }
       var town = townOptional.Data;
 
+      BlockAction blockAction = null;
       if (!(await repo.System.GetAsync()).IsWaitingReset)
       {
-        await game.CharacterLogAsync("下野は統一後でないと実行できません");
-        return;
+        character.ResignCount++;
+        blockAction = new BlockAction
+        {
+          CharacterId = character.Id,
+          Type = BlockActionType.StopJoin,
+          ExpiryDate = DateTime.Now.AddDays(character.ResignCount),
+        };
+        await repo.BlockAction.AddAsync(blockAction);
       }
 
       await CharacterService.ChangeCountryAsync(repo, 0, new Character[] { character, });
-      await game.CharacterLogAsync("<country>" + country.Name + "</country> から下野しました");
+      if (blockAction != null)
+      {
+        await game.CharacterLogAsync($"<country>{country.Name}</country> から下野しました。下野回数は <num>{character.ResignCount}</num> 回目です。仕官は以下の日時以降に行えます: {blockAction.ExpiryDate:yyyy/MM/dd HH:mm:ss}");
+      }
+      else
+      {
+        await game.CharacterLogAsync("<country>" + country.Name + "</country> から下野しました");
+      }
       await game.MapLogAsync(EventType.CharacterResign, "<character>" + character.Name + "</character> は <country>" + country.Name + "</country> から下野しました", false);
 
       var townCharas = await repo.Town.GetCharactersAsync(town.Id);

@@ -327,6 +327,13 @@ namespace SangokuKmy.Models.Data.Entities
     public bool IsBeginner { get; set; }
 
     /// <summary>
+    /// 下野回数
+    /// </summary>
+    [Column("resign_count")]
+    [JsonIgnore]
+    public short ResignCount { get; set; }
+
+    /// <summary>
     /// ランキング
     /// </summary>
     [NotMapped]

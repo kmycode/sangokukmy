@@ -96,5 +96,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 謹慎・解雇の禁止
     /// </summary>
     StopPunishment = 7,
+
+    /// <summary>
+    /// 仕官禁止
+    /// </summary>
+    StopJoin = 8,
   }
 }

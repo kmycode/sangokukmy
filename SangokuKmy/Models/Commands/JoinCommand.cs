@@ -34,6 +34,17 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      var blockActions = await repo.BlockAction.GetAvailableTypesAsync(character.Id);
+      if (blockActions.Contains(BlockActionType.StopJoin) && !(await repo.System.GetAsync()).IsWaitingReset)
+      {
+        var blockAction = await repo.BlockAction.GetAsync(character.Id, BlockActionType.StopJoin);
+        if (blockAction.HasData)
+        {
+          await game.CharacterLogAsync($"あなたは下野などの理由により仕官を制限されています。期限: {blockAction.Data.ExpiryDate:yyyy/MM/dd HH:mm:ss}");
+          return;
+        }
+      }
+
       var townOptional = await repo.Town.GetByIdAsync(character.TownId);
       if (!townOptional.HasData)
       {

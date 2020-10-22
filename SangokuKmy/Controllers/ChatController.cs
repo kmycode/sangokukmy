@@ -311,6 +311,12 @@ namespace SangokuKmy.Controllers
             }
           }
 
+          var blockActions = await repo.BlockAction.GetAvailableTypesAsync(chara.Id);
+          if (blockActions.Contains(BlockActionType.StopJoin) && !system.IsWaitingReset)
+          {
+            ErrorCode.BlockedActionError.Throw();
+          }
+
           oldTown = await repo.Town.GetByIdAsync(chara.TownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           newTown = await repo.Town.GetByIdAsync(senderCountry.CapitalTownId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
           oldTownCharacters = (await repo.Town.GetCharactersWithIconAsync(oldTown.Id)).Select(c => c.Character.Id);
