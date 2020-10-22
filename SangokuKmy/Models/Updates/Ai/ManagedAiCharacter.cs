@@ -389,7 +389,7 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           this.soldierTypeCache = SoldierType.StoneSlingshot;
         }
-        else if (this.Town.Technology >= 1000 && this.Character.Money > this.Character.Leadership * 240 + 45_0000 && this.GameDateTime.Year >= 80)
+        else if (this.Town.Technology >= 1000 && this.Character.Money > this.Character.Leadership * 240 + 45_0000 && this.GameDateTime.Year >= 108)
         {
           if (soldierTypeNumber % 3 == 0)
           {
