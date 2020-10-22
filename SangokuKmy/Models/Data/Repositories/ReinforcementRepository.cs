@@ -85,7 +85,7 @@ namespace SangokuKmy.Models.Data.Repositories
       {
         this.container.Context.Reinforcements
           .RemoveRange(this.container.Context.Reinforcements
-            .Where(r => r.CharacterCountryId == countryId));
+            .Where(r => r.CharacterCountryId == countryId || ((r.Status != ReinforcementStatus.Active && r.RequestedCountryId == countryId))));
       }
       catch (Exception ex)
       {
