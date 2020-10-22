@@ -1376,7 +1376,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Kojinnoakashi,
         Name = "胡人の証",
         Money = 500_000,
-        InitializeNumber = 1,
+        InitializeNumber = 0,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = false,
         CanSell = false,
