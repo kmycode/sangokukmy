@@ -655,7 +655,12 @@ namespace SangokuKmy.Models.Services
 
       if (countryCharacters.Any())
       {
+        var system = await repo.System.GetAsync();
         var requestedReinforcementCount = Math.Max(warCountries.Sum(c => c.CharacterCount) - countryCharacters.Count(c => !c.Name.Contains("援軍")) - 3, 0);
+        if (system.IsBattleRoyaleMode)
+        {
+          requestedReinforcementCount = 0;
+        }
         var currentReinforcements = countryCharacters.Where(c => c.Name.Contains("援軍"));
         if (currentReinforcements.Count() < requestedReinforcementCount)
         {
