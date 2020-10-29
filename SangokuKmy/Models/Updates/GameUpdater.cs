@@ -971,6 +971,10 @@ namespace SangokuKmy.Models.Updates
               }
               var aroundTowns = allTowns.GetAroundTowns(town);
               var countryWarTargets = wars.Where(w => w.IsJoin(country.Country.Id)).Select(w => w.GetEnemy(country.Country.Id));
+              if (system.IsBattleRoyaleMode)
+              {
+                countryWarTargets = allCountries.Where(c => !c.HasOverthrown).Select(c => c.Id);
+              }
 
               if (subBuilding.Type == TownSubBuildingType.CommercialUnion)
               {
