@@ -560,7 +560,7 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         if (this.countries.Any(c => c.AiType == CountryAiType.Human))
         {
-          return this.countries.Where(c => c.AiType == CountryAiType.Human).Select(c => c.Id);
+          return this.countries.Where(c => c.AiType == CountryAiType.Human).Select(c => c.Id).Append(0u);
         }
         else
         {
