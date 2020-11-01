@@ -1146,10 +1146,10 @@ namespace SangokuKmy.Models.Updates
                     var originalCountry = await repo.Country.GetByIdAsync(reinforcement.CharacterCountryId);
                     var country = await repo.Country.GetByIdAsync(character.CountryId);
 
-                    character.CountryId = reinforcement.CharacterCountryId;
+                    await CharacterService.ChangeCountryAsync(repo, reinforcement.CharacterCountryId, new Character[] { character, });
                     if (originalCountry.HasData && country.HasData)
                     {
-                      character.TownId = originalCountry.Data.CapitalTownId;
+                      await CharacterService.ChangeTownAsync(repo, originalCountry.Data.CapitalTownId, character);
                       await AddMapLogAsync(false, EventType.ReinforcementReturned, $"<country>{originalCountry.Data.Name}</country> の援軍 <character>{character.Name}</character> は、同盟破棄に伴い <country>{country.Data.Name}</country> から帰還しました");
                       await AddLogAsync(character.Id, $"同盟破棄に伴い、 <country>{originalCountry.Data.Name}</country> から強制帰還しました");
                     }
