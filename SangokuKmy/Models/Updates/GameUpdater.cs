@@ -191,6 +191,24 @@ namespace SangokuKmy.Models.Updates
           .ToArray();
         var allWars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
+        async Task StartBattleRoyaleModeAsync()
+        {
+          system.IsBattleRoyaleMode = true;
+
+          /*
+          var targets = allCountries.Where(c => !c.HasOverthrown && c.AiType == CountryAiType.Terrorists);
+          foreach (var c in targets)
+          {
+            c.AiType = CountryAiType.TerroristsEnemy;
+            await AddMapLogAsync(true, EventType.AppendTerrorists, $"異民族 <country>{c.Name}</country> は敵対化しました");
+          }
+          */
+
+          await AddMapLogAsync(true, EventType.WarStart, "全国戦争状態に突入しました");
+          await PushNotificationService.SendAllAsync(repo, "全国戦争", "全国戦争状態に突入しました");
+          await repo.SaveChangesAsync();
+        }
+
         if (system.GameDateTime.Year == Config.UpdateStartYear && system.GameDateTime.Month == 1)
         {
           await PushNotificationService.SendAllAsync(repo, "武将更新開始", "武将のコマンド実行が開始されました。以降はコマンドが上から順番に実行されます");
@@ -1481,10 +1499,7 @@ namespace SangokuKmy.Models.Updates
                 await AiService.CreateFarmerCountryAsync(repo, (Town)town, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message), true);
               }
 
-              system.IsBattleRoyaleMode = true;
-              await AddMapLogAsync(true, EventType.WarStart, "全国戦争状態に突入しました");
-              await PushNotificationService.SendAllAsync(repo, "全国戦争", "全国戦争状態に突入しました");
-              await repo.SaveChangesAsync();
+              await StartBattleRoyaleModeAsync();
             }
           }
           if (!system.IsWaitingReset && (system.GameDateTime.Year == 240 || system.GameDateTime.Year == 300) && system.GameDateTime.Month == 1)
@@ -1510,13 +1525,10 @@ namespace SangokuKmy.Models.Updates
 
           // 全国戦争ルール
           if (system.RuleSet == GameRuleSet.BattleRoyale &&
-            !system.IsBattleRoyaleMode &&
-            system.GameDateTime.Year >= 60)
+            !system.IsBattleRoyaleMode && !system.IsWaitingReset &&
+            system.GameDateTime.Year == 60 && system.GameDateTime.Month == 1)
           {
-            system.IsBattleRoyaleMode = true;
-            await AddMapLogAsync(true, EventType.WarStart, "全国戦争状態に突入しました");
-            await PushNotificationService.SendAllAsync(repo, "全国戦争", "全国戦争状態に突入しました");
-            await repo.SaveChangesAsync();
+            await StartBattleRoyaleModeAsync();
           }
 
           // 蛮族
