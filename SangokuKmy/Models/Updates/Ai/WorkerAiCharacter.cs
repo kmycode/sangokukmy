@@ -881,10 +881,13 @@ namespace SangokuKmy.Models.Updates.Ai
         // 謀略建築物
         var targets = this.GetAroundTargetTowns();
         var subbuildings = await repo.Town.GetSubBuildingsAsync();
+        var defenders = await repo.Town.GetAllDefendersAsync();
         var targetsData = targets
-          .GroupJoin(subbuildings, t => t.Id, sb => sb.TownId, (t, sbs) => new { Town = t, SubBuildings = sbs.Where(ssb => ssb.Type == TownSubBuildingType.Agitation), })
+          .GroupJoin(subbuildings, t => t.Id, sb => sb.TownId, (t, sbs) => new { Town = t, Defenders = defenders.Where(d => d.TownId == t.Id), SubBuildings = sbs.Where(ssb => ssb.Type == TownSubBuildingType.Agitation), })
+          .Where(t => t.SubBuildings.Any())
+          .OrderBy(t => t.Defenders.Count())
           .OrderByDescending(t => t.SubBuildings.Count());
-        if (targetsData.FirstOrDefault()?.SubBuildings.Any() ?? false)
+        if (targetsData.Any())
         {
           targetTown = targetsData.First().Town;
         }
