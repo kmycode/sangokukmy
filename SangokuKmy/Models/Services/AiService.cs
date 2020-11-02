@@ -514,8 +514,6 @@ namespace SangokuKmy.Models.Services
       {
         CharacterAiType.ManagedBattler,
         CharacterAiType.ManagedBattler,
-        CharacterAiType.ManagedBattler,
-        CharacterAiType.ManagedCivilOfficial,
         CharacterAiType.ManagedCivilOfficial,
         CharacterAiType.ManagedPatroller,
       };
@@ -656,7 +654,7 @@ namespace SangokuKmy.Models.Services
       if (countryCharacters.Any())
       {
         var system = await repo.System.GetAsync();
-        var requestedReinforcementCount = Math.Max(warCountries.Sum(c => c.CharacterCount) - countryCharacters.Count(c => !c.Name.Contains("援軍")) - 3, 0);
+        var requestedReinforcementCount = Math.Max(warCountries.Sum(c => c.CharacterCount) - countryCharacters.Count(c => !c.Name.Contains("援軍")) - 4, 0);
         if (system.IsBattleRoyaleMode)
         {
           requestedReinforcementCount = 0;

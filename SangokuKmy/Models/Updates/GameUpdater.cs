@@ -1324,10 +1324,13 @@ namespace SangokuKmy.Models.Updates
               system.ManagementCountryCount < 1 &&
               system.RuleSet != GameRuleSet.SimpleBattle)
             {
-              var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
-              if (isCreated)
+              for (var i = 0; i < 2; i++)
               {
-                system.ManagementCountryCount++;
+                var isCreated = await AiService.CreateManagedCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
+                if (isCreated)
+                {
+                  system.ManagementCountryCount++;
+                }
               }
             }
 
