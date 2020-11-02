@@ -179,7 +179,7 @@ namespace SangokuKmy.Models.Commands
       if (targetCountryOptional.HasData && targetCountryOptional.Data.AiType == CountryAiType.Farmers && !warOptional.HasData)
       {
         var farmerWars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.IsJoinAvailable(targetCountryOptional.Data.Id));
-        if (farmerWars.Any(w => w.Mode == CountryWarMode.Religion))
+        if (!system.IsBattleRoyaleMode && farmerWars.Any(w => w.Mode == CountryWarMode.Religion))
         {
           if (mySoldierTypeInfo.Kind != SoldierKind.Religion)
           {
