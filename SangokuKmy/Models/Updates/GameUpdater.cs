@@ -195,14 +195,12 @@ namespace SangokuKmy.Models.Updates
         {
           system.IsBattleRoyaleMode = true;
 
-          /*
           var targets = allCountries.Where(c => !c.HasOverthrown && c.AiType == CountryAiType.Terrorists);
           foreach (var c in targets)
           {
             c.AiType = CountryAiType.TerroristsEnemy;
             await AddMapLogAsync(true, EventType.AppendTerrorists, $"異民族 <country>{c.Name}</country> は敵対化しました");
           }
-          */
 
           await AddMapLogAsync(true, EventType.WarStart, "全国戦争状態に突入しました");
           await PushNotificationService.SendAllAsync(repo, "全国戦争", "全国戦争状態に突入しました");
