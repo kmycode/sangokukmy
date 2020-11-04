@@ -1062,7 +1062,7 @@ namespace SangokuKmy.Models.Updates
                   if (religion != ReligionType.Any && religion != ReligionType.None && religion == town.Religion)
                   {
                     town.TechnologyMax += 3;
-                    town.WallMax += 7;
+                    town.WallMax += 2;
 
                     foreach (var atown in aroundTowns)
                     {
