@@ -151,9 +151,9 @@ namespace SangokuKmy.Models.Commands
           From = CharacterFrom.Tactician,
           ItemType = CharacterItemType.GodOfMilitaryArts,
           ResourceAttribute = c => c.Leadership,
-          AddExAttribute = c => c.AddLeadershipEx(780),
-          Length = 72,
-          Contribution = 360,
+          AddExAttribute = c => c.AddLeadershipEx(460),
+          Length = 36,
+          Contribution = 180,
         },
         new GenerateItemInfo
         {
@@ -224,7 +224,7 @@ namespace SangokuKmy.Models.Commands
 
           if (info.Data.IsResource)
           {
-            item.Resource = (ushort)(info.Data.DefaultResource + RandomService.Next((int)(generateInfo.ResourceAttribute(chara.Data) * 1.4f / info.Data.DefaultResource * 1000)));
+            item.Resource = (ushort)(info.Data.DefaultResource + RandomService.Next((int)(generateInfo.ResourceAttribute(chara.Data) * 1.4f)));
           }
 
           await ItemService.GenerateItemAndSaveAsync(repo, item);
