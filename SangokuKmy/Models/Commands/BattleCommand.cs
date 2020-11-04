@@ -43,11 +43,6 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync("あなたの国はまだ戦闘解除されていません");
         return;
       }
-      if (character.SoldierNumber <= 0)
-      {
-        await game.CharacterLogAsync("兵士がいません");
-        return;
-      }
 
       var targetTownId = options.FirstOrDefault(p => p.Type == 1).NumberValue;
       if (targetTownId == null)
@@ -79,11 +74,6 @@ namespace SangokuKmy.Models.Commands
       if (myTown.CountryId != character.CountryId)
       {
         await game.CharacterLogAsync($"<town>{targetTown.Name}</town> へ <town>{myTown.Name}</town> から攻め込もうとしましたが、自国以外の都市からは攻められません");
-        return;
-      }
-      if (targetTown.CountryId == character.CountryId)
-      {
-        await game.CharacterLogAsync($"自国の <town>{targetTown.Name}</town> へ侵攻しようとしました");
         return;
       }
       if (!targetTown.IsNextToTown(myTown))
@@ -142,6 +132,26 @@ namespace SangokuKmy.Models.Commands
             }
           }
         }
+      }
+
+      var isWaring = warOptional.HasData && warOptional.Data.IntStartGameDate <= system.IntGameDateTime;
+      if (character.SoldierNumber <= 0)
+      {
+        await game.CharacterLogAsync("兵士がいません");
+        if (isWaring)
+        {
+          character.SkillPoint++;
+        }
+        return;
+      }
+      if (targetTown.CountryId == character.CountryId)
+      {
+        await game.CharacterLogAsync($"自国の <town>{targetTown.Name}</town> へ侵攻しようとしました");
+        if (isWaring)
+        {
+          character.SkillPoint++;
+        }
+        return;
       }
 
       var mySoldierTypeInfo = DefaultCharacterSoldierTypeParts.Get(character.SoldierType).Data;
