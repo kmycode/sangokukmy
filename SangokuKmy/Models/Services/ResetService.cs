@@ -92,11 +92,7 @@ namespace SangokuKmy.Models.Services
       system.RuleSet = system.RuleSetNextPeriod;
       system.RuleSetNextPeriod = system.RuleSetAfterNextPeriod;
 
-      if (system.RuleSet != GameRuleSet.Normal && system.RuleSetNextPeriod != GameRuleSet.Normal)
-      {
-        system.RuleSetAfterNextPeriod = GameRuleSet.Normal;
-      }
-      else if ((system.RuleSet == GameRuleSet.Normal && system.RuleSetNextPeriod == GameRuleSet.Normal) || RandomService.Next(0, 2) <= 0)
+      if (system.BetaVersion == 0 && (system.Period + 3) % 6 == 0)
       {
         system.RuleSetAfterNextPeriod =
           RandomService.Next(new GameRuleSet[] {
