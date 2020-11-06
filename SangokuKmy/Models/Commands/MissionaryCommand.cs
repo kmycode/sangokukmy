@@ -154,7 +154,7 @@ namespace SangokuKmy.Models.Commands
     public override async Task InputAsync(MainRepository repo, uint characterId, IEnumerable<GameDateTime> gameDates, params CharacterCommandParameter[] options)
     {
       var system = await repo.System.GetAsync();
-      if (system.RuleSet == GameRuleSet.SimpleBattle)
+      if (system.RuleSet != GameRuleSet.Religion)
       {
         ErrorCode.RuleSetError.Throw();
       }

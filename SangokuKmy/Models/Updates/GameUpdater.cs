@@ -1653,7 +1653,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 宗教勝利
-          if (!system.IsWaitingReset &&
+          if (!system.IsWaitingReset && system.RuleSet == GameRuleSet.Religion &&
                 (system.RuleSet != GameRuleSet.Wandering || system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12))
           {
             var religionOfTown = allTowns.GroupBy(t => t.Religion);
@@ -1677,7 +1677,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 無所属伝道師の追加
-          if (!system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1)
+          if (!system.IsWaitingReset && system.RuleSet == GameRuleSet.Religion && system.GameDateTime.Year >= Config.UpdateStartYear && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1)
           {
             var targetTowns = allTowns.Where(t => t.Religion != ReligionType.Any && t.Religion != ReligionType.None);
             if (targetTowns.Any())
