@@ -16,6 +16,10 @@ namespace SangokuKmy.Models.Data.Entities
     [JsonIgnore]
     public uint Id { get; set; }
 
+    [Column("original_id")]
+    [JsonProperty("id")]
+    public uint OriginalId { get; set; }
+
     /// <summary>
     /// 記録のID
     /// </summary>
@@ -182,6 +186,7 @@ namespace SangokuKmy.Models.Data.Entities
     {
       return new HistoricalCharacter
       {
+        OriginalId = chara.Id,
         CountryId = chara.CountryId,
         Name = chara.Name,
         From = chara.From,
