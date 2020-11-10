@@ -61,8 +61,14 @@ namespace SangokuKmy.Models.Commands
         }
         add *= 500;
 
+        var policies = await repo.Country.GetPoliciesAsync();
+        var max = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available && p.CountryId == country.Id).Select(p => p.Type));
+        var targetMax = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available && p.CountryId == targetCountry.Id).Select(p => p.Type));
+
         country.SafeMoney += add;
         targetCountry.SafeMoney += add;
+        country.SafeMoney = Math.Min(country.SafeMoney, max);
+        targetCountry.SafeMoney = Math.Min(targetCountry.SafeMoney, targetMax);
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(targetCountry), targetCountry.Id);
 
