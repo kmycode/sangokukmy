@@ -1326,6 +1326,9 @@ namespace SangokuKmy.Migrations
                         .HasColumnName("name")
                         .HasColumnType("varchar(64)");
 
+                    b.Property<uint>("OriginalId")
+                        .HasColumnName("original_id");
+
                     b.Property<short>("Popularity")
                         .HasColumnName("popularity");
 
