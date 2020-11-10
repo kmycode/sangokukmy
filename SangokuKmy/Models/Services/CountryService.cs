@@ -35,7 +35,7 @@ namespace SangokuKmy.Models.Services
         if (target != null)
         {
           var characterCount = war.RequestedCountryId == country.Id ? war.RequestedCountryCharacterMax : war.InsistedCountryCharacterMax;
-          target.SafeMoney += characterCount * 20_0000;
+          target.SafeMoney += characterCount * 16_0000;
           target.SafeMoney = Math.Min(target.SafeMoney, GetCountrySafeMax((await repo.Country.GetPoliciesAsync(target.Id)).Select(p => p.Type)));
           await StatusStreaming.Default.SendCountryAsync(ApiData.From(target), target.Id);
         }
