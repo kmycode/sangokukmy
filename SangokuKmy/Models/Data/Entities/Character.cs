@@ -856,6 +856,7 @@ namespace SangokuKmy.Models.Data.Entities
     SecretaryEvangelist = 32,
     FreeEvangelist = 33,
     FarmerEvangelist = 34,
+    SecretaryTrader = 35,
   }
 
   public static class CharacterAiTypeExtensions
@@ -867,7 +868,8 @@ namespace SangokuKmy.Models.Data.Entities
         type == CharacterAiType.SecretaryPioneer ||
         type == CharacterAiType.SecretaryUnitLeader ||
         type == CharacterAiType.SecretaryScouter ||
-        type == CharacterAiType.SecretaryEvangelist;
+        type == CharacterAiType.SecretaryEvangelist ||
+        type == CharacterAiType.SecretaryTrader;
     }
 
     public static bool IsTerrorist(this CharacterAiType type)

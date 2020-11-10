@@ -142,6 +142,10 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         ai = new FreeEvangelistAiCharacter(chara);
       }
+      else if (chara.AiType == CharacterAiType.SecretaryTrader)
+      {
+        ai = new SecretaryTraderAiCharacter(chara);
+      }
       else
       {
         ai = new HumanCharacter(chara);

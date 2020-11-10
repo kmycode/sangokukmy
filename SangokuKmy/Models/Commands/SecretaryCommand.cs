@@ -172,6 +172,15 @@ namespace SangokuKmy.Models.Commands
         ErrorCode.InvalidCommandParameter.Throw();
       }
 
+      if (type == CharacterAiType.SecretaryEvangelist)
+      {
+        var system = await repo.System.GetAsync();
+        if (system.RuleSet != GameRuleSet.Religion)
+        {
+          ErrorCode.RuleSetError.Throw();
+        }
+      }
+
       await this.CheckCanInputAsync(repo, characterId);
 
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates, options);

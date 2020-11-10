@@ -416,5 +416,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 都市購入
     /// </summary>
     BuyTown = 74,
+
+    /// <summary>
+    /// 交易
+    /// </summary>
+    Trade = 75,
   }
 }

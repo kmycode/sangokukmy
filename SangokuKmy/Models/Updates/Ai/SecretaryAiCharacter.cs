@@ -172,4 +172,31 @@ namespace SangokuKmy.Models.Updates.Ai
       this.Character.Rice = 1000000;
     }
   }
+
+  public class SecretaryTraderAiCharacter : SecretaryAiCharacter
+  {
+    public SecretaryTraderAiCharacter(Character character) : base(character)
+    {
+    }
+
+    protected override async Task<CharacterCommand> GetCommandInnerAsync(MainRepository repo, IEnumerable<CountryWar> wars)
+    {
+      var command = new CharacterCommand
+      {
+        Id = 0,
+        CharacterId = this.Character.Id,
+        GameDateTime = this.GameDateTime,
+      };
+      command.Type = CharacterCommandType.Trade;
+      return command;
+    }
+
+    public override void Initialize(GameDateTime current)
+    {
+      this.Character.Name = "政務官_交易商";
+      this.Character.Intellect = (short)(100 + current.Year / 3.3f);
+      this.Character.Money = 1000000;
+      this.Character.Rice = 1000000;
+    }
+  }
 }
