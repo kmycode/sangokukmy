@@ -138,7 +138,7 @@ namespace SangokuKmy.Models.Services
       }
       else if (chara.From == CharacterFrom.Buddhism)
       {
-        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        if (system.RuleSet != GameRuleSet.Religion)
         {
           ErrorCode.RuleSetError.Throw();
         }
@@ -148,7 +148,7 @@ namespace SangokuKmy.Models.Services
       }
       else if (chara.From == CharacterFrom.Confucianism)
       {
-        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        if (system.RuleSet != GameRuleSet.Religion)
         {
           ErrorCode.RuleSetError.Throw();
         }
@@ -158,7 +158,7 @@ namespace SangokuKmy.Models.Services
       }
       else if (chara.From == CharacterFrom.Taoism)
       {
-        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        if (system.RuleSet != GameRuleSet.Religion)
         {
           ErrorCode.RuleSetError.Throw();
         }

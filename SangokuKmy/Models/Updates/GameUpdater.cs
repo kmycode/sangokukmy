@@ -1197,8 +1197,8 @@ namespace SangokuKmy.Models.Updates
               var country2 = countryData.FirstOrDefault(c => c.Country.Id == war.InsistedCountryId);
               if (country1 != null && country2 != null)
               {
-                war.RequestedCountryCharacterMax = (short)Math.Max(war.RequestedCountryCharacterMax, country1.Characters.Count());
-                war.InsistedCountryCharacterMax = (short)Math.Max(war.InsistedCountryCharacterMax, country2.Characters.Count());
+                war.RequestedCountryCharacterMax = (short)Math.Max(war.RequestedCountryCharacterMax, country1.Characters.Count(c => c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator));
+                war.InsistedCountryCharacterMax = (short)Math.Max(war.InsistedCountryCharacterMax, country2.Characters.Count(c => c.AiType == CharacterAiType.Human || c.AiType == CharacterAiType.Administrator));
               }
             }
             foreach (var war in (await repo.CountryDiplomacies.GetAllTownWarsAsync()))
