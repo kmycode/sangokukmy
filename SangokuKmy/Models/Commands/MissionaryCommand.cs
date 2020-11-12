@@ -81,26 +81,10 @@ namespace SangokuKmy.Models.Commands
           add = (int)(add * 1.4f);
         }
 
-        var religionPoints = new int[] { town.Confucianism, town.Buddhism, town.Taoism, };
-        var max = religionPoints.OrderByDescending(p => p).ElementAt(1) + 3000;
         var oldReligion = town.Religion;
 
-        string religionName = string.Empty;
-        if (religion == ReligionType.Confucianism)
-        {
-          town.Confucianism = Math.Min(town.Confucianism + add, max);
-          religionName = "儒教";
-        }
-        else if (religion == ReligionType.Buddhism)
-        {
-          town.Buddhism = Math.Min(town.Buddhism + add, max);
-          religionName = "仏教";
-        }
-        else if (religion == ReligionType.Taoism)
-        {
-          town.Taoism = Math.Min(town.Taoism + add, max);
-          religionName = "道教";
-        }
+        string religionName = religion.GetString();
+        town.AddReligionPoint(religion, add);
 
         // 経験値、金の増減
         if (countryOptional.HasData)

@@ -276,6 +276,24 @@ namespace SangokuKmy.Models.Data.Entities
       }
     }
 
+    public void AddReligionPoint(ReligionType religion, int add)
+    {
+      var religionPoints = new int[] { this.Confucianism, this.Buddhism, this.Taoism, };
+      var max = religionPoints.OrderByDescending(p => p).ElementAt(1) + 3000;
+      if (religion == ReligionType.Confucianism)
+      {
+        this.Confucianism = Math.Min(this.Confucianism + add, max);
+      }
+      if (religion == ReligionType.Taoism)
+      {
+        this.Buddhism = Math.Min(this.Buddhism + add, max);
+      }
+      if (religion == ReligionType.Buddhism)
+      {
+        this.Taoism = Math.Min(this.Taoism + add, max);
+      }
+    }
+
     public int GetReligionPoint(ReligionType religion)
     {
       if (religion == ReligionType.Confucianism)

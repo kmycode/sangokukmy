@@ -66,10 +66,22 @@ namespace SangokuKmy.Models.Commands
           add = 1;
         }
         add *= 280;
+        var missionaryAdd = Math.Max(1, add / 500);
 
         var policies = await repo.Country.GetPoliciesAsync();
         var max = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available && p.CountryId == country.Id).Select(p => p.Type));
         var targetMax = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available && p.CountryId == targetCountry.Id).Select(p => p.Type));
+
+        var canMissionary = true;
+        var allianceOptional = await repo.CountryDiplomacies.GetCountryAllianceAsync(country.Id, targetCountry.Id);
+        if (!allianceOptional.HasData || allianceOptional.Data.CanMissionary)
+        {
+          town.AddReligionPoint(country.Religion, missionaryAdd);
+        }
+        else
+        {
+          canMissionary = false;
+        }
 
         town.People = Math.Min(town.People + 200, town.PeopleMax);
         country.SafeMoney += add;
@@ -90,7 +102,14 @@ namespace SangokuKmy.Models.Commands
           character.AddPopularityEx(50);
         }
         character.SkillPoint++;
-        await game.CharacterLogAsync($"<town>{town.Name}</town> と交易し、お互い金 <num>{add}</num> を入手しました");
+        if (canMissionary)
+        {
+          await game.CharacterLogAsync($"<town>{town.Name}</town> と交易し、お互い金 <num>{add}</num> を入手しました。{country.Religion.GetString()} を <num>+{missionaryAdd}</num> 布教しました");
+        }
+        else
+        {
+          await game.CharacterLogAsync($"<town>{town.Name}</town> と交易し、お互い金 <num>{add}</num> を入手しました。布教は同盟条約のためできませんでした");
+        }
 
         if (RandomService.Next(0, 256) == 0)
         {
