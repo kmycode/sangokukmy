@@ -68,7 +68,7 @@ namespace SangokuKmy.Models.Common
     /// <summary>
     /// 仕官制限中の最大仕官数
     /// </summary>
-    public static int CountryJoinMaxOnLimited { get; } = 5;
+    public static int CountryJoinMaxOnLimited { get; } = 4;
 
     public static int CountryColorMax { get; } = 18;
 
