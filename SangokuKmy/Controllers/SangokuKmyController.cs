@@ -119,6 +119,15 @@ namespace SangokuKmy.Controllers
             var logs = await repo.Character.GetCharacterLogsAsync(id, 4);
             return ApiData.From(new CharacterDetail(chara, skills, formation, isStopCommand, logs));
           }
+          else if (chara.AiType == CharacterAiType.FlyingColumn)
+          {
+            var data = await repo.Character.GetManagementByAiCharacterIdAsync(chara.Id);
+            if (data.HasData && data.Data.HolderCharacterId == myChara.Id)
+            {
+              var logs = await repo.Character.GetCharacterLogsAsync(id, 4);
+              return ApiData.From(new CharacterDetail(chara, skills, formation, isStopCommand, logs));
+            }
+          }
           else
           {
             return ApiData.From(new CharacterDetail(chara, skills, formation, isStopCommand));

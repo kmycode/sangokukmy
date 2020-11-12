@@ -310,6 +310,11 @@ namespace SangokuKmy.Models.Commands
         aiLog.DefenderId = targetCharacter.Id;
         aiLog.TargetType = targetCharacter.SoldierNumber < 10 ? AiBattleTargetType.CharacterLowSoldiers : AiBattleTargetType.Character;
 
+        if (targetCharacter.AiType == CharacterAiType.FlyingColumn)
+        {
+          mySoldierType.ContinuousProbability += 4000;
+        }
+
         targetSoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(targetCharacter.SoldierType);
 
         targetFormation = FormationTypeInfoes.Get(targetCharacter.FormationType).Data;
