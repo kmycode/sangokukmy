@@ -1252,6 +1252,11 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierType,
             Value = (int)SoldierType.Apostle,
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.Missionary,
+          },
         },
       },
       new CharacterSkillInfo
@@ -1353,6 +1358,11 @@ namespace SangokuKmy.Models.Data.Entities
             Type = CharacterSkillEffectType.SoldierType,
             Value = (int)SoldierType.Apostle,
           },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.Missionary,
+          },
         },
       },
       new CharacterSkillInfo
@@ -1453,6 +1463,11 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.SoldierType,
             Value = (int)SoldierType.Apostle,
+          },
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.Missionary,
           },
         },
       },

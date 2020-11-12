@@ -159,6 +159,12 @@ namespace SangokuKmy.Models.Commands
         ErrorCode.RuleSetError.Throw();
       }
 
+      var skills = await repo.Character.GetSkillsAsync(characterId);
+      if (!skills.AnySkillEffects(CharacterSkillEffectType.Command, (int)this.Type))
+      {
+        ErrorCode.NotSkillError.Throw();
+      }
+
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates);
     }
   }
