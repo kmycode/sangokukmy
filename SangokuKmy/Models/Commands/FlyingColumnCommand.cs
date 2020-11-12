@@ -80,7 +80,9 @@ namespace SangokuKmy.Models.Commands
       character.Contribution += 100;
       character.AddLeadershipEx(50);
 
-      await game.CharacterLogAsync($"別動隊 <character>{ai.Character.Name}</character> を雇いました");
+      var limit = system.GameDateTime.AddMonth(72);
+
+      await game.CharacterLogAsync($"別動隊 <character>{ai.Character.Name}</character> を雇いました。雇用期限は <num>{limit.Year}</num> 年 <num>{limit.Month}</num> 月です");
       await game.MapLogAsync(EventType.SecretaryAdded, $"<country>{country.Name}</country> の <character>{character.Name}</character> は、新しく別動隊 <character>{ai.Character.Name}</character> を雇いました", false);
       await CharacterService.StreamCharacterAsync(repo, ai.Character);
       await StatusStreaming.Default.SendCharacterAsync(ApiData.From(management), character.Id);
