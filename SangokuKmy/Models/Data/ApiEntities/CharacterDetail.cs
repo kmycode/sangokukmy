@@ -13,6 +13,9 @@ namespace SangokuKmy.Models.Data.ApiEntities
     [JsonProperty("skills")]
     public IEnumerable<CharacterSkill> Skills { get; set; }
 
+    [JsonProperty("logs")]
+    public IEnumerable<CharacterLog> Logs { get; set; }
+
     [JsonProperty("message")]
     public string Message { get; set; }
 
@@ -43,6 +46,12 @@ namespace SangokuKmy.Models.Data.ApiEntities
       this.Rice = chara.Rice;
       this.Formation = formation;
       this.IsStopCommand = isStopCommand;
+    }
+
+    public CharacterDetail(Character chara, IEnumerable<CharacterSkill> skills, Formation formation, bool isStopCommand, IEnumerable<CharacterLog> logs)
+      : this(chara, skills, formation, isStopCommand)
+    {
+      this.Logs = logs;
     }
   }
 }
