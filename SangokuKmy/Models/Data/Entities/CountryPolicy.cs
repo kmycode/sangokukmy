@@ -519,7 +519,7 @@ namespace SangokuKmy.Models.Data.Entities
           new CountryPolicyEffect
           {
             Type = CountryPolicyEffectType.Secretary,
-            Value = 2,
+            Value = 3,
           },
         },
       },
