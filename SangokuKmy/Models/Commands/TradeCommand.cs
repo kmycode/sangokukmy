@@ -44,6 +44,12 @@ namespace SangokuKmy.Models.Commands
         }
         var targetCountry = targetCountryOptional.Data;
 
+        if (targetCountry.AiType == CountryAiType.Terrorists)
+        {
+          await game.CharacterLogAsync("交易しようとしましたが、敵対化していない異民族に対しては実行できません");
+          return;
+        }
+
         var war = await repo.CountryDiplomacies.GetCountryWarAsync(character.CountryId, town.CountryId);
         if (war.HasData && war.Data.Status != CountryWarStatus.Stoped)
         {
@@ -59,12 +65,13 @@ namespace SangokuKmy.Models.Commands
         {
           add = 1;
         }
-        add *= 500;
+        add *= 280;
 
         var policies = await repo.Country.GetPoliciesAsync();
         var max = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available && p.CountryId == country.Id).Select(p => p.Type));
         var targetMax = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available && p.CountryId == targetCountry.Id).Select(p => p.Type));
 
+        town.People = Math.Min(town.People + 200, town.PeopleMax);
         country.SafeMoney += add;
         targetCountry.SafeMoney += add;
         country.SafeMoney = Math.Min(country.SafeMoney, max);

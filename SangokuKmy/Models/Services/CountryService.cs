@@ -486,7 +486,8 @@ namespace SangokuKmy.Models.Services
                   c == CharacterAiType.SecretaryUnitGather ? 1 :
                   c == CharacterAiType.SecretaryUnitLeader ? 1 :
                   c == CharacterAiType.SecretaryScouter ? 1 :
-                  c == CharacterAiType.SecretaryEvangelist ? 1 : 0);
+                  c == CharacterAiType.SecretaryEvangelist ? 1 :
+                  c == CharacterAiType.SecretaryTrader ? 2 : 0);
     }
 
     public static int GetCountrySafeMax(IEnumerable<CountryPolicyType> policies)
