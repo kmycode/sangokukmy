@@ -596,6 +596,18 @@ namespace SangokuKmy.Models.Data.Repositories
       }
     }
 
+    public void RemoveSkill(CharacterSkill skill)
+    {
+      try
+      {
+        this.container.Context.CharacterSkills.Remove(skill);
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+      }
+    }
+
     public async Task<IReadOnlyList<CharacterSkill>> GetSkillsAsync()
     {
       try

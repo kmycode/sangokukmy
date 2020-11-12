@@ -663,6 +663,58 @@ namespace SangokuKmy.Controllers
     }
 
     [AuthenticationFilter]
+    [HttpPut("country/join/{countryId}")]
+    public async Task JoinCountryAsync(
+      [FromRoute] uint countryId)
+    {
+      using (var repo = MainRepository.WithReadAndWrite())
+      {
+        var system = await repo.System.GetAsync();
+        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+        var country = await repo.Country.GetAliveByIdAsync(countryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
+
+        var currentCountryOptional = await repo.Country.GetAliveByIdAsync(chara.CountryId);
+        if (currentCountryOptional.HasData)
+        {
+          // 無所属しかAPI実行できない
+          ErrorCode.NotPermissionError.Throw();
+        }
+
+        if (country.AiType != CountryAiType.Human)
+        {
+          ErrorCode.CantJoinAtSuchCountryhError.Throw();
+        }
+
+        if (country.IntEstablished + Config.CountryBattleStopDuring > system.IntGameDateTime)
+        {
+          var characterCount = await repo.Country.CountCharactersAsync(country.Id, true);
+          if (characterCount >= Config.CountryJoinMaxOnLimited)
+          {
+            // 戦闘解除前の武将数の多い国に士官できない
+            ErrorCode.CantJoinAtSuchCountryhError.Throw();
+          }
+        }
+        else
+        {
+          // 戦闘解除後の国にはこのAPIでは仕官できない
+          ErrorCode.CantJoinAtSuchCountryhError.Throw();
+        }
+
+        var blockActions = await repo.BlockAction.GetAvailableTypesAsync(chara.Id);
+        if (blockActions.Contains(BlockActionType.StopJoin) && !system.IsWaitingReset)
+        {
+          ErrorCode.BlockedActionError.Throw();
+        }
+
+        await CharacterService.ChangeTownAsync(repo, country.CapitalTownId, chara);
+        await CharacterService.ChangeCountryAsync(repo, country.Id, new Character[] { chara, });
+        await LogService.AddMapLogAsync(repo, false, EventType.CharacterJoin, $"<character>{chara.Name}</character> は <country>{country.Name}</country> に仕官しました");
+
+        await repo.SaveChangesAsync();
+      }
+    }
+
+    [AuthenticationFilter]
     [HttpPut("character/message")]
     public async Task SetMessageAsync(
       [FromBody] Character param)
