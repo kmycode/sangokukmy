@@ -220,54 +220,60 @@ namespace SangokuKmy.Models.Updates
           await PushNotificationService.SendAllAsync(repo, "戦闘解除", "戦闘が解除されました。以降は戦争が可能です（他国へ攻め込むには宣戦布告が必要です）");
 
           // 戦闘解除に伴う無所属武将へのペナルティ
-          foreach (var chara in allCharacters.Where(c => c.AiType == CharacterAiType.Human && c.CountryId == 0))
+          if (countryData
+            .Where(c => c.Country.AiType == CountryAiType.Human)
+            .Any(c => c.Characters
+              .Count(cc => cc.AiType == CharacterAiType.Human || cc.AiType == CharacterAiType.Administrator) < Config.CountryJoinMaxOnLimited))
           {
-            var attribute = string.Empty;
-            if (chara.Strong > chara.Intellect && chara.Strong > chara.Leadership && chara.Strong > chara.Popularity)
+            foreach (var chara in allCharacters.Where(c => c.AiType == CharacterAiType.Human && c.CountryId == 0))
             {
-              chara.Strong -= 20;
-              attribute = "武力";
-            }
-            else if (chara.Intellect > chara.Leadership && chara.Intellect > chara.Popularity)
-            {
-              chara.Intellect -= 20;
-              attribute = "知力";
-            }
-            else if (chara.Leadership > chara.Popularity)
-            {
-              chara.Leadership -= 20;
-              attribute = "統率";
-            }
-            else
-            {
-              chara.Popularity -= 20;
-              attribute = "人望";
-            }
-            chara.SkillPoint = 0;
-
-            var skills = await repo.Character.GetSkillsAsync(chara.Id);
-            var removeSkills = skills.Where(s =>
-            {
-              var info = CharacterSkillInfoes.Get(s.Type);
-              if (info.HasData)
+              var attribute = string.Empty;
+              if (chara.Strong > chara.Intellect && chara.Strong > chara.Leadership && chara.Strong > chara.Popularity)
               {
+                chara.Strong -= 20;
+                attribute = "武力";
+              }
+              else if (chara.Intellect > chara.Leadership && chara.Intellect > chara.Popularity)
+              {
+                chara.Intellect -= 20;
+                attribute = "知力";
+              }
+              else if (chara.Leadership > chara.Popularity)
+              {
+                chara.Leadership -= 20;
+                attribute = "統率";
+              }
+              else
+              {
+                chara.Popularity -= 20;
+                attribute = "人望";
+              }
+              chara.SkillPoint = 0;
+
+              var skills = await repo.Character.GetSkillsAsync(chara.Id);
+              var removeSkills = skills.Where(s =>
+              {
+                var info = CharacterSkillInfoes.Get(s.Type);
+                if (info.HasData)
+                {
                 // 他の技能があって初めて取得できる技能のみ削除する（そうでない技能は新規登録時にデフォルトで入手したはず）
                 if (info.Data.SubjectAppear?.Invoke(skills) == true)
-                {
-                  return true;
+                  {
+                    return true;
+                  }
                 }
+                return false;
+              });
+              foreach (var skill in removeSkills)
+              {
+                repo.Character.RemoveSkill(skill);
+                skill.Status = CharacterSkillStatus.Removed;
+                await StatusStreaming.Default.SendCharacterAsync(ApiData.From(skill), chara.Id);
               }
-              return false;
-            });
-            foreach (var skill in removeSkills)
-            {
-              repo.Character.RemoveSkill(skill);
-              skill.Status = CharacterSkillStatus.Removed;
-              await StatusStreaming.Default.SendCharacterAsync(ApiData.From(skill), chara.Id);
-            }
 
-            await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
-            await AddLogAsync(chara.Id, $"戦闘解除までに仕官しなかったペナルティとして {attribute} が <num>-20</num> 低下しました。技能Pが <num>0</num> になり、獲得した技能は削除されました");
+              await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
+              await AddLogAsync(chara.Id, $"戦闘解除までに仕官しなかったペナルティとして {attribute} が <num>-20</num> 低下しました。技能Pが <num>0</num> になり、獲得した技能は削除されました");
+            }
           }
         }
 
