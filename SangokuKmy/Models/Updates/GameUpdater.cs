@@ -227,52 +227,14 @@ namespace SangokuKmy.Models.Updates
           {
             foreach (var chara in allCharacters.Where(c => c.AiType == CharacterAiType.Human && c.CountryId == 0))
             {
-              var attribute = string.Empty;
-              if (chara.Strong > chara.Intellect && chara.Strong > chara.Leadership && chara.Strong > chara.Popularity)
+              var country = countryData.Where(c => c.Country.AiType == CountryAiType.Human).OrderBy(c => c.Characters.Count()).FirstOrDefault();
+              if (country == null)
               {
-                chara.Strong -= 20;
-                attribute = "武力";
-              }
-              else if (chara.Intellect > chara.Leadership && chara.Intellect > chara.Popularity)
-              {
-                chara.Intellect -= 20;
-                attribute = "知力";
-              }
-              else if (chara.Leadership > chara.Popularity)
-              {
-                chara.Leadership -= 20;
-                attribute = "統率";
-              }
-              else
-              {
-                chara.Popularity -= 20;
-                attribute = "人望";
-              }
-              chara.SkillPoint = 0;
-
-              var skills = await repo.Character.GetSkillsAsync(chara.Id);
-              var removeSkills = skills.Where(s =>
-              {
-                var info = CharacterSkillInfoes.Get(s.Type);
-                if (info.HasData)
-                {
-                // 他の技能があって初めて取得できる技能のみ削除する（そうでない技能は新規登録時にデフォルトで入手したはず）
-                if (info.Data.SubjectAppear?.Invoke(skills) == true)
-                  {
-                    return true;
-                  }
-                }
-                return false;
-              });
-              foreach (var skill in removeSkills)
-              {
-                repo.Character.RemoveSkill(skill);
-                skill.Status = CharacterSkillStatus.Removed;
-                await StatusStreaming.Default.SendCharacterAsync(ApiData.From(skill), chara.Id);
+                continue;
               }
 
-              await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
-              await AddLogAsync(chara.Id, $"戦闘解除までに仕官しなかったペナルティとして {attribute} が <num>-20</num> 低下しました。技能Pが <num>0</num> になり、獲得した技能は削除されました");
+              await CharacterService.ChangeCountryAsync(repo, country.Country.Id, new Character[] { chara, });
+              await AddLogAsync(chara.Id, $"戦闘解除までに仕官しなかったペナルティとして <country>{country.Country.Name}</country> に強制仕官しました");
             }
           }
         }
