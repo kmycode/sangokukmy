@@ -69,6 +69,13 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("target_town_id")]
     [JsonProperty("targetTownId")]
     public uint TargetTownId { get; set; }
+
+    /// <summary>
+    /// 雇用した年月
+    /// </summary>
+    [Column("start_game_date_time")]
+    [JsonIgnore]
+    public int IntStartGameDateTime { get; set; }
   }
 
   public enum AiCharacterAction : short

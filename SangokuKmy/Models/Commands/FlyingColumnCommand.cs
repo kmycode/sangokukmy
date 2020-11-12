@@ -34,6 +34,13 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      var ais = await repo.Character.GetManagementByHolderCharacterIdAsync(character.Id);
+      if (ais.Any())
+      {
+        await game.CharacterLogAsync($"別動隊を雇おうとしましたが、すでに雇用しています");
+        return;
+      }
+
       var system = await repo.System.GetAsync();
       var ai = AiCharacterFactory.Create(CharacterAiType.FlyingColumn);
       ai.Initialize(game.GameDateTime);
@@ -258,11 +265,11 @@ namespace SangokuKmy.Models.Commands
       }
 
       flyingColumnOptional.Data.AiType = CharacterAiType.RemovedFlyingColumn;
+      flyingColumnOptional.Data.DeleteTurn = (short)(Config.DeleteTurns - 36);
       character.Contribution += 30;
       character.AddLeadershipEx(50);
       character.SkillPoint++;
 
-      repo.Character.RemoveManagement(management);
       management.Action = AiCharacterAction.Removed;
 
       await game.CharacterLogAsync($"別動隊 <character>{flyingColumnOptional.Data.Name}</character> を削除しました。別動隊武将更新のタイミングで削除されます");

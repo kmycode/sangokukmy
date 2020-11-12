@@ -251,6 +251,14 @@ namespace SangokuKmy.Models.Services
         }
         repo.Character.RemoveManagement(ai);
       }
+      if (character.AiType == CharacterAiType.FlyingColumn)
+      {
+        var management = await repo.Character.GetManagementByAiCharacterIdAsync(character.Id);
+        if (management.HasData)
+        {
+          repo.Character.RemoveManagement(management.Data);
+        }
+      }
 
       repo.ScoutedTown.RemoveCharacter(character.Id);
       repo.Town.RemoveDefender(character.Id);

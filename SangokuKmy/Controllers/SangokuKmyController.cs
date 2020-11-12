@@ -127,6 +127,10 @@ namespace SangokuKmy.Controllers
               var logs = await repo.Character.GetCharacterLogsAsync(id, 4);
               return ApiData.From(new CharacterDetail(chara, skills, formation, isStopCommand, logs));
             }
+            else
+            {
+              return ApiData.From(new CharacterDetail(chara, skills, formation, isStopCommand));
+            }
           }
           else
           {

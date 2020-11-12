@@ -2102,7 +2102,8 @@ namespace SangokuKmy.Models.Updates
               if (aiChara.HasData)
               {
                 aiChara.Data.AiType = CharacterAiType.RemovedFlyingColumn;
-                aiChara.Data.DeleteTurn = (short)Config.DeleteTurns;
+                aiChara.Data.DeleteTurn = (short)(Config.DeleteTurns - 36);
+                await AddLogByIdAsync(aii.HolderCharacterId, $"<character>{aiChara.Data.Name}</character> は給料不足のため解任されました");
               }
             }
           }
@@ -2127,16 +2128,31 @@ namespace SangokuKmy.Models.Updates
           character.DeleteTurn = (short)Config.DeleteTurns;
           await AddMapLogAsync(EventType.SecretaryRemoved, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、解雇されました", false);
         }
-        if (character.AiType == CharacterAiType.RemovedFlyingColumn)
+
+        // 別働隊の雇用期限
+        if (character.AiType == CharacterAiType.FlyingColumn)
         {
-          var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
-          character.DeleteTurn = (short)Config.DeleteTurns;
-          await AddMapLogAsync(EventType.SecretaryRemoved, $"<country>{countryOptional.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、削除されました", false);
+          var aiOptional = await repo.Character.GetManagementByAiCharacterIdAsync(character.Id);
+          if (aiOptional.HasData)
+          {
+            if (aiOptional.Data.IntStartGameDateTime + 72 < system.IntGameDateTime)
+            {
+              character.AiType = CharacterAiType.RemovedFlyingColumn;
+              character.DeleteTurn = (short)(Config.DeleteTurns - 36);
+              await AddLogByIdAsync(aiOptional.Data.HolderCharacterId, $"別働隊 <character>{character.Name}</character> は、雇用期限を過ぎたため使えなくなります。<num>36</num> ヶ月後に削除されます");
+            }
+          }
         }
 
         // 放置削除の確認
         if (character.DeleteTurn >= Config.DeleteTurns)
         {
+          if (character.AiType == CharacterAiType.RemovedFlyingColumn)
+          {
+            var countryOptional2 = await repo.Country.GetByIdAsync(character.CountryId);
+            await AddMapLogAsync(EventType.SecretaryRemoved, $"<country>{countryOptional2.Data?.Name ?? "無所属"}</country> の <character>{character.Name}</character> は、削除されました", false);
+          }
+
           await PushNotificationService.SendCharacterAsync(repo, "放置削除", "あなたの武将は放置削除されました。ゲームを続行するには、再度新規登録が必要です", character.Id);
           var countryOptional = await repo.Country.GetByIdAsync(character.CountryId);
           await CharacterService.RemoveAsync(repo, character);
