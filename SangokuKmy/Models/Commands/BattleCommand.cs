@@ -219,10 +219,6 @@ namespace SangokuKmy.Models.Commands
           myCountry.Religion != targetCountryOptional.Data?.Religion && myCountry.Religion == targetTown.Religion,
         Cause = cause,
       };
-      if (system.RuleSet != GameRuleSet.Religion)
-      {
-        log.IsSameReligion = false;
-      }
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
 
@@ -398,7 +394,7 @@ namespace SangokuKmy.Models.Commands
           evaluationTechnology -= RandomService.Next(28, 160);
           if (system.RuleSet == GameRuleSet.Religion)
           {
-            evaluationTechnology -= RandomService.Next(48, 300);
+            evaluationTechnology -= RandomService.Next(32, 72);
           }
           if (RandomService.Next(0, 32) == 0)
           {

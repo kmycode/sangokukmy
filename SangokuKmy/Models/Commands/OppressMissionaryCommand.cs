@@ -145,12 +145,6 @@ namespace SangokuKmy.Models.Commands
         ErrorCode.NotSkillError.Throw();
       }
 
-      var system = await repo.System.GetAsync();
-      if (system.RuleSet != GameRuleSet.Religion)
-      {
-        ErrorCode.RuleSetError.Throw();
-      }
-
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates);
     }
   }
