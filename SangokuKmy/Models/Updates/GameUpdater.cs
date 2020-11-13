@@ -1681,7 +1681,7 @@ namespace SangokuKmy.Models.Updates
             {
               var religionGroup = religionOfTown.OrderByDescending(t => t.Count()).First();
               var religion = religionGroup.Key;
-              if (religion != ReligionType.Any && religion != ReligionType.None && religionGroup.Count() >= allTowns.Count * 3 / 4)
+              if (religion != ReligionType.Any && religion != ReligionType.None && religionGroup.Count() >= allTowns.Count * 4 / 5)
               {
                 var countryGroup = religionOfCountry.FirstOrDefault(c => c.Key == religion);
                 if (countryGroup?.Count() == 1)
