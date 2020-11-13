@@ -44,7 +44,7 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
-      var targetTownId = options.FirstOrDefault(p => p.Type == 1).NumberValue;
+      var targetTownId = options.FirstOrDefault(p => p.Type == 1)?.NumberValue;
       if (targetTownId == null)
       {
         await game.CharacterLogAsync("targetTownId の値はnullです。<emerge>管理者にお問い合わせください</emerge>");
@@ -55,6 +55,10 @@ namespace SangokuKmy.Models.Commands
         await game.CharacterLogAsync("自分の現在の所在都市へ侵攻しようとしました");
         return;
       }
+
+      // 侵攻に失敗した時、移動するか
+      var isMoveIfFailedValue = options.FirstOrDefault(p => p.Type == 2)?.NumberValue;
+      var isMoveIfFailed = isMoveIfFailedValue != null && isMoveIfFailedValue != 0;
 
       var targetTownOptional = await repo.Town.GetByIdAsync((uint)targetTownId);
       var myTownOptional = await repo.Town.GetByIdAsync(character.TownId);
@@ -146,10 +150,18 @@ namespace SangokuKmy.Models.Commands
       }
       if (targetTown.CountryId == character.CountryId)
       {
-        await game.CharacterLogAsync($"自国の <town>{targetTown.Name}</town> へ侵攻しようとしました");
         if (isWaring)
         {
           character.SkillPoint++;
+        }
+        if (isMoveIfFailed)
+        {
+          await CharacterService.ChangeTownAsync(repo, targetTown.Id, character);
+          await game.CharacterLogAsync($"自国の <town>{targetTown.Name}</town> へ侵攻しようとしました。代わりに移動しました");
+        }
+        else
+        {
+          await game.CharacterLogAsync($"自国の <town>{targetTown.Name}</town> へ侵攻しようとしました");
         }
         return;
       }
