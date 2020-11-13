@@ -216,10 +216,10 @@ namespace SangokuKmy.Models.Services
         {
           var chara = HistoricalCharacter.FromCharacter(c.Character);
           chara.Icon = HistoricalCharacterIcon.FromCharacterIcon(c.Icon);
-          var post = posts.FirstOrDefault(p => p.CharacterId == c.Character.Id);
-          if (post != null)
+          var post = posts.Where(p => p.CharacterId == c.Character.Id).GetTopmostPost();
+          if (post.HasData)
           {
-            chara.Type = post.Type;
+            chara.Type = post.Data.Type;
           }
           return chara;
         }).ToArray(),

@@ -158,7 +158,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <returns>最高位の役職</returns>
     public static Optional<CountryPost> GetTopmostPost(this IEnumerable<CountryPost> posts)
     {
-      return posts.OrderBy(p => p.ApiType).First().ToOptional();
+      return posts.OrderBy(p => p.ApiType).FirstOrDefault().ToOptional();
     }
 
     public static bool CanMultiple(this CountryPostType type)
