@@ -294,30 +294,35 @@ namespace SangokuKmy.Models.Services
       */
     }
 
-    public static async Task<bool> IsWarlikenessPenaltyAsync(MainRepository repo, uint countryId)
+    public static async Task<bool> IsWarlikenessPenaltyAsync(MainRepository repo, uint countryId, uint targetCountryId = 0)
     {
       var towns = await repo.Town.GetAllAsync();
       var countries = await repo.Country.GetAllAliveAsync();
+      var characters = (await repo.Character.GetAllAliveAsync()).Where(c => c.AiType == CharacterAiType.Human);
       var townCountries = towns
         .GroupBy(t => t.CountryId)
-        .Select(t => new { Country = countries.FirstOrDefault(c => c.Id == t.Key), TownsCount = t.Count(), })
+        .Select(t => new { Country = countries.FirstOrDefault(c => c.Id == t.Key), TownsCount = t.Count(), CharactersCount = characters.Count(c => c.CountryId == t.Key), })
         .Where(c => c.Country != null && c.Country.AiType == CountryAiType.Human)
         .OrderByDescending(t => t.TownsCount)
         .ToArray();
 
-      if (townCountries.Count() < 3 || townCountries.First().Country.Id != countryId)
+      if (townCountries.Count() < 3 ||
+        townCountries.First().Country.Id != countryId ||
+        townCountries.ElementAt(1).Country.Id == targetCountryId)
       {
         return false;
       }
 
-      var max = townCountries.First().TownsCount;
-      var average = townCountries.Skip(1).Average(t => t.TownsCount);
+      var max1 = townCountries.First().TownsCount;
+      var average1 = townCountries.Skip(1).Average(t => t.TownsCount);
+      var max2 = townCountries.First().CharactersCount;
+      var average2 = townCountries.Skip(1).Average(t => t.CharactersCount);
 
       if (townCountries.Count() == 3)
       {
-        return max > average * 2.4;
+        return max1 > average1 * 2.4 || max2 > average2 * 2;
       }
-      return max > average * 2;
+      return max1 > average1 * 2 || max2 > average2 * 1.6;
     }
 
     public static async Task<bool> SetPolicyAndSaveAsync(MainRepository repo, Country country, CountryPolicyType type, CountryPolicyStatus status = CountryPolicyStatus.Available, bool isCheckSubjects = true)

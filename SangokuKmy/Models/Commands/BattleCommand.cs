@@ -234,8 +234,8 @@ namespace SangokuKmy.Models.Commands
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
 
-      var isMyPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, character.CountryId);
-      var isTargetPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, targetTown.CountryId);
+      var isMyPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, character.CountryId, targetTown.CountryId);
+      var isTargetPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, targetTown.CountryId, character.CountryId);
 
       var mySoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(character.SoldierType);
       var myRicePerSoldier = 1;
