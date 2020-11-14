@@ -25,6 +25,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected virtual bool CanPolicyFirst => true;
 
+    protected virtual bool CanJoinHumanCountry => false;
+
     protected bool IsPolicySecond { get; private set; }
 
     public ManagedAiCharacter(Character character) : base(character)
@@ -38,12 +40,22 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected override async Task<bool> ActionAsNoCountryAsync(MainRepository repo)
     {
-      var countries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown && c.AiType == CountryAiType.Managed);
+      // 仕官先の国候補
+      var allCountries = (await repo.Country.GetAllAsync()).Where(c => !c.HasOverthrown);
+      var countries = allCountries.Where(c => c.AiType == CountryAiType.Managed);
       if (!countries.Any())
       {
-        return false;
+        if (this.CanJoinHumanCountry)
+        {
+          countries = allCountries.Where(c => c.AiType == CountryAiType.Human);
+        }
+        else
+        {
+          return false;
+        }
       }
 
+      // 一番武将の少ない国を選んで仕官する
       var characters = (await repo.Character.GetAllAliveAsync()).Where(c => countries.Any(cc => cc.Id == c.CountryId));
       Country targetCountry;
       if (!characters.Any())
@@ -1004,6 +1016,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
   public class ManagedEvangelistAiCharacter : ManagedAiCharacter
   {
+    protected override bool CanJoinHumanCountry => true;
+
     public ManagedEvangelistAiCharacter(Character character) : base(character)
     {
     }

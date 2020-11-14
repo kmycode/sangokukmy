@@ -114,7 +114,7 @@ namespace SangokuKmy.Controllers
           var skills = await repo.Character.GetSkillsAsync(id);
           var formation = await repo.Character.GetFormationAsync(chara.Id, chara.FormationType);
           var isStopCommand = await repo.BlockAction.IsBlockedAsync(chara.Id, BlockActionType.StopCommandByMonarch);
-          if (chara.AiType.IsSecretary())
+          if (chara.AiType.IsSecretary() || chara.AiType.IsManaged())
           {
             var logs = await repo.Character.GetCharacterLogsAsync(id, 4);
             return ApiData.From(new CharacterDetail(chara, skills, formation, isStopCommand, logs));
