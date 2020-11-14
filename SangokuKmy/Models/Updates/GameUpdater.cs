@@ -220,22 +220,16 @@ namespace SangokuKmy.Models.Updates
           await PushNotificationService.SendAllAsync(repo, "戦闘解除", "戦闘が解除されました。以降は戦争が可能です（他国へ攻め込むには宣戦布告が必要です）");
 
           // 戦闘解除に伴う無所属武将へのペナルティ
-          if (countryData
-            .Where(c => c.Country.AiType == CountryAiType.Human)
-            .Any(c => c.Characters
-              .Count(cc => cc.AiType == CharacterAiType.Human || cc.AiType == CharacterAiType.Administrator) < Config.CountryJoinMaxOnLimited))
+          foreach (var chara in allCharacters.Where(c => c.AiType == CharacterAiType.Human && c.CountryId == 0))
           {
-            foreach (var chara in allCharacters.Where(c => c.AiType == CharacterAiType.Human && c.CountryId == 0))
+            var country = countryData.Where(c => c.Country.AiType == CountryAiType.Human).OrderBy(c => c.Characters.Count()).FirstOrDefault();
+            if (country == null)
             {
-              var country = countryData.Where(c => c.Country.AiType == CountryAiType.Human).OrderBy(c => c.Characters.Count()).FirstOrDefault();
-              if (country == null)
-              {
-                continue;
-              }
-
-              await CharacterService.ChangeCountryAsync(repo, country.Country.Id, new Character[] { chara, });
-              await AddLogAsync(chara.Id, $"戦闘解除までに仕官しなかったペナルティとして <country>{country.Country.Name}</country> に強制仕官しました");
+              continue;
             }
+
+            await CharacterService.ChangeCountryAsync(repo, country.Country.Id, new Character[] { chara, });
+            await AddLogAsync(chara.Id, $"戦闘解除までに仕官しなかったペナルティとして <country>{country.Country.Name}</country> に強制仕官しました");
           }
         }
 
