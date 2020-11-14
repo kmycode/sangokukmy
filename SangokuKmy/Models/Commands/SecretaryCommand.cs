@@ -86,6 +86,12 @@ namespace SangokuKmy.Models.Commands
         return;
       }
 
+      if (secretaries.Count(s => s.AiType == type) > 3)
+      {
+        await game.CharacterLogAsync($"政務官を雇おうとしましたが、同じ種類の政務官は最大 <num>3</num> 人しか雇えません");
+        return;
+      }
+
       var cost = Config.SecretaryCost;
       if (character.Money < cost && country.SafeMoney < cost)
       {
