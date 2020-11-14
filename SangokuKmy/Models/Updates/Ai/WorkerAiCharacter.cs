@@ -1688,10 +1688,19 @@ namespace SangokuKmy.Models.Updates.Ai
       return false;
     }
 
-    protected bool InputMissionary()
+    protected async Task<bool> InputMissionaryAsync(MainRepository repo)
     {
       if (this.Town.Religion != this.Country.Religion)
       {
+        if (this.Town.CountryId != this.Country.Id)
+        {
+          var alliance = await repo.CountryDiplomacies.GetCountryAllianceAsync(this.Town.CountryId, this.Country.Id);
+          if (alliance.HasData && !alliance.Data.CanMissionary)
+          {
+            return false;
+          }
+        }
+
         this.command.Type = CharacterCommandType.Missionary;
         return true;
       }

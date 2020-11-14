@@ -836,7 +836,7 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           return;
         }
-        if (this.InputMissionary())
+        if (await this.InputMissionaryAsync(repo))
         {
           return;
         }
@@ -982,7 +982,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (this.InputMissionary())
+      if (await this.InputMissionaryAsync(repo))
       {
         return;
       }
@@ -1048,7 +1048,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (this.InputMissionary())
+      if (await this.InputMissionaryAsync(repo))
       {
         return;
       }
