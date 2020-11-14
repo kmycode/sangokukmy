@@ -126,6 +126,20 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("cause")]
     [JsonIgnore]
     public BattleCause Cause { get; set; }
+
+    /// <summary>
+    /// 攻撃側にペナルティがあったか
+    /// </summary>
+    [Column("is_attacker_penalty")]
+    [JsonIgnore]
+    public bool IsAttackerPenalty { get; set; }
+
+    /// <summary>
+    /// 防御側にペナルティがあったか
+    /// </summary>
+    [Column("is_defender_penalty")]
+    [JsonIgnore]
+    public bool IsDefenderPenalty { get; set; }
   }
 
   public enum DefenderType : short

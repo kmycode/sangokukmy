@@ -223,6 +223,9 @@ namespace SangokuKmy.Models.Commands
       var continuousCount = options.FirstOrDefault(o => o.Type == 32)?.NumberValue ?? 1;
       var continuousTurns = options.FirstOrDefault(o => o.Type == 33)?.NumberValue ?? 1;
 
+      var isMyPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, character.CountryId, targetTown.CountryId);
+      var isTargetPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, targetTown.CountryId, character.CountryId);
+
       var log = new BattleLog
       {
         TownId = targetTown.Id,
@@ -230,12 +233,11 @@ namespace SangokuKmy.Models.Commands
         IsSameReligion = myCountry.Religion != ReligionType.Any && myCountry.Religion != ReligionType.None &&
           myCountry.Religion != targetCountryOptional.Data?.Religion && myCountry.Religion == targetTown.Religion,
         Cause = cause,
+        IsAttackerPenalty = isMyPenalty,
+        IsDefenderPenalty = isTargetPenalty,
       };
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
-
-      var isMyPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, character.CountryId, targetTown.CountryId);
-      var isTargetPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, targetTown.CountryId, character.CountryId);
 
       var mySoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(character.SoldierType);
       var myRicePerSoldier = 1;
