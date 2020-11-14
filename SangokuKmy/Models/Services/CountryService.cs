@@ -294,6 +294,32 @@ namespace SangokuKmy.Models.Services
       */
     }
 
+    public static async Task<bool> IsWarlikenessPenaltyAsync(MainRepository repo, uint countryId)
+    {
+      var towns = await repo.Town.GetAllAsync();
+      var countries = await repo.Country.GetAllAliveAsync();
+      var townCountries = towns
+        .GroupBy(t => t.CountryId)
+        .Select(t => new { Country = countries.FirstOrDefault(c => c.Id == t.Key), TownsCount = t.Count(), })
+        .Where(c => c.Country != null && c.Country.AiType == CountryAiType.Human)
+        .OrderByDescending(t => t.TownsCount)
+        .ToArray();
+
+      if (townCountries.Count() < 3 || townCountries.First().Country.Id != countryId)
+      {
+        return false;
+      }
+
+      var max = townCountries.First().TownsCount;
+      var average = townCountries.Skip(1).Average(t => t.TownsCount);
+
+      if (townCountries.Count() == 3)
+      {
+        return max > average * 2.4;
+      }
+      return max > average * 2;
+    }
+
     public static async Task<bool> SetPolicyAndSaveAsync(MainRepository repo, Country country, CountryPolicyType type, CountryPolicyStatus status = CountryPolicyStatus.Available, bool isCheckSubjects = true)
     {
       var info = CountryPolicyTypeInfoes.Get(type);

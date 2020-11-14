@@ -39,6 +39,23 @@ namespace SangokuKmy.Models.Data.Repositories
     }
 
     /// <summary>
+    /// すべての国を取得する
+    /// </summary>
+    /// <returns>すべての国</returns>
+    public async Task<IReadOnlyList<Country>> GetAllAliveAsync()
+    {
+      try
+      {
+        return await this.container.Context.Countries.Where(c => !c.HasOverthrown).ToArrayAsync();
+      }
+      catch (Exception ex)
+      {
+        this.container.Error(ex);
+        return default;
+      }
+    }
+
+    /// <summary>
     /// すべての国を誰でも見れる情報に絞って取得する
     /// </summary>
     /// <returns>すべての国データ</returns>

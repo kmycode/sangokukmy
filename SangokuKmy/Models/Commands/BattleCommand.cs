@@ -234,6 +234,9 @@ namespace SangokuKmy.Models.Commands
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
 
+      var isMyPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, character.CountryId);
+      var isTargetPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, targetTown.CountryId);
+
       var mySoldierType = DefaultCharacterSoldierTypeParts.GetDataByDefault(character.SoldierType);
       var myRicePerSoldier = 1;
       var myFormation = FormationTypeInfoes.Get(character.FormationType).Data;
@@ -475,6 +478,18 @@ namespace SangokuKmy.Models.Commands
 
       log.AttackerAttackPower = myAttack;
       log.DefenderAttackPower = targetAttack;
+
+      if (RandomService.Next(5) <= 3)
+      {
+        if (isMyPenalty)
+        {
+          myAttack = (int)Math.Max(1, myAttack * 0.7f);
+        }
+        if (isTargetPenalty)
+        {
+          targetAttack = (int)Math.Max(1, targetAttack * 0.7f);
+        }
+      }
 
       var currentBattleTurns = 0;
       for (var i = continuousTurns; i <= 50 && targetCharacter.SoldierNumber > 0 && character.SoldierNumber > 0; i++)
