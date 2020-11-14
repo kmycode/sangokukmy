@@ -328,7 +328,7 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         var chara = charas
           .Where(c => c.AiType.IsManaged() && !c.AiType.IsMoneyInflator())
-          .Where(c => c.AiType.ToManagedStandard() != CharacterAiType.ManagedPatroller)
+          .Where(c => c.AiType.ToManagedStandard() != CharacterAiType.ManagedPatroller && c.AiType != CharacterAiType.ManagedEvangelist)
           .OrderBy(c => c.Money)
           .FirstOrDefault();
         if (chara != null)
@@ -999,6 +999,44 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       this.MoveToRandomTown();
+    }
+  }
+
+  public class ManagedEvangelistAiCharacter : ManagedAiCharacter
+  {
+    public ManagedEvangelistAiCharacter(Character character) : base(character)
+    {
+    }
+
+    public override void Initialize(GameDateTime current)
+    {
+      this.Character.Name = "伝道師";
+      this.Character.Intellect = 100;
+      this.Character.Leadership = 100;
+      this.Character.Money = 120_0000;
+      this.Character.Rice = 60_0000;
+    }
+
+    protected override async Task ActionPersonalAsync(MainRepository repo)
+    {
+      if (await this.InputUseItemAsync(repo))
+      {
+        return;
+      }
+
+      if (this.InputMissionary())
+      {
+        return;
+      }
+
+      if (RandomService.Next(30) == 0)
+      {
+        this.MoveToRandomTown();
+      }
+      else
+      {
+        this.InputMissionaryForce();
+      }
     }
   }
 }

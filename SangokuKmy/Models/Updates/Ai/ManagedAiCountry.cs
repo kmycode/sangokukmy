@@ -363,7 +363,7 @@ namespace SangokuKmy.Models.Updates.Ai
       var system = await repo.System.GetAsync();
       var policies = await repo.Country.GetPoliciesAsync(this.Country.Id);
       var towns = allTowns.Where(t => t.CountryId == this.Country.Id);
-      var characters = allCharacters.Where(c => c.CountryId == this.Country.Id && !c.AiType.IsSecretary());
+      var characters = allCharacters.Where(c => c.CountryId == this.Country.Id && !c.AiType.IsSecretary() && c.AiType != CharacterAiType.ManagedEvangelist);
       var townsInReady = towns.Where(t => this.IsReadyForWar(t));
       var charactersInReady = characters.Where(c => this.IsReadyForWar(c));
       var characterGroupInReady = charactersInReady.GroupBy(c => c.GetCharacterType());

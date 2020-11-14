@@ -1699,6 +1699,11 @@ namespace SangokuKmy.Models.Updates.Ai
       return false;
     }
 
+    protected void InputMissionaryForce()
+    {
+      this.command.Type = CharacterCommandType.Missionary;
+    }
+
     protected bool InputPolicy()
     {
       if (this.Country.PolicyPoint < 10000)

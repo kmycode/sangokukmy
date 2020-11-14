@@ -857,6 +857,7 @@ namespace SangokuKmy.Models.Data.Entities
     FreeEvangelist = 33,
     FarmerEvangelist = 34,
     SecretaryTrader = 35,
+    ManagedEvangelist = 36,
   }
 
   public static class CharacterAiTypeExtensions
@@ -893,7 +894,8 @@ namespace SangokuKmy.Models.Data.Entities
         type == CharacterAiType.ManagedMoneyInflatingBattler ||
         type == CharacterAiType.ManagedMoneyInflatingCivilOfficial ||
         type == CharacterAiType.ManagedMoneyInflatingPatroller ||
-        type == CharacterAiType.ManagedShortstopCivilOfficial;
+        type == CharacterAiType.ManagedShortstopCivilOfficial ||
+        type == CharacterAiType.ManagedEvangelist;
     }
 
     public static bool IsMoneyInflator(this CharacterAiType type)
