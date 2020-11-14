@@ -47,7 +47,17 @@ namespace SangokuKmy.Models.Updates.Ai
       {
         if (this.CanJoinHumanCountry)
         {
-          countries = allCountries.Where(c => c.AiType == CountryAiType.Human);
+          var allTowns = await repo.Town.GetAllAsync();
+          var religions = allTowns.GroupBy(t => t.Religion).Select(t => new { Regilion = t.Key, Count = t.Count(), });
+          if (religions.Any())
+          {
+            var religion = religions.OrderBy(r => r.Count).First().Regilion;
+            countries = allCountries.Where(c => c.AiType == CountryAiType.Human && c.Religion == religion);
+          }
+          else
+          {
+            countries = allCountries.Where(c => c.AiType == CountryAiType.Human);
+          }
         }
         else
         {
