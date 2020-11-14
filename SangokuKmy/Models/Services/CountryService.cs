@@ -303,26 +303,43 @@ namespace SangokuKmy.Models.Services
         .GroupBy(t => t.CountryId)
         .Select(t => new { Country = countries.FirstOrDefault(c => c.Id == t.Key), TownsCount = t.Count(), CharactersCount = characters.Count(c => c.CountryId == t.Key), })
         .Where(c => c.Country != null && c.Country.AiType == CountryAiType.Human)
-        .OrderByDescending(t => t.TownsCount)
         .ToArray();
 
-      if (townCountries.Count() < 3 ||
-        townCountries.First().Country.Id != countryId ||
-        townCountries.ElementAt(1).Country.Id == targetCountryId)
+      if (townCountries.Count() < 3)
       {
         return false;
       }
 
-      var max1 = townCountries.First().TownsCount;
-      var average1 = townCountries.Skip(1).Average(t => t.TownsCount);
-      var max2 = townCountries.First().CharactersCount;
-      var average2 = townCountries.Skip(1).Average(t => t.CharactersCount);
+      var check1 = false;
+      var check2 = false;
 
-      if (townCountries.Count() == 3)
+      if (townCountries.OrderByDescending(t => t.TownsCount).First().Country.Id != countryId ||
+        townCountries.OrderByDescending(t => t.TownsCount).ElementAt(1).Country.Id == targetCountryId)
       {
-        return max1 > average1 * 2.4 || max2 > average2 * 2;
       }
-      return max1 > average1 * 2 || max2 > average2 * 1.6;
+      else
+      {
+        var max1 = townCountries.First().TownsCount;
+        var average1 = townCountries.Skip(1).Average(t => t.TownsCount);
+        if (townCountries.Count() == 3)
+        {
+          check1 = max1 > average1 * 2.4;
+        }
+        check1 = max1 > average1 * 2;
+      }
+
+      if (townCountries.OrderByDescending(t => t.CharactersCount).First().Country.Id != countryId ||
+        townCountries.OrderByDescending(t => t.CharactersCount).ElementAt(1).Country.Id == targetCountryId)
+      {
+      }
+      else
+      {
+        var max1 = townCountries.First().CharactersCount;
+        var average1 = townCountries.Skip(1).Average(t => t.CharactersCount);
+        check2 = max1 > average1 * 1.6;
+      }
+
+      return check1 || check2;
     }
 
     public static async Task<bool> SetPolicyAndSaveAsync(MainRepository repo, Country country, CountryPolicyType type, CountryPolicyStatus status = CountryPolicyStatus.Available, bool isCheckSubjects = true)
