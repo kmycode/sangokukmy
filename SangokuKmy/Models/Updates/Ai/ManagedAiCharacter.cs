@@ -836,10 +836,6 @@ namespace SangokuKmy.Models.Updates.Ai
         {
           return;
         }
-        if (await this.InputMissionaryAsync(repo))
-        {
-          return;
-        }
         if (this.GameDateTime.Month % 6 == 0)
         {
           if (this.InputPolicy() || this.InputTownBuilding())
@@ -982,11 +978,6 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (await this.InputMissionaryAsync(repo))
-      {
-        return;
-      }
-
       if (this.GameDateTime.Month % 6 == 0)
       {
         this.InputSecurityForce();
@@ -1053,14 +1044,7 @@ namespace SangokuKmy.Models.Updates.Ai
         return;
       }
 
-      if (RandomService.Next(30) == 0)
-      {
-        this.MoveToRandomTown();
-      }
-      else
-      {
-        this.InputMissionaryForce();
-      }
+      this.MoveToRandomTown();
     }
   }
 }

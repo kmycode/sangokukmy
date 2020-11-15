@@ -1690,7 +1690,8 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected async Task<bool> InputMissionaryAsync(MainRepository repo)
     {
-      if (this.Town.Religion != this.Country.Religion)
+      if (this.Town.Religion != this.Country.Religion ||
+        this.Town.GetReligionPoint(this.Town.Religion) < this.Town.GetReligionPoint(this.Town.SecondReligion) + 1000)
       {
         if (this.Town.CountryId != this.Country.Id)
         {
