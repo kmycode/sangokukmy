@@ -65,7 +65,7 @@ namespace SangokuKmy.Models.Commands
         {
           add = 1;
         }
-        add *= 280;
+        add *= 220;
         var missionaryAdd = Math.Max(1, add / 500);
 
         var policies = await repo.Country.GetPoliciesAsync();
