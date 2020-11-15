@@ -223,8 +223,12 @@ namespace SangokuKmy.Models.Commands
       var continuousCount = options.FirstOrDefault(o => o.Type == 32)?.NumberValue ?? 1;
       var continuousTurns = options.FirstOrDefault(o => o.Type == 33)?.NumberValue ?? 1;
 
-      var isMyPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, character.CountryId, targetTown.CountryId);
-      var isTargetPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, targetTown.CountryId, character.CountryId);
+      var isMyPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, character.CountryId);
+      var isTargetPenalty = await CountryService.IsWarlikenessPenaltyAsync(repo, targetTown.CountryId);
+      if (isMyPenalty && isTargetPenalty)
+      {
+        isMyPenalty = isTargetPenalty = false;
+      }
 
       var log = new BattleLog
       {

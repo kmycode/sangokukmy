@@ -294,7 +294,7 @@ namespace SangokuKmy.Models.Services
       */
     }
 
-    public static async Task<bool> IsWarlikenessPenaltyAsync(MainRepository repo, uint countryId, uint targetCountryId = 0)
+    public static async Task<bool> IsWarlikenessPenaltyAsync(MainRepository repo, uint countryId)
     {
       var towns = await repo.Town.GetAllAsync();
       var countries = await repo.Country.GetAllAliveAsync();
@@ -313,8 +313,7 @@ namespace SangokuKmy.Models.Services
       var check1 = false;
       var check2 = false;
 
-      if (townCountries.OrderByDescending(t => t.TownsCount).First().Country.Id != countryId ||
-        townCountries.OrderByDescending(t => t.TownsCount).ElementAt(1).Country.Id == targetCountryId)
+      if (townCountries.OrderByDescending(t => t.TownsCount).First().Country.Id != countryId)
       {
       }
       else
@@ -328,8 +327,7 @@ namespace SangokuKmy.Models.Services
         check1 = max1 > average1 * 2;
       }
 
-      if (townCountries.OrderByDescending(t => t.CharactersCount).First().Country.Id != countryId ||
-        townCountries.OrderByDescending(t => t.CharactersCount).ElementAt(1).Country.Id == targetCountryId)
+      if (townCountries.OrderByDescending(t => t.CharactersCount).First().Country.Id != countryId)
       {
       }
       else
