@@ -254,32 +254,39 @@ namespace SangokuKmy.Models.Data.Entities
       }
     }
 
+    /// <summary>
+    /// ２番めの宗教
+    /// </summary>
     [NotMapped]
     [JsonIgnore]
-    public int TopReligionPoint
+    public ReligionType SecondReligion
     {
       get
       {
-        if (this.Religion == ReligionType.Confucianism)
+        if (this.Confucianism < 1000 && this.Taoism < 1000 && this.Buddhism < 1000)
         {
-          return this.Confucianism;
+          return ReligionType.Any;
         }
-        if (this.Religion == ReligionType.Taoism)
+        var top = this.Religion;
+        if (top == ReligionType.Buddhism)
         {
-          return this.Taoism;
+          return this.Confucianism > this.Taoism ? ReligionType.Confucianism : ReligionType.Taoism;
         }
-        if (this.Religion == ReligionType.Buddhism)
+        if (top == ReligionType.Confucianism)
         {
-          return this.Buddhism;
+          return this.Buddhism > this.Taoism ? ReligionType.Buddhism : ReligionType.Taoism;
         }
-        return 0;
+        if (top == ReligionType.Taoism)
+        {
+          return this.Confucianism > this.Buddhism ? ReligionType.Confucianism : ReligionType.Buddhism;
+        }
+        return ReligionType.Any;
       }
     }
 
     public void AddReligionPoint(ReligionType religion, int add)
     {
-      var religionPoints = new int[] { this.Confucianism, this.Buddhism, this.Taoism, };
-      var max = religionPoints.OrderByDescending(p => p).ElementAt(1) + 3000;
+      var max = this.GetReligionPoint(this.SecondReligion) + 3000;
       if (religion == ReligionType.Confucianism)
       {
         this.Confucianism = Math.Min(this.Confucianism + add, max);
