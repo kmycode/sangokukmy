@@ -222,7 +222,12 @@ namespace SangokuKmy.Models.Updates
           // 戦闘解除に伴う無所属武将へのペナルティ
           foreach (var chara in allCharacters.Where(c => c.AiType == CharacterAiType.Human && c.CountryId == 0))
           {
-            var country = countryData.Where(c => c.Country.AiType == CountryAiType.Human).OrderBy(c => c.Characters.Count()).FirstOrDefault();
+            var country = allCharacters
+              .GroupBy(c => c.CountryId)
+              .OrderBy(c => c.Count())
+              .Select(c => allCountries.FirstOrDefault(cc => cc.Id == c.Key))
+              .Where(c => c != null && c.AiType == CountryAiType.Human)
+              .FirstOrDefault();
             if (country == null)
             {
               continue;
