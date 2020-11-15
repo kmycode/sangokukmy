@@ -233,8 +233,8 @@ namespace SangokuKmy.Models.Updates
               continue;
             }
 
-            await CharacterService.ChangeCountryAsync(repo, country.Country.Id, new Character[] { chara, });
-            await AddLogAsync(chara.Id, $"戦闘解除までに仕官しなかったペナルティとして <country>{country.Country.Name}</country> に強制仕官しました");
+            await CharacterService.ChangeCountryAsync(repo, country.Id, new Character[] { chara, });
+            await AddLogAsync(chara.Id, $"戦闘解除までに仕官しなかったペナルティとして <country>{country.Name}</country> に強制仕官しました");
           }
         }
 
