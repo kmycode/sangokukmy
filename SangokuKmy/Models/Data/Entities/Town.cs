@@ -293,11 +293,11 @@ namespace SangokuKmy.Models.Data.Entities
       }
       if (religion == ReligionType.Taoism)
       {
-        this.Buddhism = Math.Min(this.Buddhism + add, max);
+        this.Taoism = Math.Min(this.Taoism + add, max);
       }
       if (religion == ReligionType.Buddhism)
       {
-        this.Taoism = Math.Min(this.Taoism + add, max);
+        this.Buddhism = Math.Min(this.Buddhism + add, max);
       }
     }
 
