@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SangokuKmy.Models.Common;
 using SangokuKmy.Models.Common.Definitions;
 using SangokuKmy.Models.Data;
 using SangokuKmy.Models.Data.ApiEntities;
@@ -73,6 +74,7 @@ namespace SangokuKmy.Models.Commands
         var targetMax = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available && p.CountryId == targetCountry.Id).Select(p => p.Type));
 
         var canMissionary = true;
+        var oldReligion = town.Religion;
         var allianceOptional = await repo.CountryDiplomacies.GetCountryAllianceAsync(country.Id, targetCountry.Id);
         if (!allianceOptional.HasData || allianceOptional.Data.CanMissionary)
         {
@@ -83,13 +85,31 @@ namespace SangokuKmy.Models.Commands
           canMissionary = false;
         }
 
-        town.People = Math.Min(town.People + 200, town.PeopleMax);
+        var peopleMax = (int)(town.TownBuilding != TownBuilding.Houses ? town.PeopleMax : town.PeopleMax + ((float)town.TownBuildingValue / Config.TownBuildingMax) * 10000);
+        town.People = Math.Min(town.People + 200, peopleMax);
         country.SafeMoney += add;
         targetCountry.SafeMoney += add;
         country.SafeMoney = Math.Min(country.SafeMoney, max);
         targetCountry.SafeMoney = Math.Min(targetCountry.SafeMoney, targetMax);
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
         await StatusStreaming.Default.SendCountryAsync(ApiData.From(targetCountry), targetCountry.Id);
+
+        var ranking = await repo.Character.GetCharacterRankingAsync(character.Id);
+        ranking.MissionaryCount += missionaryAdd;
+
+        if (town.Religion != oldReligion)
+        {
+          if (oldReligion == ReligionType.Any || oldReligion == ReligionType.None)
+          {
+            await game.MapLogAsync(EventType.NewReligion, $"<town>{town.Name}</town> は {town.Religion.GetString()} の信仰を開始しました", false);
+          }
+          else
+          {
+            await game.MapLogAsync(EventType.ChangeReligion, $"<town>{town.Name}</town> は {oldReligion.GetString()} から {town.Religion.GetString()} に改宗しました", false);
+          }
+          ranking.MissionaryChangeReligionCount++;
+          await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
+        }
 
         // 経験値、金の増減
         character.Contribution += 30;
