@@ -1390,7 +1390,7 @@ namespace SangokuKmy.Models.Updates
               {
                 var items = await repo.CharacterItem.GetAllAsync();
                 var item = items.FirstOrDefault(i => i.Type == CharacterItemType.Chukoetsu && (i.Status == CharacterItemStatus.TownHidden || i.Status == CharacterItemStatus.TownOnSale));
-                if (item != null)
+                if (item != null && RandomService.Next(120) == 0)
                 {
                   await repo.DelayEffect.AddAsync(new DelayEffect
                   {

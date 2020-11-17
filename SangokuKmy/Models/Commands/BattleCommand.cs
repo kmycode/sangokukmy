@@ -487,11 +487,11 @@ namespace SangokuKmy.Models.Commands
       {
         if (isMyPenalty)
         {
-          myAttack = (int)Math.Max(1, myAttack * 0.7f);
+          myAttack = (int)Math.Max(0, myAttack * 0.7f);
         }
         if (isTargetPenalty)
         {
-          targetAttack = (int)Math.Max(1, targetAttack * 0.7f);
+          targetAttack = (int)Math.Max(0, targetAttack * 0.7f);
         }
       }
 

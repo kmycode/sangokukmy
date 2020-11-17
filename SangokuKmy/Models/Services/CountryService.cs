@@ -324,7 +324,10 @@ namespace SangokuKmy.Models.Services
         {
           check1 = max1 > average1 * 2.4;
         }
-        check1 = max1 > average1 * 2;
+        else
+        {
+          check1 = max1 > average1 * 2;
+        }
       }
 
       if (townCountries.OrderByDescending(t => t.CharactersCount).First().Country.Id != countryId)
