@@ -294,7 +294,7 @@ namespace SangokuKmy.Models.Services
       */
     }
 
-    public static async Task<bool> IsWarlikenessPenaltyAsync(MainRepository repo, uint countryId)
+    public static async Task<bool> IsLargeCountryPenaltyAsync(MainRepository repo, uint countryId)
     {
       var towns = await repo.Town.GetAllAsync();
       var countries = await repo.Country.GetAllAliveAsync();

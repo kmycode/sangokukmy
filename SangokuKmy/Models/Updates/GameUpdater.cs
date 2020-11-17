@@ -249,6 +249,7 @@ namespace SangokuKmy.Models.Updates
             foreach (var country in allCountries)
             {
               country.IsWarPenalty = penaltyCountries.Contains(country.Id);
+              country.IsLargeCountryPenalty = await CountryService.IsLargeCountryPenaltyAsync(repo, country.Id);
             }
             await repo.SaveChangesAsync();
           }

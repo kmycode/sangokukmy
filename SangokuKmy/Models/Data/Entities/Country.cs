@@ -206,6 +206,13 @@ namespace SangokuKmy.Models.Data.Entities
     public bool IsWarPenalty { get; set; }
 
     /// <summary>
+    /// 大国ペナルティを受けている状態であるか
+    /// </summary>
+    [Column("is_large_country_penalty")]
+    [JsonIgnore]
+    public bool IsLargeCountryPenalty { get; set; }
+
+    /// <summary>
     /// 建築物の追加敷地
     /// </summary>
     [Column("town_sub_building_extra_space")]
