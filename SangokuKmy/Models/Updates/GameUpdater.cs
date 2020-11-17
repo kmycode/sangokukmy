@@ -1380,6 +1380,29 @@ namespace SangokuKmy.Models.Updates
             }
           }
 
+          // 大国ペナルティを受けている国と隣接した異民族
+          {
+            foreach (var country in allCountries.Where(c => c.AiType == CountryAiType.Terrorists))
+            {
+              var penaltyCountries = allCountries.Where(c => c.IsLargeCountryPenalty).Select(c => c.Id);
+              var aroundCountries = allTowns.GetAroundCountries(allTowns.Where(t => t.CountryId == country.Id));
+              if (aroundCountries.Any(c => penaltyCountries.Contains(c)))
+              {
+                var items = await repo.CharacterItem.GetAllAsync();
+                var item = items.FirstOrDefault(i => i.Type == CharacterItemType.Chukoetsu && (i.Status == CharacterItemStatus.TownHidden || i.Status == CharacterItemStatus.TownOnSale));
+                if (item != null)
+                {
+                  await repo.DelayEffect.AddAsync(new DelayEffect
+                  {
+                    Type = DelayEffectType.TerroristEnemy,
+                  });
+                  item.Status = CharacterItemStatus.CharacterSpent;
+                  await repo.SaveChangesAsync();
+                }
+              }
+            }
+          }
+
           // 都市を持たない国の強制滅亡（４８年以降となっているのは放浪ルールを考慮）
           if (system.GameDateTime.Year >= 48)
           {
