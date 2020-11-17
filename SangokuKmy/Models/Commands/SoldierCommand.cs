@@ -51,6 +51,12 @@ namespace SangokuKmy.Models.Commands
         var soldierType = (SoldierType)soldierTypeOptional.Data.NumberValue;
         var soldierNumber = soldierNumberOptional.Data.NumberValue;
 
+        var peopleCost = Config.SoldierPeopleCost;
+        if (country.IsLargeCountryPenalty)
+        {
+          peopleCost *= 1.04f;
+        }
+
         if (soldierNumber == null)
         {
           await game.CharacterLogAsync("パラメータ soldierNumber の値がnullです。<emerge>管理者にお問い合わせください</emerge>");
@@ -149,7 +155,7 @@ namespace SangokuKmy.Models.Commands
         {
           await game.CharacterLogAsync("<town>" + town.Name + "</town> は自国の都市ではありません");
         }
-        else if (town.People < add * Config.SoldierPeopleCost)
+        else if (town.People < add * peopleCost)
         {
           await game.CharacterLogAsync("徴兵しようとしましたが、農民が足りません。");
         }
@@ -242,7 +248,7 @@ namespace SangokuKmy.Models.Commands
             character.Contribution += 10;
             character.SkillPoint++;
             character.Money -= needMoney;
-            town.People -= (int)(add * Config.SoldierPeopleCost);
+            town.People -= (int)(add * peopleCost);
             if (type.Kind == SoldierKind.Battle)
             {
               town.Security -= (short)(add / 10);

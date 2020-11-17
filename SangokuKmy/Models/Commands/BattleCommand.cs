@@ -237,8 +237,6 @@ namespace SangokuKmy.Models.Commands
         IsSameReligion = myCountry.Religion != ReligionType.Any && myCountry.Religion != ReligionType.None &&
           myCountry.Religion != targetCountryOptional.Data?.Religion && myCountry.Religion == targetTown.Religion,
         Cause = cause,
-        IsAttackerPenalty = isMyPenalty,
-        IsDefenderPenalty = isTargetPenalty,
       };
       var logLines = new List<BattleLogLine>();
       uint mapLogId = 0;
