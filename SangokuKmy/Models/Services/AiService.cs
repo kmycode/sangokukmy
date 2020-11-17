@@ -152,11 +152,14 @@ namespace SangokuKmy.Models.Services
         .Where(w => allTowns.GetAroundTowns(allTowns.Where(t => t.CountryId == w.InsistedCountryId)).Any(t => t.CountryId == w.RequestedCountryId))
         .SelectMany(w => new uint[] { w.RequestedCountryId, w.InsistedCountryId, })
         .Distinct()
+        .Select(c => allCountries.FirstOrDefault(cc => cc.Id == c))
+        .Where(c => c != null && !c.IsLargeCountryPenalty)
         .ToArray();
+
       var notWarCountries = allCountries
         .Select(c => c.Id)
         .Where(c => c != self.Id)
-        .Except(warCountries)
+        .Except(warCountries.Select(c => c.Id))
         .ToArray();
       if (!notWarCountries.Any())
       {
@@ -173,6 +176,11 @@ namespace SangokuKmy.Models.Services
         .Distinct()
         .Join(allCountries, t => t, c => c.Id, (t, c) => c)
         .ToArray();
+
+      if (aroundCountries.Any(c => c.IsLargeCountryPenalty))
+      {
+        aroundCountries = aroundCountries.Where(c => c.IsLargeCountryPenalty).ToArray();
+      }
 
       return aroundCountries;
     }
