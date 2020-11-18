@@ -73,6 +73,14 @@ namespace SangokuKmy.Models.Commands
         var max = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available && p.CountryId == country.Id).Select(p => p.Type));
         var targetMax = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available && p.CountryId == targetCountry.Id).Select(p => p.Type));
 
+        if (character.AiType == CharacterAiType.SecretaryTrader)
+        {
+          if (policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.Obedience))
+          {
+            missionaryAdd = (int)(missionaryAdd * 1.8f);
+          }
+        }
+
         var canMissionary = true;
         var oldReligion = town.Religion;
         var allianceOptional = await repo.CountryDiplomacies.GetCountryAllianceAsync(country.Id, targetCountry.Id);

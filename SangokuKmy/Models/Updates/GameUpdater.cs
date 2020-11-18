@@ -295,6 +295,11 @@ namespace SangokuKmy.Models.Updates
                       if (t.Religion == country.Country.Religion)
                       {
                         val = val * 1.05;
+
+                        if (country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.KillingFools))
+                        {
+                          val = val * 1.10;
+                        }
                       }
                     }
                     if (country.Country.IsWarPenalty)
@@ -498,6 +503,11 @@ namespace SangokuKmy.Models.Updates
                   {
                     a(town, cd.Country);
                   }
+                }
+
+                if (cd != null && policies.Contains(CountryPolicyType.Brainwashing))
+                {
+                  town.AddReligionPoint(cd.Country.Religion, 200);
                 }
               }
               var cd2 = countryData.FirstOrDefault(c => c.Country.Id == targetTown.CountryId);
@@ -764,17 +774,62 @@ namespace SangokuKmy.Models.Updates
                   country.Country.PolicyPoint += 3;
                 }
               }
-
-              if (country.Country.PolicyPoint != oldPoint)
+              if (availablePolicies.Contains(CountryPolicyType.MedicineOfIgnorance))
               {
-                await StatusStreaming.Default.SendCountryAsync(ApiData.From(country.Country), country.Country.Id);
+                if (capital != null)
+                {
+                  var oldReligion = capital.Religion;
+                  capital.AddReligionPoint(country.Country.Religion, 1);
+                  if (capital.Religion != oldReligion)
+                  {
+                    if (oldReligion == ReligionType.Any || oldReligion == ReligionType.None)
+                    {
+                      await AddMapLogAsync(false, EventType.NewReligion, $"<town>{capital.Name}</town> は {capital.Religion.GetString()} の信仰を開始しました");
+                    }
+                    else
+                    {
+                      await AddMapLogAsync(false, EventType.ChangeReligion, $"<town>{capital.Name}</town> は {oldReligion.GetString()} から {capital.Religion.GetString()} に改宗しました");
+                    }
+                  }
+                }
+              }
+              if (availablePolicies.Contains(CountryPolicyType.Leucochloridium))
+              {
+                foreach (var town in country.Towns.Where(tt => tt.Religion == country.Country.Religion))
+                {
+                  var aroundTowns = allTowns.GetAroundTowns(town);
+                  foreach (var t in aroundTowns)
+                  {
+                    var oldReligion = t.Religion;
+                    t.AddReligionPoint(country.Country.Religion, 1);
+                    if (t.Religion != oldReligion)
+                    {
+                      if (oldReligion == ReligionType.Any || oldReligion == ReligionType.None)
+                      {
+                        await AddMapLogAsync(false, EventType.NewReligion, $"<town>{t.Name}</town> は {t.Religion.GetString()} の信仰を開始しました");
+                      }
+                      else
+                      {
+                        await AddMapLogAsync(false, EventType.ChangeReligion, $"<town>{t.Name}</town> は {oldReligion.GetString()} から {t.Religion.GetString()} に改宗しました");
+                      }
+                    }
+                  }
+                }
               }
 
               // 宗教による追加の政策ポイント
               if (countryData.Any(c => c.Country.Religion != ReligionType.Any && c.Country.Religion != ReligionType.None && c.Country.Religion != country.Country.Religion))
               {
                 country.Country.PolicyPoint += allTowns.Where(t => t.CountryId == country.Country.Id).Count(t => t.Religion == country.Country.Religion) * 5;
-                country.Country.PolicyPoint += allTowns.Where(t => t.CountryId != country.Country.Id).Count(t => t.Religion == country.Country.Religion) * 2;
+                if (availablePolicies.Contains(CountryPolicyType.QuietlyTeaching))
+                {
+                  country.Country.PolicyPoint += allTowns.Where(t => t.CountryId != country.Country.Id).Count(t => t.Religion == country.Country.Religion) * 2;
+                }
+              }
+
+              if (country.Country.PolicyPoint != oldPoint)
+              {
+                await StatusStreaming.Default.SendCountryAsync(ApiData.From(country.Country), country.Country.Id);
               }
             }
           }

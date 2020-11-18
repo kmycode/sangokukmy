@@ -287,6 +287,51 @@ namespace SangokuKmy.Models.Data.Entities
     /// 城内拡張
     /// </summary>
     ExpandCastle = 47,
+
+    /// <summary>
+    /// 無知につける薬
+    /// </summary>
+    MedicineOfIgnorance = 48,
+
+    /// <summary>
+    /// 静かなる教導
+    /// </summary>
+    QuietlyTeaching = 49,
+
+    /// <summary>
+    /// 新たな福音
+    /// </summary>
+    NewGospel = 50,
+
+    /// <summary>
+    /// 洗脳
+    /// </summary>
+    Brainwashing = 51,
+
+    /// <summary>
+    /// 愚民の調教
+    /// </summary>
+    KillingFools = 52,
+
+    /// <summary>
+    /// 絶対服従
+    /// </summary>
+    Obedience = 53,
+
+    /// <summary>
+    /// ロボトミー手術
+    /// </summary>
+    LobotomySurgery = 54,
+
+    /// <summary>
+    /// 流血の天使
+    /// </summary>
+    BloodyAngel = 55,
+
+    /// <summary>
+    /// ロイコクロリディウム
+    /// </summary>
+    Leucochloridium = 56,
   }
 
   public enum CountryPolicyEffectType
@@ -738,6 +783,85 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "衝車常備",
         BasePoint = 4000,
         SubjectAppear = list => list.Contains(CountryPolicyType.ExpandCastle),
+      },
+
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.MedicineOfIgnorance,
+        Name = "無知につける薬",
+        BasePoint = 2000,
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.QuietlyTeaching,
+        Name = "静かなる教導",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.MedicineOfIgnorance),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.NewGospel,
+        Name = "新たな福音",
+        BasePoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.QuietlyTeaching),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.Secretary,
+            Value = 1,
+          },
+        },
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Brainwashing,
+        Name = "洗脳",
+        BasePoint = 2000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.NewGospel),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.KillingFools,
+        Name = "愚民の調教",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Brainwashing),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Obedience,
+        Name = "絶対服従",
+        BasePoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.KillingFools),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.LobotomySurgery,
+        Name = "ロボトミー手術",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.Obedience),
+        Effects =
+        {
+          new CountryPolicyEffect
+          {
+            Type = CountryPolicyEffectType.Secretary,
+            Value = 1,
+          },
+        },
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.BloodyAngel,
+        Name = "流血の天使",
+        BasePoint = 3000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.LobotomySurgery),
+      },
+      new CountryPolicyTypeInfo
+      {
+        Type = CountryPolicyType.Leucochloridium,
+        Name = "ロイコクロリディウム",
+        BasePoint = 4000,
+        SubjectAppear = list => list.Contains(CountryPolicyType.BloodyAngel),
       },
 
       new CountryPolicyTypeInfo

@@ -262,6 +262,7 @@ namespace SangokuKmy.Models.Commands
       var mySkills = await repo.Character.GetSkillsAsync(character.Id);
       var myItems = await repo.Character.GetItemsAsync(character.Id);
       var myRanking = await repo.Character.GetCharacterRankingAsync(character.Id);
+      var myPolicies = (await repo.Country.GetPoliciesAsync(character.CountryId)).GetAvailableTypes();
       var targetAttackCorrection = 0;
       var targetDefenceCorrection = 0;
       var targetAttackSoldierTypeCorrection = 0;
@@ -308,6 +309,14 @@ namespace SangokuKmy.Models.Commands
         if (system.RuleSet == GameRuleSet.Religion)
         {
           targetDefenceCorrection -= 35;
+        }
+      }
+
+      if (myPolicies.Contains(CountryPolicyType.BloodyAngel))
+      {
+        if (myTown.Religion == myCountry.Religion)
+        {
+          myAttackCorrection += 30;
         }
       }
 
@@ -445,7 +454,6 @@ namespace SangokuKmy.Models.Commands
         defenderCache = targetCharacter.ToLogCache(new CharacterIcon(), targetFormationData);
         isWall = true;
 
-        var myPolicies = (await repo.Country.GetPoliciesAsync(character.CountryId)).GetAvailableTypes();
         if (myPolicies.Contains(CountryPolicyType.Shosha))
         {
           myAttackCorrection += Math.Max((int)(60 * ((100 - mySoldierType.TypeWeapon) / 100.0f)), 0);
