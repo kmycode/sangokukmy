@@ -53,6 +53,12 @@ namespace SangokuKmy.Models.Updates.Ai
           {
             var religion = religions.OrderBy(r => r.Count).First().Regilion;
             countries = allCountries.Where(c => c.AiType == CountryAiType.Human && c.Religion == religion);
+
+            if (!countries.Any())
+            {
+              religion = religions.OrderBy(r => r.Count).ElementAtOrDefault(1)?.Regilion ?? religion;
+              countries = allCountries.Where(c => c.AiType == CountryAiType.Human && c.Religion == religion);
+            }
           }
           else
           {
