@@ -54,7 +54,7 @@ namespace SangokuKmy.Models.Commands
         var peopleCost = Config.SoldierPeopleCost;
         if (country.IsLargeCountryPenalty)
         {
-          peopleCost *= 1.04f;
+          peopleCost *= 1.1f;
         }
 
         if (soldierNumber == null)
