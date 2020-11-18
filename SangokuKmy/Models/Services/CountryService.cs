@@ -27,6 +27,7 @@ namespace SangokuKmy.Models.Services
       }
 
       // 戦争勝利ボーナス
+      /*
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync()).Where(w => w.IsJoin(country.Id));
       foreach (var war in wars)
       {
@@ -40,6 +41,7 @@ namespace SangokuKmy.Models.Services
           await StatusStreaming.Default.SendCountryAsync(ApiData.From(target), target.Id);
         }
       }
+      */
 
       var targetCountryCharacters = await repo.Character.RemoveCountryAsync(country.Id);
       repo.Unit.RemoveUnitsByCountryId(country.Id);
