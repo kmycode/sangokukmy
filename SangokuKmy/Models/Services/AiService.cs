@@ -649,10 +649,13 @@ namespace SangokuKmy.Models.Services
 
       var wars = await repo.CountryDiplomacies.GetAllWarsAsync();
 
+      var system = await repo.System.GetAsync();
       var allCharacters = await repo.Character.GetAllAliveAsync();
-      var warCountries = wars
+      var myWars = wars
         .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
-        .Where(w => w.IsJoin(countryId))
+        .Where(w => w.IsJoin(countryId));
+      var nearWarCountries = myWars
+        .Where(w => w.IntStartGameDate - system.IntGameDateTime < 12 * 6)
         .Select(w => w.RequestedCountryId == countryId ? w.InsistedCountryId : w.RequestedCountryId)
         .Distinct()
         .Select(c => new { CountryId = c, CharacterCount = allCharacters.Count(cc => cc.CountryId == c && cc.AiType == CharacterAiType.Human), })
@@ -661,8 +664,7 @@ namespace SangokuKmy.Models.Services
 
       if (countryCharacters.Any())
       {
-        var system = await repo.System.GetAsync();
-        var requestedReinforcementCount = Math.Max(warCountries.Sum(c => c.CharacterCount) - countryCharacters.Count(c => !c.Name.Contains("援軍")) - 4, 0);
+        var requestedReinforcementCount = Math.Max(nearWarCountries.Sum(c => c.CharacterCount) - countryCharacters.Count(c => !c.Name.Contains("援軍")) - 4, 0);
         if (system.IsBattleRoyaleMode)
         {
           requestedReinforcementCount = 0;
