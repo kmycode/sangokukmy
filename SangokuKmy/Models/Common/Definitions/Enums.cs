@@ -321,6 +321,11 @@ namespace SangokuKmy.Models.Common.Definitions
     /// </summary>
     public static ErrorCode InvalidWarModeError { get; } = new ErrorCode(400, 59);
 
+    /// <summary>
+    /// ソフトストップ
+    /// </summary>
+    public static ErrorCode SystemSoftStopedError { get; } = new ErrorCode(500, 60);
+
     public class RangeErrorParameter
     {
       [JsonProperty("name")]

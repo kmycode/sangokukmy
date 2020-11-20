@@ -88,6 +88,12 @@ namespace SangokuKmy.Models.Commands
 
       var targetCountryOptional = await repo.Country.GetByIdAsync(targetTown.CountryId);
       var system = await repo.System.GetAsync();
+      if (system.IsSoftStoped)
+      {
+        await game.CharacterLogAsync($"戦争は現在、管理人によって禁止されています");
+        return;
+      }
+
       var cause = BattleCause.War;
       if (targetCountryOptional.HasData && !system.IsBattleRoyaleMode)
       {

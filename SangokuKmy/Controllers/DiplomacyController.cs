@@ -246,6 +246,11 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var system = await repo.System.GetAsync();
+        if (system.IsSoftStoped)
+        {
+          ErrorCode.SystemSoftStopedError.Throw();
+        }
+
         var self = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
         var myPosts = await repo.Country.GetCharacterPostsAsync(self.Id);
         if (!myPosts.Any(p => p.Type.CanDiplomacy()))
@@ -430,6 +435,10 @@ namespace SangokuKmy.Controllers
         if (system.RuleSet == GameRuleSet.SimpleBattle)
         {
           ErrorCode.RuleSetError.Throw();
+        }
+        if (system.IsSoftStoped)
+        {
+          ErrorCode.SystemSoftStopedError.Throw();
         }
 
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);

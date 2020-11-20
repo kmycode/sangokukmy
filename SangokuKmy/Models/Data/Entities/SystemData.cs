@@ -187,6 +187,10 @@ namespace SangokuKmy.Models.Data.Entities
       get => (short)this.RuleSetAfterNextPeriod;
       set => this.RuleSetAfterNextPeriod = (GameRuleSet)value;
     }
+
+    [Column("is_soft_stoped")]
+    [JsonIgnore]
+    public bool IsSoftStoped { get; set; }
   }
 
   public enum GameRuleSet : short
