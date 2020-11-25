@@ -260,7 +260,7 @@ namespace SangokuKmy.Models.Services
 
     private static async Task ResetTownsAndSaveAsync(MainRepository repo, GameRuleSet ruleSet)
     {
-      var num = ruleSet == GameRuleSet.Wandering ? 1 : RandomService.Next(14, 19);
+      var num = ruleSet == GameRuleSet.Wandering ? 1 : RandomService.Next(14, 15);
       var initialTowns = MapService.CreateMap(num);
       var towns = new List<Town>();
       foreach (var itown in initialTowns)
