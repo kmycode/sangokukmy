@@ -738,11 +738,11 @@ namespace SangokuKmy.Models.Updates
               }
               if (availablePolicies.Contains(CountryPolicyType.IntellectCountry))
               {
-                country.Country.PolicyPoint += country.Characters.Count(c => c.AiType == CharacterAiType.Human && c.GetCharacterType() == CharacterType.Intellect) * 4;
+                country.Country.PolicyPoint += country.Characters.Count(c => c.AiType == CharacterAiType.Human && c.GetCharacterType() == CharacterType.Intellect) * 2;
               }
               if (availablePolicies.Contains(CountryPolicyType.PopularityCountry))
               {
-                country.Country.PolicyPoint += country.Characters.Count(c => c.AiType == CharacterAiType.Human && c.GetCharacterType() == CharacterType.Popularity) * 8;
+                country.Country.PolicyPoint += country.Characters.Count(c => c.AiType == CharacterAiType.Human && c.GetCharacterType() == CharacterType.Popularity) * 5;
               }
 
               var capital = country.Towns.FirstOrDefault(t => country.Country.CapitalTownId == t.Id);
