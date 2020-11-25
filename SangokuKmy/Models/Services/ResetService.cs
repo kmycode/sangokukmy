@@ -91,6 +91,7 @@ namespace SangokuKmy.Models.Services
       system.IsBattleRoyaleMode = false;
       system.RuleSet = system.RuleSetNextPeriod;
       system.RuleSetNextPeriod = system.RuleSetAfterNextPeriod;
+      system.IsSoftStoped = false;
 
       if (system.BetaVersion == 0 && (system.Period + 3) % 6 == 0)
       {
