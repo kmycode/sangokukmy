@@ -223,11 +223,11 @@ namespace SangokuKmy.Models.Updates
           foreach (var chara in allCharacters.Where(c => c.AiType == CharacterAiType.Human && c.CountryId == 0))
           {
             var country = allCharacters
+              .Where(c => c.CountryId != 0)
               .GroupBy(c => c.CountryId)
               .OrderBy(c => c.Count())
               .Select(c => allCountries.FirstOrDefault(cc => cc.Id == c.Key))
-              .Where(c => c != null && c.AiType == CountryAiType.Human)
-              .FirstOrDefault();
+              .FirstOrDefault(c => c != null && c.AiType == CountryAiType.Human);
             if (country == null)
             {
               continue;
@@ -235,6 +235,7 @@ namespace SangokuKmy.Models.Updates
 
             await CharacterService.ChangeCountryAsync(repo, country.Id, new Character[] { chara, });
             await AddLogAsync(chara.Id, $"戦闘解除までに仕官しなかったペナルティとして <country>{country.Name}</country> に強制仕官しました");
+            await AddMapLogAsync(false, EventType.CharacterJoin, $"<character>{chara.Name}</character> は <country>{country.Name}</country> に仕官しました");
           }
         }
 
