@@ -234,6 +234,7 @@ namespace SangokuKmy.Models.Updates
             }
 
             await CharacterService.ChangeCountryAsync(repo, country.Id, new Character[] { chara, });
+            await CharacterService.ChangeTownAsync(repo, country.CapitalTownId, chara);
             await AddLogAsync(chara.Id, $"戦闘解除までに仕官しなかったペナルティとして <country>{country.Name}</country> に強制仕官しました");
             await AddMapLogAsync(false, EventType.CharacterJoin, $"<character>{chara.Name}</character> は <country>{country.Name}</country> に仕官しました");
           }
