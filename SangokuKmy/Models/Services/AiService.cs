@@ -608,7 +608,7 @@ namespace SangokuKmy.Models.Services
       var seiranPolicies = new AgainstSeiranPolicy[] { AgainstSeiranPolicy.Gonorrhea, AgainstSeiranPolicy.Mindful, AgainstSeiranPolicy.NotCare, AgainstSeiranPolicy.NotCare, };
       var warStyles = new AiCountryWarStyle[] { AiCountryWarStyle.Aggressive, AiCountryWarStyle.Negative, AiCountryWarStyle.Normal, AiCountryWarStyle.NotCare, };
       var forceDefendPolicies = new AiCountryForceDefendPolicy[] { AiCountryForceDefendPolicy.NotCare, AiCountryForceDefendPolicy.Negative, AiCountryForceDefendPolicy.Medium, AiCountryForceDefendPolicy.Aggressive, };
-      var developStyles = new AiCountryDevelopStyle[] { AiCountryDevelopStyle.BorderTownFirst, AiCountryDevelopStyle.HigherTownFirst, AiCountryDevelopStyle.LowerTownFirst, AiCountryDevelopStyle.NotCare, };
+      var developStyles = new AiCountryDevelopStyle[] { AiCountryDevelopStyle.BorderTownFirst, AiCountryDevelopStyle.HigherTownFirst, AiCountryDevelopStyle.LowerTownFirst, };
       var warTargetPolicies = new AiCountryWarTargetPolicy[] { AiCountryWarTargetPolicy.EqualityStronger, AiCountryWarTargetPolicy.EqualityWeaker, AiCountryWarTargetPolicy.Random, AiCountryWarTargetPolicy.Weakest, };
       var warStartDatePolicies = new AiCountryWarStartDatePolicy[] { AiCountryWarStartDatePolicy.First21, AiCountryWarStartDatePolicy.FirstBetween19And23, AiCountryWarStartDatePolicy.HurryUp, };
       var townWarPolicies = new AiCountryTownWarPolicy[] { AiCountryTownWarPolicy.ExtraAggressive, AiCountryTownWarPolicy.Aggressive, AiCountryTownWarPolicy.Medium, AiCountryTownWarPolicy.Negative, };
