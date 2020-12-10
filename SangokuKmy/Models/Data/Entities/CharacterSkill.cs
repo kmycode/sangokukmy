@@ -129,6 +129,7 @@ namespace SangokuKmy.Models.Data.Entities
     Buddhism3 = 70,
     Buddhism4 = 71,
     Buddhism5 = 72,
+    DefendOrWall = 73,
   }
 
   public enum CharacterSkillEffectType
@@ -1541,6 +1542,24 @@ namespace SangokuKmy.Models.Data.Entities
           {
             Type = CharacterSkillEffectType.TownSubBuilding,
             Value = (int)TownSubBuildingType.Cathedral,
+          },
+        },
+      },
+
+      // ---------------------------------------------------------
+      
+      new CharacterSkillInfo
+      {
+        Type = CharacterSkillType.DefendOrWall,
+        RequestedPoint = 0,
+        Name = "守備強化",
+        SubjectAppear = skills => false,
+        Effects = new List<CharacterSkillEffect>
+        {
+          new CharacterSkillEffect
+          {
+            Type = CharacterSkillEffectType.Command,
+            Value = (int)CharacterCommandType.DefendOrWall,
           },
         },
       },

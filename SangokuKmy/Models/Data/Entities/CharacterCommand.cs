@@ -421,5 +421,10 @@ namespace SangokuKmy.Models.Data.Entities
     /// 交易
     /// </summary>
     Trade = 75,
+
+    /// <summary>
+    /// 守備強化
+    /// </summary>
+    DefendOrWall = 76,
   }
 }

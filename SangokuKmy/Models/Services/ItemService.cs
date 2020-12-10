@@ -195,6 +195,30 @@ namespace SangokuKmy.Models.Services
               logs.Add("本物の玉璽を所持する国: なし");
             }
           }
+          if (effect.Type == CharacterItemEffectType.Skill)
+          {
+            var i = CharacterSkillInfoes.Get((CharacterSkillType)effect.Value);
+            if (i.HasData)
+            {
+              var skills = await repo.Character.GetSkillsAsync(chara.Id);
+              if (!skills.Any(s => s.Status == CharacterSkillStatus.Available && (int)s.Type == effect.Value))
+              {
+                var skill = new CharacterSkill
+                {
+                  CharacterId = chara.Id,
+                  Status = CharacterSkillStatus.Available,
+                  Type = (CharacterSkillType)effect.Value,
+                };
+                await repo.Character.AddSkillAsync(skill);
+                await StatusStreaming.Default.SendCharacterAsync(ApiData.From(skill), chara.Id);
+              }
+              logs.Add("技能 " + i.Data.Name);
+            }
+            else
+            {
+              logs.Add($"<emerge>エラー: {effect.Value} の技能は存在しません。管理者にお問い合わせください");
+            }
+          }
         }
 
         return logs.Count > 0 ? string.Join("と", logs) : string.Empty;

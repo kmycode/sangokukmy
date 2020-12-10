@@ -195,6 +195,7 @@ namespace SangokuKmy.Models.Data.Entities
     CastleBlueprint = 87,
     TownPlanningDocument = 88,
     LargeTownPlanningDocument = 89,
+    DefendOrWallBook = 90,
   }
 
   public enum CharacterItemEffectType
@@ -220,6 +221,7 @@ namespace SangokuKmy.Models.Data.Entities
     SoldierCorrectionResource,
     CheckGyokuji,
     AddSubBuildingExtraSize,
+    Skill,
   }
 
   public enum CharacterItemRareType
@@ -1511,6 +1513,23 @@ namespace SangokuKmy.Models.Data.Entities
         DiscoverFroms = new List<CharacterFrom>
         {
           CharacterFrom.Civilian,
+        },
+      },
+      new CharacterItemInfo
+      {
+        Type = CharacterItemType.DefendOrWallBook,
+        Name = "守備強化の書",
+        Money = 500_000,
+        InitializeNumber = 1,
+        RareType = CharacterItemRareType.TownHiddenOnly,
+        CanUse = true,
+        UsingEffects = new List<CharacterItemEffect>
+        {
+          new CharacterItemEffect
+          {
+            Type = CharacterItemEffectType.Skill,
+            Value = (int)CharacterSkillType.DefendOrWall,
+          },
         },
       },
 
