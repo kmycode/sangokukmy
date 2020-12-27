@@ -384,8 +384,6 @@ namespace SangokuKmy.Models.Data.Entities
         Name = "祈祷兵",
         Data = new CharacterSoldierTypeData
         {
-          GogyoAttack = 12,
-          GogyoDefend = 12,
           TypeWeapon = 10,
           StrongEx = 1,
           PowerStrong = 1,
@@ -493,7 +491,6 @@ namespace SangokuKmy.Models.Data.Entities
           BaseDefend = 18,
           CavalryAttack = 6,
           CavalryDefend = 12,
-          GogyoDefend = 5,
           RushDefend = 5,
           TypeInfantry = 10,
           StrongEx = 1,
@@ -676,7 +673,6 @@ namespace SangokuKmy.Models.Data.Entities
           BaseDefend = 1,
           CavalryAttack = 2,
           CavalryDefend = 1,
-          GogyoAttack = 2,
           ContinuousProbability = 20,
           TypeInfantry = 10,
           PopularityEx = 1,
@@ -715,8 +711,6 @@ namespace SangokuKmy.Models.Data.Entities
           BaseDefend = -4,
           WallAttack = 16,
           WallDefend = 8,
-          GogyoAttack = 2,
-          GogyoDefend = 2,
           FriendlyFireProbability = 40,
           TypeWeapon = 10,
           PopularityEx = 1,
