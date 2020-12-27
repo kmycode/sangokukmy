@@ -23,7 +23,7 @@ namespace SangokuKmy.Models.Commands
     {
       var command = CharacterCommandType.Defend;
       var defenders = await repo.Town.GetDefendersAsync(character.TownId);
-      if (defenders.Any(d => d.Character.Id == character.Id))
+      if (defenders.Any(d => d.Character.Id == character.Id) || character.SoldierNumber <= 0)
       {
         command = CharacterCommandType.Wall;
       }
