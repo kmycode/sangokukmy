@@ -1468,6 +1468,7 @@ namespace SangokuKmy.Models.Data.Entities
         InitializeNumber = 1,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanSell = false,
+        CanHandOver = false,
         IsUniqueCharacter = true,
         DiscoverFroms = new List<CharacterFrom>
         {

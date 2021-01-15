@@ -26,9 +26,9 @@ namespace SangokuKmy.Models.Commands
       var directionOptional = options.FirstOrDefault(p => p.Type == 1).ToOptional();
       var townTypeOptional = options.FirstOrDefault(p => p.Type == 2).ToOptional();
 
-      if (character.Money < 200_0000 && system.RuleSet != GameRuleSet.SimpleBattle)
+      if (character.Money < 50_0000 && system.RuleSet != GameRuleSet.SimpleBattle)
       {
-        await game.CharacterLogAsync("都市建設しようとしましたが、金が足りません。<num>200 0000</num> 必要です");
+        await game.CharacterLogAsync("都市建設しようとしましたが、金が足りません。<num>50 0000</num> 必要です");
         return;
       }
 
@@ -144,7 +144,7 @@ namespace SangokuKmy.Models.Commands
       await AnonymousStreaming.Default.SendAllAsync(ApiData.From(newTown));
       await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(newTown), repo);
 
-      character.Money -= 200_0000;
+      character.Money -= 50_0000;
       await ItemService.SpendCharacterAsync(repo, item, character);
       if (isCapital)
       {

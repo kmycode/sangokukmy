@@ -302,7 +302,7 @@ namespace SangokuKmy.Models.Services
           items.Add(CharacterItemType.CastleBlueprint);
           items.Add(CharacterItemType.CastleBlueprint);
           items.Add(CharacterItemType.CastleBlueprint);
-          chara.Money += 200_0000 * 3;
+          chara.Money += 50_0000 * 3;
         }
 
         await repo.SaveChangesAsync();

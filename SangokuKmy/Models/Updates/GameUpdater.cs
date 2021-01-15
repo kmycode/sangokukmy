@@ -1476,7 +1476,7 @@ namespace SangokuKmy.Models.Updates
               foreach (var chara in country.Characters)
               {
                 var items = await repo.Character.GetItemsAsync(chara.Id);
-                chara.Money -= items.Count(i => i.Type == CharacterItemType.CastleBlueprint) * 200_0000;
+                chara.Money -= items.Count(i => i.Type == CharacterItemType.CastleBlueprint) * 50_0000;
                 await AddLogAsync(chara.Id, $"アイテム 城の設計図 の所持数に応じて、所持金を減らしました。借金状態になる場合もあります");
                 await StatusStreaming.Default.SendCharacterAsync(ApiData.From(chara), chara.Id);
               }
