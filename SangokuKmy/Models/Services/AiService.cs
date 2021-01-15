@@ -869,7 +869,7 @@ namespace SangokuKmy.Models.Services
 
       var wars = (await repo.CountryDiplomacies.GetAllWarsAsync())
         .Where(w => w.Status != CountryWarStatus.Stoped && w.Status != CountryWarStatus.None)
-        .Where(w => w.Status != CountryWarStatus.InReady);
+        .Where(w => w.Status != CountryWarStatus.InReady && w.Status != CountryWarStatus.StopRequesting);
       var townWars = (await repo.CountryDiplomacies.GetAllTownWarsAsync())
         .Where(t => t.Status != TownWarStatus.InReady && t.Status != TownWarStatus.Available);
       var warCountries = wars
