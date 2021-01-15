@@ -2089,7 +2089,7 @@ namespace SangokuKmy.Models.Updates
         else
         {
           var isCommandExecuted = false;
-          async Task RunCommandAsync(CharacterCommand cmd)
+          async Task RunCommandAsync(CharacterCommand cmd, bool isResetDeleteTurn)
           {
             var commandRunnerOptional = Commands.Commands.Get(cmd.Type);
             if (commandRunnerOptional.HasData)
@@ -2098,7 +2098,7 @@ namespace SangokuKmy.Models.Updates
               await commandRunner.ExecuteAsync(repo, character, cmd.Parameters, gameObj);
               isCommandExecuted = true;
 
-              if (commandRunner.Type != CharacterCommandType.None)
+              if (commandRunner.Type != CharacterCommandType.None && isResetDeleteTurn)
               {
                 character.DeleteTurn = 0;
               }
@@ -2111,7 +2111,7 @@ namespace SangokuKmy.Models.Updates
             if (commandOptional.HasData)
             {
               var command = commandOptional.Data;
-              await RunCommandAsync(command);
+              await RunCommandAsync(command, true);
             }
             if (!isCommandExecuted)
             {
@@ -2149,7 +2149,7 @@ namespace SangokuKmy.Models.Updates
                 NumberValue = r.Option2,
               });
             }
-            await RunCommandAsync(command);
+            await RunCommandAsync(command, false);
           }
         }
 
