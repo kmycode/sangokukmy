@@ -1653,7 +1653,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.RuleSet != GameRuleSet.SimpleBattle)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.GameDateTime.Year >= 168 && system.RuleSet != GameRuleSet.SimpleBattle)
           {
             var isSave = false;
             foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 10 * 12 * 12 <= system.IntGameDateTime))
@@ -1756,7 +1756,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 宗教勝利
-          if (!system.IsWaitingReset && system.GameDateTime.Year >= 156 &&
+          if (!system.IsWaitingReset && system.GameDateTime.Year >= 168 &&
                 (system.RuleSet != GameRuleSet.Wandering || system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12))
           {
             var religionOfTown = allTowns.GroupBy(t => t.Religion);
