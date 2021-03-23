@@ -380,91 +380,6 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterSoldierTypePart
       {
-        Preset = SoldierType.Prayer,
-        Name = "祈祷兵",
-        Data = new CharacterSoldierTypeData
-        {
-          TypeWeapon = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        Money = 20,
-        Technology = 800,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.Mercenary,
-        Name = "槍兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 3,
-          BaseDefend = 3,
-          CavalryAttack = 9,
-          CavalryDefend = 3,
-          TypeInfantry = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        Money = 12,
-        Technology = 500,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.Stoner,
-        Name = "投石兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 5,
-          BaseDefend = 5,
-          CavalryAttack = 5,
-          CavalryDefend = 5,
-          DisorderProbability = 30,
-          TypeInfantry = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        Money = 10,
-        Technology = 600,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.SpearCavalry,
-        Name = "槍騎兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 5,
-          BaseDefend = 5,
-          CrossbowAttack = 5,
-          CrossbowDefend = 5,
-          FriendlyFireProbability = 30,
-          TypeCavalry = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        Money = 10,
-        Technology = 600,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.ArcherCavalry,
-        Name = "弓騎兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 5,
-          BaseDefend = 5,
-          InfantryAttack = 5,
-          InfantryDefend = 5,
-          RushProbability = 30,
-          RushAttack = 4,
-          TypeCrossbow = 10,
-          StrongEx = 1,
-          PowerStrong = 1,
-        },
-        Money = 10,
-        Technology = 600,
-      },
-      new CharacterSoldierTypePart
-      {
         Preset = SoldierType.Elephant,
         Name = "象兵",
         Data = new CharacterSoldierTypeData
@@ -571,6 +486,113 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterSoldierTypePart
       {
+        Preset = SoldierType.Military,
+        Name = "義勇兵",
+        Data = new CharacterSoldierTypeData
+        {
+          TypeInfantry = 10,
+          PopularityEx = 1,
+          PowerPopularity = 1,
+        },
+        Money = 8,
+        Technology = 300,
+        CanConscriptWithoutSkill = false,
+      },
+      
+      // ----------------------------------------------------------
+      
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Prayer,
+        Name = "祈祷兵",
+        Data = new CharacterSoldierTypeData
+        {
+          TypeWeapon = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 20,
+        Technology = 800,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Mercenary,
+        Name = "槍兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 3,
+          BaseDefend = 3,
+          CavalryAttack = 9,
+          CavalryDefend = 3,
+          TypeInfantry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 12,
+        Technology = 500,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.Stoner,
+        Name = "投石兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 5,
+          BaseDefend = 5,
+          CavalryAttack = 5,
+          CavalryDefend = 5,
+          DisorderProbability = 30,
+          TypeInfantry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 10,
+        Technology = 600,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.SpearCavalry,
+        Name = "槍騎兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 5,
+          BaseDefend = 5,
+          CrossbowAttack = 5,
+          CrossbowDefend = 5,
+          FriendlyFireProbability = 30,
+          TypeCavalry = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 10,
+        Technology = 600,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.ArcherCavalry,
+        Name = "弓騎兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 5,
+          BaseDefend = 5,
+          InfantryAttack = 5,
+          InfantryDefend = 5,
+          RushProbability = 30,
+          RushAttack = 4,
+          TypeCrossbow = 10,
+          StrongEx = 1,
+          PowerStrong = 1,
+        },
+        Money = 10,
+        Technology = 600,
+        CanConscript = false,
+      },
+      new CharacterSoldierTypePart
+      {
         Preset = SoldierType.IntellectRepeatingCrossbow,
         Name = "梓琴兵",
         Data = new CharacterSoldierTypeData
@@ -590,7 +612,8 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 23,
         Technology = 600,
-        CanConscriptWithoutSkill = false,
+        // CanConscriptWithoutSkill = false,
+        CanConscript = false,
       },
       new CharacterSoldierTypePart
       {
@@ -613,7 +636,8 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 33,
         Technology = 1300,
-        CanConscriptWithoutSkill = false,
+        // CanConscriptWithoutSkill = false,
+        CanConscript = false,
       },
       new CharacterSoldierTypePart
       {
@@ -633,6 +657,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 20,
         Technology = 1000,
+        CanConscript = false,
       },
       new CharacterSoldierTypePart
       {
@@ -648,20 +673,7 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 20,
         Technology = 1000,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.Military,
-        Name = "義勇兵",
-        Data = new CharacterSoldierTypeData
-        {
-          TypeInfantry = 10,
-          PopularityEx = 1,
-          PowerPopularity = 1,
-        },
-        Money = 8,
-        Technology = 300,
-        CanConscriptWithoutSkill = false,
+        CanConscript = false,
       },
       new CharacterSoldierTypePart
       {
@@ -680,7 +692,8 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 12,
         Technology = 400,
-        CanConscriptWithoutSkill = false,
+        // CanConscriptWithoutSkill = false,
+        CanConscript = false,
       },
       new CharacterSoldierTypePart
       {
@@ -699,7 +712,8 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 12,
         Technology = 300,
-        CanConscriptWithoutSkill = false,
+        // CanConscriptWithoutSkill = false,
+        CanConscript = false,
       },
       new CharacterSoldierTypePart
       {
@@ -718,7 +732,8 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 36,
         Technology = 700,
-        CanConscriptWithoutSkill = false,
+        // CanConscriptWithoutSkill = false,
+        CanConscript = false,
       },
       
       // ----------------------------------------------------------
