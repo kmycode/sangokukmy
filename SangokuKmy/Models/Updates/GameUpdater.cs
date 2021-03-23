@@ -1420,6 +1420,7 @@ namespace SangokuKmy.Models.Updates
 
           // 異民族
           var countryCount = allCountries.Count(c => !c.HasOverthrown);
+          /*
           if (system.TerroristCount < 1 && system.RuleSet != GameRuleSet.SimpleBattle)
           {
             var created = await AiService.CreateTerroristCountryAsync(repo, (type, message, isImportant) => AddMapLogAsync(isImportant, type, message));
@@ -1436,6 +1437,7 @@ namespace SangokuKmy.Models.Updates
               await repo.SaveChangesAsync();
             }
           }
+          */
 
           // 大国ペナルティを受けている国と隣接した異民族
           {

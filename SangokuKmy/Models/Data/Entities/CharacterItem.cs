@@ -1353,7 +1353,7 @@ namespace SangokuKmy.Models.Data.Entities
         Type = CharacterItemType.Chukoetsu,
         Name = "中行説の霊",
         Money = 500_000,
-        InitializeNumber = 1,
+        InitializeNumber = 0,
         RareType = CharacterItemRareType.TownHiddenOnly,
         CanUse = true,
         CanSell = false,
