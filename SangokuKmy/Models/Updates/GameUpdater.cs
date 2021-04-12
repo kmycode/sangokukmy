@@ -1782,7 +1782,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 無所属伝道師の追加
-          if (!system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear && system.GameDateTime.Year % 20 == 0 && system.GameDateTime.Month == 1 &&
+          if (!system.IsWaitingReset && system.GameDateTime.Year >= Config.UpdateStartYear && system.GameDateTime.Year % 28 == 0 && system.GameDateTime.Month == 1 &&
             system.RuleSet != GameRuleSet.SimpleBattle)
           {
             var targetTowns = allTowns.Where(t => t.Religion != ReligionType.Any && t.Religion != ReligionType.None);

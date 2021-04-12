@@ -172,19 +172,21 @@ namespace SangokuKmy.Models.Services
         }
 
         message.ImageKey = imageKey;
-      }
-      catch (Exception ex)
-      {
-        message.ImageKey = 0;
-        throw ex;
-      }
-      finally
-      {
         Task.Run(() =>
         {
           Task.Delay(10_000).Wait();
           isUploadingImage = false;
         });
+      }
+      catch (Exception ex)
+      {
+        message.ImageKey = 0;
+        Task.Run(() =>
+        {
+          Task.Delay(10_000).Wait();
+          isUploadingImage = false;
+        });
+        throw ex;
       }
     }
   }

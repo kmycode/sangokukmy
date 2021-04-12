@@ -486,6 +486,52 @@ namespace SangokuKmy.Models.Data.Entities
       },
       new CharacterSoldierTypePart
       {
+        Preset = SoldierType.IntellectRepeatingCrossbow,
+        Name = "梓琴兵",
+        Data = new CharacterSoldierTypeData
+        {
+          WallAttack = 12,
+          WallDefend = 12,
+          InfantryAttack = -3,
+          InfantryDefend = -3,
+          CavalryAttack = -3,
+          CavalryDefend = -3,
+          CrossbowAttack = -3,
+          CrossbowDefend = -3,
+          WeaponAttack = -3,
+          TypeWeapon = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 23,
+        Technology = 600,
+        CanConscriptWithoutSkill = false,
+      },
+      new CharacterSoldierTypePart
+      {
+        Preset = SoldierType.IntellectCrossbow,
+        Name = "梓弩兵",
+        Data = new CharacterSoldierTypeData
+        {
+          BaseAttack = 9,
+          BaseDefend = 9,
+          InfantryAttack = 9,
+          InfantryDefend = 9,
+          ContinuousProbability = 30,
+          RushProbability = 80,
+          RushAttack = 8,
+          DisorderProbability = 80,
+          FriendlyFireProbability = 80,
+          TypeCrossbow = 10,
+          IntellectEx = 1,
+          PowerIntellect = 1,
+        },
+        Money = 33,
+        Technology = 1300,
+        CanConscriptWithoutSkill = false,
+      },
+      new CharacterSoldierTypePart
+      {
         Preset = SoldierType.Military,
         Name = "義勇兵",
         Data = new CharacterSoldierTypeData
@@ -589,54 +635,6 @@ namespace SangokuKmy.Models.Data.Entities
         },
         Money = 10,
         Technology = 600,
-        CanConscript = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.IntellectRepeatingCrossbow,
-        Name = "梓琴兵",
-        Data = new CharacterSoldierTypeData
-        {
-          WallAttack = 12,
-          WallDefend = 12,
-          InfantryAttack = -3,
-          InfantryDefend = -3,
-          CavalryAttack = -3,
-          CavalryDefend = -3,
-          CrossbowAttack = -3,
-          CrossbowDefend = -3,
-          WeaponAttack = -3,
-          TypeWeapon = 10,
-          IntellectEx = 1,
-          PowerIntellect = 1,
-        },
-        Money = 23,
-        Technology = 600,
-        // CanConscriptWithoutSkill = false,
-        CanConscript = false,
-      },
-      new CharacterSoldierTypePart
-      {
-        Preset = SoldierType.IntellectCrossbow,
-        Name = "梓弩兵",
-        Data = new CharacterSoldierTypeData
-        {
-          BaseAttack = 9,
-          BaseDefend = 9,
-          InfantryAttack = 9,
-          InfantryDefend = 9,
-          ContinuousProbability = 30,
-          RushProbability = 80,
-          RushAttack = 8,
-          DisorderProbability = 80,
-          FriendlyFireProbability = 80,
-          TypeCrossbow = 10,
-          IntellectEx = 1,
-          PowerIntellect = 1,
-        },
-        Money = 33,
-        Technology = 1300,
-        // CanConscriptWithoutSkill = false,
         CanConscript = false,
       },
       new CharacterSoldierTypePart
