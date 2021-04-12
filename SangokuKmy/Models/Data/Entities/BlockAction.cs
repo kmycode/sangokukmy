@@ -101,5 +101,15 @@ namespace SangokuKmy.Models.Data.Entities
     /// 仕官禁止
     /// </summary>
     StopJoin = 8,
+
+    /// <summary>
+    /// 管理人以外への個宛を禁止
+    /// </summary>
+    StopPrivateChatWithoutAdministrator = 9,
+
+    /// <summary>
+    /// 会議室への書き込みを禁止
+    /// </summary>
+    StopBbs = 10,
   }
 }

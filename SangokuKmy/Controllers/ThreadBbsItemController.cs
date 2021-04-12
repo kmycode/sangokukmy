@@ -32,6 +32,12 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+
+        if (await repo.BlockAction.IsBlockedAsync(chara.Id, BlockActionType.StopBbs))
+        {
+          ErrorCode.BlockedActionError.Throw();
+        }
+
         var iconId = param.CharacterIconId;
         if (iconId == 0)
         {
@@ -146,6 +152,12 @@ namespace SangokuKmy.Controllers
       using (var repo = MainRepository.WithReadAndWrite())
       {
         var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
+
+        if (await repo.BlockAction.IsBlockedAsync(chara.Id, BlockActionType.StopBbs))
+        {
+          ErrorCode.BlockedActionError.Throw();
+        }
+
         var iconId = param.CharacterIconId;
         if (iconId == 0)
         {

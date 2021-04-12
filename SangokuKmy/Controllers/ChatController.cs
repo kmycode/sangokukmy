@@ -154,6 +154,14 @@ namespace SangokuKmy.Controllers
           ErrorCode.MeaninglessOperationError.Throw();
         }
 
+        if (await repo.BlockAction.IsBlockedAsync(chara.Id, BlockActionType.StopPrivateChatWithoutAdministrator))
+        {
+          if (to.AiType != CharacterAiType.Administrator)
+          {
+            ErrorCode.BlockedActionError.Throw();
+          }
+        }
+
         message = await ChatService.PostChatMessageAsync(repo, param, chara, ip, ChatMessageType.Private, chara.Id, id);
         await repo.SaveChangesAsync();
       }
