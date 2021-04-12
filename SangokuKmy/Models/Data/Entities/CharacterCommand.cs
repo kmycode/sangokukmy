@@ -415,6 +415,7 @@ namespace SangokuKmy.Models.Data.Entities
     /// <summary>
     /// 都市購入
     /// </summary>
+    [Obsolete]
     BuyTown = 74,
 
     /// <summary>

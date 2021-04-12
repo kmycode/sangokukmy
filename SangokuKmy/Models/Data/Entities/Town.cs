@@ -202,13 +202,6 @@ namespace SangokuKmy.Models.Data.Entities
     public short TownSubBuildingExtraSpace { get; set; }
 
     /// <summary>
-    /// 購入防衛政策ポイント
-    /// </summary>
-    [Column("takeover_defense_point")]
-    [JsonProperty("takeoverDefensePoint")]
-    public int TakeoverDefensePoint { get; set; }
-
-    /// <summary>
     /// 儒教の布教状況
     /// </summary>
     [Column("confucianism")]
@@ -336,10 +329,6 @@ namespace SangokuKmy.Models.Data.Entities
     [Column("unique_character_id")]
     [JsonIgnore]
     public uint UniqueCharacterId { get; set; }
-
-    [Column("is_may_be_bought")]
-    [JsonProperty("isMayBeBought")]
-    public bool IsMayBeBought { get; set; }
   }
 
   public enum TownType : byte

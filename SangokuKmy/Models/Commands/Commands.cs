@@ -69,7 +69,6 @@ namespace SangokuKmy.Models.Commands
       new MissionaryCommand(),
       new OppressMissionaryCommand(),
       new MissionarySelfCommand(),    // AI専用
-      // new BuyTownCommand(),
       new TradeCommand(),             // AI専用
       new DefendOrWallCommand(),
     };

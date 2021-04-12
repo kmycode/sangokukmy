@@ -615,76 +615,20 @@ namespace SangokuKmy.Controllers
 
     [AuthenticationFilter]
     [HttpPost("buy/towndef/{townId}")]
-    public async Task<int> AddBuyTownCostAsync(
+    public int AddBuyTownCostAsync(
       [FromRoute] uint townId)
     {
-      int cost;
-
-      using (var repo = MainRepository.WithReadAndWrite())
-      {
-        var system = await repo.System.GetAsync();
-        if (system.RuleSet == GameRuleSet.SimpleBattle)
-        {
-          ErrorCode.RuleSetError.Throw();
-        }
-
-        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
-        var country = await repo.Country.GetAliveByIdAsync(chara.CountryId).GetOrErrorAsync(ErrorCode.CountryNotFoundError);
-        var myPosts = await repo.Country.GetCharacterPostsAsync(chara.Id);
-        if (!myPosts.Any(p => p.Type.CanPolicy()))
-        {
-          ErrorCode.NotPermissionError.Throw();
-        }
-
-        if (country.PolicyPoint < 1000)
-        {
-          ErrorCode.InvalidOperationError.Throw();
-        }
-
-        if (chara.CountryId != town.CountryId)
-        {
-          ErrorCode.NotPermissionError.Throw();
-        }
-
-        country.PolicyPoint -= 1000;
-        town.TakeoverDefensePoint += 1000;
-
-        await StatusStreaming.Default.SendCountryAsync(ApiData.From(country), country.Id);
-        await StatusStreaming.Default.SendTownToAllAsync(ApiData.From(town), repo);
-
-        await repo.SaveChangesAsync();
-
-        cost = await TownService.GetTownBuyCostAsync(repo, town, country);
-      }
-
-      return cost;
+      ErrorCode.NotSupportedError.Throw();
+      throw new Exception();
     }
 
     [AuthenticationFilter]
     [HttpGet("town/buycost/{townId}")]
-    public async Task<IEnumerable<GetBuyTownCostResponse>> GetBuyTownCostAsync(
+    public IEnumerable<GetBuyTownCostResponse> GetBuyTownCostAsync(
       [FromRoute] uint townId)
     {
-      var result = new List<GetBuyTownCostResponse>();
-
-      using (var repo = MainRepository.WithReadAndWrite())
-      {
-        var chara = await repo.Character.GetByIdAsync(this.AuthData.CharacterId).GetOrErrorAsync(ErrorCode.LoginCharacterNotFoundError);
-        var countries = await repo.Country.GetAllAsync();
-        var town = await repo.Town.GetByIdAsync(townId).GetOrErrorAsync(ErrorCode.TownNotFoundError);
-        foreach (var c in countries.Where(c => !c.HasOverthrown))
-        {
-          var r = new GetBuyTownCostResponse
-          {
-            Country = new CountryForAnonymous(c),
-            Cost = await TownService.GetTownBuyCostAsync(repo, town, c),
-          };
-          result.Add(r);
-        }
-      }
-
-      return result;
+      ErrorCode.NotSupportedError.Throw();
+      throw new Exception();
     }
 
     public struct GetBuyTownCostResponse
