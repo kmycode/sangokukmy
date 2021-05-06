@@ -14,189 +14,6 @@ namespace SangokuKmy.Models.Updates.Ai
     private IReadOnlyList<Character> allCharacters;
     private IReadOnlyList<Town> allTowns;
 
-    private IEnumerable<CountryPolicyType> PolicyTypes
-    {
-      get
-      {
-        List<CountryPolicyType> primary = null;
-        if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallDefend)
-        {
-          primary = new List<CountryPolicyType>
-          {
-            CountryPolicyType.HumanDevelopment,
-            CountryPolicyType.AntiGang,
-            CountryPolicyType.Economy,
-            CountryPolicyType.SaveWall,
-          };
-        }
-        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.Money)
-        {
-          primary = new List<CountryPolicyType>
-          {
-            CountryPolicyType.HumanDevelopment,
-            CountryPolicyType.Economy,
-            CountryPolicyType.Storage,
-            CountryPolicyType.Collection,
-            CountryPolicyType.AddSalary,
-            CountryPolicyType.UndergroundStorage,
-            CountryPolicyType.WallEar,
-            CountryPolicyType.StomachStorage,
-            CountryPolicyType.Shoji,
-          };
-        }
-        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallAttack)
-        {
-          primary = new List<CountryPolicyType>
-          {
-            CountryPolicyType.HumanDevelopment,
-            CountryPolicyType.IntellectCountry,
-            CountryPolicyType.StrongCountry,
-            CountryPolicyType.AntiGang,
-            CountryPolicyType.KillGang,
-            CountryPolicyType.Justice,
-            CountryPolicyType.Siege,
-            CountryPolicyType.JusticeMessage,
-            CountryPolicyType.Shosha,
-          };
-        }
-
-        var normal = new List<CountryPolicyType>
-        {
-          CountryPolicyType.HumanDevelopment,
-          CountryPolicyType.IntellectCountry,
-          CountryPolicyType.StrongCountry,
-          CountryPolicyType.AntiGang,
-          CountryPolicyType.KillGang,
-          CountryPolicyType.Justice,
-          CountryPolicyType.Siege,
-          CountryPolicyType.JusticeMessage,
-          CountryPolicyType.Shosha,
-          CountryPolicyType.Economy,
-          CountryPolicyType.Storage,
-          CountryPolicyType.Collection,
-          CountryPolicyType.AddSalary,
-          CountryPolicyType.UndergroundStorage,
-          CountryPolicyType.WallEar,
-          CountryPolicyType.StomachStorage,
-          CountryPolicyType.Shoji,
-          CountryPolicyType.SaveWall,
-          CountryPolicyType.HelpRepair,
-        };
-
-        if (primary != null)
-        {
-          return primary
-            .Concat(normal)
-            .Distinct();
-        }
-        if (!this.allCharacters.Any(c => c.CountryId == this.Country.Id && c.GetCharacterType() == CharacterType.Popularity))
-        {
-          normal.Remove(CountryPolicyType.PopularityCountry);
-        }
-
-        return normal;
-      }
-    }
-
-    private IEnumerable<CountryPolicyType> RequestedPolicyTypesForWar
-    {
-      get
-      {
-        var primary = new List<CountryPolicyType>();
-        if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallDefend)
-        {
-          primary.Add(CountryPolicyType.SaveWall);
-        }
-        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.Money)
-        {
-          primary.Add(CountryPolicyType.Shoji);
-        }
-        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallAttack)
-        {
-          primary.Add(CountryPolicyType.Shosha);
-        }
-
-        return primary;
-      }
-    }
-
-    private IEnumerable<CountryPolicyType> RequestedPolicyTypesFirst
-    {
-      get
-      {
-        var primary = new List<CountryPolicyType>();
-        if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallDefend)
-        {
-          if (this.Management.CharacterSize == AiCountryCharacterSize.Small)
-          {
-            primary.Add(CountryPolicyType.SaveWall);
-          }
-          else if (this.Management.CharacterSize == AiCountryCharacterSize.Medium)
-          {
-            primary.Add(CountryPolicyType.SaveWall);
-          }
-          else if (this.Management.CharacterSize == AiCountryCharacterSize.Large)
-          {
-            primary.Add(CountryPolicyType.SaveWall);
-          }
-        }
-        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.Money)
-        {
-          if (this.Management.CharacterSize == AiCountryCharacterSize.Small)
-          {
-            primary.Add(CountryPolicyType.AddSalary);
-          }
-          else if (this.Management.CharacterSize == AiCountryCharacterSize.Medium)
-          {
-            primary.Add(CountryPolicyType.Collection);
-          }
-          else if (this.Management.CharacterSize == AiCountryCharacterSize.Large)
-          {
-            primary.Add(CountryPolicyType.WallEar);
-          }
-        }
-        else if (this.Management.PolicyTarget == AiCountryPolicyTarget.WallAttack)
-        {
-          if (this.Management.CharacterSize == AiCountryCharacterSize.Small)
-          {
-            primary.Add(CountryPolicyType.AttackDefend);
-          }
-          else if (this.Management.CharacterSize == AiCountryCharacterSize.Medium)
-          {
-            primary.Add(CountryPolicyType.Siege);
-          }
-          else if (this.Management.CharacterSize == AiCountryCharacterSize.Large)
-          {
-            primary.Add(CountryPolicyType.Shosha);
-          }
-        }
-
-        return primary;
-      }
-    }
-
-    private IEnumerable<CountryPolicyType> RequestedPolicyTypesUntilWar
-    {
-      get
-      {
-        return new List<CountryPolicyType>
-        {
-          CountryPolicyType.HumanDevelopment,
-        };
-      }
-    }
-
-    private IEnumerable<CountryPolicyType> RequestedPolicyTypesUntilWarFirst
-    {
-      get
-      {
-        return new List<CountryPolicyType>
-        {
-          CountryPolicyType.Shosha,
-        };
-      }
-    }
-
     public ManagedAiCountry(Country country) : base(country)
     {
     }
@@ -258,11 +75,7 @@ namespace SangokuKmy.Models.Updates.Ai
         await this.ChangeSomeInWarAsync(repo, characters, this.allTowns, wars);
       }
 
-      var requestPolicies = !wars.Any() ? this.PolicyTypes : this.PolicyTypes.Concat(this.RequestedPolicyTypesUntilWar).Distinct();
-      await this.GetPolicyAsync(repo, policies, requestPolicies);
-
-      this.Management.IsPolicyFirst = !wars.Any() && this.Management.TownWarTargetTownId != 0 && allTowns.GetAroundCountries(allTowns.Where(t => t.CountryId == this.Country.Id)).Any(c => c == 1) && !this.IsReadyForFirst(policies);
-      this.Management.IsPolicySecond = !wars.Any() ? !this.IsReadyForWar(policies) : this.HasPolicies(policies, this.RequestedPolicyTypesUntilWarFirst);
+      this.Management.IsPolicyFirst = this.Management.IsPolicySecond = false;
     }
 
     private async Task<bool> FindVirtualEnemyCountryAsync(MainRepository repo, IEnumerable<Town> allTowns, IEnumerable<Character> allCharacters)
@@ -375,11 +188,6 @@ namespace SangokuKmy.Models.Updates.Ai
       }
 
       if (!characterGroupInReady.Any(g => g.Key == CharacterType.Strong || g.Key == CharacterType.Intellect))
-      {
-        return false;
-      }
-
-      if (!this.IsReadyForWar(policies))
       {
         return false;
       }
@@ -850,38 +658,6 @@ namespace SangokuKmy.Models.Updates.Ai
           }
         }
       }
-    }
-
-    private async Task GetPolicyAsync(MainRepository repo, IEnumerable<CountryPolicy> policies, IEnumerable<CountryPolicyType> types)
-    {
-      foreach (var type in types)
-      {
-        var exists = policies.FirstOrDefault(p => p.Type == type);
-        if (exists != null && exists.Status == CountryPolicyStatus.Available)
-        {
-          continue;
-        }
-
-        if (!await CountryService.SetPolicyAndSaveAsync(repo, this.Country, type, isCheckSubjects: false))
-        {
-          break;
-        }
-      }
-    }
-
-    private bool IsReadyForFirst(IEnumerable<CountryPolicy> policies)
-    {
-      return this.HasPolicies(policies, this.RequestedPolicyTypesFirst);
-    }
-
-    private bool IsReadyForWar(IEnumerable<CountryPolicy> policies)
-    {
-      return this.HasPolicies(policies, this.RequestedPolicyTypesForWar);
-    }
-
-    private bool HasPolicies(IEnumerable<CountryPolicy> policies, IEnumerable<CountryPolicyType> types)
-    {
-      return types.All(p => policies.GetAvailableTypes().Contains(p));
     }
 
     private bool IsReadyForWar(Town town)

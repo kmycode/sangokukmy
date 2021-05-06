@@ -347,6 +347,8 @@ namespace SangokuKmy.Models.Services
 
     public static async Task<bool> SetPolicyAndSaveAsync(MainRepository repo, Country country, CountryPolicyType type, CountryPolicyStatus status = CountryPolicyStatus.Available, bool isCheckSubjects = true)
     {
+      return true;
+
       var info = CountryPolicyTypeInfoes.Get(type);
       if (!info.HasData)
       {
@@ -526,7 +528,8 @@ namespace SangokuKmy.Models.Services
 
     public static int GetSecretaryMax(IEnumerable<CountryPolicyType> policies)
     {
-      return policies.GetSumOfValues(CountryPolicyEffectType.Secretary);
+      return 4;
+      // return policies.GetSumOfValues(CountryPolicyEffectType.Secretary);
     }
 
     public static int GetCurrentSecretaryPoint(IEnumerable<CharacterAiType> currentSecretaries)
@@ -543,7 +546,8 @@ namespace SangokuKmy.Models.Services
 
     public static int GetCountrySafeMax(IEnumerable<CountryPolicyType> policies)
     {
-      return policies.GetSumOfValues(CountryPolicyEffectType.CountrySafeMax);
+      return 1000_0000;
+      // return policies.GetSumOfValues(CountryPolicyEffectType.CountrySafeMax);
     }
   }
 }

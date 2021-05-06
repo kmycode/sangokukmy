@@ -582,26 +582,6 @@ namespace SangokuKmy.Models.Services
       {
         town.Buddhism = 800;
       }
-      var policies = new List<CountryPolicy>
-      {
-        new CountryPolicy
-        {
-          CountryId = country.Id,
-          Type = CountryPolicyType.GunKen,
-          Status = CountryPolicyStatus.Available,
-        },
-        new CountryPolicy
-        {
-          CountryId = country.Id,
-          Type = town.SubType == TownType.Agriculture ? CountryPolicyType.AgricultureCountry :
-                 town.SubType == TownType.Commercial ? CountryPolicyType.CommercialCountry : CountryPolicyType.WallCountry,
-          Status = CountryPolicyStatus.Available,
-        },
-      };
-      foreach (var policy in policies)
-      {
-        await repo.Country.AddPolicyAsync(policy);
-      }
 
       var warPolicies = new AiCountryWarPolicy[] { AiCountryWarPolicy.Balance, AiCountryWarPolicy.Carefully, AiCountryWarPolicy.GoodFight, };
       var policyTargets = new AiCountryPolicyTarget[] { AiCountryPolicyTarget.Money, AiCountryPolicyTarget.WallAttack, AiCountryPolicyTarget.WallDefend, };
@@ -736,6 +716,20 @@ namespace SangokuKmy.Models.Services
       var system = await repo.System.GetAsync();
       var targetCountryOptional = await repo.Country.GetAliveByIdAsync(town.CountryId);
 
+      var isOverthrowOldCountry = false;
+      if (targetCountryOptional.HasData && await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1)
+      {
+        // if (isForce)
+        // {
+        // 滅亡させる
+        // isOverthrowOldCountry = true;
+        // }
+        // else
+        {
+          return false;
+        }
+      }
+
       var defenders = await repo.Town.GetDefendersAsync(town.Id);
       if (defenders.Count > 0)
       {
@@ -759,20 +753,6 @@ namespace SangokuKmy.Models.Services
           {
             await StatusStreaming.Default.SendCharacterAsync(ApiData.From(d), townCharas.Select(tc => tc.Id));
           }
-        }
-      }
-
-      var isOverthrowOldCountry = false;
-      if (targetCountryOptional.HasData && await repo.Town.CountByCountryIdAsync(town.CountryId) <= 1)
-      {
-        // if (isForce)
-        // {
-          // 滅亡させる
-          // isOverthrowOldCountry = true;
-        // }
-        // else
-        {
-          return false;
         }
       }
 

@@ -44,6 +44,8 @@ namespace SangokuKmy.Controllers
     public async Task SetCountryPolicyAsync(
       [FromBody] CountryPolicy param)
     {
+      ErrorCode.NotSupportedError.Throw();
+
       var info = CountryPolicyTypeInfoes.Get(param.Type);
       if (!info.HasData)
       {

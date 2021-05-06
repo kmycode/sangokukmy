@@ -40,7 +40,7 @@ namespace SangokuKmy.Models.Commands
       }
 
       var policies = await repo.Country.GetPoliciesAsync(country.Id);
-      var max = CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type));
+      var max = 1000_0000; // CountryService.GetCountrySafeMax(policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type));
 
       var money = options.FirstOrDefault(o => o.Type == 1)?.NumberValue ?? 0;
       if (money > character.Money)
@@ -78,10 +78,12 @@ namespace SangokuKmy.Models.Commands
       {
         ErrorCode.InvalidParameterError.Throw();
       }
+      /*
       if (!(await repo.Country.GetPoliciesAsync(country.Id)).Any(p => p.Type == CountryPolicyType.Storage))
       {
         ErrorCode.InvalidOperationError.Throw();
       }
+      */
 
       await repo.CharacterCommand.SetAsync(characterId, this.Type, gameDates, options);
     }
