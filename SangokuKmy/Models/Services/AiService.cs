@@ -638,7 +638,7 @@ namespace SangokuKmy.Models.Services
         .Where(w => w.IntStartGameDate - system.IntGameDateTime < 12 * 6)
         .Select(w => w.RequestedCountryId == countryId ? w.InsistedCountryId : w.RequestedCountryId)
         .Distinct()
-        .Select(c => new { CountryId = c, CharacterCount = allCharacters.Count(cc => cc.CountryId == c && cc.AiType == CharacterAiType.Human), })
+        .Select(c => new { CountryId = c, CharacterCount = allCharacters.Count(cc => cc.CountryId == c && cc.AiType == CharacterAiType.Human && cc.DeleteTurn < 200), })
         .ToArray();
       var countryCharacters = allCharacters.Where(c => c.CountryId == countryId && c.AiType.IsManaged());
 
