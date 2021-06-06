@@ -220,18 +220,21 @@ namespace SangokuKmy.Models.Data.Entities
     public short TownSubBuildingExtraSpace { get; set; }
 
     /// <summary>
-    /// 国の方針
+    /// 文明
     /// </summary>
-    [Column("policy")]
+    [Column("civilization")]
     [JsonIgnore]
-    public CountryBattlePolicy BattlePolicy { get; set; }
+    public CountryCivilization Civilization { get; set; }
 
+    /// <summary>
+    /// 文明
+    /// </summary>
     [NotMapped]
-    [JsonProperty("policy")]
-    public short ApiPolicy
+    [JsonProperty("civilization")]
+    public short ApiCivilization
     {
-      get => (short)this.BattlePolicy;
-      set => this.BattlePolicy = (CountryBattlePolicy)value;
+      get => (short)this.Civilization;
+      set => this.Civilization = (CountryCivilization)value;
     }
   }
 
@@ -290,5 +293,13 @@ namespace SangokuKmy.Models.Data.Entities
     /// 放任主義
     /// </summary>
     LaissezFaire = 3,
+  }
+
+  public enum CountryCivilization : short
+  {
+    None = 0,
+    A = 1,
+    B = 2,
+    C = 3,
   }
 }

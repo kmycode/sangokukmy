@@ -351,6 +351,10 @@ namespace SangokuKmy.Models.Updates
 
               // すべての武将に必要な収入の合計を計算する
               var lankSalary = country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.AddSalary) ? 300 : 250;
+              if (country.Country.Civilization == CountryCivilization.A)
+              {
+                lankSalary = (int)(lankSalary * 1.1f);
+              }
               var neededAllSalaries = 0;
               var neededAllSalariesAllCharacters = 0;
               foreach (var character in country.Characters.Where(c => !c.AiType.IsSecretary()))

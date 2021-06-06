@@ -150,6 +150,10 @@ namespace SangokuKmy.Models.Commands
             moneyPerSoldier /= 2;
           }
         }
+        if (country.Civilization == CountryCivilization.B)
+        {
+          moneyPerSoldier = (short)(moneyPerSoldier * 0.92f);
+        }
 
         if (town.CountryId != character.CountryId)
         {

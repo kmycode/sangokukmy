@@ -248,6 +248,11 @@ namespace SangokuKmy.Models.Services
           ErrorCode.DuplicateCountryNameOrColorError.Throw();
         }
 
+        if (system.RuleSet == GameRuleSet.SimpleBattle)
+        {
+          newCountry.Civilization = CountryCivilization.None;
+        }
+
         var country = new Country
         {
           Name = newCountry.Name,
@@ -260,7 +265,6 @@ namespace SangokuKmy.Models.Services
           LastRiceIncomes = 0,
           PolicyPoint = 10000,
           Religion = RandomService.Next(new ReligionType[] { ReligionType.Buddhism, ReligionType.Confucianism, ReligionType.Taoism, }),
-          BattlePolicy = newCountry.BattlePolicy,
         };
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
@@ -526,10 +530,6 @@ namespace SangokuKmy.Models.Services
         if (town.CountryId > 0)
         {
           ErrorCode.CantPublisAtSuchTownhError.Throw();
-        }
-        if (country.BattlePolicy == CountryBattlePolicy.None)
-        {
-          ErrorCode.InvalidParameterError.Throw();
         }
       }
       else

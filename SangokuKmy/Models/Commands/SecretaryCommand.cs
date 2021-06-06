@@ -69,7 +69,7 @@ namespace SangokuKmy.Models.Commands
       var country = countryOptional.Data;
 
       var secretaries = (await repo.Country.GetCharactersAsync(country.Id)).Where(c => c.AiType.IsSecretary());
-      var policies = await repo.Country.GetPoliciesAsync(country.Id);
+      // var policies = await repo.Country.GetPoliciesAsync(country.Id);
       var secretaryMax = 4; // CountryService.GetSecretaryMax(policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type));
       var currentSecretaryPoint = CountryService.GetCurrentSecretaryPoint(secretaries.Select(c => c.AiType));
       if (currentSecretaryPoint >= secretaryMax)

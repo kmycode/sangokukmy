@@ -326,6 +326,11 @@ namespace SangokuKmy.Models.Commands
         }
       }
 
+      if (myCountry.Civilization == CountryCivilization.C)
+      {
+        myAttackCorrection += 30;
+      }
+
       Character targetCharacter;
       var targetRanking = new CharacterRanking();
       Formation targetFormationData;
