@@ -265,6 +265,7 @@ namespace SangokuKmy.Models.Services
           LastRiceIncomes = 0,
           PolicyPoint = 10000,
           Religion = RandomService.Next(new ReligionType[] { ReligionType.Buddhism, ReligionType.Confucianism, ReligionType.Taoism, }),
+          Civilization = newCountry.Civilization,
         };
         updateCountriesRequested = true;
         await repo.Country.AddAsync(country);
