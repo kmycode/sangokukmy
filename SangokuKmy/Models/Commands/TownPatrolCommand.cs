@@ -49,25 +49,6 @@ namespace SangokuKmy.Models.Commands
             character.Money += 5000;
           }
         }
-        else if (RandomService.Next(0, 200) == 0 && country.HasData && !country.Data.HasOverthrown)
-        {
-          var policies = await repo.Country.GetPoliciesAsync(country.Data.Id);
-          var allPolicies = CountryPolicyTypeInfoes.GetAll();
-          var notPolicies = allPolicies.Where(pi => pi.CanBoost && !policies.Any(p => p.Status != CountryPolicyStatus.Unadopted && p.Status != CountryPolicyStatus.Boosting && p.Type == pi.Type));
-          if (notPolicies.Any())
-          {
-            var info = RandomService.Next(notPolicies);
-            await CountryService.SetPolicyAndSaveAsync(repo, country.Data, info.Type, CountryPolicyStatus.Boosted, false);
-            await game.CharacterLogAsync($"<country>{country.Data.Name}</country> の政策 {info.Name} について新しい知見を得、政策をブーストしました");
-          }
-          else
-          {
-            await game.CharacterLogAsync($"政策について夜遅くまで討論しました。政策 <num>+100</num>、武力Ex <num>+300</num>、知力Ex <num>+300</num>");
-            country.Data.PolicyPoint += 100;
-            character.AddStrongEx(300);
-            character.AddIntellectEx(300);
-          }
-        }
         else
         {
           var targets = default(List<TownPatrolResult>);

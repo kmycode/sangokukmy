@@ -202,7 +202,6 @@ namespace SangokuKmy.Models.Services
           TownBuilding.TrainLeadership,
           TownBuilding.TrainPopularity,
           TownBuilding.TrainStrong,
-          TownBuilding.Palace,
           TownBuilding.Houses,
           TownBuilding.Casting,
           TownBuilding.TrainingBuilding,
