@@ -154,22 +154,6 @@ namespace SangokuKmy.Models.Updates.Ai
         }
       }
 
-      if (management.HasData)
-      {
-        if (management.Data.IsPolicyFirst && this.Character.Money > 100 && (this.Character.Strong >= 100 || this.Character.Intellect >= 100))
-        {
-          if (this.CanPolicyFirst)
-          {
-            this.InputPolicy();
-            return;
-          }
-        }
-        else if (management.Data.IsPolicySecond)
-        {
-          this.IsPolicySecond = true;
-        }
-      }
-
       await this.ActionPersonalAsync(repo);
     }
 

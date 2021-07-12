@@ -46,13 +46,6 @@ namespace SangokuKmy.Models.Commands
           var country = await repo.Country.GetByIdAsync(chara.Data.CountryId);
           if (country.HasData)
           {
-            if (RandomService.Next(0, 3) == 0)
-            {
-              var policy = RandomService.Next(chara.Data.Intellect * 2, Math.Max(chara.Data.Intellect * 4, 100));
-              country.Data.PolicyPoint += policy;
-              results.Add($"政策ポイント <num>{policy}</num>");
-            }
-
             var name = string.Empty;
             var add = RandomService.Next(20, 60);
             var target = RandomService.Next(0, 5);

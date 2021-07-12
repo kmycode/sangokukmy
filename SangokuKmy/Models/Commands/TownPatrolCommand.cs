@@ -71,7 +71,6 @@ namespace SangokuKmy.Models.Commands
               TownPatrolResult.Intellect,
               TownPatrolResult.Commercial,
               TownPatrolResult.WallMaxForIntellect,
-              TownPatrolResult.Policy,
               TownPatrolResult.Money,
               TownPatrolResult.CountrySafe,
             };
@@ -194,23 +193,6 @@ namespace SangokuKmy.Models.Commands
             town.WallMax += 4;
             character.AddIntellectEx(50);
           }
-          else if (result == TownPatrolResult.Policy)
-          {
-            if (country.HasData && !country.Data.HasOverthrown)
-            {
-              country.Data.PolicyPoint += 12;
-            }
-            if (character.From == CharacterFrom.Warrior)
-            {
-              await game.CharacterLogAsync($"政策について討論しました。政策 <num>+12</num>、武力Ex <num>+50</num>");
-              character.AddStrongEx(50);
-            }
-            else
-            {
-              await game.CharacterLogAsync($"政策について討論しました。政策 <num>+12</num>、知力Ex <num>+50</num>");
-              character.AddIntellectEx(50);
-            }
-          }
           else if (result == TownPatrolResult.Money)
           {
             var m = RandomService.Next(Math.Max(character.Strong, character.Intellect), 1500);
@@ -274,7 +256,7 @@ namespace SangokuKmy.Models.Commands
       TechnologyMax,
       WallMax,
       WallMaxForIntellect,
-      Policy,
+      [Obsolete] Policy,
       Money,
       FormationExperience,
       CountrySafe,
