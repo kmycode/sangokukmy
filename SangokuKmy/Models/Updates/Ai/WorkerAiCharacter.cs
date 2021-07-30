@@ -898,6 +898,12 @@ namespace SangokuKmy.Models.Updates.Ai
 
     protected async Task<bool> InputBattleAsync(MainRepository repo)
     {
+      // 午前２〜６時
+      if (this.GameDateTime.Year % 12 == 3 || this.GameDateTime.Year % 12 == 4)
+      {
+        return false;
+      }
+
       var wc = this.GetWaringCountries();
       if (!this.GetWaringCountries().Any() && !this.GetNearReadyForWarCountries().Any() && this.data.WillTownWarTown == null)
       {
