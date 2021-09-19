@@ -521,7 +521,6 @@ namespace SangokuKmy.Models.Services
       var charas = new List<CharacterAiType>
       {
         CharacterAiType.ManagedBattler,
-        RandomService.Next(2) == 0 ? CharacterAiType.ManagedBattler : CharacterAiType.ManagedEvangelist,
         CharacterAiType.ManagedCivilOfficial,
         CharacterAiType.ManagedPatroller,
       };
