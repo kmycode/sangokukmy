@@ -132,7 +132,7 @@ namespace SangokuKmy.Models.Commands
         soldierTypeName = type.Name;
         soldierTypeData = DefaultCharacterSoldierTypeParts.GetDataByDefault(soldierType);
 
-        var moneyPerSoldier = soldierTypeData.Money;
+        var moneyPerSoldier = (float)soldierTypeData.Money;
         var discountMoney = 0;
 
         var policies = (await repo.Country.GetPoliciesAsync(character.CountryId)).GetAvailableTypes();
@@ -152,7 +152,8 @@ namespace SangokuKmy.Models.Commands
         }
         if (country.Civilization == CountryCivilization.B)
         {
-          moneyPerSoldier = (short)(moneyPerSoldier * 0.92f);
+          moneyPerSoldier = moneyPerSoldier * 0.95f;
+          peopleCost *= 0.95f;
         }
 
         if (town.CountryId != character.CountryId)
@@ -211,7 +212,7 @@ namespace SangokuKmy.Models.Commands
             }
           }
 
-          var needMoney = add * moneyPerSoldier - discountMoney;
+          var needMoney = (int)(add * moneyPerSoldier - discountMoney);
           var discount = skills.GetSumOfValues(CharacterSkillEffectType.SoldierDiscountPercentage);
           needMoney = (int)(needMoney * (1.0f - discount / 100.0f));
 

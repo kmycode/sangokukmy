@@ -353,7 +353,7 @@ namespace SangokuKmy.Models.Updates
               var lankSalary = country.Policies.Any(p => p.Status == CountryPolicyStatus.Available && p.Type == CountryPolicyType.AddSalary) ? 300 : 250;
               if (country.Country.Civilization == CountryCivilization.A)
               {
-                lankSalary = (int)(lankSalary * 1.1f);
+                lankSalary = (int)(lankSalary * 1.2f);
               }
               var neededAllSalaries = 0;
               var neededAllSalariesAllCharacters = 0;
@@ -448,6 +448,15 @@ namespace SangokuKmy.Models.Updates
                   CountryService.GetCountrySafeMax(
                     country.Policies.Where(p => p.Status == CountryPolicyStatus.Available).Select(p => p.Type)),
                   country.Country.SafeMoney + Math.Min(salary.AllSalary - salary.PaidSalary, collectionSize));
+              }
+
+              // 余剰収入
+              if (salary.AllSalary - salary.PaidSalary > 0)
+              {
+                var max = CountryService.GetCountrySafeMax(country.Policies.GetAvailableTypes());
+                country.Country.SafeMoney = Math.Min(
+                  max,
+                  country.Country.SafeMoney + Math.Min(salary.AllSalary - salary.PaidSalary, 10000));
               }
 
               // 新しい収入、国庫を配信
@@ -1638,7 +1647,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 玉璽
-          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.GameDateTime.Year >= 180 && system.RuleSet != GameRuleSet.SimpleBattle)
+          if (!system.IsWaitingReset && !system.IsBattleRoyaleMode && system.GameDateTime.Year >= 240 && system.RuleSet != GameRuleSet.SimpleBattle)
           {
             var isSave = false;
             foreach (var country in allCountries.Where(c => c.GyokujiStatus == CountryGyokujiStatus.HasFake && c.IntGyokujiGameDate + 10 * 12 * 12 <= system.IntGameDateTime))
@@ -1741,7 +1750,7 @@ namespace SangokuKmy.Models.Updates
           }
 
           // 宗教勝利
-          if (!system.IsWaitingReset && system.GameDateTime.Year >= 180 &&
+          if (!system.IsWaitingReset && system.GameDateTime.Year >= 240 &&
                 (system.RuleSet != GameRuleSet.Wandering || system.GameDateTime.Year >= Config.UpdateStartYear + Config.CountryBattleStopDuring / 12))
           {
             var religionOfTown = allTowns.GroupBy(t => t.Religion);
