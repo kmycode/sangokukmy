@@ -499,6 +499,15 @@ namespace SangokuKmy.Models.Services
         ErrorCode.LackOfParameterError.Throw();
       }
 
+      var formation = FormationTypeInfoes.Get(chara.FormationType);
+      if (formation.HasData)
+      {
+        if (!formation.Data.IsAvailable)
+        {
+          ErrorCode.InvalidParameterError.Throw();
+        }
+      }
+
       var attributeMax = GetAttributeMax(current);
       var attributeSumMax = GetAttributeSumMax(current);
       if (chara.Strong < 5 || chara.Intellect < 5 || chara.Leadership < 5 || chara.Popularity < 5)

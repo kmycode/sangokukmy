@@ -1567,14 +1567,14 @@ namespace SangokuKmy.Models.Updates
           // 黄巾の出現とバトルロワイヤルモード
           var lastBattleMonth = await repo.BattleLog.GetLastBattleMonthForKokinAsync();
           if (!system.IsBattleRoyaleMode && !system.IsWaitingReset &&
-            (lastBattleMonth.ToInt() + 12 * 12 * 4 == system.IntGameDateTime ||
+            (lastBattleMonth.ToInt() + 12 * 12 * 9 == system.IntGameDateTime ||
             (system.GameDateTime.Year == 348 && system.GameDateTime.Month == 1)))
           {
             await AddMapLogAsync(false, EventType.Event, "黄巾が反乱の時期を伺っています");
           }
           if (!system.IsWaitingReset && (!system.IsBattleRoyaleMode && RandomService.Next(0, 20) == 0 || isKokinForce))
           {
-            if ((lastBattleMonth.ToInt() + 12 * 12 * 5 <= system.IntGameDateTime) ||
+            if ((lastBattleMonth.ToInt() + 12 * 12 * 10 <= system.IntGameDateTime) ||
               (system.GameDateTime.Year >= 360) || isKokinForce)
             {
               // 候補都市一覧

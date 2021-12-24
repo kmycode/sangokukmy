@@ -77,6 +77,8 @@ namespace SangokuKmy.Models.Data.Entities
 
     public bool CanGetByCommand { get; set; } = true;
 
+    public bool IsAvailable { get; set; } = true;
+
     public CharacterSoldierTypeData GetDataFromLevel(int level)
     {
       if (this.Levels.Count > level - 1)
@@ -174,6 +176,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = FormationType.Kakuyoku,
         Name = "鶴翼",
+        IsAvailable = false,
         Levels = new List<FormationTypeLevelInfo>
         {
           new FormationTypeLevelInfo
@@ -236,6 +239,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = FormationType.Gyorin,
         Name = "魚鱗",
+        IsAvailable = false,
         Levels = new List<FormationTypeLevelInfo>
         {
           new FormationTypeLevelInfo
@@ -361,6 +365,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = FormationType.Koyaku,
         Name = "衡軛",
+        IsAvailable = false,
         Levels = new List<FormationTypeLevelInfo>
         {
           new FormationTypeLevelInfo
@@ -546,6 +551,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = FormationType.Ganko,
         Name = "雁行",
+        IsAvailable = false,
         Levels = new List<FormationTypeLevelInfo>
         {
           new FormationTypeLevelInfo
@@ -671,6 +677,7 @@ namespace SangokuKmy.Models.Data.Entities
       {
         Type = FormationType.Suiko,
         Name = "錐行",
+        IsAvailable = false,
         Levels = new List<FormationTypeLevelInfo>
         {
           new FormationTypeLevelInfo

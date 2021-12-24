@@ -46,6 +46,11 @@ namespace SangokuKmy.Models.Commands
           await game.CharacterLogAsync($"陣形 {info.Data.Name} は、コマンドからは獲得できません");
           return;
         }
+        if (!info.Data.IsAvailable)
+        {
+          await game.CharacterLogAsync($"陣形 {info.Data.Name} は、現在無効です。<emerge>管理者にお問い合わせください</emerge>");
+          return;
+        }
 
         var formations = await repo.Character.GetFormationsAsync(character.Id);
         if (formations.Any(f => f.Type == type))
@@ -60,7 +65,7 @@ namespace SangokuKmy.Models.Commands
         }
 
         var skills = await repo.Character.GetSkillsAsync(character.Id);
-        var formationMax = 3 + skills.GetSumOfValues(CharacterSkillEffectType.FormationMax);
+        var formationMax = 2 + skills.GetSumOfValues(CharacterSkillEffectType.FormationMax);
         if (formations.Count(f => f.Type != FormationType.Normal) + 1 > formationMax)
         {
           await game.CharacterLogAsync($"陣形 {info.Data.Name} を獲得しようとしましたが、あなたが一度に所有できる陣形は {formationMax} までです");
