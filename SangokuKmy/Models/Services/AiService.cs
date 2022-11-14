@@ -520,7 +520,6 @@ namespace SangokuKmy.Models.Services
 
       var charas = new List<CharacterAiType>
       {
-        CharacterAiType.ManagedBattler,
         CharacterAiType.ManagedCivilOfficial,
         CharacterAiType.ManagedPatroller,
       };
